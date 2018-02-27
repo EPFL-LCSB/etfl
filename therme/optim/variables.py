@@ -10,6 +10,7 @@ Variables declarations
 
 """
 
+from pytfa.optim.variables import GenericVariable, BinaryVariable, ReactionVariable
 
 class ModelVariable(GenericVariable):
     """

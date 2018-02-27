@@ -16,27 +16,27 @@ import sympy
 from cobra import Model, Reaction, Gene
 from cobra.core import Solution, DictList
 from collections import defaultdict
-from copy import deepcopy, copy
-from six import iteritems
 
-from therme.therme.optim.constraints import CatalyticConstraint, \
+
+from ..utils.parsing import parse_gpr
+from ..utils.utils import replace_by_enzymatic_reaction, replace_by_me_gene
+from .genes import ExpressedGene
+from .enzyme import Enzyme, Peptide
+from .reactions import EnzymaticReaction, ProteinComplexation, \
+    TranslationReaction, TranscriptionReaction
+from .expression import build_trna_charging, \
+    make_stoich_from_aa_sequence, make_stoich_from_nt_sequence
+from ..optim.constraints import CatalyticConstraint, \
     ModelConstraint, EnzymeConstraint, MassBalance, TranslationConstraint, \
     GrowthCoupling, TotalCapacity, ExpressionCoupling, RibosomeRatio, \
     GrowthChoice, LinearizationConstraint
-from therme.therme.optim.variables import ModelVariable, GrowthActivation, \
+from ..optim.variables import ModelVariable, GrowthActivation, \
     GeneVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, FreeRibosomes
-from therme.therme.utils.parsing import parse_gpr
-from therme.therme.utils.utils import replace_by_enzymatic_reaction
-from .enzyme import Enzyme, Peptide
-from .reaction import EnzymaticReaction, ProteinComplexation, \
-    TranslationReaction, TranscriptionReaction
-from ..core.model import LCSBModel
-from ..optim.constraints import ReactionConstraint, MetaboliteConstraint
-from ..optim.reformulation import petersen_linearization
-from ..optim.utils import chunk_sum, symbol_sum
-from ..optim.variables import ReactionVariable, \
-    MetaboliteVariable
-from ..utils.logger import get_bistream_logger
+from pytfa.core.model import LCSBModel
+from pytfa.optim.reformulation import petersen_linearization
+from pytfa.optim.utils import chunk_sum, symbol_sum
+from pytfa.utils.logger import get_bistream_logger
+
 
 
 class MEModel(LCSBModel, Model):
@@ -111,6 +111,11 @@ class MEModel(LCSBModel, Model):
             message = "Empty model initialized"
             # raise ValueError(message)
             self.logger.info(message)
+
+        self.aa_dict = dict()
+        self.nt_dict = dict()
+        self.trna_dict = dict()
+
         self.enzymes = DictList()
         self.mrnas = DictList()
         self.peptides = DictList()
@@ -141,73 +146,7 @@ class MEModel(LCSBModel, Model):
     def n_mu_bins(self):
         return len(self.mu_bins)
 
-    def init_mu_variables(self, method='binary'):
-        """
-
-        :param method: either 'binary'for binary expansion, or "linear"
-                        for linear expansion
-        :return:
-        """
-
-        if method == 'binary':
-            self._init_mu_variables_binary()
-        elif method == 'linear':
-            self._init_mu_variables_linear()
-        else:
-            raise AttributeError('No such method is recognised: {}'.format(method))
-
-        self._method = method
-
-    def _init_mu_variables_linear(self):
-        """
-        Necessary for the zeroth order approximation of mu:
-         mu in [0.1, 0.9] with nbins = 8
-         => mu = 0.15 OR mu = 0.25 OR ... OR mu = 0.85
-
-        :return:
-        """
-        self.make_mu_bins()
-        ga = list()
-
-        for e,_ in enumerate(self.mu_bins):
-            ga.append(self.add_variable(kind = GrowthActivation,
-                                        hook = self,
-                                        id_ = str(e)))
-
-        # Force that only one growth range can be chosen:
-        # b1 + b2 + ... + bn = 1
-
-        choice_expr = sum(ga)
-        self.add_constraint(kind = GrowthChoice,
-                            hook = self,
-                            expr = choice_expr,
-                            id_ = 'growth',
-                            ub = 1,
-                            lb = 1)
-
-        # Couple growth
-        v_fwd = self.growth_reaction.forward_variable
-        v_bwd = self.growth_reaction.reverse_variable
-
-        # |v_net - mu| <= bin_width
-        mus = [x for x,_ in self.mu_bins]
-        bin_width = max([(x[1] - x[0])/2 for _,x in self.mu_bins])
-
-        step_mu = sum([ga_i*mu_i for ga_i,mu_i in zip(ga,mus)])
-        growth_coupling_expr = v_fwd - v_bwd - step_mu
-
-        self.add_constraint(kind = GrowthCoupling,
-                            hook = self.growth_reaction,
-                            expr = growth_coupling_expr,
-                            ub = bin_width,
-                            lb = -1*bin_width)
-
-        # Update the variable indices
-        self.regenerate_variables()
-        self.regenerate_constraints()
-
-
-    def _init_mu_variables_binary(self):
+    def init_mu_variables(self):
         """
         Necessary for the zeroth order approximation of mu:
         mu in [0.1, 0.9] with nbins = 8
@@ -218,50 +157,50 @@ class MEModel(LCSBModel, Model):
 
         :return:
         """
+
         self.make_mu_bins()
         ga = list()
         N = self.n_mu_bins
         n_vars = np.int(np.ceil(np.log2(N)))
 
         for e in range(n_vars):
-            ga.append(self.add_variable(kind = GrowthActivation,
-                                        hook = self,
-                                        id_ = str(2**e)))
+            ga.append(self.add_variable(kind=GrowthActivation,
+                                        hook=self,
+                                        id_=str(2 ** e)))
 
         # Force that only one growth range can be chosen:
         # b0*2^0 + b1*2^1 + b2*2^2 + ... + bn*2^n <= n_bins
 
         choice_expr = sum(ga)
-        self.add_constraint(kind = GrowthChoice,
-                            hook = self,
-                            expr = choice_expr,
-                            id_ = 'growth',
-                            ub = self.n_mu_bins,
-                            lb = 0)
+        self.add_constraint(kind=GrowthChoice,
+                            hook=self,
+                            expr=choice_expr,
+                            id_='growth',
+                            ub=self.n_mu_bins,
+                            lb=0)
 
         # Couple growth
         v_fwd = self.growth_reaction.forward_variable
         v_bwd = self.growth_reaction.reverse_variable
 
         # |v_net - mu| <= bin_width
-        bin_half_width = max([(x[1] - x[0])/2 for _,x in self.mu_bins])
+        bin_half_width = max([(x[1] - x[0]) / 2 for _, x in self.mu_bins])
 
-        the_integer = sum([(2**i) * ga_i for i,ga_i in enumerate(ga)])
+        the_integer = sum([(2 ** i) * ga_i for i, ga_i in enumerate(ga)])
 
-        binarized_mu = self.mu.lb + the_integer*(self.mu.ub - self.mu.lb)/N
+        binarized_mu = self.mu.lb + the_integer * (self.mu.ub - self.mu.lb) / N
 
         growth_coupling_expr = v_fwd - v_bwd - binarized_mu
 
-        self.add_constraint(kind = GrowthCoupling,
-                            hook = self.growth_reaction,
-                            expr = growth_coupling_expr,
-                            ub = bin_half_width,
-                            lb = -1*bin_half_width)
+        self.add_constraint(kind=GrowthCoupling,
+                            hook=self.growth_reaction,
+                            expr=growth_coupling_expr,
+                            ub=bin_half_width,
+                            lb=-1 * bin_half_width)
 
         # Update the variable indices
         self.regenerate_variables()
         self.regenerate_constraints()
-
 
     @property
     def growth_reaction(self):
@@ -287,78 +226,120 @@ class MEModel(LCSBModel, Model):
         rxn = self.reactions.get_by_id(reaction_id)
         self._growth_reaction_id = rxn.id
 
-    def sanitize_varnames(self):
-        for met in self.metabolites:
-            if met.id[0].isdigit():
-                met.id = '_'+met.id
-                self.logger.info('Sanitized variable name {}'.format(met.id))
-        for rxn in self.reactions:
-            if rxn.id[0].isdigit():
-                rxn.id = '_'+rxn.id
-                self.logger.info('Sanitized variable name {}'.format(rxn.id))
-
-        Model.repair(self)
-
-    def add_gene_reactions(self, compositions = None):
+    def add_nucleotide_sequences(self, sequences):
         """
-        For each gene, adds a translation reaction based on the amino-acid
-        composition of the resulting peptide.
-        An example such composition is:
-        comp = {
-                model.genes.gene1: { model.metabolites.alanine : -12,
-                                     model.metabolites.proline : -7,
-                                     ...
-                                     }
-                }
-        :param compositions: A dict of dicts describing the translation reaction
-        :type  compositions: {Gene:{Metabolite:int}}
+
+        :param sequences:
         :return:
         """
+
+        for gene_id, seq in sequences.items():
+            if gene_id in self.genes:
+                new = replace_by_me_gene(self, gene_id, seq)
+
+            else:
+                self.logger.warning('Model has no gene {}, Adding it'.format(gene_id))
+                new = ExpressedGene(id= gene_id, name = gene_id, sequence=seq)
+                self.add_genes([new])
+
+
+    def build_expression(self, aa_dict, nt_dict,
+                         rnap_genes,
+                         rrna_genes,
+                         rprot_genes,
+                         atp='atp_c',
+                         amp='amp_c',
+                         gtp='gtp_c',
+                         gdp='gdp_c',
+                         ppi='ppi_c',
+                         h2o='h2o_c',
+                         h='h_c',
+                         ):
+        """
+        Given a dictionnary from amino acids nucleotides to metabolite names,
+        goes through the list of genes in the model that have sequence
+        information to build transcription and traduction reactions
+
+        :param aa_dict: A dictionnary of aminoacid letter to amicoacid met id
+            Example :
+            ```python
+            aa_dict = {
+                        'A':'ala__L_c',
+                        'R':'arg__L_c',
+                        ...
+                    }
+            ```
+        :param nt_dict: A dictionnary of RNA nucleotide letter to nucleotide met id
+            Example :
+            ```python
+            nt_dict = {
+                        'A':'ade_c',
+                        'U':'ura_c',
+                        ...
+                    }
+            ```
+        :param atp: atp metabolite id in the model
+        :param amp: amp metabolite id in the model
+        :param gtp: gtp metabolite id in the model
+        :param gdp: gdp metabolite id in the model
+        :param ppi: ppi metabolite id in the model
+        :param h2o: h2o metabolite id in the model
+        :param h: proton metabolite id in the model
+        :return:
+        """
+
+        self.aa_dict = aa_dict
+        self.nt_dict = nt_dict
+        self.rnap_genes = rnap_genes
+        self.rrna_genes = rrna_genes
+        self.rprot_genes = rprot_genes
+
+        self.trna_dict = build_trna_charging(self,aa_dict,atp,amp,ppi,h2o,h)
 
         # Check that the ribosomes have been added
         if self.ribosome is None:
-            raise Exception('A ribosome has to be added with the add_ribosome method')
+            raise Exception(
+                'A ribosome has to be added with the add_ribosome method')
 
-        # Check that if no composition is given, it is in the model
-        if compositions is None:
-            try:
-                compositions = self.compositions
-            except AttributeError as AE:
-                raise AE
+        # Check that the RNAP has been added
+        if self.rnap is None:
+            raise Exception(
+                'A RNA Polymerase has to be added with the add_rnap method')
 
-        # Make the translation gene-wise
-        # TODO : parallelize ?
-        for g in self.genes:
-            try:
-                aa_stoich = compositions[g.id]['aa_stoichiometry']
-                aa_sequence = compositions[g.id]['aa_sequence']
-                if aa_stoich:
-                    self._add_gene_translation_reaction(g, aa_stoich, aa_sequence)
+        for gene in self.genes:
+            if not isinstance(gene, ExpressedGene):
+                continue
 
-                nt_stoich = compositions[g.id]['aa_stoichiometry']
-                nt_sequence = compositions[g.id]['aa_sequence']
-                if nt_stoich:
-                    self._add_gene_transcription_reaction(g, nt_stoich, nt_sequence)
-            except KeyError:
-                self.logger.warning('No sequence for gene: {}'.format(g.id))
+            # Build the transcription
+            self._add_gene_transcription_reaction(gene)
+            # Build the translation
+            self._add_gene_translation_reaction(gene,gtp,gdp,h2o,h)
 
-    def _add_gene_translation_reaction(self, gene, aa_stoichiometry, aa_sequence):
+
+    def _add_gene_translation_reaction(self, gene,gtp,gdp,h2o,h):
         """
-        Example aminoacid stoichiometry
-        aa_stoichiometry =  { model.metabolites.alanine : -12,
-                              model.metabolites.proline : -7,
-                              ...
-                             }
-        :param gene: A gene of the model
-        :param aa_stoichiometry: A dict of the stoichiometry of the aminoacids
-        :type aa_stoichiometry: {Metabolite:int}
+
+        :param gene: A gene of the model that has sequence data
+        :type gene: therme.core.ExpressedGene
         :return:
         """
+
         rxn = TranslationReaction(
-            id=gene.id,
+            id='translation_{}'.format(gene.id),
             name='Translation, {}'.format(gene.id),
-            sequence = aa_sequence,
+            gene= gene,
             enzyme=self.ribosome)
+        self.add_reactions([rxn])
+
+        aa_stoichiometry = make_stoich_from_aa_sequence(gene.peptide,
+                                                        self,
+                                                        self.aa_dict,
+                                                        self.trna_dict,
+                                                        gtp,
+                                                        gdp,
+                                                        h2o,
+                                                        h
+                                                        )
 
         # Scale the stoichiometry
         aa_stoichiometry_scaled = {k:v/self._scaling \
@@ -375,28 +356,27 @@ class MEModel(LCSBModel, Model):
         rxn.gene_reaction_rule = self.ribosome.id
 
 
-        self.add_reactions([rxn])
         self.translation_reactions += [rxn]
         self.peptides += [free_peptide]
 
         
-    def _add_gene_transcription_reaction(self, gene, nt_stoichiometry, nt_sequence):
+    def _add_gene_transcription_reaction(self, gene):
         """
-        Example nucleotide stoichiometry
-        nt_stoichiometry =  { model.metabolites.guanine : -120,
-                              model.metabolites.cytosine : -70,
-                              ...
-                             }
-        :param gene: A gene of the model
-        :param nt_stoichiometry: A dict of the stoichiometry of the aminoacids
-        :type nt_stoichiometry: {Metabolite:int}
+
+        :param gene: A gene of the model that has sequence data
+        :type gene: therme.core.ExpressedGene
         :return:
         """
         rxn = TranscriptionReaction(
-            id=gene.id,
+            id='transcription_{}'.format(gene.id),
             name='Transcription, {}'.format(gene.id),
-            sequence = nt_sequence,
+            gene= gene,
             enzyme=self.rnap)
+        self.add_reactions([rxn])
+
+        nt_stoichiometry = make_stoich_from_nt_sequence(gene.rna,
+                                                        self,
+                                                        self.nt_dict)
 
         # Scale the stoichiometry
         nt_stoichiometry_scaled = {k:v/self._scaling \
@@ -405,12 +385,10 @@ class MEModel(LCSBModel, Model):
         rxn.add_metabolites(nt_stoichiometry_scaled)
 
         # Add rnap as necessary enzyme
-        rxn.gene_reaction_rule = self.rnap.id
+        rxn.gene_reaction_rule = ' & '.join(self.rnap_genes)
 
 
-        self.add_reactions([rxn])
         self.transcription_reactions += [rxn]
-        self.mrnas += [free_mrna]
 
 
     def add_enzymatic_coupling(self, coupling_dict):
@@ -432,7 +410,7 @@ class MEModel(LCSBModel, Model):
         self.add_enzymes(coupling_dict.values())
 
         # /!\ We modify the reaction list
-        self.add_gene_reactions()
+        # self.add_gene_reactions()
 
         # Generic reactions <-> Enzymes coupling
         for rid in self.coupling_dict:
@@ -561,59 +539,19 @@ class MEModel(LCSBModel, Model):
 
         return ret
 
-    def _linearize_me_linear(self, enzyme):
-        #% TODO: Clean this
-        #% Also it's slow as hell
+    def linearize_me(self, enzyme):
+        """
+        Performs Petersen linearization on μ*E to stay an MILP problem
 
-        E = enzyme.variable
+        :return:
+        """
 
-        # ga_i is a binary variable equals to 1 if we consider this specific
-        # growth rate, else 0
-        ga_vars = self.get_variables_of_type(GrowthActivation)
-        mu_steps = [x for x,_ in self.mu_bins]
-
-        out_expr = 0
-
-        # Build z = ga_1*mu_1*[E] + ga_2*mu_2*[E] + ... + ga_n*mu_n*[E]
-        for ga_i, mu_i in zip(ga_vars, mu_steps):
-            # Linearization step for ga_i*[E]
-            z_name = '__MUL__'.join([ga_i.name, E.name])
-            # Add the variables
-            model_z_i = self.add_variable(kind = LinearizationVariable,
-                                          hook = self,
-                                          id_ = z_name,
-                                          lb = 0,
-                                          ub = self._scaling*self.max_enzyme_concentration)
-
-            # z_i, cons = glovers_linearization(b = ga_i, fy=E, L=E.lb, U=E.ub, z=model_z_i)
-            z_i, new_constraints = petersen_linearization(b = ga_i, x=E, M=E.ub, z=model_z_i)
-
-            # Add the constraints:
-            for cons in new_constraints:
-                # Do not forget to substitute de sympy symbol in the constraint
-                # with a variable  !
-                # EDIT: Not anymore needed if we supply the variable
-                # new_expression = cons.expression.subs(z_i, model_z_i.variable)
-
-                self.add_constraint(kind = LinearizationConstraint,
-                                    hook=self,
-                                    id_=cons.name,
-                                    expr=cons.expression,
-                                    # expr=new_expression,
-                                    ub=cons.ub,
-                                    lb=cons.lb)
-
-
-            out_expr += mu_i * model_z_i
-        return out_expr
-
-    def _linearize_me_binary(self, enzyme):
         E = enzyme.variable
 
         # ga_i is a binary variable for the binary expansion f the fraction on N
         # of the max growth rate
         ga_vars = self.get_variables_of_type(GrowthActivation)
-        ga_vars = sorted(ga_vars, key = lambda x:x.ix)
+        ga_vars = sorted(ga_vars, key=lambda x: x.ix)
 
         out_expr = self.mu.lb
 
@@ -622,18 +560,19 @@ class MEModel(LCSBModel, Model):
         #           + ...
         #           + ga_n*2^n*mu_max/N * [E]
 
-        for i,ga_i in enumerate(ga_vars):
+        for i, ga_i in enumerate(ga_vars):
             # Linearization step for ga_i * [E]
             z_name = '__MUL__'.join([ga_i.name, E.name])
             # Add the variables
-            model_z_i = self.add_variable(kind = LinearizationVariable,
-                                          hook = self,
-                                          id_ = z_name,
-                                          lb = 0,
-                                          ub = self.max_enzyme_concentration)
+            model_z_i = self.add_variable(kind=LinearizationVariable,
+                                          hook=self,
+                                          id_=z_name,
+                                          lb=0,
+                                          ub=self.max_enzyme_concentration)
 
             # z_i, cons = glovers_linearization(b = ga_i, fy=E, L=E.lb, U=E.ub, z=model_z_i)
-            z_i, new_constraints = petersen_linearization(b = ga_i, x=E, M=E.ub, z=model_z_i)
+            z_i, new_constraints = petersen_linearization(b=ga_i, x=E, M=E.ub,
+                                                          z=model_z_i)
 
             # Add the constraints:
             for cons in new_constraints:
@@ -642,7 +581,7 @@ class MEModel(LCSBModel, Model):
                 # new_expression = cons.expression.subs(z_i, model_z_i.variable)
                 # EDIT: Not anymore needed if we supply the variable
 
-                self.add_constraint(kind = LinearizationConstraint,
+                self.add_constraint(kind=LinearizationConstraint,
                                     hook=self,
                                     id_=cons.name,
                                     expr=cons.expression,
@@ -650,23 +589,9 @@ class MEModel(LCSBModel, Model):
                                     ub=cons.ub,
                                     lb=cons.lb)
 
+            out_expr += (2 ** i) * model_z_i * (self.mu.ub - self.mu.lb) \
+                        / self.n_mu_bins
 
-            out_expr += (2**i) * model_z_i * (self.mu.ub - self.mu.lb)\
-                                      / self.n_mu_bins
-
-        return out_expr
-
-    def linearize_me(self, enzyme):
-        """
-        Performs Petersen linearization on μ*E to stay an MILP problem
-
-        :return:
-        """
-
-        if self._method == 'binary':
-            out_expr = self._linearize_me_binary(enzyme)
-        elif self.method == 'linear':
-            out_expr = self._linearize_me_linear(enzyme)
         return out_expr
 
 
@@ -765,8 +690,31 @@ class MEModel(LCSBModel, Model):
             enz.variable.ub = self.big_M
 
         self.enzymes += enzyme_list
-        # for e in enzyme_list:
-        #     e._model = self
+
+
+    def add_mrnas(self, mrna_list):
+        """
+        Adds an Enzyme object, or iterable of Enzyme objects, to the model
+        :param enzyme_list:
+        :type enzyme_list:Iterable(Enzyme) or Enzyme
+        :return:
+        """
+        if not hasattr(mrna_list, '__iter__'):
+            mrna_list = [mrna_list]
+        if len(mrna_list) == 0:
+            return None
+
+        # First check whether the enzymes exist in the model
+            mrna_list = [x for x in mrna_list if x.id not in self.mrnas]
+
+        for mrna in mrna_list:
+            mrna._model = self
+            mrna.init_variable()
+
+        for mrna in mrna_list:
+            mrna.variable.ub = self.big_M
+
+        self.mrnas += mrna_list
 
     def remove_enzymes(self, enzyme_list):
         """
@@ -816,17 +764,31 @@ class MEModel(LCSBModel, Model):
         self._populate_rnap()
         self._populate_ribosomes()
 
+        # Add the coupling between mRNA availability and ribosome charging
+        # The number of ribosomes assigned to a mRNA species is lower than
+        # the number of such mRNA times the max number of ribosomes that can sit
+        # on the mRNA:
+        # [RPi] <= loadmax_i*[mRNAi]
+        #
+        # loadmax is : len(peptide_chain)/occupation(ribo)
+        # "Their distance from one another along the mRNA is at least the size
+        # of the physical footprint of a ribosome (≈20 nm, BNID 102320, 105000)
+        # which is the length of about 60 base pairs (length of
+        # nucleotide ≈0.3 nm, BNID 103777), equivalent to ≈20 aa."
+        # "http://book.bionumbers.org/how-many-proteins-are-made-per-mrna-molecule/"
+        #
+        # hence:
+        # [RPi] <= L_nt/Ribo_footprint * [mRNA]
+
+        ribo_footprint_size = 60
+
+
         for the_mrna in self.mrnas:
-            transcription = self.transcription_reactions.get_by_id(the_mrna.id)
-            translation = self.translation_reactions.get_by_id(the_mrna.id)
+            RPi = self._var_kinds[RibosomeUsage][the_mrna.id].variable
+            mrna_var = the_mrna.variable
 
-            v_transcription = transcription.forward_variable \
-                            - transcription.reverse_variable
-            v_translation   = translation.forward_variable \
-                            - translation.reverse_variable
-
-            expression_coupling = v_translation \
-                                  - the_mrna.max_polysomes * v_transcription
+            polysome_size = len(the_mrna.gene.rna) / ribo_footprint_size
+            expression_coupling = RPi - polysome_size * mrna_var
             self.add_constraint(kind=ExpressionCoupling,
                                 hook = the_mrna,
                                 expr=expression_coupling,
@@ -844,6 +806,7 @@ class MEModel(LCSBModel, Model):
         :type rnap: pytfa.me.Ribosome
         :return:
         """
+
         self.rnap = rnap
 
         # This is enough to add the translation, it will happen with the
@@ -862,8 +825,14 @@ class MEModel(LCSBModel, Model):
         :return:
         """
         # 0 -> We still need to add the virtual complexation of RNA Polymerases:
-        rnap_translation = self.transcription_reactions.get_by_id(self.rnap.id)
-        complexation = self.add_complexation_from_gpr(rnap_translation)[0]
+        peptide_stoich = defaultdict(int)
+        for rprot_id in self.rnap_genes:
+            peptide_stoich += self.peptides.get_by_id(rprot_id)
+
+        complexation = ProteinComplexation(id='rnap_complex',
+                                           name='RNA Polymerase complexation')
+        complexation.add_metabolites(peptide_stoich)
+
         # v_complexation =   complexation.forward_variable  \
         #                  - complexation.reverse_variable
 
@@ -932,12 +901,8 @@ class MEModel(LCSBModel, Model):
         :type ribosome: pytfa.me.Ribosome
         :return:
         """
-        self.ribosome = ribosome
 
-        # This is enough to add the translation, it will happen with the
-        # ribosome pseudogene in add_gene_translation_reactions()
-        rib_pseudo_gene = Gene(ribosome.id, name='Ribosomal pseudo-gene')
-        self.add_genes(rib_pseudo_gene)
+        self.ribosome = ribosome
 
         self.add_enzymes(ribosome)
 
@@ -983,8 +948,24 @@ class MEModel(LCSBModel, Model):
         # 0 -> We still need to add the virtual complexation of ribosomes:
         # it will be the same for all the translations of the model, so we can
         # call it from the ribosomal protein translation for example
-        ribosome_translation = self.translation_reactions.get_by_id(self.ribosome.id)
-        complexation = self.add_complexation_from_gpr(ribosome_translation)[0]
+
+        rrna_stoich = defaultdict(int)
+        for rrna_id in self.rrna_genes:
+            rrna_stoich += self.mrnas.get_by_id(rrna_id)
+
+        rprot_stoich = defaultdict(int)
+        for rprot_id in self.rprot_genes:
+            rprot_stoich += self.peptides.get_by_id(rprot_id)
+
+        rib_stoich = rrna_stoich + rprot_stoich
+
+        complexation = ProteinComplexation(id='rib_complex', name='Ribosome complexation')
+        complexation.add_metabolites(rib_stoich)
+
+        self.add_reactions(complexation)
+        # Add it to a specific index
+        self.complexation_reactions += complexation
+
         # v_complexation =   complexation.forward_variable  \
         #                  - complexation.reverse_variable
 
@@ -994,7 +975,7 @@ class MEModel(LCSBModel, Model):
         #                     - self.ribosome.kdeg  * Rt  \
         #                     - self.mu             * Rt
 
-        # Create the mass ba;ance constraint
+        # Create the mass balance constraint
         self.add_mass_balance_constraint(complexation, self.ribosome)
 
         # 2 -> Parametrize all the translation reactions with ribosomal vmax
@@ -1077,6 +1058,18 @@ class MEModel(LCSBModel, Model):
             self.genes += [genes]
     #-------------------------------------------------------------------------#
 
+    def sanitize_varnames(self):
+        for met in self.metabolites:
+            if met.id[0].isdigit():
+                met.id = '_'+met.id
+                self.logger.info('Sanitized variable name {}'.format(met.id))
+        for rxn in self.reactions:
+            if rxn.id[0].isdigit():
+                rxn.id = '_'+rxn.id
+                self.logger.info('Sanitized variable name {}'.format(rxn.id))
+
+        Model.repair(self)
+
     def print_info(self, specific = False):
         """
         Print information and counts for the cobra_model
@@ -1109,111 +1102,10 @@ class MEModel(LCSBModel, Model):
 
     def copy(self):
 
-        # This performs a shallow copy of all the attributes that are not
-        # metabolites or reactions or the solver.
-        new = Model.copy(self)
+        from ..io.dict import model_from_dict, model_to_dict
+        dictmodel = model_to_dict(self)
+        new = model_from_dict(dictmodel)
 
-        # We need to override these so that the shallow references do not point
-        # to the old model
-        new._var_dict = dict()
-        new._cons_dict = dict()
+        copy_solver_configuration(self, new)
 
-        # Also we need to reinitialize the ribosome variables:
-        new.init_ribosome_variables()
-
-        # The solver has all the properties we need. From there, we can
-        # reconstruct the model
-        new_solver = self.solver.clone(self.solver)
-        new._solver = new_solver
-
-        #Reconstruct the DictLists
-
-        #Enzymes
-        do_not_copy_by_ref = {"_reaction", "_model"}
-        new.enzymes = DictList()
-        for enzyme in self.enzymes:
-            new_enz = enzyme.__class__()
-            for attr, value in iteritems(enzyme.__dict__):
-                if attr not in do_not_copy_by_ref:
-                    new_enz.__dict__[attr] = copy(
-                        value) if attr == "formula" else value
-            new_enz._model = new
-            new.enzymes.append(new_enz)
-
-        #Get the proper ribosome
-        new.ribosome = new.enzymes.get_by_id(self.ribosome.id)
-
-        #Peptides among metabolites:
-        new.peptides= DictList()
-        for met in new.metabolites:
-            if isinstance(met, Peptide):
-                new.peptides.append(met)
-        #Different types of reactions:
-        new.translation_reactions = DictList()
-        new.complexation_reactions = DictList()
-        for rxn in new.reactions:
-            if isinstance(rxn, ProteinComplexation):
-                new.complexation_reactions.append(rxn)
-            elif isinstance(rxn, TranslationReaction):
-                new.translation_reactions.append(rxn)
-
-        for this_var in self._var_dict.values():
-
-            if isinstance(this_var, ReactionVariable):
-                reaction = new.reactions.get_by_id(this_var.reaction.id)
-                nv = new.add_variable(kind=this_var.__class__, hook=reaction)
-
-            elif isinstance(this_var, MetaboliteVariable):
-                metabolite = new.metabolites.get_by_id(this_var.metabolite.id)
-                nv = new.add_variable(kind=this_var.__class__, hook=metabolite)
-
-            elif isinstance(this_var, GeneVariable):
-                enzyme = new.enzymes.get_by_id(this_var.enzyme.id)
-                nv = new.add_variable(kind=this_var.__class__, hook=enzyme)
-
-            elif isinstance(this_var, ModelVariable):
-                nv = new.add_variable(kind=this_var.__class__,
-                                     hook=new,
-                                     id_ = this_var.id)
-            else:
-                raise TypeError(
-                    'Class {} copy not handled yet' \
-                        .format(this_var.__class__))
-
-            nv.variable.lb = this_var.variable.lb
-            nv.variable.ub = this_var.variable.ub
-
-        for this_cons in self._cons_dict.values():
-            new_solver_cons = new.constraints.get(this_cons.name)
-
-            expr = new_solver_cons.expression
-            if isinstance(this_cons, ReactionConstraint):
-                reaction = new.reactions.get_by_id(this_cons.reaction.id)
-                nc = new.add_constraint(kind = this_cons.__class__,hook = reaction,
-                                        expr = expr)
-
-            elif isinstance(this_cons, MetaboliteConstraint):
-                metabolite = new.metabolites.get_by_id(this_cons.metabolite.id)
-                nc = new.add_constraint(kind = this_cons.__class__,
-                                        hook = metabolite,expr = expr)
-
-            elif isinstance(this_cons, EnzymeConstraint):
-                enzyme = new.enzymes.get_by_id(this_cons.enzyme.id)
-                nc = new.add_constraint(kind = this_cons.__class__,
-                                        hook = enzyme,expr = expr)
-
-            elif isinstance(this_cons, ModelConstraint):
-                nc = new.add_constraint(kind = this_cons.__class__,
-                                        hook = new,
-                                        expr = expr,
-                                        id_ = this_cons.id,)
-
-            else:
-                raise TypeError('Class {} copy not handled yet' \
-                                .format(this_cons.__class__))
-
-            nc.constraint.lb = this_cons.constraint.lb
-            nc.constraint.ub = this_cons.constraint.ub
-
-        new.repair()
         return new

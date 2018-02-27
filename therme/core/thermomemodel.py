@@ -9,18 +9,16 @@ Fusion for Thermo and Me Models
 
 """
 
-from therme.therme.core import LCSBModel
-from ..me import MEModel
-from ..thermo import ThermoModel, std, get_debye_huckel_b
+from pytfa.core import LCSBModel
+from .memodel import MEModel
+from pytfa.thermo import ThermoModel, std, get_debye_huckel_b
 
 from cobra import Model, DictList
 
-from ..utils.logger import get_bistream_logger
-from therme.therme.utils import numerics
+from pytfa.utils.logger import get_bistream_logger
+from pytfa.utils import numerics
+from pytfa.optim.utils import copy_solver_configuration
 
-from ..optim.utils import copy_solver_configuration
-
-from copy import deepcopy
 
 import optlang
 

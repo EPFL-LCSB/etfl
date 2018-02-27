@@ -9,6 +9,7 @@
 Constraints declarations
 
 """
+from pytfa.optim import ReactionConstraint, GenericConstraint
 
 
 class CatalyticConstraint(ReactionConstraint):

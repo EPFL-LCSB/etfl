@@ -11,7 +11,7 @@ ME-related Enzyme subclasses and methods definition
 
 """
 
-from pytfa.me.optim import GeneVariable
+from ..optim.variables import GeneVariable
 from cobra import Species, Metabolite, DictList
 
 
@@ -35,10 +35,6 @@ class Enzyme(Species):
         self._enzyme_variable = self.model.add_variable(GeneVariable,
                                                         self,
                                                         queue=False)
-
-
-    def add_composition(self, aminoacids):
-        self.composition = aminoacids
 
     @property
     def variable(self):

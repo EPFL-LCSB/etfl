@@ -1,4 +1,5 @@
-from therme.therme.core.reaction import EnzymaticReaction, TranslationReaction
+from ..core.reactions import EnzymaticReaction, TranslationReaction
+from ..core.genes import ExpressedGene
 
 def replace_by_enzymatic_reaction(model, reaction_id, enzymes):
     rxn = model.reactions.get_by_id(reaction_id)
@@ -25,3 +26,14 @@ def _replace_by_me_reaction(model, rxn, enz_rxn):
     enz_rxn.notes = rxn.notes
     if hasattr(rxn, 'thermo'):
         enz_rxn.thermo = rxn.thermo
+
+
+def replace_by_me_gene(model, gene_id, sequence):
+    gene = model.genes.get_by_id(gene_id)
+    new = ExpressedGene.from_gene(gene=gene,
+                                  sequence=sequence)
+
+    model.genes._replace_on_id(new)
+    new._model = model
+    new.notes = gene.notes
+    return new
