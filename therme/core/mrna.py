@@ -16,15 +16,19 @@ from cobra import Species, Metabolite, DictList
 
 
 class mRNA(Species):
-    def __init__(self, id=None, kdeg=None, gene=None,*args, **kwargs):
+    def __init__(self, id=None, kdeg=None, gene_id=None, *args, **kwargs):
         Species.__init__(self, id = id, *args, **kwargs)
 
         self.kdeg = kdeg
-        self.gene = gene
+        self._gene_id = gene_id
 
     @property
     def peptide(self):
         return self.gene.peptide
+
+    @property
+    def gene(self):
+        return self.model.genes.get_by_id(self._gene_id)
 
 
     def init_variable(self, queue=False):

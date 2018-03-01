@@ -36,7 +36,7 @@ from pytfa.core.model import LCSBModel
 from pytfa.optim.reformulation import petersen_linearization
 from pytfa.optim.utils import chunk_sum, symbol_sum
 from pytfa.utils.logger import get_bistream_logger
-
+from pytfa.utils.str import camel2underscores
 
 
 class MEModel(LCSBModel, Model):
@@ -325,7 +325,7 @@ class MEModel(LCSBModel, Model):
         """
 
         rxn = TranslationReaction(
-            id='translation_{}'.format(gene.id),
+            id='{}_translation'.format(gene.id),
             name='Translation, {}'.format(gene.id),
             gene= gene,
             enzyme=self.ribosome)
@@ -368,7 +368,7 @@ class MEModel(LCSBModel, Model):
         :return:
         """
         rxn = TranscriptionReaction(
-            id='transcription_{}'.format(gene.id),
+            id='{}_transcription'.format(gene.id),
             name='Transcription, {}'.format(gene.id),
             gene= gene,
             enzyme=self.rnap)
@@ -529,8 +529,9 @@ class MEModel(LCSBModel, Model):
 
         # Check that all the genes participating in this gpr have a translation
         # reaction:
-        is_translated = {x: x.name in self.translation_reactions
-                         for x in sym_gpr.free_symbols}
+        is_translated = {x: '{}_translation'.format(x.name) \
+                            in self.translation_reactions
+                            for x in sym_gpr.free_symbols}
         if not all(is_translated.values()):
             self.logger.warning(
                 'Not all peptides in the GPR of {} are translated: {}'.format(
@@ -784,15 +785,16 @@ class MEModel(LCSBModel, Model):
 
 
         for the_mrna in self.mrnas:
-            RPi = self._var_kinds[RibosomeUsage][the_mrna.id].variable
+            RPi = getattr(self, camel2underscores(RibosomeUsage.__name__)) \
+                    .get_by_id(the_mrna.id).variable
             mrna_var = the_mrna.variable
 
             polysome_size = len(the_mrna.gene.rna) / ribo_footprint_size
             expression_coupling = RPi - polysome_size * mrna_var
-            self.add_constraint(kind=ExpressionCoupling,
+            self.add_constraint(kind = ExpressionCoupling,
                                 hook = the_mrna,
-                                expr=expression_coupling,
-                                queue=True,
+                                expr = expression_coupling,
+                                queue = True,
                                 ub = 0)
 
         self.regenerate_variables()
@@ -827,11 +829,12 @@ class MEModel(LCSBModel, Model):
         # 0 -> We still need to add the virtual complexation of RNA Polymerases:
         peptide_stoich = defaultdict(int)
         for rprot_id in self.rnap_genes:
-            peptide_stoich += self.peptides.get_by_id(rprot_id)
+            peptide_stoich[self.peptides.get_by_id(rprot_id)] -= 1
 
         complexation = ProteinComplexation(id='rnap_complex',
                                            name='RNA Polymerase complexation')
         complexation.add_metabolites(peptide_stoich)
+        self.add_reactions([complexation])
 
         # v_complexation =   complexation.forward_variable  \
         #                  - complexation.reverse_variable
@@ -841,7 +844,7 @@ class MEModel(LCSBModel, Model):
         self.add_mass_balance_constraint(complexation, self.rnap)
 
         # 2 -> Parametrize all the transcription reactions with RNAP vmax
-        for trans_rxn in self.translation_reactions:
+        for trans_rxn in self.transcription_reactions:
             self.apply_rnap_catalytic_constraint(trans_rxn)
 
         # 3 -> Add RNAP capacity constraint
@@ -951,20 +954,21 @@ class MEModel(LCSBModel, Model):
 
         rrna_stoich = defaultdict(int)
         for rrna_id in self.rrna_genes:
-            rrna_stoich += self.mrnas.get_by_id(rrna_id)
+            rrna_stoich[self.mrnas.get_by_id(rrna_id)] -= 1
 
         rprot_stoich = defaultdict(int)
         for rprot_id in self.rprot_genes:
-            rprot_stoich += self.peptides.get_by_id(rprot_id)
+            rprot_stoich[self.peptides.get_by_id(rprot_id)] -= 1
 
-        rib_stoich = rrna_stoich + rprot_stoich
+        rib_stoich = rrna_stoich.copy()
+        rib_stoich.update(rprot_stoich)
 
         complexation = ProteinComplexation(id='rib_complex', name='Ribosome complexation')
         complexation.add_metabolites(rib_stoich)
 
-        self.add_reactions(complexation)
+        self.add_reactions([complexation])
         # Add it to a specific index
-        self.complexation_reactions += complexation
+        self.complexation_reactions += [complexation]
 
         # v_complexation =   complexation.forward_variable  \
         #                  - complexation.reverse_variable
@@ -1023,7 +1027,7 @@ class MEModel(LCSBModel, Model):
         # Check that we indeed have a translation reaction
         assert(isinstance(reaction, TranslationReaction))
 
-        RPi = self.add_variable(RibosomeUsage, reaction)
+        RPi = self.add_variable(RibosomeUsage, reaction.gene)
 
         fwd_variable = reaction.forward_variable
         bwd_variable = reaction.reverse_variable
