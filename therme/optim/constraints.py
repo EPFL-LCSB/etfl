@@ -116,7 +116,7 @@ class TotalCapacity(CatalyticConstraint):
 
 class ExpressionCoupling(GeneConstraint):
 
-    prefix = 'EX'
+    prefix = 'EX_'
 
 
 class RibosomeRatio(ModelConstraint):

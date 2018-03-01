@@ -479,36 +479,37 @@ class MEModel(LCSBModel, Model):
                             expr=enz_constraint_expr, ub=0)
 
 
-    def add_mass_balance_constraint(self, complexation, enzyme):
+    def add_mass_balance_constraint(self, synthesis_flux, macromolecule):
         """
         Adds a mass balance constraint of the type
-        d[E]/dt = 0 <=> v_complexation - k_deg*[E] - μ*[E] = 0
-        :param complexation:
-        :param enzyme:
+        d[E]/dt = 0 <=> v_complexation - k_deg*[M] - μ*[M] = 0
+        for a macromolecule (mRNA or enzyme)
+        :param synthesis_flux:
+        :param macromolecule:
         :return:
         """
         # Add the mass_balance constraint
-        v_complexation =    complexation.forward_variable \
-                            -  complexation.reverse_variable
+        v_complexation = synthesis_flux.forward_variable \
+                         - synthesis_flux.reverse_variable
 
         # This is different if mu is a variable: we need to take care of the
         # bilinear constraint
         if isinstance(self.mu, optlang.Variable):
             # replace μ*E by z = sum(ga_i*μ_i*E), with ga_i binary variables
             # choosing between the mu_i
-            z = self.linearize_me(enzyme)
-            mass_balance_expr =     v_complexation \
-                                    -   enzyme.kdeg * enzyme.variable \
+            z = self.linearize_me(macromolecule)
+            mass_balance_expr = v_complexation \
+                                - macromolecule.kdeg * macromolecule.variable \
                                     -   z
 
         else:
             # μ is fixed
-            mass_balance_expr =     v_complexation \
-                                    -   enzyme.kdeg * enzyme.variable \
-                                    -   self.mu * enzyme.variable
+            mass_balance_expr = v_complexation \
+                                - macromolecule.kdeg * macromolecule.variable \
+                                    - self.mu * macromolecule.variable
 
         self.add_constraint(kind=MassBalance,
-                            hook=enzyme,
+                            hook=macromolecule,
                             expr=mass_balance_expr,
                             lb=0, ub=0)
 
@@ -762,41 +763,60 @@ class MEModel(LCSBModel, Model):
 
 
     def populate_expression(self):
+        """
+        Add the coupling between mRNA availability and ribosome charging
+        The number of ribosomes assigned to a mRNA species is lower than
+        the number of such mRNA times the max number of ribosomes that can sit
+        on the mRNA:
+        [RPi] <= loadmax_i*[mRNAi]
+
+        loadmax is : len(peptide_chain)/occupation(ribo)
+        "Their distance from one another along the mRNA is at least the size
+        of the physical footprint of a ribosome (≈20 nm, BNID 102320, 105000)
+        which is the length of about 60 base pairs (length of
+        nucleotide ≈0.3 nm, BNID 103777), equivalent to ≈20 aa."
+        "http://book.bionumbers.org/how-many-proteins-are-made-per-mrna-molecule/"
+
+        hence:
+        [RPi] <= L_nt/Ribo_footprint * [mRNA]
+
+        :return:
+        """
         self._populate_rnap()
         self._populate_ribosomes()
 
-        # Add the coupling between mRNA availability and ribosome charging
-        # The number of ribosomes assigned to a mRNA species is lower than
-        # the number of such mRNA times the max number of ribosomes that can sit
-        # on the mRNA:
-        # [RPi] <= loadmax_i*[mRNAi]
-        #
-        # loadmax is : len(peptide_chain)/occupation(ribo)
-        # "Their distance from one another along the mRNA is at least the size
-        # of the physical footprint of a ribosome (≈20 nm, BNID 102320, 105000)
-        # which is the length of about 60 base pairs (length of
-        # nucleotide ≈0.3 nm, BNID 103777), equivalent to ≈20 aa."
-        # "http://book.bionumbers.org/how-many-proteins-are-made-per-mrna-molecule/"
-        #
-        # hence:
-        # [RPi] <= L_nt/Ribo_footprint * [mRNA]
+        ribo_footprint_size = 60 # see docstring
 
-        ribo_footprint_size = 60
+        self._update()
 
 
         for the_mrna in self.mrnas:
+
+            # Get the synthesis_flux
+            syn_id = '{}_transcription'.format(the_mrna.id)
+            syn = self.transcription_reactions.get_by_id(syn_id)
+
+            # Add the mass balance constraint for the mrna
+            self.add_mass_balance_constraint(syn, the_mrna)
+
+            # Get the ribosomes assigned to this translation
             RPi = getattr(self, camel2underscores(RibosomeUsage.__name__)) \
                     .get_by_id(the_mrna.id).variable
+
+            # Get the mRNA concentration
             mrna_var = the_mrna.variable
 
             polysome_size = len(the_mrna.gene.rna) / ribo_footprint_size
             expression_coupling = RPi - polysome_size * mrna_var
+
+            # Add expression coupling
             self.add_constraint(kind = ExpressionCoupling,
                                 hook = the_mrna,
                                 expr = expression_coupling,
                                 queue = True,
                                 ub = 0)
 
+        self._update()
         self.regenerate_variables()
         self.regenerate_constraints()
 
@@ -810,11 +830,6 @@ class MEModel(LCSBModel, Model):
         """
 
         self.rnap = rnap
-
-        # This is enough to add the translation, it will happen with the
-        # ribosome pseudogene in add_gene_translation_reactions()
-        rnap_pseudo_gene = Gene(rnap.id, name='RNA Polymerase pseudo-gene')
-        self.add_genes(rnap_pseudo_gene)
 
         self.add_enzymes(rnap)
 
@@ -835,7 +850,7 @@ class MEModel(LCSBModel, Model):
                                            name='RNA Polymerase complexation')
         complexation.add_metabolites(peptide_stoich)
         self.add_reactions([complexation])
-        self.complexation_reactions += complexation
+        self.complexation_reactions += [complexation]
 
         # v_complexation =   complexation.forward_variable  \
         #                  - complexation.reverse_variable
