@@ -835,6 +835,7 @@ class MEModel(LCSBModel, Model):
                                            name='RNA Polymerase complexation')
         complexation.add_metabolites(peptide_stoich)
         self.add_reactions([complexation])
+        self.complexation_reactions += complexation
 
         # v_complexation =   complexation.forward_variable  \
         #                  - complexation.reverse_variable
