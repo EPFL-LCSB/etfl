@@ -105,7 +105,7 @@ class MassBalance(EnzymeConstraint):
     prefix = 'MB_'
 
 
-class TranslationConstraint(ReactionConstraint):
+class SynthesisConstraint(ReactionConstraint):
     """
     Class to represent a Translation constraint
     """
@@ -128,6 +128,14 @@ class TotalCapacity(CatalyticConstraint):
     """
 
     prefix = 'TC_'
+
+
+class TotalEnzyme(TotalCapacity):
+    """
+    Class to represent the total amount of an enzyme species, forwards and backwards
+    """
+
+    prefix = 'TE_'
 
 
 class ExpressionCoupling(GeneConstraint):

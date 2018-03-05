@@ -27,11 +27,11 @@ from .reactions import EnzymaticReaction, ProteinComplexation, \
 from .expression import build_trna_charging, \
     make_stoich_from_aa_sequence, make_stoich_from_nt_sequence
 from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,\
-    BackwardCatalyticConstraint, MassBalance, TranslationConstraint, \
+    BackwardCatalyticConstraint, MassBalance, SynthesisConstraint, \
     GrowthCoupling, TotalCapacity, ExpressionCoupling, RibosomeRatio, \
     GrowthChoice, LinearizationConstraint
 from ..optim.variables import ModelVariable, GrowthActivation, \
-    GeneVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, FreeRibosomes
+    EnzymeVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, FreeRibosomes
 from pytfa.core.model import LCSBModel
 from pytfa.optim.reformulation import petersen_linearization
 from pytfa.optim.utils import chunk_sum, symbol_sum
@@ -450,7 +450,8 @@ class MEModel(LCSBModel, Model):
         :return:
         """
 
-        complexation = self.add_complexation_from_gpr(reaction)
+        # complexation = self.add_complexation_from_gpr(reaction)
+        complexation = self.add_complexation_from_enzymes(reaction.enzymes)
 
         v_max_fwd = dict()
         v_max_bwd = dict()
@@ -464,19 +465,19 @@ class MEModel(LCSBModel, Model):
 
         for e, (enz, comp) in enumerate(protein2isozyme_dict):
             # If the enzymes has the same kcat for both directions
-            # v_fwd + v_bwd <= kcat [E]
-            # v_fwd + v_bwd - kcat [E] <= 0
+            # v_fwd  <= kcat_fwd [E]
+            # v_fwd - kcat_fwd [E] <= 0
 
-            v_max_fwd[e] =  ( enz.kcat_fwd / self._scaling )* enz.variable
-            v_max_bwd[e] =  ( enz.kcat_bwd / self._scaling )* enz.variable
+            v_max_fwd[e] =  ( enz.kcat_fwd / self._scaling )* enz.forward_variable
+            v_max_bwd[e] =  ( enz.kcat_bwd / self._scaling )* enz.backward_variable
 
             self.add_mass_balance_constraint(comp, enz)
 
             comp.enzyme = enz
             enz.complexation = comp
 
-        enz_constraint_expr_fwd = fwd_variable + bwd_variable - sum(v_max_fwd.values())
-        enz_constraint_expr_bwd = fwd_variable + bwd_variable - sum(v_max_bwd.values())
+        enz_constraint_expr_fwd = fwd_variable - sum(v_max_fwd.values())
+        enz_constraint_expr_bwd = bwd_variable - sum(v_max_bwd.values())
 
         self.add_constraint(kind=ForwardCatalyticConstraint, hook=reaction,
                             expr=enz_constraint_expr_fwd, ub=0)
@@ -602,6 +603,38 @@ class MEModel(LCSBModel, Model):
         return out_expr
 
 
+    def add_complexation_from_enzymes(self,enzymes):
+        """
+        Reads Enzyme.composition to find complexation reaction from enzyme information
+
+        :param reaction:
+        :type reaction: cobra.Reaction
+        :return:
+        """
+
+        complexation = []
+
+        for e,this_isozyme in enumerate(enzymes):
+            this_id = '{}_complex_{}'.format(this_isozyme.id,e)
+            this_name = '{} Complexation {}'.format(this_isozyme.id,e)
+
+
+            this_complexation = ProteinComplexation(id = this_id,
+                                                    name = this_name)
+
+            peptides = {self.peptides.get_by_id(k):-v \
+                            for k,v in this_isozyme.composition.items()}
+
+            this_complexation.add_metabolites(peptides)
+
+            complexation += [this_complexation]
+
+        self.add_reactions(complexation)
+        # Add it to a specific index
+        self.complexation_reactions += complexation
+
+        return complexation
+
     def add_complexation_from_gpr(self,reaction):
         """
         Logically parses the GPR to automatically find isozymes ( logical OR )
@@ -694,6 +727,8 @@ class MEModel(LCSBModel, Model):
             enz.init_variable()
 
         for enz in enzyme_list:
+            enz.forward_variable.ub = self.big_M
+            enz.backward_variable.ub = self.big_M
             enz.variable.ub = self.big_M
 
         self.enzymes += enzyme_list
@@ -875,7 +910,7 @@ class MEModel(LCSBModel, Model):
         all_rnap_usage = self.get_variables_of_type(RNAPUsage)
         sum_RMs = symbol_sum(all_rnap_usage)
 
-        usage = sum_RMs - self.rnap.variable
+        usage = sum_RMs - self.rnap.forward_variable
 
         # Create the capacity constraint
         self.add_constraint(kind=TotalCapacity,
@@ -914,7 +949,7 @@ class MEModel(LCSBModel, Model):
         ribo_constraint_expr = fwd_variable - bwd_variable - v_max
 
 
-        self.add_constraint(kind=TranslationConstraint, hook=reaction,
+        self.add_constraint(kind=SynthesisConstraint, hook=reaction,
                             expr=ribo_constraint_expr, ub=0)
 
 
@@ -1062,7 +1097,7 @@ class MEModel(LCSBModel, Model):
         ribo_constraint_expr = fwd_variable - bwd_variable - v_max
 
 
-        self.add_constraint(kind=TranslationConstraint, hook=reaction,
+        self.add_constraint(kind=SynthesisConstraint, hook=reaction,
                             expr=ribo_constraint_expr, ub=0)
 
 

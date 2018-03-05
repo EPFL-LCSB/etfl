@@ -78,9 +78,9 @@ class mRNAVariable(GenericVariable):
         return self.mrna.model
 
 
-class GeneVariable(GenericVariable):
+class EnzymeVariable(GenericVariable):
     """
-    Class to represent a gene variable
+    Class to represent a enzyme variable
     """
 
     prefix = 'EZ_'
@@ -88,6 +88,12 @@ class GeneVariable(GenericVariable):
     def __init__(self, gene, **kwargs):
         self.gene = gene
         model = gene.model
+
+
+        if not 'lb' in kwargs:
+            kwargs['lb'] = 0
+        if not 'ub' in kwargs:
+            kwargs['ub'] = model.max_enzyme_concentration
 
 
         GenericVariable.__init__(self, id_=self.id, model=model,
@@ -100,6 +106,19 @@ class GeneVariable(GenericVariable):
     @property
     def model(self):
         return self.gene.model
+
+
+class ForwardEnzyme(EnzymeVariable):
+    """
+    Represents assignment of an enzyme the a forward reaction flux
+    """
+    prefix = 'FE_'
+
+class BackwardEnzyme(EnzymeVariable):
+    """
+    Represents assignment of an enzyme the a backward reaction flux
+    """
+    prefix = 'BE_'
 
 
 class LinearizationVariable(ModelVariable):
@@ -145,7 +164,7 @@ class RNAPUsage(ReactionVariable):
     prefix = 'RM_'
 
 
-class FreeRibosomes(GeneVariable):
+class FreeRibosomes(EnzymeVariable):
     """
     Class to represent the ribosomes that are affected to producing the enzyme
     for a reaction
