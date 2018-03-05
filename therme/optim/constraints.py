@@ -20,6 +20,22 @@ class CatalyticConstraint(ReactionConstraint):
     prefix = 'EC_'
 
 
+class ForwardCatalyticConstraint(ReactionConstraint):
+    """
+    Class to represent a enzymatic constraint
+    """
+
+    prefix = 'FC_'
+
+
+class BackwardCatalyticConstraint(ReactionConstraint):
+    """
+    Class to represent a enzymatic constraint
+    """
+
+    prefix = 'BC_'
+
+
 class ModelConstraint(GenericConstraint):
     """
     Class to represent a variable attached to the model

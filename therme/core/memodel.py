@@ -26,8 +26,8 @@ from .reactions import EnzymaticReaction, ProteinComplexation, \
     TranslationReaction, TranscriptionReaction
 from .expression import build_trna_charging, \
     make_stoich_from_aa_sequence, make_stoich_from_nt_sequence
-from ..optim.constraints import CatalyticConstraint, \
-    ModelConstraint, EnzymeConstraint, MassBalance, TranslationConstraint, \
+from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,\
+    BackwardCatalyticConstraint, MassBalance, TranslationConstraint, \
     GrowthCoupling, TotalCapacity, ExpressionCoupling, RibosomeRatio, \
     GrowthChoice, LinearizationConstraint
 from ..optim.variables import ModelVariable, GrowthActivation, \
@@ -452,7 +452,8 @@ class MEModel(LCSBModel, Model):
 
         complexation = self.add_complexation_from_gpr(reaction)
 
-        v_max = dict()
+        v_max_fwd = dict()
+        v_max_bwd = dict()
 
         # Write v_max constraint
         fwd_variable = reaction.forward_variable
@@ -466,17 +467,21 @@ class MEModel(LCSBModel, Model):
             # v_fwd + v_bwd <= kcat [E]
             # v_fwd + v_bwd - kcat [E] <= 0
 
-            v_max[e] =  ( enz.kcat / self._scaling )* enz.variable
+            v_max_fwd[e] =  ( enz.kcat_fwd / self._scaling )* enz.variable
+            v_max_bwd[e] =  ( enz.kcat_bwd / self._scaling )* enz.variable
 
             self.add_mass_balance_constraint(comp, enz)
 
             comp.enzyme = enz
             enz.complexation = comp
 
-        enz_constraint_expr = fwd_variable + bwd_variable - sum(v_max.values())
+        enz_constraint_expr_fwd = fwd_variable + bwd_variable - sum(v_max_fwd.values())
+        enz_constraint_expr_bwd = fwd_variable + bwd_variable - sum(v_max_bwd.values())
 
-        self.add_constraint(kind=CatalyticConstraint, hook=reaction,
-                            expr=enz_constraint_expr, ub=0)
+        self.add_constraint(kind=ForwardCatalyticConstraint, hook=reaction,
+                            expr=enz_constraint_expr_fwd, ub=0)
+        self.add_constraint(kind=BackwardCatalyticConstraint, hook=reaction,
+                            expr=enz_constraint_expr_bwd, ub=0)
 
 
     def add_mass_balance_constraint(self, synthesis_flux, macromolecule):
@@ -752,7 +757,8 @@ class MEModel(LCSBModel, Model):
         new_enzymes = list()
         for e in range(n_replicates):
             new_enz = Enzyme(id =enzyme.id + '_{}'.format(e),
-                             kcat = enzyme.kcat,
+                             kcat_fwd = enzyme.kcat_fwd,
+                             kcat_bwd = enzyme.kcat_bwd,
                              kdeg = enzyme.kdeg,
                              # name = enzyme.name + ' - Replicate {}'.format(e)
                              )
