@@ -12,15 +12,21 @@ from collections import OrderedDict, defaultdict
 import cobra.io.dict as cbd
 from cobra.exceptions import SolverNotFound
 
-from ..thermo.tmodel import ThermoModel
-from ..me.base import MEModel
-from ..fusion.thermome import ThermoMEModel
-from ..me.utils import replace_by_enzymatic_reaction, replace_by_translation_reaction
-from ..me.reaction import TranslationReaction, EnzymaticReaction
-from ..me.enzyme import Enzyme, Ribosome, Peptide
-from ..me.optim import  EnzymeConstraint, GeneVariable, ModelConstraint, ModelVariable
-from ..optim.variables import ReactionVariable, MetaboliteVariable
-from ..optim.constraints import ReactionConstraint, MetaboliteConstraint
+from pytfa.thermo.tmodel import ThermoModel
+
+from ..core.memodel import MEModel
+from ..core.thermomemodel import ThermoMEModel
+from ..utils.utils import replace_by_enzymatic_reaction, \
+    replace_by_translation_reaction, replace_by_transcription_reaction
+from ..core.reactions import TranslationReaction, TranscriptionReaction, EnzymaticReaction
+from ..core.enzyme import Enzyme, Ribosome, Peptide, RNAPolymerase
+from ..core.mrna import mRNA
+from ..optim.constraints import  EnzymeConstraint, ModelConstraint, GeneConstraint
+from ..optim.variables import  EnzymeVariable, ModelVariable, GeneVariable
+
+from pytfa.optim.variables import ReactionVariable, MetaboliteVariable
+from pytfa.optim.constraints import ReactionConstraint, MetaboliteConstraint
+from pytfa.io.dict import get_solver_string, var_to_dict, cons_to_dict
 
 from optlang.util import expr_to_json, parse_expr
 
@@ -43,8 +49,10 @@ REACTION_VARIABLE_SUBCLASSES    = make_subclasses_dict(ReactionVariable)
 REACTION_CONSTRAINT_SUBCLASSES  = make_subclasses_dict(ReactionConstraint)
 METABOLITE_VARIABLE_SUBCLASSES  = make_subclasses_dict(MetaboliteVariable)
 METABOLITE_CONSTRAINT_SUBCLASSES= make_subclasses_dict(MetaboliteConstraint)
-ENZYME_VARIABLE_SUBCLASSES      = make_subclasses_dict(GeneVariable)
+ENZYME_VARIABLE_SUBCLASSES      = make_subclasses_dict(EnzymeVariable)
 ENZYME_CONSTRAINT_SUBCLASSES    = make_subclasses_dict(EnzymeConstraint)
+GENE_VARIABLE_SUBCLASSES        = make_subclasses_dict(GeneVariable)
+GENE_CONSTRAINT_SUBCLASSES      = make_subclasses_dict(GeneConstraint)
 MODEL_VARIABLE_SUBCLASSES       = make_subclasses_dict(ModelVariable)
 MODEL_CONSTRAINT_SUBCLASSES     = make_subclasses_dict(ModelConstraint)
 
@@ -61,9 +69,19 @@ def enzyme_to_dict(enzyme):
     obj = OrderedDict()
     obj['id'] = enzyme.id
     obj['name'] = enzyme.name
-    obj['kcat'] = enzyme.kcat
+    obj['kcat_fwd'] = enzyme.kcat_fwd
+    obj['kcat_bwd'] = enzyme.kcat_bwd
     obj['kdeg'] = enzyme.kdeg
     obj['varname'] = enzyme.variable.name
+    return obj
+
+
+def mrna_to_dict(mrna):
+    obj = OrderedDict()
+    obj['id'] = mrna.id
+    obj['gene_id'] = mrna._gene_id
+    obj['kdeg'] = mrna.kdeg
+    obj['varname'] = mrna.variable.name
     return obj
 
 def ribosome_to_dict(ribosome):
@@ -73,6 +91,15 @@ def ribosome_to_dict(ribosome):
     obj['kribo'] = ribosome.kribo
     obj['kdeg'] = ribosome.kdeg
     obj['varname'] = ribosome.variable.name
+    return obj
+
+def rnap_to_dict(rnap):
+    obj = OrderedDict()
+    obj['id'] = rnap.id
+    obj['name'] = rnap.name
+    obj['ktrans'] = rnap.ktrans
+    obj['kdeg'] = rnap.kdeg
+    obj['varname'] = rnap.variable.name
     return obj
 
 def var_to_dict(variable):
@@ -214,9 +241,13 @@ def model_to_dict(model):
 
         # Convenience attributes
         # obj['_mu'] = model.mu.name
-        obj['compositions'] = archive_compositions(model.compositions)
-        obj['coupling_dict'] = archive_coupling_dict(model.coupling_dict)
+        # obj['compositions'] = archive_compositions(model.compositions)
+        # obj['coupling_dict'] = archive_coupling_dict(model.coupling_dict)
         obj['mu_bins'] = model.mu_bins
+        obj['nt_dict'] = model.nt_dict
+        obj['aa_dict'] = model.aa_dict
+        obj['trna_dict'] = model.trna_dict
+        obj['scaling']   = model._scaling
 
         # Growth
         obj['growth_reaction'] = model.growth_reaction.id
@@ -224,9 +255,15 @@ def model_to_dict(model):
         # Enzymes
         obj['max_enzyme_concentration'] = model.max_enzyme_concentration
         obj['enzymes'] = list(map(enzyme_to_dict, model.enzymes))
+        obj['mrnas'] = list(map(mrna_to_dict, model.mrnas))
 
         # Ribosome
         obj['ribosome'] = ribosome_to_dict(model.ribosome)
+
+        # RNAP
+        obj['rnap'] = rnap_to_dict(model.rnap)
+
+
         obj['kind'] = 'MEModel'
         is_me = True
 
@@ -249,6 +286,9 @@ def model_to_dict(model):
     # Peptides and Thermo
     for met_dict in obj['metabolites']:
         the_met_id = met_dict['id']
+
+        met_dict['kind'] = 'Metabolite'
+
         is_peptide = False
 
         if is_me:
@@ -259,7 +299,6 @@ def model_to_dict(model):
         if is_thermo and not is_peptide: # peptides have no thermo
             the_met = model.metabolites.get_by_id(the_met_id)
             _add_thermo_metabolite_info(the_met, rxn_dict)
-            met_dict['kind'] = 'Metabolite'
 
     return obj
 
@@ -269,6 +308,11 @@ def _add_me_reaction_info(rxn, rxn_dict):
     # Translation Reactions
     if isinstance(rxn, TranslationReaction):
         rxn_dict['kind'] = 'TranslationReaction'
+        rxn_dict['gene_id'] = rxn.gene.id
+    # Transcription Reactions
+    elif isinstance(rxn, TranscriptionReaction):
+        rxn_dict['kind'] = 'TranscriptionReaction'
+        rxn_dict['gene_id'] = rxn.gene.id
     # Enzymatic Reactions
     elif isinstance(rxn, EnzymaticReaction):
         rxn_dict['kind'] = 'EnzymaticReaction'
@@ -357,6 +401,15 @@ def model_from_dict(obj, solver=None):
                                   lb = lb,
                                   queue=True)
 
+        elif classname in GENE_VARIABLE_SUBCLASSES:
+            hook = new.genes.get_by_id(this_id)
+            this_class = GENE_VARIABLE_SUBCLASSES[classname]
+            nv = new.add_variable(kind=this_class,
+                                  hook=hook,
+                                  ub=ub,
+                                  lb=lb,
+                                  queue=True)
+
         elif classname in MODEL_VARIABLE_SUBCLASSES:
             hook = new
             this_class = MODEL_VARIABLE_SUBCLASSES[classname]
@@ -419,6 +472,15 @@ def model_from_dict(obj, solver=None):
                                     lb = lb,
                                     queue=True)
 
+        elif classname in GENE_CONSTRAINT_SUBCLASSES:
+            hook = new.genes.get_by_id(this_id)
+            this_class = GENE_CONSTRAINT_SUBCLASSES[classname]
+            nc = new.add_constraint(kind=this_class, hook=hook,
+                                    expr=new_expr,
+                                    ub = ub,
+                                    lb = lb,
+                                    queue=True)
+
         elif classname in MODEL_CONSTRAINT_SUBCLASSES:
             hook=new
             this_class = MODEL_CONSTRAINT_SUBCLASSES[classname]
@@ -437,30 +499,42 @@ def model_from_dict(obj, solver=None):
 
 def init_me_model_from_dict(new, obj):
     new.max_enzyme_concentration = obj['max_enzyme_concentration']
+    newecoli._scaling = obj['scaling']
 
     # Convenience attributes
     # new._mu = new.variables.get(obj['_mu'])
-    new.compositions = rebuild_compositions(new, obj['compositions'])
+    # new.compositions = rebuild_compositions(new, obj['compositions'])
     new.mu_bins = obj['mu_bins']
 
     # Add growth reaction
     new.growth_reaction = obj['growth_reaction']
 
     # Populate enzymes
+    # new.coupling_dict = rebuild_coupling_dict(new, obj['coupling_dict'])
     new.add_enzymes([enzyme_from_dict(x) for x in obj['enzymes']])
-    new.coupling_dict = rebuild_coupling_dict(new, obj['coupling_dict'])
+
+    # Populate mRNAs
+    new.add_mrnas([mrna_from_dict(x) for x in obj['mrnas']])
+
+    # Make RNAP
+    new_rnap = rnap_from_dict(obj['rnap'])
+    new_rnap._model = new
+    new.enzymes._replace_on_id(new_rnap)
+    new.rnap = new_rnap
+    new.rnap.init_variable()
 
     # Make ribosome
-    new_ribosome = ribosome_from_dict(obj['ribosome'])
-    new_ribosome._model = new
-    new.enzymes._replace_on_id(new_ribosome)
-    new.ribosome = new_ribosome
+    new_rnap = ribosome_from_dict(obj['ribosome'])
+    new_rnap._model = new
+    new.enzymes._replace_on_id(new_rnap)
+    new.ribosome = new_rnap
     new.ribosome.init_variable()
     new.init_ribosome_variables()
 
     # Populate EnzymaticReaction and TranslationReaction
     find_enzymatic_reactions_from_dict(new, obj)
     find_translation_reactions_from_dict(new, obj)
+    find_transcription_reactions_from_dict(new, obj)
 
     # Populate Peptides
     find_peptides_from_dict(new, obj)
@@ -524,14 +598,24 @@ def rebuild_coupling_dict(new, coupling_dict):
 
 def enzyme_from_dict(obj):
     return Enzyme(id = obj['id'],
-                  kcat = obj['kcat'],
+                  kcat_fwd = obj['kcat_fwd'],
+                  kcat_bwd = obj['kcat_bwd'],
                   kdeg = obj['kdeg'])
 
+def mrna_from_dict(obj):
+    return mRNA(id = obj['id'],
+                  kdeg = obj['kdeg'],
+                  gene_id = obj['gene_id'])
 
 def ribosome_from_dict(obj):
     return  Ribosome( id = obj['id'],
                       kribo = obj['kribo'],
                       kdeg = obj['kdeg'])
+
+def rnap_from_dict(obj):
+    return  RNAPolymerase( id = obj['id'],
+                        ktrans = obj['ktrans'],
+                        kdeg = obj['kdeg'])
 
 def find_enzymatic_reactions_from_dict(new, obj):
     for rxn_dict in obj['reactions']:
@@ -545,9 +629,25 @@ def find_translation_reactions_from_dict(new, obj):
     for rxn_dict in obj['reactions']:
         if rxn_dict['kind'] == 'TranslationReaction':
             enzymes = new.ribosome
-            enz_rxn = replace_by_translation_reaction(new, rxn_dict['id'], enzymes)
+            enz_rxn = replace_by_translation_reaction(new,
+                                                      reaction_id=rxn_dict['id'],
+                                                      gene_id=rxn_dict['gene_id'],
+                                                      enzymes=enzymes)
             new_transl_rxns.append(enz_rxn)
     new.translation_reactions += new_transl_rxns
+
+
+def find_transcription_reactions_from_dict(new, obj):
+    new_transc_rxns = list()
+    for rxn_dict in obj['reactions']:
+        if rxn_dict['kind'] == 'TranscriptionReaction':
+            enzymes = new.rnap
+            enz_rxn = replace_by_transcription_reaction(new,
+                                                        reaction_id=rxn_dict['id'],
+                                                        gene_id=rxn_dict['gene_id'],
+                                                        enzymes=enzymes)
+            new_transc_rxns.append(enz_rxn)
+    new.transcription_reactions += new_transc_rxns
 
 def find_peptides_from_dict(new, obj):
     new_peptides = list()

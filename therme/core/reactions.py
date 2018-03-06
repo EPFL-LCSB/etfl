@@ -65,16 +65,38 @@ class EnzymaticReaction(Reaction):
 
 class TranscriptionReaction(EnzymaticReaction):
     """
-    Class describing translation - Assembly of amino acids into peptides
+    Class describing transcription - Assembly of amino acids into peptides
     """
 
-    def __init__(self, id, name, gene, enzyme, **kwargs):
+    def __init__(self, id, name, gene, enzymes, **kwargs):
         EnzymaticReaction.__init__(self,
                                    id=id,
                                    name=name,
-                                   enzymes=enzyme,
+                                   enzymes=enzymes,
                                    **kwargs)
         self.gene = gene
+
+    @staticmethod
+    def from_reaction(reaction, gene, enzymes = None):
+        """
+        This method clones a cobra.Reaction object into a transcription reaction,
+        and attaches enzymes to it
+
+        :param reaction: the reaction to reproduce
+        :type reaction: cobra.Reaction
+        :param enzymes: a(n iterable of the) enzyme(s) to be attached to the reaction
+        :return: an EnzymaticReaction object
+        """
+        new =  TranscriptionReaction(id = reaction.id,
+                                 name= reaction.name,
+                                 gene = gene,
+                                 subsystem= reaction.subsystem,
+                                 lower_bound= reaction.lower_bound,
+                                 upper_bound= reaction.upper_bound,
+                                 enzymes= enzymes)
+        new.add_metabolites(reaction.metabolites)
+        new.gene_reaction_rule = reaction.gene_reaction_rule
+        return new
 
     # The number of amino acids is in the stoichiometry
     @property
@@ -82,27 +104,49 @@ class TranscriptionReaction(EnzymaticReaction):
         return len(self.gene.rna)
 
 
-    def add_rnap(self, ribosome):
+    def add_rnap(self, rnap):
         """
         By definition this reaction will be catalyzed by RNA polymerase
         :param ribosome:
-        :type ribosome: pytfa.me.Ribosome
+        :type ribosome: pytfa.me.RNAPolymerase
         :return:
         """
-        self.enzyme = ribosome
+        self.enzymes = rnap
 
 class TranslationReaction(EnzymaticReaction):
     """
     Class describing translation - Assembly of amino acids into peptides
     """
 
-    def __init__(self, id, name, gene, enzyme, **kwargs):
+    def __init__(self, id, name, gene, enzymes, **kwargs):
         EnzymaticReaction.__init__(self,
                                    id=id,
                                    name=name,
-                                   enzymes=enzyme,
+                                   enzymes=enzymes,
                                    **kwargs)
         self.gene = gene
+
+    @staticmethod
+    def from_reaction(reaction, gene, enzymes = None):
+        """
+        This method clones a cobra.Reaction object into a translation reaction,
+        and attaches enzymes to it
+
+        :param reaction: the reaction to reproduce
+        :type reaction: cobra.Reaction
+        :param enzymes: a(n iterable of the) enzyme(s) to be attached to the reaction
+        :return: an EnzymaticReaction object
+        """
+        new =  TranslationReaction(id = reaction.id,
+                                 name= reaction.name,
+                                 gene = gene,
+                                 subsystem= reaction.subsystem,
+                                 lower_bound= reaction.lower_bound,
+                                 upper_bound= reaction.upper_bound,
+                                 enzymes= enzymes)
+        new.add_metabolites(reaction.metabolites)
+        new.gene_reaction_rule = reaction.gene_reaction_rule
+        return new
 
     # The number of amino acids is in the stoichiometry
     @property
@@ -117,7 +161,7 @@ class TranslationReaction(EnzymaticReaction):
         :type ribosome: pytfa.me.Ribosome
         :return:
         """
-        self.enzyme = ribosome
+        self.enzymes = ribosome
 
 
 class ProteinComplexation(Reaction):
@@ -126,4 +170,4 @@ class ProteinComplexation(Reaction):
     """
     def __init__(self, *args, **kwargs):
         Reaction.__init__(self, *args, **kwargs)
-        self.enzyme = None
+        self.enzymes = None

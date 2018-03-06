@@ -46,24 +46,6 @@ class Enzyme(Species):
         self._enzyme_variable = self.model.add_variable(EnzymeVariable,
                                                         self,
                                                         queue=False)
-        self._forward_variable = self.model.add_variable(ForwardEnzyme,
-                                                        self,
-                                                        queue=False)
-        self._backward_variable = self.model.add_variable(BackwardEnzyme,
-                                                        self,
-                                                        queue=False)
-
-
-        # Write down the total capacity constraint:
-        # E_f + E_b = E
-        tc_expr = self.forward_variable + self.backward_variable - self.variable
-
-        self.total_capacity = self.model.add_constraint(TotalEnzyme,
-                                                        self,
-                                                        expr = tc_expr,
-                                                        queue = False,
-                                                        lb = 0,
-                                                        ub = 0)
 
     @property
     def variable(self):
@@ -77,31 +59,6 @@ class Enzyme(Species):
         except AttributeError:
             self.throw_nomodel_error()
 
-
-    @property
-    def forward_variable(self):
-        """
-        For convenience in the equations of the constraints
-
-        :return:
-        """
-        try:
-            return self._forward_variable.variable
-        except AttributeError:
-            self.throw_nomodel_error()
-
-
-    @property
-    def backward_variable(self):
-        """
-        For convenience in the equations of the constraints
-
-        :return:
-        """
-        try:
-            return self._backward_variable.variable
-        except AttributeError:
-            self.throw_nomodel_error()
 
     def throw_nomodel_error(self):
         self.model.logger.warning('''{} has no model attached - variable attribute

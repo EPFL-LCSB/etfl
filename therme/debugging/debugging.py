@@ -7,6 +7,24 @@ from therme.therme.optim.variables import CatalyticActivator
 from ..optim.constraints import BackwardDirectionCoupling
 from ..optim.variables import BackwardUseVariable
 
+def localize_exp(exp):
+    return exp.subs({x : x.name for x in exp.free_symbols})
+
+def compare_expressions(exp1, exp2):
+    local_1 = localize_exp(exp1)
+    local_2 = localize_exp(exp2)
+
+    return local_1 == local_2
+
+def find_different_constraints(model1, model2):
+    out = []
+    for x in model1.constraints:
+        y = model2.constraints.get(x.name)
+        l1 = localize_exp(x.expression)
+        l2 = localize_exp(x.expression)
+        if l1 != l2:
+            out += [x.name, l1, l2]
+    return out
 
 def find_translation_gaps(model):
     tr_gaps = dict()

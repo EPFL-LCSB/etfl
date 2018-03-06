@@ -21,15 +21,16 @@ from collections import defaultdict
 from ..utils.parsing import parse_gpr
 from ..utils.utils import replace_by_enzymatic_reaction, replace_by_me_gene
 from .genes import ExpressedGene
+from .mrna  import mRNA
 from .enzyme import Enzyme, Peptide
 from .reactions import EnzymaticReaction, ProteinComplexation, \
     TranslationReaction, TranscriptionReaction
 from .expression import build_trna_charging, \
     make_stoich_from_aa_sequence, make_stoich_from_nt_sequence
 from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,\
-    BackwardCatalyticConstraint, MassBalance, SynthesisConstraint, \
+    BackwardCatalyticConstraint, EnzymeMassBalance, mRNAMassBalance, \
     GrowthCoupling, TotalCapacity, ExpressionCoupling, RibosomeRatio, \
-    GrowthChoice, LinearizationConstraint
+    GrowthChoice, LinearizationConstraint, SynthesisConstraint
 from ..optim.variables import ModelVariable, GrowthActivation, \
     EnzymeVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, FreeRibosomes
 from pytfa.core.model import LCSBModel
@@ -37,6 +38,7 @@ from pytfa.optim.reformulation import petersen_linearization
 from pytfa.optim.utils import chunk_sum, symbol_sum
 from pytfa.utils.logger import get_bistream_logger
 from pytfa.utils.str import camel2underscores
+from pytfa.optim.utils import copy_solver_configuration
 
 
 class MEModel(LCSBModel, Model):
@@ -328,7 +330,7 @@ class MEModel(LCSBModel, Model):
             id='{}_translation'.format(gene.id),
             name='Translation, {}'.format(gene.id),
             gene= gene,
-            enzyme=self.ribosome)
+            enzymes=self.ribosome)
         self.add_reactions([rxn])
 
         aa_stoichiometry = make_stoich_from_aa_sequence(gene.peptide,
@@ -371,7 +373,7 @@ class MEModel(LCSBModel, Model):
             id='{}_transcription'.format(gene.id),
             name='Transcription, {}'.format(gene.id),
             gene= gene,
-            enzyme=self.rnap)
+            enzymes=self.rnap)
         self.add_reactions([rxn])
 
         nt_stoichiometry = make_stoich_from_nt_sequence(gene.rna,
@@ -468,8 +470,8 @@ class MEModel(LCSBModel, Model):
             # v_fwd  <= kcat_fwd [E]
             # v_fwd - kcat_fwd [E] <= 0
 
-            v_max_fwd[e] =  ( enz.kcat_fwd / self._scaling )* enz.forward_variable
-            v_max_bwd[e] =  ( enz.kcat_bwd / self._scaling )* enz.backward_variable
+            v_max_fwd[e] =  ( enz.kcat_fwd / self._scaling )* enz.variable
+            v_max_bwd[e] =  ( enz.kcat_bwd / self._scaling )* enz.variable
 
             self.add_mass_balance_constraint(comp, enz)
 
@@ -514,7 +516,15 @@ class MEModel(LCSBModel, Model):
                                 - macromolecule.kdeg * macromolecule.variable \
                                     - self.mu * macromolecule.variable
 
-        self.add_constraint(kind=MassBalance,
+        if isinstance(macromolecule, Enzyme):
+            kind = EnzymeMassBalance
+        elif isinstance(macromolecule, mRNA):
+            kind = mRNAMassBalance
+        else:
+            raise Exception('Macro-molecule type not recognized: {}'
+                            .format(macromolecule))
+
+        self.add_constraint(kind=kind,
                             hook=macromolecule,
                             expr=mass_balance_expr,
                             lb=0, ub=0)
@@ -727,8 +737,6 @@ class MEModel(LCSBModel, Model):
             enz.init_variable()
 
         for enz in enzyme_list:
-            enz.forward_variable.ub = self.big_M
-            enz.backward_variable.ub = self.big_M
             enz.variable.ub = self.big_M
 
         self.enzymes += enzyme_list
@@ -910,7 +918,7 @@ class MEModel(LCSBModel, Model):
         all_rnap_usage = self.get_variables_of_type(RNAPUsage)
         sum_RMs = symbol_sum(all_rnap_usage)
 
-        usage = sum_RMs - self.rnap.forward_variable
+        usage = sum_RMs - self.rnap.variable
 
         # Create the capacity constraint
         self.add_constraint(kind=TotalCapacity,
@@ -936,7 +944,7 @@ class MEModel(LCSBModel, Model):
         # Check that we indeed have a transcription reaction
         assert(isinstance(reaction, TranscriptionReaction))
 
-        RMi = self.add_variable(RNAPUsage, reaction)
+        RMi = self.add_variable(RNAPUsage, reaction.gene)
 
         fwd_variable = reaction.forward_variable
         bwd_variable = reaction.reverse_variable

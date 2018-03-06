@@ -97,9 +97,16 @@ class EnzymeConstraint(GenericConstraint):
         return self.enzyme.model
 
 
-class MassBalance(EnzymeConstraint):
+class EnzymeMassBalance(EnzymeConstraint):
     """
-    Class to represent a enzymatic constraint
+    Class to represent a enzymatic mass balance constraint
+    """
+
+    prefix = 'EB_'
+
+class mRNAMassBalance(GeneConstraint):
+    """
+    Class to represent a enzymatic mass balance constraint
     """
 
     prefix = 'MB_'
@@ -121,7 +128,7 @@ class GrowthCoupling(ReactionConstraint):
     prefix = 'GC_'
 
 
-class TotalCapacity(CatalyticConstraint):
+class TotalCapacity(EnzymeConstraint):
     """
     Class to represent the total capacity of constraint of a species, e.g
     Ribosome or RNA

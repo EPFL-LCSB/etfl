@@ -50,40 +50,41 @@ class GrowthActivation(ModelVariable, BinaryVariable):
     prefix = 'GA_'
 
 
-class mRNAVariable(GenericVariable):
-    """
-    Class to represent a mRNA concentration
-    """
-
-    prefix = 'MR_'
-
-    def __init__(self, mrna, **kwargs):
-        self.mrna = mrna
-        model = mrna.model
-
-        if not 'lb' in kwargs:
-            kwargs['lb'] = 0
-        if not 'ub' in kwargs:
-            kwargs['ub'] = model.max_enzyme_concentration
-
-        GenericVariable.__init__(self, id_=self.id, model=model,
-                                 **kwargs)
-
-    @property
-    def id(self):
-        return self.mrna.id
-
-    @property
-    def model(self):
-        return self.mrna.model
-
-
 class EnzymeVariable(GenericVariable):
     """
     Class to represent a enzyme variable
     """
 
     prefix = 'EZ_'
+
+    def __init__(self, enzyme, **kwargs):
+        self.enzyme = enzyme
+        model = enzyme.model
+
+
+        if not 'lb' in kwargs:
+            kwargs['lb'] = 0
+        if not 'ub' in kwargs:
+            kwargs['ub'] = model.max_enzyme_concentration
+
+
+        GenericVariable.__init__(self, id_=self.id, model=model,
+                                 **kwargs)
+
+    @property
+    def id(self):
+        return self.enzyme.id
+
+    @property
+    def model(self):
+        return self.enzyme.model
+
+class GeneVariable(GenericVariable):
+    """
+    Class to represent a gene variable
+    """
+
+    prefix = 'GV_'
 
     def __init__(self, gene, **kwargs):
         self.gene = gene
@@ -94,7 +95,6 @@ class EnzymeVariable(GenericVariable):
             kwargs['lb'] = 0
         if not 'ub' in kwargs:
             kwargs['ub'] = model.max_enzyme_concentration
-
 
         GenericVariable.__init__(self, id_=self.id, model=model,
                                  **kwargs)
@@ -107,6 +107,14 @@ class EnzymeVariable(GenericVariable):
     def model(self):
         return self.gene.model
 
+
+
+class mRNAVariable(GeneVariable):
+    """
+    Class to represent a mRNA concentration
+    """
+
+    prefix = 'MR_'
 
 class ForwardEnzyme(EnzymeVariable):
     """
@@ -126,41 +134,22 @@ class LinearizationVariable(ModelVariable):
     Class to represent the product mu*[E] when performin linearization of the
     model
     """
-
     prefix = 'LZ_'
 
 
-class RibosomeUsage(ReactionVariable):
+class RibosomeUsage(GeneVariable):
     """
     Class to represent the ribosomes that are assigned to producing the enzyme
     for a reaction
     """
-    def __init__(self, reaction, **kwargs):
-        model = reaction.model
-
-        if not 'lb' in kwargs:
-            kwargs['lb'] = 0
-        if not 'ub' in kwargs:
-            kwargs['ub'] = model.max_enzyme_concentration
-        ReactionVariable.__init__(self, reaction, **kwargs)
-
     prefix = 'RP_'
 
 
-class RNAPUsage(ReactionVariable):
+class RNAPUsage(GeneVariable):
     """
     Class to represent the ribosomes that are assigned to producing the enzyme
     for a reaction
     """
-    def __init__(self, reaction, **kwargs):
-        model = reaction.model
-
-        if not 'lb' in kwargs:
-            kwargs['lb'] = 0
-        if not 'ub' in kwargs:
-            kwargs['ub'] = model.max_enzyme_concentration
-        ReactionVariable.__init__(self, reaction, **kwargs)
-
     prefix = 'RM_'
 
 
@@ -169,7 +158,6 @@ class FreeRibosomes(EnzymeVariable):
     Class to represent the ribosomes that are affected to producing the enzyme
     for a reaction
     """
-
     prefix = 'RF_'
 
 
