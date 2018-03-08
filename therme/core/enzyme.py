@@ -14,6 +14,7 @@ ME-related Enzyme subclasses and methods definition
 from ..optim.variables import EnzymeVariable, ForwardEnzyme, BackwardEnzyme
 from ..optim.constraints import TotalEnzyme
 from cobra import Species, Metabolite, DictList
+from Bio.SeqUtils import molecular_weight
 
 
 class Enzyme(Species):
@@ -59,6 +60,10 @@ class Enzyme(Species):
         except AttributeError:
             self.throw_nomodel_error()
 
+    @property
+    def molecular_weight(self):
+        return sum(v*p.molecular_weight for p,v in self.complexation.metabolites.items())
+
 
     def throw_nomodel_error(self):
         self.model.logger.warning('''{} has no model attached - variable attribute
@@ -71,6 +76,37 @@ class Peptide(Metabolite):
     """
     Subclass to describe peptides resulting from gene translation
     """
+
+    def __init__(self, id=None, gene_id=None, **kwargs):
+        Metabolite.__init__(self, id=id, **kwargs)
+        self._gene_id = gene_id
+        self._molecular_weight_override = 0
+
+
+    @property
+    def gene(self):
+        try:
+            return self.model.genes.get_by_id(self._gene_id)
+        except KeyError:
+            self.model.logger.warning('Peptide {} tried to reference {}, '
+                                      'not in model'.format(self.id, self.gene_id))
+            return None
+
+    @property
+    def peptide(self):
+        return self.gene.peptide
+
+    @property
+    def molecular_weight(self):
+        if not self._molecular_weight_override:
+            return molecular_weight(self.peptide) / 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+        else:
+            return self._molecular_weight_override
+
+    @molecular_weight.setter
+    def molecular_weight(self, value):
+        self._molecular_weight_override = value
+
     @staticmethod
     def from_metabolite(met, copy = False):
         if copy:

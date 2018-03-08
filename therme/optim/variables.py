@@ -10,7 +10,8 @@ Variables declarations
 
 """
 
-from pytfa.optim.variables import GenericVariable, BinaryVariable, ReactionVariable
+from pytfa.optim.variables import GenericVariable, BinaryVariable, \
+    ReactionVariable, get_binary_type
 
 class ModelVariable(GenericVariable):
     """
@@ -172,3 +173,16 @@ class CatalyticActivator(ReactionVariable,BinaryVariable):
                                   **kwargs)
 
     prefix = 'CA_'
+
+class BinaryActivator(ModelVariable, BinaryVariable):
+    """
+    Class to represent a binary variable that activates with growth levels
+    """
+    def __init__(self, model, id_, **kwargs):
+        ModelVariable.__init__(self,
+                               model,
+                               id_,
+                               type = get_binary_type(),
+                               **kwargs)
+
+    prefix = 'LA_'

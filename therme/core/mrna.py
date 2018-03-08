@@ -13,6 +13,8 @@ ME-related Enzyme subclasses and methods definition
 
 from ..optim.variables import mRNAVariable
 from cobra import Species, Metabolite, DictList
+from Bio.SeqUtils import molecular_weight
+
 
 
 class mRNA(Species):
@@ -21,10 +23,15 @@ class mRNA(Species):
 
         self.kdeg = kdeg
         self._gene_id = gene_id
+        self._molecular_weight_override = 0
 
     @property
     def peptide(self):
         return self.gene.peptide
+
+    @property
+    def rna(self):
+        return self.gene.rna
 
     @property
     def gene(self):
@@ -41,6 +48,17 @@ class mRNA(Species):
         self._mrna_variable = self.model.add_variable(mRNAVariable,
                                                         self,
                                                         queue=queue)
+
+    @property
+    def molecular_weight(self):
+        if not self._molecular_weight_override:
+            return molecular_weight(self.rna) / 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+        else:
+            return self._molecular_weight_override
+
+    @molecular_weight.setter
+    def molecular_weight(self, value):
+        self._molecular_weight_override = value
 
     @property
     def variable(self):

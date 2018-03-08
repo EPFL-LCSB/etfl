@@ -16,6 +16,7 @@ import sympy
 from cobra import Model, Reaction, Gene
 from cobra.core import Solution, DictList
 from collections import defaultdict
+from Bio.SeqUtils import molecular_weight
 
 
 from ..utils.parsing import parse_gpr
@@ -30,9 +31,11 @@ from .expression import build_trna_charging, \
 from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,\
     BackwardCatalyticConstraint, EnzymeMassBalance, mRNAMassBalance, \
     GrowthCoupling, TotalCapacity, ExpressionCoupling, RibosomeRatio, \
-    GrowthChoice, LinearizationConstraint, SynthesisConstraint
+    GrowthChoice, LinearizationConstraint, SynthesisConstraint, SOS1Constraint,\
+    InterpolationConstraint
 from ..optim.variables import ModelVariable, GrowthActivation, \
-    EnzymeVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, FreeRibosomes
+    EnzymeVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, \
+    FreeRibosomes, BinaryActivator
 from pytfa.core.model import LCSBModel
 from pytfa.optim.reformulation import petersen_linearization
 from pytfa.optim.utils import chunk_sum, symbol_sum
@@ -188,7 +191,7 @@ class MEModel(LCSBModel, Model):
         # |v_net - mu| <= bin_width
         bin_half_width = max([(x[1] - x[0]) / 2 for _, x in self.mu_bins])
 
-        the_integer = sum([(2 ** i) * ga_i for i, ga_i in enumerate(ga)])
+        the_integer = symbol_sum([(2 ** i) * ga_i for i, ga_i in enumerate(ga)])
 
         binarized_mu = self.mu.lb + the_integer * (self.mu.ub - self.mu.lb) / N
 
@@ -243,6 +246,237 @@ class MEModel(LCSBModel, Model):
                 self.logger.warning('Model has no gene {}, Adding it'.format(gene_id))
                 new = ExpressedGene(id= gene_id, name = gene_id, sequence=seq)
                 self.add_genes([new])
+
+
+
+    def add_dummies(self, nt_ratios, mrna_kdeg, mrna_length, aa_ratios,
+                    enzyme_kdeg, peptide_length,
+                    gtp='gtp_c',
+                    gdp='gdp_c',
+                    h2o='h2o_c',
+                    h='h_c'):
+        """
+
+        create dummies to enforce mrna and peptide production even in the
+        absence of data for all mrnas and proteins
+        absence of data for all mrnas and proteins
+
+
+        :param nt_ratios:
+        :param mrna_kdeg:
+        :param mrna_length:
+        :param aa_ratios:
+        :param enzyme_kdeg:
+        :param peptide_length:
+        :param gtp:
+        :param gdp:
+        :param h2o:
+        :param h:
+        :return:
+        """
+
+        # Create a dummy gene and override the sequences with input data
+        dummy_gene = ExpressedGene(id='dummy_gene',
+                                   name='Dummy Gene',
+                                   sequence='')
+        dummy_gene._rna = 'N'*mrna_length
+        dummy_gene._peptide = 'A'*peptide_length
+
+        self.add_genes([dummy_gene])
+
+        # Create a dummy mRNA
+        dummy_mrna = mRNA(id='dummy_mrna',
+                          name='dummy mRNA',
+                          kdeg=mrna_kdeg)
+        
+        nt_weights = [v*molecular_weight(k, 'RNA') for k,v in nt_ratios.items()]
+        dummy_mrna.molecular_weight = mrna_length*sum(nt_weights)
+        
+        self.add_mrnas([dummy_mrna])
+
+        dummy_transcription = TranscriptionReaction(id='dummy_transcription',
+                                                    name = 'Dummy Transcription',
+                                                    gene=None,
+                                                    enzymes=self.rnap)
+
+        # Use the input ratios to make the stoichiometry
+        transcription_mets = {
+                self.metabolites.get_by_id(self.nt_dict[k]):v*mrna_length/self._scaling
+                for k,v in nt_ratios.items()
+                }
+
+        dummy_transcription.add_metabolites(transcription_mets)
+        self.add_reactions([dummy_transcription])
+
+        self.add_mass_balance_constraint(dummy_transcription, dummy_mrna)
+
+
+        # Create a dummy peptide
+        dummy_peptide = Peptide(id='dummy_peptide',
+                                name='Dummy peptide',
+                                gene_id=dummy_gene)
+        
+        aa_weights = [v*molecular_weight(k, 'protein') for k,v in aa_ratios.items()]
+        dummy_peptide.molecular_weight = peptide_length*sum(aa_weights)
+
+        dummy_translation = TranslationReaction(id='dummy_translation',
+                                                name='Dummy Translation',
+                                                gene=dummy_gene,
+                                                enzymes=self.ribosome)
+        # Use the input ratios to make the stoichiometry
+        translation_mets = {
+                self.metabolites.get_by_id(self.aa_dict[k]):v*peptide_length/self._scaling
+                for k,v in aa_ratios.items()
+                }
+        translation_mets[self.metabolites.get_by_id(gtp)] = -2*peptide_length
+        translation_mets[self.metabolites.get_by_id(h2o)] = -2*peptide_length
+        translation_mets[self.metabolites.get_by_id(gdp)] = 2*peptide_length
+        translation_mets[self.metabolites.get_by_id( h )] = 2*peptide_length
+        translation_mets[dummy_peptide] = 1
+
+        dummy_translation.add_metabolites(translation_mets)
+
+        dummy_complexation = ProteinComplexation(id='dummy_complexation',
+                                                 name='Dummy Complexation')
+        dummy_complexation.add_metabolites(({dummy_peptide:-1}))
+
+        self.add_reactions([dummy_translation, dummy_complexation])
+
+        # Create a dummy protein made of the dummy peptide
+        dummy_protein = Enzyme(id='dummy_enzyme',
+                               name='Dummy Enzyme',
+                               kcat=0,
+                               kdeg=enzyme_kdeg)
+        dummy_protein.complexation = dummy_complexation
+        self.add_enzymes([dummy_protein])
+
+        self.add_mass_balance_constraint(dummy_complexation, dummy_protein)
+
+
+    def add_interpolation_variables(self):
+        lambdas = []
+        for e in range(self.n_mu_bins):
+            lambda_i = self.add_variable(kind=BinaryActivator,
+                                         hook=self,
+                                         id_=str(e),
+                                         lb=0,
+                                         ub=1
+                                         )
+            lambdas += [lambda_i]
+        sos_expr = symbol_sum(lambdas)
+
+        self.add_constraint(kind=SOS1Constraint,
+                            hook=self,
+                            id_='interpolation_integer_SOS1',
+                            expr=sos_expr,
+                            lb=1,
+                            ub=1)
+
+        ga_vars = self.get_ordered_ga_vars()
+        # mu_integer is the fraction coefficient of mu/mu_max:
+        # mu_integer = delta_0*2^0 + delta_1*2^1 + ... + delta_n*2^n
+        the_mu_integer = symbol_sum([(2 ** i) * ga_i
+                                     for i, ga_i in enumerate(ga_vars)])
+
+        # We want to equate the mu_integer with the currently active lambda index
+        # 0*lambda_0 + 1*lambda_1 + ... + n*lambda_n = mu_integer
+        ic_expr = symbol_sum([e*l for e,l in enumerate(lambdas)]) - the_mu_integer
+
+        self.add_constraint(kind=InterpolationConstraint,
+                            hook=self,
+                            id_='growth_activators__EQ__interpolation_integers',
+                            expr=ic_expr,
+                            lb=0,
+                            ub=0)
+
+        self.repair()
+
+
+    def add_protein_mass_requirement(self, mu_values, p_rel):
+        """
+        Adds protein synthesis requirement
+
+        input of type:
+        mu_values=[ 0.6,        1.0,        1.5,        2.0,        2.5     ]
+        p_rel   = [ 0.675676,   0.604651,   0.540416,   0.530421,   0.520231]
+
+        mu_values in [h^-]
+        p_rel in [g/gDw]
+
+        :param mu_values:
+        :param p_rel:
+        :return:
+        """
+
+        activation_vars = self.get_variables_of_type(BinaryActivator)
+
+        model_mus = [x[0] for x in self.mu_bins]
+        p_hat = np.interp(x= model_mus,
+                          xp=mu_values,
+                          fp=p_rel)
+
+        p_ref = symbol_sum([x*y for x,y in zip(p_hat, activation_vars)])
+
+        enzyme_vars    = self.enzymes.list_attr('variable') # mmol.gDw^-1 / [scaling]
+        enzyme_weights = self.enzymes.list_attr('molecular_weight')# g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+
+        tot_prot = symbol_sum([x*y for x,y in zip(enzyme_weights,enzyme_vars)])
+
+
+        # MW_1*[E1] + MW_2*[E2] + ... + MW_n*[En] = Pref
+        mass_coupling_expr = tot_prot * self._scaling - p_ref
+
+        self.add_constraint(kind=InterpolationConstraint,
+                            hook=self,
+                            id_='protein_interpolation',
+                            expr=mass_coupling_expr,
+                            lb=0,
+                            ub=0,
+                            )
+
+
+    def add_rna_mass_requirement(self, mu_values, rna_rel):
+        """
+        Adds protein synthesis requirement
+
+        input of type:
+        mu_values = [   0.6,        1.0,        1.5,        2.0,        2.5     ]
+        rna_rel   = [   0.135135    0.151163    0.177829    0.205928    0.243931]
+
+        mu_values in [h^-]
+        rna_rel in [g/gDw]
+
+        :param mu_values:
+        :param rna_rel:
+        :return:
+        """
+
+        activation_vars = self.get_variables_of_type(BinaryActivator)
+
+        model_mus = [x[0] for x in self.mu_bins]
+        m_hat = np.interp(x= model_mus,
+                          xp=mu_values,
+                          fp=rna_rel)
+
+        m_ref = symbol_sum([x*y for x,y in zip(m_hat, activation_vars)])
+
+        rna_vars    = self.mrnas.list_attr('variable') # mmol.gDw^-1 / [scaling]
+        rna_weights = self.mrnas.list_attr('molecular_weight') # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+
+        tot_rna = symbol_sum([x*y for x,y in zip(rna_weights,rna_vars)])
+
+
+        # MW_1*[E1] + MW_2*[E2] + ... + MW_n*[En] = Pref
+        mass_coupling_expr = tot_rna * self._scaling - m_ref
+
+        self.add_constraint(kind=InterpolationConstraint,
+                            hook=self,
+                            id_='mRNA_interpolation',
+                            expr=mass_coupling_expr,
+                            lb=0,
+                            ub=0,
+                            )
+
 
 
     def build_expression(self, aa_dict, nt_dict,
@@ -350,7 +584,8 @@ class MEModel(LCSBModel, Model):
         rxn.add_metabolites(aa_stoichiometry_scaled)
 
         free_peptide = Peptide(id = gene.id,
-                               name = 'Peptide, {}'.format(gene.id))
+                               name = 'Peptide, {}'.format(gene.id),
+                               gene_id = gene.id)
 
         rxn.add_metabolites({free_peptide:1})
 
@@ -568,8 +803,7 @@ class MEModel(LCSBModel, Model):
 
         # ga_i is a binary variable for the binary expansion f the fraction on N
         # of the max growth rate
-        ga_vars = self.get_variables_of_type(GrowthActivation)
-        ga_vars = sorted(ga_vars, key=lambda x: x.ix)
+        ga_vars = self.get_ordered_ga_vars()
 
         out_expr = self.mu.lb
 
@@ -611,6 +845,13 @@ class MEModel(LCSBModel, Model):
                         / self.n_mu_bins
 
         return out_expr
+
+    def get_ordered_ga_vars(self):
+        # ga_i is a binary variable for the binary expansion f the fraction on N
+        # of the max growth rate
+        ga_vars = self.get_variables_of_type(GrowthActivation)
+        ga_vars = sorted(ga_vars, key=lambda x: x.ix)
+        return ga_vars
 
 
     def add_complexation_from_enzymes(self,enzymes):
@@ -900,6 +1141,7 @@ class MEModel(LCSBModel, Model):
         complexation.add_metabolites(peptide_stoich)
         self.add_reactions([complexation])
         self.complexation_reactions += [complexation]
+        self.rnap.complexation = complexation
 
         # v_complexation =   complexation.forward_variable  \
         #                  - complexation.reverse_variable
@@ -1034,6 +1276,7 @@ class MEModel(LCSBModel, Model):
         self.add_reactions([complexation])
         # Add it to a specific index
         self.complexation_reactions += [complexation]
+        self.ribosome.complexation = complexation
 
         # v_complexation =   complexation.forward_variable  \
         #                  - complexation.reverse_variable

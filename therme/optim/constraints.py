@@ -182,3 +182,17 @@ class LinearizationConstraint(ModelConstraint):
         )
 
     prefix = 'LC_'
+
+class SOS1Constraint(ModelConstraint):
+    """
+    Class to represent SOS 1 constraint
+    """
+
+    prefix = 'S1_'
+
+class InterpolationConstraint(ModelConstraint):
+    """
+    Class to represent an interpolation constraint
+    """
+
+    prefix = "IC_"
