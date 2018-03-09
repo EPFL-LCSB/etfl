@@ -51,17 +51,16 @@ def build_trna_charging(model, aa_dict,
             ppi:1,
             h:2,
         })
-        trna_dict[aa] = (charged_trna,uncharged_trna)
+        trna_dict[aa_id] = (charged_trna,uncharged_trna)
     return trna_dict
 
-def make_stoich_from_aa_sequence(sequence, model, aa_dict, trna_dict,
+def make_stoich_from_aa_sequence(sequence, aa_dict, trna_dict,
                                  gtp, gdp, h2o, h):
     stoich = defaultdict(int)
 
     for letter in sequence:
         met_id = aa_dict[letter]
-        met = model.metabolites.get_by_id(met_id)
-        charged_trna, uncharged_trna = trna_dict[met]
+        charged_trna, uncharged_trna = trna_dict[met_id]
         # stoich[met]-=1
         stoich[charged_trna] -= 1
         stoich[uncharged_trna] += 1

@@ -186,3 +186,9 @@ class BinaryActivator(ModelVariable, BinaryVariable):
                                **kwargs)
 
     prefix = 'LA_'
+
+class InterpolationVariable(ModelVariable):
+    """
+    Represents a variable that is interpolated
+    """
+    prefix = 'IV_'

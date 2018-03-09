@@ -62,7 +62,9 @@ class Enzyme(Species):
 
     @property
     def molecular_weight(self):
-        return sum(v*p.molecular_weight for p,v in self.complexation.metabolites.items())
+        # /!\ stoichiometric coefficient is negative
+        return sum(-1*v*p.molecular_weight
+                for p,v in self.complexation.metabolites.items())
 
 
     def throw_nomodel_error(self):

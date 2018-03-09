@@ -35,7 +35,7 @@ from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,
     InterpolationConstraint
 from ..optim.variables import ModelVariable, GrowthActivation, \
     EnzymeVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, \
-    FreeRibosomes, BinaryActivator
+    FreeRibosomes, BinaryActivator, InterpolationVariable
 from pytfa.core.model import LCSBModel
 from pytfa.optim.reformulation import petersen_linearization
 from pytfa.optim.utils import chunk_sum, symbol_sum
@@ -301,7 +301,7 @@ class MEModel(LCSBModel, Model):
 
         # Use the input ratios to make the stoichiometry
         transcription_mets = {
-                self.metabolites.get_by_id(self.nt_dict[k]):v*mrna_length/self._scaling
+                self.metabolites.get_by_id(self.nt_dict[k]):-1*v*mrna_length/self._scaling
                 for k,v in nt_ratios.items()
                 }
 
@@ -324,14 +324,19 @@ class MEModel(LCSBModel, Model):
                                                 gene=dummy_gene,
                                                 enzymes=self.ribosome)
         # Use the input ratios to make the stoichiometry
-        translation_mets = {
-                self.metabolites.get_by_id(self.aa_dict[k]):v*peptide_length/self._scaling
-                for k,v in aa_ratios.items()
-                }
-        translation_mets[self.metabolites.get_by_id(gtp)] = -2*peptide_length
-        translation_mets[self.metabolites.get_by_id(h2o)] = -2*peptide_length
-        translation_mets[self.metabolites.get_by_id(gdp)] = 2*peptide_length
-        translation_mets[self.metabolites.get_by_id( h )] = 2*peptide_length
+        translation_mets = {}
+
+        for k,v in aa_ratios.items():
+            the_met_id = self.aa_dict[k]
+            the_charged_trna, the_uncharged_trna = self.trna_dict[the_met_id]
+            translation_mets[the_charged_trna  ] = -1*v*peptide_length/self._scaling
+            translation_mets[the_uncharged_trna] =  1*v*peptide_length/self._scaling
+
+
+        translation_mets[self.metabolites.get_by_id(gtp)] = -2*peptide_length / self._scaling
+        translation_mets[self.metabolites.get_by_id(h2o)] = -2*peptide_length / self._scaling
+        translation_mets[self.metabolites.get_by_id(gdp)] =  2*peptide_length / self._scaling
+        translation_mets[self.metabolites.get_by_id( h )] =  2*peptide_length / self._scaling
         translation_mets[dummy_peptide] = 1
 
         dummy_translation.add_metabolites(translation_mets)
@@ -389,7 +394,8 @@ class MEModel(LCSBModel, Model):
                             lb=0,
                             ub=0)
 
-        self.repair()
+        self.regenerate_variables()
+        self.regenerate_constraints()
 
 
     def add_protein_mass_requirement(self, mu_values, p_rel):
@@ -422,17 +428,42 @@ class MEModel(LCSBModel, Model):
 
         tot_prot = symbol_sum([x*y for x,y in zip(enzyme_weights,enzyme_vars)])
 
+        # For legibility
+        prot_ggdw = self.add_variable(kind=InterpolationVariable, hook=self,
+                                      id_='prot_ggdw',
+                                      lb=0,
+                                      # ub=1, # can't have more rna than cell mass
+                                      )
 
-        # MW_1*[E1] + MW_2*[E2] + ... + MW_n*[En] = Pref
-        mass_coupling_expr = tot_prot * self._scaling - p_ref
+        # MW_1*[E1] + MW_2*[E2] + ... + MW_n*[En] = prot_ggdw
+        mass_variable_def = tot_prot / self._scaling - prot_ggdw
+
+        # mRNA_ggdw = mRNA_ref
+        mass_coupling_expr = prot_ggdw - p_ref
+
+        epsilon = max(abs(np.diff(p_hat)))
 
         self.add_constraint(kind=InterpolationConstraint,
                             hook=self,
-                            id_='protein_interpolation',
-                            expr=mass_coupling_expr,
+                            id_='prot_weight_definition',
+                            expr=mass_variable_def,
                             lb=0,
                             ub=0,
                             )
+
+        self.add_constraint(kind=InterpolationConstraint,
+                            hook=self,
+                            id_='prot_interpolation',
+                            expr=mass_coupling_expr,
+                            lb=-1 * epsilon,
+                            ub=epsilon,
+                            )
+
+        self.interpolation_protein = p_hat
+        self._interpolation_protein_tolerance = epsilon
+
+        self.regenerate_variables()
+        self.regenerate_constraints()
 
 
     def add_rna_mass_requirement(self, mu_values, rna_rel):
@@ -466,16 +497,44 @@ class MEModel(LCSBModel, Model):
         tot_rna = symbol_sum([x*y for x,y in zip(rna_weights,rna_vars)])
 
 
-        # MW_1*[E1] + MW_2*[E2] + ... + MW_n*[En] = Pref
-        mass_coupling_expr = tot_rna * self._scaling - m_ref
+        # For legibility
+        mrna_ggdw = self.add_variable(kind=InterpolationVariable,
+                                      hook=self,
+                                      id_='mrna_ggdw',
+                                      lb=0,
+                                      # ub=1, #can't have more rna than cell mass
+                                      )
+
+        # MW_1*[rna1] + MW_2*[rna2] + ... + MW_n*[rna_n] = mRNA_ggdw
+        mass_variable_def  = tot_rna / self._scaling - mrna_ggdw
+
+        # mRNA_ggdw = mRNA_ref
+        mass_coupling_expr = mrna_ggdw - m_ref
+
+        epsilon = max(abs(np.diff(m_hat)))
+
+        self.add_constraint(kind=InterpolationConstraint,
+                            hook=self,
+                            id_='mRNA_weight_definition',
+                            expr=mass_variable_def,
+                            lb=0,
+                            ub=0,
+                            )
 
         self.add_constraint(kind=InterpolationConstraint,
                             hook=self,
                             id_='mRNA_interpolation',
                             expr=mass_coupling_expr,
-                            lb=0,
-                            ub=0,
+                            lb=-1*epsilon,
+                            ub=epsilon,
                             )
+
+
+        self.interpolation_mrna = m_hat
+        self._interpolation_mrna_tolerance = epsilon
+
+        self.regenerate_variables()
+        self.regenerate_constraints()
 
 
 
@@ -568,7 +627,6 @@ class MEModel(LCSBModel, Model):
         self.add_reactions([rxn])
 
         aa_stoichiometry = make_stoich_from_aa_sequence(gene.peptide,
-                                                        self,
                                                         self.aa_dict,
                                                         self.trna_dict,
                                                         gtp,
