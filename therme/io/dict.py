@@ -499,7 +499,7 @@ def model_from_dict(obj, solver=None):
 
 def init_me_model_from_dict(new, obj):
     new.max_enzyme_concentration = obj['max_enzyme_concentration']
-    newecoli._scaling = obj['scaling']
+    new._scaling = obj['scaling']
 
     # Convenience attributes
     # new._mu = new.variables.get(obj['_mu'])

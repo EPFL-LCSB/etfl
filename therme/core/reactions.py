@@ -68,16 +68,16 @@ class TranscriptionReaction(EnzymaticReaction):
     Class describing transcription - Assembly of amino acids into peptides
     """
 
-    def __init__(self, id, name, gene, enzymes, **kwargs):
+    def __init__(self, id, name, gene_id, enzymes, **kwargs):
         EnzymaticReaction.__init__(self,
                                    id=id,
                                    name=name,
                                    enzymes=enzymes,
                                    **kwargs)
-        self.gene = gene
+        self._gene_id = gene_id
 
     @staticmethod
-    def from_reaction(reaction, gene, enzymes = None):
+    def from_reaction(reaction, gene_id, enzymes = None):
         """
         This method clones a cobra.Reaction object into a transcription reaction,
         and attaches enzymes to it
@@ -88,17 +88,22 @@ class TranscriptionReaction(EnzymaticReaction):
         :return: an EnzymaticReaction object
         """
         new =  TranscriptionReaction(id = reaction.id,
-                                 name= reaction.name,
-                                 gene = gene,
-                                 subsystem= reaction.subsystem,
-                                 lower_bound= reaction.lower_bound,
-                                 upper_bound= reaction.upper_bound,
-                                 enzymes= enzymes)
+                                     name= reaction.name,
+                                     gene_id= gene_id,
+                                     subsystem= reaction.subsystem,
+                                     lower_bound= reaction.lower_bound,
+                                     upper_bound= reaction.upper_bound,
+                                     enzymes= enzymes)
         new.add_metabolites(reaction.metabolites)
         new.gene_reaction_rule = reaction.gene_reaction_rule
         return new
 
     # The number of amino acids is in the stoichiometry
+
+    @property
+    def gene(self):
+        return self.model.genes.get_by_id(self._gene_id)
+
     @property
     def nucleotide_length(self):
         return len(self.gene.rna)
@@ -118,16 +123,16 @@ class TranslationReaction(EnzymaticReaction):
     Class describing translation - Assembly of amino acids into peptides
     """
 
-    def __init__(self, id, name, gene, enzymes, **kwargs):
+    def __init__(self, id, name, gene_id, enzymes, **kwargs):
         EnzymaticReaction.__init__(self,
                                    id=id,
                                    name=name,
                                    enzymes=enzymes,
                                    **kwargs)
-        self.gene = gene
+        self._gene_id = gene_id
 
     @staticmethod
-    def from_reaction(reaction, gene, enzymes = None):
+    def from_reaction(reaction, gene_id, enzymes = None):
         """
         This method clones a cobra.Reaction object into a translation reaction,
         and attaches enzymes to it
@@ -139,7 +144,7 @@ class TranslationReaction(EnzymaticReaction):
         """
         new =  TranslationReaction(id = reaction.id,
                                  name= reaction.name,
-                                 gene = gene,
+                                 gene_id = gene_id,
                                  subsystem= reaction.subsystem,
                                  lower_bound= reaction.lower_bound,
                                  upper_bound= reaction.upper_bound,
@@ -147,6 +152,10 @@ class TranslationReaction(EnzymaticReaction):
         new.add_metabolites(reaction.metabolites)
         new.gene_reaction_rule = reaction.gene_reaction_rule
         return new
+
+    @property
+    def gene(self):
+        return self.model.genes.get_by_id(self._gene_id)
 
     # The number of amino acids is in the stoichiometry
     @property

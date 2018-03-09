@@ -91,7 +91,7 @@ class Peptide(Metabolite):
             return self.model.genes.get_by_id(self._gene_id)
         except KeyError:
             self.model.logger.warning('Peptide {} tried to reference {}, '
-                                      'not in model'.format(self.id, self.gene_id))
+                                      'not in model'.format(self.id, self._gene_id))
             return None
 
     @property
