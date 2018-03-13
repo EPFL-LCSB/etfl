@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-.. module:: pytfa
+.. module:: therme
    :platform: Unix, Windows
-   :synopsis: Thermodynamics-based Flux Analysis
+   :synopsis: Expression and thermodynamics-based models
 
-.. moduleauthor:: pyTFA team
+.. moduleauthor:: Pierre Salvy
 
 Make the model serializable
 """
@@ -246,7 +246,7 @@ def model_to_dict(model):
         obj['mu_bins'] = model.mu_bins
         obj['nt_dict'] = model.nt_dict
         obj['aa_dict'] = model.aa_dict
-        obj['trna_dict'] = model.trna_dict
+        # obj['trna_dict'] = model.trna_dict
         obj['scaling']   = model._scaling
 
         # Growth
