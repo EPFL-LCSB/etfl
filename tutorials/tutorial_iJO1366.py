@@ -5,6 +5,8 @@
 # actual reviewed values.
 
 
+from os.path import join as pjoin
+
 import cobra
 
 import pandas as pd
@@ -16,6 +18,7 @@ import logging
 from pytfa.io import load_thermoDB,                    \
                             read_lexicon, annotate_from_lexicon,            \
                             read_compartment_data, apply_compartment_data
+from pytfa.optim.relaxation import relax_dgo
 
 from therme.core import Enzyme, Ribosome, RNAPolymerase, ThermoMEModel, MEModel
 from therme.core.mrna import mRNA
@@ -23,6 +26,8 @@ from therme.core.mrna import mRNA
 from therme.io.json import save_json_model
 
 from collections import defaultdict
+
+data_dir = '../organism_data/info_ecoli'
 
 vanilla_model = cobra.io.load_json_model('iJO1366_with_xrefs.json')
 
@@ -58,13 +63,14 @@ mu_range = [0, 4]
 n_mu_bins = 256
 
 # Initialize the cobra_model
-# ecoli = ThermoMEModel(thermo_data,
-ecoli = MEModel(model = vanilla_model,
+ecoli = ThermoMEModel(thermo_data,model = vanilla_model,
+# ecoli = MEModel(model = vanilla_model,
                 growth_reaction = growth_reaction_id,
                 mu_range = mu_range,
                 n_mu_bins = n_mu_bins,
                 max_enzyme_concentration = 1,
                 scaling = 1e3
+                # scaling = 1e5
                 )
 ecoli.name = 'tutorial'
 ecoli.logger.setLevel(logging.WARNING)
@@ -77,6 +83,28 @@ ecoli.solver.problem.Params.NumericFocus = 3
 ecoli.solver.configuration.presolve = True
 
 
+#------------------------------------------------------------
+# Thermo
+#------------------------------------------------------------
+
+def curate_lexicon(lexicon):
+    ix = pd.Series(lexicon.index)
+    ix = ix.apply(lambda s: str.replace(s,'-','__'))
+    ix = ix.apply(lambda s: '_'+s if s[0].isdigit() else s)
+    lexicon.index = ix
+    return lexicon
+
+lexicon = curate_lexicon(read_lexicon('thermo_data/iJO1366_lexicon.csv'))
+
+# Annotate the cobra_model
+annotate_from_lexicon(ecoli, lexicon)
+apply_compartment_data(ecoli, compartment_data)
+
+# TFA conversion
+ecoli.prepare()
+ecoli.reactions.MLTP2.thermo['computed'] = False
+ecoli.convert()#add_displacement = True)
+
 
 #------------------------------------------------------------
 # Data
@@ -84,7 +112,7 @@ ecoli.solver.configuration.presolve = True
 
 # Growth-related abundances
 
-neidhardt_data = pd.read_excel('info_ecoli/neidhardt_tab2.xlsx',
+neidhardt_data = pd.read_excel(pjoin(data_dir,'neidhardt_tab2.xlsx'),
                                skiprows=range(0,6),
                                skip_footer=22)
 mu_cols = ['mu=0.6','mu=1.0','mu=1.5','mu=2.0','mu=2.5']
@@ -117,13 +145,13 @@ kcat_info_milo = pd.read_excel('../models/pnas.1514240113.sd01.xlsx',
                                sheet_name='kcat 1s',
                                header=1,
                                )
-kcat_info_aggregated    = pd.read_csv('info_ecoli/aggregated_kcats.csv',
+kcat_info_aggregated    = pd.read_csv(pjoin(data_dir,'aggregated_kcats.csv'),
                                       index_col = 0)
-ec_info_ecocyc          = pd.read_csv('info_ecoli/complex2ec.csv',
+ec_info_ecocyc          = pd.read_csv(pjoin(data_dir,'complex2ec.csv'),
                                       index_col = 0)
-composition_info_ecocyc = pd.read_csv('info_ecoli/complex2genes.csv',
+composition_info_ecocyc = pd.read_csv(pjoin(data_dir,'complex2genes.csv'),
                                       index_col = 0)
-gene_names = pd.read_csv('info_ecoli/gene2bname.txt', delimiter='\t',
+gene_names = pd.read_csv(pjoin(data_dir,'gene2bname.txt'), delimiter='\t',
                          index_col=0)
 
 
@@ -131,7 +159,7 @@ gene_names = pd.read_csv('info_ecoli/gene2bname.txt', delimiter='\t',
 # Bernstein et al. (2002) Proc. Natl. Acad. Sci. USA, 10.1073/pnas.112318199
 # "Global analysis of mRNA decay and abundance in Escherichia coli at single-gene resolution using two-color fluorescent DNA microarrays"
 bernstein_ecoli_deg_rates = pd.read_excel(
-    'info_ecoli/bernstein_2002_mrna_deg.xls',
+    pjoin(data_dir,'bernstein_2002_mrna_deg.xls'),
     skiprows=range(8),
     index_col=0)
 
@@ -317,7 +345,7 @@ def score_against_genes(putative_genes, reaction_genes):
 def match_ec_genes_ecocyc(ecocyc, genes, threshold=0.5):
     this_data = composition_info_ecocyc[composition_info_ecocyc['complex'].isin(ecocyc)]
     scores = this_data['putative_genes'].apply(score_against_genes, args=[genes])
-    selectable = this_data[scores>=len(genes)*threshold]
+    selectable = this_data[scores>len(genes)*threshold]
     if len(selectable) == 0:
         return None, scores
     else:
@@ -422,7 +450,7 @@ for x in nt_sequences.index:
     mrna_dict[x] = new_mrna
 
 #[ ribosomes and RNAP ]#
-rpeptide_genes = pd.read_csv('info_ecoli/ribosomal_proteins_ecoli.tsv',
+rpeptide_genes = pd.read_csv(pjoin(data_dir,'ribosomal_proteins_ecoli.tsv'),
                              delimiter='\t',
                              header=None)[0]
 rpeptide_genes = rpeptide_genes.str.split(':').apply(lambda x:x[1])
@@ -482,31 +510,15 @@ ecoli.add_rna_mass_requirement(neidhardt_mu, neidhardt_rrel)
 
 ecoli.print_info()
 
-solution = ecoli.optimize()
-print('Growth               : {}'.format(ecoli.solution.f))
-print(' - Ribosomes produced: {}'.format(ecoli.solution.x_dict.EZ_rib))
-print(' - RNAP produced: {}'.format(ecoli.solution.x_dict.EZ_rnap))
+ecoli.growth_reaction.lower_bound = observed_growth
+relaxed_model, slack_model, relax_table = relax_dgo(ecoli)
 
-save_json_model(ecoli, 'models/iJO1366_{}_{}_bins_2018031.json'.format(len(ecoli.enzymes),
-                                                                 ecoli.n_mu_bins))
+solution = relaxed_model.optimize()
+print('Growth               : {}'.format(relaxed_model.solution.f))
+print(' - Ribosomes produced: {}'.format(relaxed_model.solution.x_dict.EZ_rib))
+print(' - RNAP produced: {}'.format(relaxed_model.solution.x_dict.EZ_rnap))
 
-#------------------------------------------------------------
-# Thermo
-#------------------------------------------------------------
+save_json_model(relaxed_model, 'models/iJO1366_t_{}_{}_bins_2018031.json'.format(len(relaxed_model.enzymes),
+                                                                         relaxed_model.n_mu_bins))
 
-def curate_lexicon(lexicon):
-    ix = pd.Series(lexicon.index)
-    ix = ix.apply(lambda s: str.replace(s,'-','__'))
-    ix = ix.apply(lambda s: '_'+s if s[0].isdigit() else s)
-    lexicon.index = ix
-    return lexicon
 
-# lexicon = curate_lexicon(read_lexicon('thermo_data/iJO1366_lexicon.csv'))
-
-# # Annotate the cobra_model
-# annotate_from_lexicon(ecoli, lexicon)
-# apply_compartment_data(ecoli, compartment_data)
-
-## TFA conversion
-# ecoli.prepare()
-# ecoli.convert()#add_displacement = True)
