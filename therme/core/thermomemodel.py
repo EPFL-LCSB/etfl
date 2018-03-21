@@ -76,6 +76,8 @@ class ThermoMEModel(MEModel, ThermoModel):
         self._n_mu_bins = n_mu_bins
         self._mu_in = mu
 
+        self._scaling = scaling
+
         if mu is not None and mu_error == 0:
             self._mu = mu
         elif mu is not None and mu_error > 0:
@@ -95,6 +97,11 @@ class ThermoMEModel(MEModel, ThermoModel):
             message = "Empty model initialized"
             # raise ValueError(message)
             self.logger.info(message)
+
+        self.aa_dict = dict()
+        self.nt_dict = dict()
+        self.trna_dict = dict()
+
         self.enzymes = DictList()
         self.mrnas = DictList()
         self.peptides = DictList()
