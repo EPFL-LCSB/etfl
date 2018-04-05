@@ -1025,8 +1025,13 @@ class MEModel(LCSBModel, Model):
         """
         if not hasattr(enzyme_list, '__iter__'):
             enzyme_list = [enzyme_list]
+        else:
+            enzyme_list = list(enzyme_list)
         if len(enzyme_list) == 0:
             return None
+
+        if not isinstance(enzyme_list[0],Enzyme):
+            enzyme_list = [x for item in enzyme_list for x in item]
 
         # First check whether the enzymes exist in the model
         enzyme_list = [x for x in enzyme_list if x.id not in self.enzymes]
