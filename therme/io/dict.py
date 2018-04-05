@@ -9,52 +9,22 @@
 Make the model serializable
 """
 from collections import OrderedDict, defaultdict
+
 import cobra.io.dict as cbd
 from cobra.exceptions import SolverNotFound
-
+from optlang.util import expr_to_json, parse_expr
+from pytfa.io.dict import get_solver_string, var_to_dict, cons_to_dict
 from pytfa.thermo.tmodel import ThermoModel
 
+from ..core.enzyme import Enzyme, Ribosome, Peptide, RNAPolymerase
 from ..core.memodel import MEModel
+from ..core.mrna import mRNA
+from ..core.reactions import TranslationReaction, TranscriptionReaction, \
+    EnzymaticReaction
 from ..core.thermomemodel import ThermoMEModel
+from ..optim.utils import rebuild_constraint, rebuild_variable
 from ..utils.utils import replace_by_enzymatic_reaction, \
     replace_by_translation_reaction, replace_by_transcription_reaction
-from ..core.reactions import TranslationReaction, TranscriptionReaction, EnzymaticReaction
-from ..core.enzyme import Enzyme, Ribosome, Peptide, RNAPolymerase
-from ..core.mrna import mRNA
-from ..optim.constraints import  EnzymeConstraint, ModelConstraint, GeneConstraint
-from ..optim.variables import  EnzymeVariable, ModelVariable, GeneVariable
-
-from pytfa.optim.variables import ReactionVariable, MetaboliteVariable
-from pytfa.optim.constraints import ReactionConstraint, MetaboliteConstraint
-from pytfa.io.dict import get_solver_string, var_to_dict, cons_to_dict
-
-from optlang.util import expr_to_json, parse_expr
-
-
-def get_all_subclasses(cls):
-    all_subclasses = []
-
-    for subclass in cls.__subclasses__():
-        all_subclasses.append(subclass)
-        all_subclasses.extend(get_all_subclasses(subclass))
-
-    return all_subclasses
-
-def make_subclasses_dict(cls):
-    the_dict = {x.__name__:x for x in get_all_subclasses(cls)}
-    the_dict[cls.__name__] = cls
-    return the_dict
-
-REACTION_VARIABLE_SUBCLASSES    = make_subclasses_dict(ReactionVariable)
-REACTION_CONSTRAINT_SUBCLASSES  = make_subclasses_dict(ReactionConstraint)
-METABOLITE_VARIABLE_SUBCLASSES  = make_subclasses_dict(MetaboliteVariable)
-METABOLITE_CONSTRAINT_SUBCLASSES= make_subclasses_dict(MetaboliteConstraint)
-ENZYME_VARIABLE_SUBCLASSES      = make_subclasses_dict(EnzymeVariable)
-ENZYME_CONSTRAINT_SUBCLASSES    = make_subclasses_dict(EnzymeConstraint)
-GENE_VARIABLE_SUBCLASSES        = make_subclasses_dict(GeneVariable)
-GENE_CONSTRAINT_SUBCLASSES      = make_subclasses_dict(GeneConstraint)
-MODEL_VARIABLE_SUBCLASSES       = make_subclasses_dict(ModelVariable)
-MODEL_CONSTRAINT_SUBCLASSES     = make_subclasses_dict(ModelConstraint)
 
 SOLVER_DICT = {
     'optlang.gurobi_interface':'optlang-gurobi',
@@ -374,56 +344,7 @@ def model_from_dict(obj, solver=None):
         lb = the_var_dict['lb']
         ub = the_var_dict['ub']
 
-        if classname in REACTION_VARIABLE_SUBCLASSES:
-            hook = new.reactions.get_by_id(this_id)
-            this_class = REACTION_VARIABLE_SUBCLASSES[classname]
-            nv = new.add_variable(kind=this_class,
-                                  hook=hook,
-                                  ub = ub,
-                                  lb = lb,
-                                  queue=True)
-
-        elif classname in METABOLITE_VARIABLE_SUBCLASSES:
-            hook = new.metabolites.get_by_id(this_id)
-            this_class = METABOLITE_VARIABLE_SUBCLASSES[classname]
-            nv = new.add_variable(kind=this_class,
-                                  hook=hook,
-                                  ub = ub,
-                                  lb = lb,
-                                  queue=True)
-
-        elif classname in ENZYME_VARIABLE_SUBCLASSES:
-            hook = new.enzymes.get_by_id(this_id)
-            this_class = ENZYME_VARIABLE_SUBCLASSES[classname]
-            nv = new.add_variable(kind=this_class,
-                                  hook=hook,
-                                  ub = ub,
-                                  lb = lb,
-                                  queue=True)
-
-        elif classname in GENE_VARIABLE_SUBCLASSES:
-            hook = new.genes.get_by_id(this_id)
-            this_class = GENE_VARIABLE_SUBCLASSES[classname]
-            nv = new.add_variable(kind=this_class,
-                                  hook=hook,
-                                  ub=ub,
-                                  lb=lb,
-                                  queue=True)
-
-        elif classname in MODEL_VARIABLE_SUBCLASSES:
-            hook = new
-            this_class = MODEL_VARIABLE_SUBCLASSES[classname]
-            nv = new.add_variable(kind=this_class,
-                                  hook=hook,
-                                  id_ = this_id,
-                                  ub = ub,
-                                  lb = lb,
-                                  queue=True)
-
-        else:
-            raise TypeError(
-                'Class {} serialization not handled yet' \
-                    .format(classname))
+        rebuild_variable(classname, new, this_id, lb, ub)
 
     new._update()
 
@@ -445,57 +366,12 @@ def model_from_dict(obj, solver=None):
         lb = the_cons_dict['lb']
         ub = the_cons_dict['ub']
 
-        if classname in REACTION_CONSTRAINT_SUBCLASSES:
-            hook = new.reactions.get_by_id(this_id)
-            this_class = REACTION_CONSTRAINT_SUBCLASSES[classname]
-            nc = new.add_constraint(kind=this_class, hook=hook,
-                                    expr=new_expr,
-                                    ub = ub,
-                                    lb = lb,
-                                    queue=True)
-
-        elif classname in METABOLITE_CONSTRAINT_SUBCLASSES:
-            hook = new.metabolites.get_by_id(this_id)
-            this_class = METABOLITE_CONSTRAINT_SUBCLASSES[classname]
-            nc = new.add_constraint(kind=this_class, hook=hook,
-                                    expr=new_expr,
-                                    ub = ub,
-                                    lb = lb,
-                                    queue=True)
-
-        elif classname in ENZYME_CONSTRAINT_SUBCLASSES:
-            hook = new.enzymes.get_by_id(this_id)
-            this_class = ENZYME_CONSTRAINT_SUBCLASSES[classname]
-            nc = new.add_constraint(kind=this_class, hook=hook,
-                                    expr=new_expr,
-                                    ub = ub,
-                                    lb = lb,
-                                    queue=True)
-
-        elif classname in GENE_CONSTRAINT_SUBCLASSES:
-            hook = new.genes.get_by_id(this_id)
-            this_class = GENE_CONSTRAINT_SUBCLASSES[classname]
-            nc = new.add_constraint(kind=this_class, hook=hook,
-                                    expr=new_expr,
-                                    ub = ub,
-                                    lb = lb,
-                                    queue=True)
-
-        elif classname in MODEL_CONSTRAINT_SUBCLASSES:
-            hook=new
-            this_class = MODEL_CONSTRAINT_SUBCLASSES[classname]
-            nc = new.add_constraint(kind=this_class, hook=hook,
-                                    expr=new_expr, id_ = this_id,
-                                    ub = ub,
-                                    lb = lb,
-                                    queue=True)
-        else:
-            raise TypeError('Class {} serialization not handled yet' \
-                            .format(classname))
+        rebuild_constraint(classname, new, this_id, new_expr, lb, ub)
 
     new._update()
     new.repair()
     return new
+
 
 def init_me_model_from_dict(new, obj):
     new.max_enzyme_concentration = obj['max_enzyme_concentration']
