@@ -27,6 +27,8 @@ from therme.io.json import save_json_model
 
 from collections import defaultdict
 
+import re
+
 data_dir = '../organism_data/info_ecoli'
 
 vanilla_model = cobra.io.load_json_model('iJO1366_with_xrefs.json')
@@ -151,6 +153,11 @@ ec_info_ecocyc          = pd.read_csv(pjoin(data_dir,'complex2ec.csv'),
                                       index_col = 0)
 composition_info_ecocyc = pd.read_csv(pjoin(data_dir,'complex2genes.csv'),
                                       index_col = 0)
+reaction2complexes_info_obrien = pd.read_excel(
+    pjoin(data_dir, 'obrien2013_SI_tab10.xlsx'), index_col=0, usecols=[0, 1])
+complexes2peptides_info_obrien = pd.read_excel(
+    pjoin(data_dir, 'obrien2013_SI_tab1.xlsx'), index_col=0, usecols=[0, 1])
+
 gene_names = pd.read_csv(pjoin(data_dir,'gene2bname.txt'), delimiter='\t',
                          index_col=0)
 
@@ -314,10 +321,10 @@ for x in ecoli.reactions:
 
     new_enzyme.composition = composition
 
-    coupling_dict[x.id] = new_enzyme
+    coupling_dict[x.id] = [new_enzyme]
 
 
-aggregated_coupling_dict = dict()
+aggregated_coupling_dict = defaultdict(list)
 
 
 # Aggregated kcats
@@ -369,6 +376,25 @@ def ecocyc2composition(ecocyc):
 
     return composition
 
+comp_regex = re.compile(r'(b[0-9]{4})\((\d?)\)')
+
+def complex2composition(complex_name):
+    # Silence modifications
+    if '_mod_' in complex_name:
+        complex_name = complex_name[0:complex_name.index('_mod_')]
+
+    composition_string = complexes2peptides_info_obrien.loc[complex_name,'Gene composition']
+    composition_dict = {}
+    groups = comp_regex.findall(composition_string)
+    for peptide, stoich in groups:
+        if stoich == '':
+            stoich = 1
+        else:
+            stoich = int(stoich)
+        composition_dict[peptide] = stoich
+
+    return composition_dict
+
 def ec2kcat(ec_number):
     try:
         return kcat_info_aggregated['kcat'].loc[ec_number].max() * 3600  # s/h
@@ -387,42 +413,34 @@ for x in ecoli.reactions:
 
     reaction_ecs = x.notes['ec_numbers']
 
-    candidate_complexes = ec2ecocyc(reaction_ecs)
-
-    if len(candidate_complexes)==0:
-        # No data found
+    try:
+        complex_names = reaction2complexes_info_obrien.loc[x.id,'Enzymes'].split(' OR ')
+    except KeyError:
         continue
-    else:
-        # We need to get the gene composition of the complex
-        # The complex we got thanks to the EC
-        ecocyc_data, scores = match_ec_genes_ecocyc(candidate_complexes['complex'], x.genes)
-        if ecocyc_data is None:
-            kcat = None
-            composition = None
+
+    for e,this_complex_name in enumerate(complex_names):
+
+        this_ec = x.notes['ec_numbers'][0]
+        kcat = ec2kcat(this_ec)
+
+        if kcat is None:
             continue
 
-        ecocyc_name = ecocyc_data['complex']
-        composition = ecocyc2composition(ecocyc_name)
-        ecocyc_ec = candidate_complexes[candidate_complexes['complex'] == ecocyc_name]['ec']
-        kcat = ec2kcat(ecocyc_ec)
+        new_enzyme = Enzyme('{}_{}'.format(x.id,this_complex_name),
+                            name='{}_{}: {}'.format(x.id, e, this_complex_name),
+                            kcat=kcat,
+                            kdeg=kdeg_enz)
 
-    if kcat is None or composition is None:
-            continue
+        composition = complex2composition(this_complex_name)
+        new_enzyme.composition = composition
 
-    new_enzyme = Enzyme(x.id,
-                        name=ecocyc_name,
-                        kcat=kcat,
-                        kdeg=kdeg_enz)
+        new_enzyme.notes['EC'] = this_ec
 
-    new_enzyme.notes['EC'] = ecocyc_ec
-    new_enzyme.notes['scores'] = scores
+        aggregated_coupling_dict[x.id].append(new_enzyme)
 
-    new_enzyme.composition = composition
 
-    aggregated_coupling_dict[x.id] = new_enzyme
-
-coupling_dict.update(aggregated_coupling_dict)
 # 1/0
+coupling_dict.update(aggregated_coupling_dict)
 mrna_dict = dict()
 
 # Generate a mRNA dict
@@ -509,16 +527,16 @@ ecoli.add_rna_mass_requirement(neidhardt_mu, neidhardt_rrel)
 
 
 ecoli.print_info()
-
-ecoli.growth_reaction.lower_bound = observed_growth
-relaxed_model, slack_model, relax_table = relax_dgo(ecoli)
-
-solution = relaxed_model.optimize()
-print('Growth               : {}'.format(relaxed_model.solution.f))
-print(' - Ribosomes produced: {}'.format(relaxed_model.solution.x_dict.EZ_rib))
-print(' - RNAP produced: {}'.format(relaxed_model.solution.x_dict.EZ_rnap))
-
-save_json_model(relaxed_model, 'models/iJO1366_t_{}_{}_bins_2018031.json'.format(len(relaxed_model.enzymes),
-                                                                         relaxed_model.n_mu_bins))
+ecoli.optimize()
+# ecoli.growth_reaction.lower_bound = observed_growth
+# relaxed_model, slack_model, relax_table = relax_dgo(ecoli)
+#
+# solution = relaxed_model.optimize()
+# print('Growth               : {}'.format(relaxed_model.solution.f))
+# print(' - Ribosomes produced: {}'.format(relaxed_model.solution.x_dict.EZ_rib))
+# print(' - RNAP produced: {}'.format(relaxed_model.solution.x_dict.EZ_rnap))
+#
+# save_json_model(relaxed_model, 'models/iJO1366_t_{}_{}_bins_2018031.json'.format(len(relaxed_model.enzymes),
+#                                                                          relaxed_model.n_mu_bins))
 
 
