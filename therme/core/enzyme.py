@@ -110,11 +110,12 @@ class Peptide(Metabolite):
         self._molecular_weight_override = value
 
     @staticmethod
-    def from_metabolite(met, copy = False):
-        if copy:
-            met = met.copy()
-        met.__class__ = Peptide
-        return met
+    def from_metabolite(met, gene_id=None):
+
+        new = Peptide(id=met.id,
+                      name = met.name,
+                      gene_id=gene_id)
+        return new
 
 
 class Ribosome(Enzyme):

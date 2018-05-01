@@ -47,12 +47,31 @@ def fix_integers(model):
     :param model:
     :return:
     """
+
+    if model.problem.__name__ == 'optlang.gurobi_interface':
+        model.logger.info('Gurobi-based model detected - using  Gurobi\'s .'
+                          'fixed() method')
+        return _gurobi_fix_integers(model)
+    else:
+        return _generic_fix_integers(model)
+
+def _gurobi_fix_integers(model):
+    new = model.copy()
+    fixed = model.solver.problem.fixed()
+    new.solver.problem = fixed
+    return new
+
+def _generic_fix_integers(model):
     continuous_model = model.copy()
     continuous_model.name = model.name + ' - continuous'
 
     integer_variables = set()
 
     constraints_with_integer_variables = []
+
+    if not hasattr(model, 'solution'):
+        model.logger.info('Model has no solution to fix the integers, calculating one')
+        model.optimize()
 
     # We go through all the constraint descriptors and check if at least one of
     # their variables is in the integer variable list
@@ -61,13 +80,15 @@ def fix_integers(model):
         for this_var in this_cons.constraint.variables:
             if this_var.type in INTEGER_VARIABLE_TYPES:
                 has_integer_variable += True
-                this_var_descriptor = continuous_model._var_dict[this_var.name]
+                this_var_descriptor = this_var.name
                 integer_variables.add(this_var_descriptor)
-        constraints_with_integer_variables.append(this_cons)
+        constraints_with_integer_variables.append(this_cons.name)
 
-    for this_cons in constraints_with_integer_variables:
-        int_dict = {x:model.solution.x_dict[x.name]
-                    for x in this_cons.expr.free_symbols if x in integer_variables}
+    int_dict = {continuous_model.variables[x]: model.solution.x_dict[x]
+                for x in integer_variables}
+
+    for this_cons_name in constraints_with_integer_variables:
+        this_cons = model._cons_dict[this_cons_name]
         new_expr = this_cons.expr.subs(int_dict)
         kind = type(this_cons)
         ub = this_cons.constraint.ub
@@ -83,8 +104,12 @@ def fix_integers(model):
                            ub=ub)
 
     for this_var in integer_variables:
-        continuous_model.remove_variable(this_var)
+        # This_var is an InterfaceVariable object, we want the GenericVariable
+        # it belongs to
+        the_generic_var = continuous_model._var_dict[this_var.name]
+        continuous_model.remove_variable(the_generic_var)
 
+    continuous_model._update()
     continuous_model.solver.update()
     # This will update the values =
     print('Is the cobra_model still integer ? {}'     \
@@ -92,7 +117,7 @@ def fix_integers(model):
 
     return continuous_model
 
-def rebuild_variable(classname, model, this_id, lb, ub):
+def rebuild_variable(classname, model, this_id, lb, ub, queue=True):
     if classname in REACTION_VARIABLE_SUBCLASSES:
         hook = model.reactions.get_by_id(this_id)
         this_class = REACTION_VARIABLE_SUBCLASSES[classname]
@@ -100,7 +125,7 @@ def rebuild_variable(classname, model, this_id, lb, ub):
                                 hook=hook,
                                 ub=ub,
                                 lb=lb,
-                                queue=True)
+                                queue=queue)
 
     elif classname in METABOLITE_VARIABLE_SUBCLASSES:
         hook = model.metabolites.get_by_id(this_id)
@@ -109,7 +134,7 @@ def rebuild_variable(classname, model, this_id, lb, ub):
                                 hook=hook,
                                 ub=ub,
                                 lb=lb,
-                                queue=True)
+                                queue=queue)
 
     elif classname in ENZYME_VARIABLE_SUBCLASSES:
         hook = model.enzymes.get_by_id(this_id)
@@ -118,7 +143,7 @@ def rebuild_variable(classname, model, this_id, lb, ub):
                                 hook=hook,
                                 ub=ub,
                                 lb=lb,
-                                queue=True)
+                                queue=queue)
 
     elif classname in GENE_VARIABLE_SUBCLASSES:
         hook = model.genes.get_by_id(this_id)
@@ -127,7 +152,7 @@ def rebuild_variable(classname, model, this_id, lb, ub):
                                 hook=hook,
                                 ub=ub,
                                 lb=lb,
-                                queue=True)
+                                queue=queue)
 
     elif classname in MODEL_VARIABLE_SUBCLASSES:
         hook = model
@@ -137,7 +162,7 @@ def rebuild_variable(classname, model, this_id, lb, ub):
                                 id_=this_id,
                                 ub=ub,
                                 lb=lb,
-                                queue=True)
+                                queue=queue)
 
     else:
         raise TypeError(
@@ -147,7 +172,7 @@ def rebuild_variable(classname, model, this_id, lb, ub):
     return nv
 
 
-def rebuild_constraint(classname, model, this_id, new_expr, lb, ub):
+def rebuild_constraint(classname, model, this_id, new_expr, lb, ub, queue=True):
     if classname in REACTION_CONSTRAINT_SUBCLASSES:
         hook = model.reactions.get_by_id(this_id)
         this_class = REACTION_CONSTRAINT_SUBCLASSES[classname]
@@ -155,7 +180,7 @@ def rebuild_constraint(classname, model, this_id, new_expr, lb, ub):
                                   expr=new_expr,
                                   ub=ub,
                                   lb=lb,
-                                  queue=True)
+                                  queue=queue)
 
     elif classname in METABOLITE_CONSTRAINT_SUBCLASSES:
         hook = model.metabolites.get_by_id(this_id)
@@ -164,7 +189,7 @@ def rebuild_constraint(classname, model, this_id, new_expr, lb, ub):
                                   expr=new_expr,
                                   ub=ub,
                                   lb=lb,
-                                  queue=True)
+                                  queue=queue)
 
     elif classname in ENZYME_CONSTRAINT_SUBCLASSES:
         hook = model.enzymes.get_by_id(this_id)
@@ -173,7 +198,7 @@ def rebuild_constraint(classname, model, this_id, new_expr, lb, ub):
                                   expr=new_expr,
                                   ub=ub,
                                   lb=lb,
-                                  queue=True)
+                                  queue=queue)
 
     elif classname in GENE_CONSTRAINT_SUBCLASSES:
         hook = model.genes.get_by_id(this_id)
@@ -182,7 +207,7 @@ def rebuild_constraint(classname, model, this_id, new_expr, lb, ub):
                                   expr=new_expr,
                                   ub=ub,
                                   lb=lb,
-                                  queue=True)
+                                  queue=queue)
 
     elif classname in MODEL_CONSTRAINT_SUBCLASSES:
         hook = model
@@ -191,7 +216,7 @@ def rebuild_constraint(classname, model, this_id, new_expr, lb, ub):
                                   expr=new_expr, id_=this_id,
                                   ub=ub,
                                   lb=lb,
-                                  queue=True)
+                                  queue=queue)
     else:
         raise TypeError('Class {} serialization not handled yet' \
                         .format(classname))

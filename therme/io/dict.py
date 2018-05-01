@@ -20,11 +20,12 @@ from ..core.enzyme import Enzyme, Ribosome, Peptide, RNAPolymerase
 from ..core.memodel import MEModel
 from ..core.mrna import mRNA
 from ..core.reactions import TranslationReaction, TranscriptionReaction, \
-    EnzymaticReaction
+    EnzymaticReaction, ProteinComplexation, DegradationReaction
 from ..core.thermomemodel import ThermoMEModel
 from ..optim.utils import rebuild_constraint, rebuild_variable
 from ..utils.utils import replace_by_enzymatic_reaction, \
-    replace_by_translation_reaction, replace_by_transcription_reaction
+    replace_by_translation_reaction, replace_by_transcription_reaction, \
+    replace_by_reaction_subclass, replace_by_me_gene
 
 SOLVER_DICT = {
     'optlang.gurobi_interface':'optlang-gurobi',
@@ -242,7 +243,6 @@ def model_to_dict(model):
 
 
     # Metabolite and Reaction-level cleanup
-
     for rxn_dict in obj['reactions']:
         rxn = model.reactions.get_by_id(rxn_dict['id'])
 
@@ -258,17 +258,26 @@ def model_to_dict(model):
         the_met_id = met_dict['id']
 
         met_dict['kind'] = 'Metabolite'
+        the_met = model.metabolites.get_by_id(the_met_id)
 
         is_peptide = False
 
         if is_me:
             if the_met_id in model.peptides:
                 met_dict['kind'] = 'Peptide'
+                met_dict['gene_id'] = the_met.gene.id
                 is_peptide = True
 
         if is_thermo and not is_peptide: # peptides have no thermo
-            the_met = model.metabolites.get_by_id(the_met_id)
             _add_thermo_metabolite_info(the_met, rxn_dict)
+
+    for gene_dict in obj['genes']:
+        try:
+            gene_dict['sequence'] = model.genes.get_by_id(gene_dict['id']).sequence
+        except AttributeError:
+            # Not an ExpressedGene
+            pass
+
 
     return obj
 
@@ -283,6 +292,14 @@ def _add_me_reaction_info(rxn, rxn_dict):
     elif isinstance(rxn, TranscriptionReaction):
         rxn_dict['kind'] = 'TranscriptionReaction'
         rxn_dict['gene_id'] = rxn.gene.id
+    # Protein Complexation
+    elif isinstance(rxn, ProteinComplexation):
+        rxn_dict['kind'] = 'ProteinComplexation'
+        rxn_dict['gene_id'] = None
+    # Degradation Reaction
+    elif isinstance(rxn, DegradationReaction):
+        rxn_dict['kind'] = 'DegradationReaction'
+        rxn_dict['gene_id'] = None
     # Enzymatic Reactions
     elif isinstance(rxn, EnzymaticReaction):
         rxn_dict['kind'] = 'EnzymaticReaction'
@@ -381,6 +398,9 @@ def init_me_model_from_dict(new, obj):
     # new._mu = new.variables.get(obj['_mu'])
     # new.compositions = rebuild_compositions(new, obj['compositions'])
     new.mu_bins = obj['mu_bins']
+    new.nt_dict = obj['nt_dict']
+    new.aa_dict = obj['aa_dict']
+    # new.trna_dict = obj['trna_dict']
 
     # Add growth reaction
     new.growth_reaction = obj['growth_reaction']
@@ -411,9 +431,14 @@ def init_me_model_from_dict(new, obj):
     find_enzymatic_reactions_from_dict(new, obj)
     find_translation_reactions_from_dict(new, obj)
     find_transcription_reactions_from_dict(new, obj)
+    find_complexation_reactions_from_dict(new, obj)
+    find_degradation_reactions_from_dict(new, obj)
 
     # Populate Peptides
     find_peptides_from_dict(new, obj)
+
+    # Recover the gene sequences
+    find_genes_from_dict(new, obj)
 
     return new
 
@@ -525,13 +550,43 @@ def find_transcription_reactions_from_dict(new, obj):
             new_transc_rxns.append(enz_rxn)
     new.transcription_reactions += new_transc_rxns
 
+
+def find_complexation_reactions_from_dict(new, obj):
+    new_rxns = list()
+    for rxn_dict in obj['reactions']:
+        if rxn_dict['kind'] == 'ProteinComplexation':
+            new_rxn = replace_by_reaction_subclass(new,
+                                                   kind = ProteinComplexation,
+                                                   reaction_id=rxn_dict['id'])
+            new_rxns.append(new_rxn)
+    new.complexation_reactions += new_rxns
+
+def find_degradation_reactions_from_dict(new, obj):
+    new_rxns = list()
+    for rxn_dict in obj['reactions']:
+        if rxn_dict['kind'] == 'DegradationReaction':
+            new_rxn = replace_by_reaction_subclass(new,
+                                                   kind = DegradationReaction,
+                                                   reaction_id=rxn_dict['id'])
+            new_rxns.append(new_rxn)
+    new.degradation_reactions += new_rxns
+
+
 def find_peptides_from_dict(new, obj):
     new_peptides = list()
     for met_dict in obj['metabolites']:
         if met_dict['kind'] == 'Peptide':
             met = new.metabolites.get_by_id(met_dict['id'])
-            pep = Peptide.from_metabolite(met)
+            pep = Peptide.from_metabolite(met, met_dict['gene_id'])
             new.metabolites._replace_on_id(pep)
             new_peptides.append(pep)
     new.peptides += new_peptides
+
+def find_genes_from_dict(new, obj):
+    for gene_dict in obj['genes']:
+        try:
+            sequence = gene_dict['sequence']
+            replace_by_me_gene(new, gene_dict['id'], str(sequence))
+        except KeyError:
+            pass
 

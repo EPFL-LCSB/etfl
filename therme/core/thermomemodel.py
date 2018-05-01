@@ -108,6 +108,7 @@ class ThermoMEModel(MEModel, ThermoModel):
         self.transcription_reactions = DictList()
         self.translation_reactions = DictList()
         self.complexation_reactions = DictList()
+        self.degradation_reactions = DictList()
 
         ###############
         # Thermo part #
