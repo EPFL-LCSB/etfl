@@ -2,10 +2,10 @@ import cobra
 import numpy as np
 from copy import deepcopy
 
-from therme.therme.optim.constraints import CatalyticConstraint
-from therme.therme.optim.variables import CatalyticActivator
-from ..optim.constraints import BackwardDirectionCoupling
-from ..optim.variables import BackwardUseVariable
+from ..optim.constraints import CatalyticConstraint
+from ..optim.variables import CatalyticActivator
+from pytfa.optim.constraints import BackwardDirectionCoupling
+from pytfa.optim.variables import BackwardUseVariable
 
 def localize_exp(exp):
     return exp.subs({x : x.name for x in exp.free_symbols})
