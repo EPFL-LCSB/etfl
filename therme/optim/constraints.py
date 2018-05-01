@@ -158,6 +158,20 @@ class RibosomeRatio(ModelConstraint):
 
     prefix = 'RR_'
 
+class EnzymeDegradation(EnzymeConstraint):
+    """
+    v_deg = k_deg [E]
+    """
+
+    prefix = "ED_"
+
+class mRNADegradation(GeneConstraint):
+    """
+    v_deg = k_deg [mRNA]
+    """
+
+    prefix = "MD_"
+
 
 class GrowthChoice(ModelConstraint):
     """

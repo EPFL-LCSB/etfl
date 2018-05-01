@@ -25,17 +25,20 @@ from .genes import ExpressedGene
 from .mrna  import mRNA
 from .enzyme import Enzyme, Peptide
 from .reactions import EnzymaticReaction, ProteinComplexation, \
-    TranslationReaction, TranscriptionReaction
+    TranslationReaction, TranscriptionReaction, DegradationReaction
 from .expression import build_trna_charging, \
-    make_stoich_from_aa_sequence, make_stoich_from_nt_sequence
+    make_stoich_from_aa_sequence, make_stoich_from_nt_sequence, \
+    degrade_peptide, degrade_mrna
 from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,\
     BackwardCatalyticConstraint, EnzymeMassBalance, mRNAMassBalance, \
     GrowthCoupling, TotalCapacity, ExpressionCoupling, RibosomeRatio, \
-    GrowthChoice, LinearizationConstraint, SynthesisConstraint, SOS1Constraint,\
+    GrowthChoice, EnzymeDegradation, mRNADegradation,\
+    LinearizationConstraint, SynthesisConstraint, SOS1Constraint,\
     InterpolationConstraint
 from ..optim.variables import ModelVariable, GrowthActivation, \
     EnzymeVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, \
     FreeRibosomes, BinaryActivator, InterpolationVariable
+
 from pytfa.core.model import LCSBModel
 from pytfa.optim.reformulation import petersen_linearization
 from pytfa.optim.utils import chunk_sum, symbol_sum
@@ -127,6 +130,7 @@ class MEModel(LCSBModel, Model):
         self.transcription_reactions = DictList()
         self.translation_reactions = DictList()
         self.complexation_reactions = DictList()
+        self.degradation_reactions = DictList()
 
 
     @property
@@ -1113,6 +1117,79 @@ class MEModel(LCSBModel, Model):
 
         self.add_enzymes(new_enzymes)
         return new_enzymes
+
+
+    def add_degradation(self):
+        for enzyme in self.enzymes:
+            self._add_enzyme_degradation(enzyme)
+
+        for mRNA in self.mrnas:
+            self._add_mrna_degradation(mRNA)
+
+
+        self._update()
+        self.regenerate_variables()
+        self.regenerate_constraints()
+
+    def _add_enzyme_degradation(self, enzyme):
+
+        if enzyme.kdeg is None or np.isnan(enzyme.kdeg):
+            return None
+
+        complex_dict = enzyme.complexation.metabolites
+        deg_stoich = defaultdict(int)
+        for peptide, stoich in complex_dict.items():
+            degradation_mets = degrade_peptide(peptide,
+                                               self.aa_dict)
+            for k,v in degradation_mets.items():
+                deg_stoich[k]+=-1*v*stoich/self._scaling # v is negative
+
+        reaction = DegradationReaction(id='{}_degradation'.format(enzyme.id))
+
+        # Assignment to model must be done before since met dict kas string keys
+        self.add_reactions([reaction])
+        self.degradation_reactions+=[reaction]
+
+        reaction.add_metabolites(deg_stoich)
+
+        # Couple with the expression constraint v_deg = k_deg [E]
+        vnet = reaction.forward_variable - reaction.reverse_variable
+        expr = vnet - enzyme.kdeg * enzyme.variable
+
+        self.add_constraint(kind=EnzymeDegradation,
+                            hook=enzyme,
+                            expr=expr,
+                            lb=0,
+                            ub=0,
+                            queue=True)
+
+
+    def _add_mrna_degradation(self, mrna):
+
+        if mrna.kdeg is None or np.isnan(mrna.kdeg):
+            return None
+
+        degradation_mets = degrade_mrna(mrna, self.nt_dict)
+        deg_stoich = {k:v/self._scaling for k,v in degradation_mets.items()}
+
+
+        reaction = DegradationReaction(id='{}_degradation'.format(mrna.id))
+
+        # Assignment to model must be done before since met dict kas string keys
+        self.add_reactions([reaction])
+        self.degradation_reactions+=[reaction]
+
+        reaction.add_metabolites(deg_stoich)
+        # Couple with the expression constraint v_deg = k_deg [E]
+        vnet = reaction.forward_variable - reaction.reverse_variable
+        expr = vnet - mrna.kdeg * mrna.variable
+
+        self.add_constraint(kind=mRNADegradation,
+                            hook=mrna,
+                            expr=expr,
+                            lb=0,
+                            ub=0,
+                            queue=True)
 
 
     def populate_expression(self):

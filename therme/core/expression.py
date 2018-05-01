@@ -77,3 +77,25 @@ def make_stoich_from_nt_sequence(sequence, model, nt_dict):
         met = model.metabolites.get_by_id(met_id)
         stoich[met]-=1
     return stoich
+
+def degrade_peptide(peptide, aa_dict):
+    sequence = peptide.peptide
+
+    stoich = defaultdict(int)
+
+    for letter in sequence:
+        met_id = aa_dict[letter]
+        stoich[met_id]+=1
+
+    return stoich
+
+def degrade_mrna(mrna, nt_dict):
+    sequence = mrna.rna
+
+    stoich = defaultdict(int)
+
+    for letter in sequence:
+        met_id = nt_dict[letter]
+        stoich[met_id]+=1
+
+    return stoich

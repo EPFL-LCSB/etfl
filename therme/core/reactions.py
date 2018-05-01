@@ -13,7 +13,27 @@ ME-related Reaction subclasses and methods definition
 from cobra import Reaction, DictList
 
 
-class EnzymaticReaction(Reaction):
+class ExpressionReaction(Reaction):
+    @classmethod
+    def from_reaction(cls,reaction):
+        """
+        This method clones a cobra.Reaction object into a expression-related
+        type of reaction
+
+        :param reaction: the reaction to reproduce
+        :return: an EnzymaticReaction object
+        """
+        new =  cls( id = reaction.id,
+                    name= reaction.name,
+                    subsystem= reaction.subsystem,
+                    lower_bound= reaction.lower_bound,
+                    upper_bound= reaction.upper_bound)
+
+        new.add_metabolites(reaction.metabolites)
+        new.gene_reaction_rule = reaction.gene_reaction_rule
+        return new
+
+class EnzymaticReaction(ExpressionReaction):
     """
     Subclass to describe reactions that are catalyzed by an enzyme.
     """
@@ -23,10 +43,10 @@ class EnzymaticReaction(Reaction):
         if enzymes:
             self.add_enzymes(enzymes)
 
-    @staticmethod
-    def from_reaction(reaction, enzymes = None):
+    @classmethod
+    def from_reaction(cls,reaction, gene_id = None, enzymes = None):
         """
-        This method clones a cobra.Reaction object into an enzymatic reaction,
+        This method clones a cobra.Reaction object into a transcription reaction,
         and attaches enzymes to it
 
         :param reaction: the reaction to reproduce
@@ -34,12 +54,23 @@ class EnzymaticReaction(Reaction):
         :param enzymes: a(n iterable of the) enzyme(s) to be attached to the reaction
         :return: an EnzymaticReaction object
         """
-        new =  EnzymaticReaction(id = reaction.id,
-                                 name= reaction.name,
-                                 subsystem= reaction.subsystem,
-                                 lower_bound= reaction.lower_bound,
-                                 upper_bound= reaction.upper_bound,
-                                 enzymes= enzymes)
+        if gene_id is not None:
+            # it's a transcription or translation reaction
+            new =  cls( id = reaction.id,
+                        name= reaction.name,
+                        gene_id= gene_id,
+                        subsystem= reaction.subsystem,
+                        lower_bound= reaction.lower_bound,
+                        upper_bound= reaction.upper_bound,
+                        enzymes= enzymes)
+        else:
+            new =  cls( id = reaction.id,
+                        name= reaction.name,
+                        subsystem= reaction.subsystem,
+                        lower_bound= reaction.lower_bound,
+                        upper_bound= reaction.upper_bound,
+                        enzymes= enzymes)
+
         new.add_metabolites(reaction.metabolites)
         new.gene_reaction_rule = reaction.gene_reaction_rule
         return new
@@ -76,28 +107,6 @@ class TranscriptionReaction(EnzymaticReaction):
                                    **kwargs)
         self._gene_id = gene_id
 
-    @staticmethod
-    def from_reaction(reaction, gene_id, enzymes = None):
-        """
-        This method clones a cobra.Reaction object into a transcription reaction,
-        and attaches enzymes to it
-
-        :param reaction: the reaction to reproduce
-        :type reaction: cobra.Reaction
-        :param enzymes: a(n iterable of the) enzyme(s) to be attached to the reaction
-        :return: an EnzymaticReaction object
-        """
-        new =  TranscriptionReaction(id = reaction.id,
-                                     name= reaction.name,
-                                     gene_id= gene_id,
-                                     subsystem= reaction.subsystem,
-                                     lower_bound= reaction.lower_bound,
-                                     upper_bound= reaction.upper_bound,
-                                     enzymes= enzymes)
-        new.add_metabolites(reaction.metabolites)
-        new.gene_reaction_rule = reaction.gene_reaction_rule
-        return new
-
     # The number of amino acids is in the stoichiometry
 
     @property
@@ -131,28 +140,6 @@ class TranslationReaction(EnzymaticReaction):
                                    **kwargs)
         self._gene_id = gene_id
 
-    @staticmethod
-    def from_reaction(reaction, gene_id, enzymes = None):
-        """
-        This method clones a cobra.Reaction object into a translation reaction,
-        and attaches enzymes to it
-
-        :param reaction: the reaction to reproduce
-        :type reaction: cobra.Reaction
-        :param enzymes: a(n iterable of the) enzyme(s) to be attached to the reaction
-        :return: an EnzymaticReaction object
-        """
-        new =  TranslationReaction(id = reaction.id,
-                                 name= reaction.name,
-                                 gene_id = gene_id,
-                                 subsystem= reaction.subsystem,
-                                 lower_bound= reaction.lower_bound,
-                                 upper_bound= reaction.upper_bound,
-                                 enzymes= enzymes)
-        new.add_metabolites(reaction.metabolites)
-        new.gene_reaction_rule = reaction.gene_reaction_rule
-        return new
-
     @property
     def gene(self):
         return self.model.genes.get_by_id(self._gene_id)
@@ -173,9 +160,18 @@ class TranslationReaction(EnzymaticReaction):
         self.enzymes = ribosome
 
 
-class ProteinComplexation(Reaction):
+class ProteinComplexation(ExpressionReaction):
     """
     Describes the assembly of peptides into an enzyme
+    """
+    def __init__(self, *args, **kwargs):
+        Reaction.__init__(self, *args, **kwargs)
+        self.enzymes = None
+
+
+class DegradationReaction(ExpressionReaction):
+    """
+    Describes the degradation of macromolecules
     """
     def __init__(self, *args, **kwargs):
         Reaction.__init__(self, *args, **kwargs)
