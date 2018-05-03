@@ -38,7 +38,7 @@ class ThermoMEModel(MEModel, ThermoModel):
                  growth_reaction='',
                  mu = None, mu_error = 0,
                  mu_range = None, n_mu_bins = 1,
-                 max_enzyme_concentration = 10,
+                 max_enzyme_concentration = 1000,
                  big_M = 1000,
                  temperature=std.TEMPERATURE_0,
                  min_ph=std.MIN_PH,

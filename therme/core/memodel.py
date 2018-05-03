@@ -436,7 +436,7 @@ class MEModel(LCSBModel, Model):
         prot_ggdw = self.add_variable(kind=InterpolationVariable, hook=self,
                                       id_='prot_ggdw',
                                       lb=0,
-                                      # ub=1, # can't have more rna than cell mass
+                                      ub=1, # can't have more prot than cell mass
                                       )
 
         # MW_1*[E1] + MW_2*[E2] + ... + MW_n*[En] = prot_ggdw
@@ -506,7 +506,7 @@ class MEModel(LCSBModel, Model):
                                       hook=self,
                                       id_='mrna_ggdw',
                                       lb=0,
-                                      # ub=1, #can't have more rna than cell mass
+                                      ub=1, #can't have more rna than cell mass
                                       )
 
         # MW_1*[rna1] + MW_2*[rna2] + ... + MW_n*[rna_n] = mRNA_ggdw
