@@ -273,7 +273,7 @@ def model_to_dict(model):
 
     for gene_dict in obj['genes']:
         try:
-            gene_dict['sequence'] = model.genes.get_by_id(gene_dict['id']).sequence
+            gene_dict['sequence'] = str(model.genes.get_by_id(gene_dict['id']).sequence)
         except AttributeError:
             # Not an ExpressedGene
             pass
