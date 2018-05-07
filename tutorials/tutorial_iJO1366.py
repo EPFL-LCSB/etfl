@@ -34,6 +34,7 @@ data_dir = '../organism_data/info_ecoli'
 vanilla_model = cobra.io.load_json_model('iJO1366_with_xrefs.json')
 
 solver = 'optlang-gurobi'
+# solver = 'optlang-cplex'
 
 # Relax ATPM
 # vanilla_model.reactions.ATPM.lower_bound = 0
@@ -81,13 +82,14 @@ ecoli.logger.setLevel(logging.WARNING)
 ecoli.solver = solver
 ecoli.solver.configuration.verbosity = 1
 ecoli.solver.configuration.tolerances.feasibility = 1e-9
-ecoli.solver.problem.Params.NumericFocus = 3
+if solver == 'optlang_gurobi':
+    ecoli.solver.problem.Params.NumericFocus = 3
 ecoli.solver.configuration.presolve = True
 
 
-#------------------------------------------------------------
+# ------------------------------------------------------------
 # Thermo
-#------------------------------------------------------------
+# ------------------------------------------------------------
 
 def curate_lexicon(lexicon):
     ix = pd.Series(lexicon.index)
@@ -104,7 +106,6 @@ apply_compartment_data(ecoli, compartment_data)
 
 # TFA conversion
 ecoli.prepare()
-ecoli.reactions.MLTP2.thermo['computed'] = False
 ecoli.convert()#add_displacement = True)
 
 
@@ -420,6 +421,12 @@ for x in ecoli.reactions:
 
     for e,this_complex_name in enumerate(complex_names):
 
+        # Start with this:
+        composition = complex2composition(this_complex_name)
+        if not composition:
+            # Skip this one
+            continue
+
         this_ec = x.notes['ec_numbers'][0]
         kcat = ec2kcat(this_ec)
 
@@ -431,7 +438,6 @@ for x in ecoli.reactions:
                             kcat=kcat,
                             kdeg=kdeg_enz)
 
-        composition = complex2composition(this_complex_name)
         new_enzyme.composition = composition
 
         new_enzyme.notes['EC'] = this_ec
@@ -460,6 +466,9 @@ for x in nt_sequences.index:
         # kdeg = 1-exp(1hr/tau)
         this_kdeg_mrna = 1 - np.exp(-60 * np.log(2) / t_half)
     except KeyError:
+        this_kdeg_mrna = kdeg_mrna # Average value of 5 mins
+
+    if np.isnan(this_kdeg_mrna):
         this_kdeg_mrna = kdeg_mrna # Average value of 5 mins
 
     new_mrna = mRNA(x,
@@ -515,6 +524,7 @@ ecoli.build_expression( aa_dict = aa_dict,
                         )
 ecoli.add_enzymatic_coupling(coupling_dict)
 ecoli.populate_expression()
+ecoli.add_degradation()
 ecoli.add_interpolation_variables()
 ecoli.add_dummies(nt_ratios=nt_ratios,
                   mrna_kdeg=kdeg_mrna,
@@ -536,7 +546,8 @@ ecoli.optimize()
 # print(' - Ribosomes produced: {}'.format(relaxed_model.solution.x_dict.EZ_rib))
 # print(' - RNAP produced: {}'.format(relaxed_model.solution.x_dict.EZ_rnap))
 #
-# save_json_model(relaxed_model, 'models/iJO1366_t_{}_{}_bins_2018031.json'.format(len(relaxed_model.enzymes),
-#                                                                          relaxed_model.n_mu_bins))
-
-
+# filepath = 'models/iJO1366_t_{}_{}_bins_20180503.json'.format(
+#     len(relaxed_model.enzymes), relaxed_model.n_mu_bins)
+# save_json_model(relaxed_model, filepath)
+#
+#

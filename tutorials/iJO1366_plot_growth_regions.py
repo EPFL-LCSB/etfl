@@ -2,49 +2,39 @@ import pandas as pd
 import numpy as np
 import bokeh.plotting as bp
 from bokeh.models import Whisker, ColumnDataSource
+from therme.io.json import load_json_model
+import cobra
 
-# Load
-# data = pd.read_csv('outputs/tME_data_optlang-gurobi_100.csv')
-# # data = pd.read_csv('outputs/tME_data_optlang-gurobi_50.csv')
-# # data = pd.read_csv('outputs/tME_data_optlang-gurobi_20.csv')
-# data['mu'] = (data['mu_lb'] + data['mu_ub']) / 2
+ec_cobra = cobra.io.load_json_model('iJO1366_with_xrefs.json')
+# ec_cobra.reactions.ATPM.lower_bound = 0
+growth_reaction_id = 'BIOMASS_Ec_iJO1366_WT_53p95M'
 
-from therme.io.dict import model_from_dict
-import json
-with open('iJO1366_128_bins_20180312.json','r') as fid:
-    md = json.load(fid)
-    fid.close()
-md['kind'] = 'MEModel'
-ecoli = model_from_dict(md)
+ecoli = load_json_model('models/iJO1366_t_489_256_bins_2018031.json')
 
+uptake_range = pd.Series(list(range(100)))
+
+def simulate(uptake, model):
+    model.reactions.EX_glc__D_e.lower_bound = -1*uptake
+    model.reactions.EX_glc__D_e.upper_bound = 0
+    model.objective = growth_reaction_id
+    model.objective.direction = 'max'
+    try:
+        sol = model.optimize()
+    except Exception:
+        return pd.Series([np.nan, np.nan])
+    return pd.Series([sol.f, model.reactions.EX_glc__D_e.flux*-1])
 
 try:
-    me_data = pd.read_csv('outputs/iJO1366_128_bins.csv')
+    me_data = pd.read_csv('outputs/benchmark_t489_256_bins.csv')
 except FileNotFoundError:
-    # FIXME
-    import cobra
-    ec_cobra = cobra.io.load_json_model('iJO1366_with_xrefs.json')
-    # ec_cobra.reactions.ATPM.lower_bound = 0
-    growth_reaction_id = 'BIOMASS_Ec_iJO1366_WT_53p95M'
+    import json
 
-    uptake_range = pd.Series(list(range(100)))
-
-    def simulate(uptake, model):
-        model.reactions.EX_glc__D_e.lower_bound = -1*uptake
-        model.reactions.EX_glc__D_e.upper_bound = 0
-        model.objective = growth_reaction_id
-        model.objective.direction = 'max'
-        try:
-            sol = model.optimize()
-        except Exception:
-            return pd.Series([np.nan, np.nan])
-        return pd.Series([sol.f, model.reactions.EX_glc__D_e.flux*-1])
-
+    with open('iJO1366_128_bins_20180312.json', 'r') as fid:
+        md = json.load(fid)
+        fid.close()
 
     me_data = uptake_range.apply(simulate, args=[ecoli])
     me_data.columns = ['mu','uptake']
-
-    me_data.to_csv('outputs/iJO1366_128_bins.csv')
 
 # End Data getter
 
@@ -86,18 +76,18 @@ p1.add_layout(
 ## Systematic analysis
 
 mu_max = max(me_data['mu'].dropna())
-mask_snl = me_data['mu'] < mu_max*0.5
+mask_snl = me_data['mu'] < mu_max*0.33
 mask_pl  = me_data['mu'] > mu_max*0.99
 
 fit1d = lambda x,y: np.poly1d(np.polyfit(x,y,1))
 
-fit_fba = fit1d(fba_data['uptake'], fba_data['mu'])
+# fit_fba = fit1d(fba_data['uptake'], fba_data['mu'])
 fit_snl = fit1d(me_data[mask_snl]['uptake'], me_data[mask_snl]['mu'])
 fit_pl  = fit1d(me_data[mask_pl ]['uptake'], me_data[mask_pl ]['mu'])
 
 p1.line(x=uptake_range,y=fit_snl(uptake_range),
         color = 'black', line_dash = 'dashed', legend = 'SNL fit')
-p1.line(x=uptake_range,y=fit_pl (uptake_range),
+p1.line(x=uptake_range,y=[me_data['mu'].iloc[-1]]*len(uptake_range),#fit_pl (uptake_range),
         color = 'black',line_dash = 'dotted', legend = 'Proteome Limited fit')
 
 p1.legend.location = 'bottom_right'
