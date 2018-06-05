@@ -95,13 +95,17 @@ def get_neidhardt_data():
 
     Pc = neidhardt_data.loc['Pc (μg)'][mu_cols] # μg/10^9 cells
     Rc = neidhardt_data.loc['Rc (μg)'][mu_cols] # μg/10^9 cells
+    Dc = neidhardt_data.loc['Gc (μg)'][mu_cols] # μg/10^9 cells
     Mc = neidhardt_data.loc['Mc (μg)'][mu_cols] # μg dry weight/10^9 cells
 
     neidhardt_prel = (Pc/Mc).astype(float)
     neidhardt_rrel = (Rc/Mc).astype(float)
+    neidhardt_drel = (Dc/Mc).astype(float)
     neidhardt_mu = pd.Series(Pc.index.str.replace('mu=','')).astype(float)
 
-    return neidhardt_mu, neidhardt_rrel, neidhardt_prel
+    return neidhardt_mu, neidhardt_rrel, neidhardt_prel, neidhardt_drel
+
+
 
 #------------------------------------------------------------
 # Expression
@@ -148,6 +152,23 @@ bernstein_ecoli_deg_rates = pd.read_excel(
     skiprows=range(8),
     index_col=0)
 
+
+# Bionumber
+# http://bionumbers.hms.harvard.edu/bionumber.aspx?id=100528
+# ID	100528
+# Property	GC content of E. coli K12 chromosome
+# Organism	Bacteria Escherichia coli
+# Value	50.8
+# Units	%
+# Reference	Escherichia coli K12 (Escherichia coli K12 substr. MG1655) Genome Browser Gateway link scroll down to slightly above bottom of page
+# Comments	GC content value given 50.79%. Length of chromosome 4,639,675bp. Retrieved March 29th 2017
+# Assumed GC ratio of 0.5078
+gc_ratio = 0.5078 # %
+chromosome_len = 4639675 # bp
+
+def get_ecoli_gen_stats():
+    return chromosome_len, gc_ratio
+
 def get_ratios():
     # Bionumbers
     # ID        104876
@@ -175,11 +196,11 @@ def get_ratios():
         'C':0.53/100,  # cys__L_c
     }
 
-    # TODO: Get the actual number
-    nt_ratios = {'u':0.25,
-                 'a':0.25,
-                 'g':0.25,
-                 'c':0.25,
+
+    nt_ratios = {'u':0.5*(1-gc_ratio),
+                 'a':0.5*(1-gc_ratio),
+                 'g':0.5*gc_ratio,
+                 'c':0.5*gc_ratio,
                  }
 
     return nt_ratios,aa_ratios
@@ -212,16 +233,29 @@ def get_monomers_dict():
                'Y': 'tyr__L_c',
                'V': 'val__L_c', }
 
-    rna_nucleotides = {'u': 'ura_c',
-                       'g': 'gua_c',
-                       'a': 'ade_c',
-                       'c': 'csn_c'}
+    rna_nucleotides = {
+                'u': 'utp_c',
+                'g': 'gtp_c',
+                'a': 'atp_c',
+                'c': 'ctp_c'}
+
+    rna_nucleotides_mp = {
+                'u': 'ump_c',
+                'g': 'gmp_c',
+                'a': 'amp_c',
+                'c': 'cmp_c'}
+
+    dna_nucleotides = {
+                't': 'dttp_c',
+                'g': 'dgtp_c',
+                'a': 'datp_c',
+                'c': 'dctp_c'}
 
 
-    return aa_dict, rna_nucleotides
+    return aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides
 
 
-def remove_from_biomass_equation(model, nt_dict, aa_dict):
+def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id):
 
     mets_to_rm = dict()
 
@@ -233,11 +267,23 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict):
 
     model.growth_reaction.add_metabolites(mets_to_rm)
 
+    # We need to add back the ATP from the GAM that we just removed but should
+    # still be taken into account. Indeed, nADP =/= nATP in the original
+    # biomass reaction:
+    # -54.119975 atp_c + .... --> 53.95 adp_c
+
+    adp = model.metabolites.get_by_id(adp_id)
+    atp = model.metabolites.get_by_id(atp_id)
+    atp_recovery = model.growth_reaction.metabolites[adp]
+    model.growth_reaction.add_metabolites({atp:-1*atp_recovery})
 
 
 # Prot degradation
+# Nath, Kamalendu, and Arthur L. Koch.
+# "Protein degradation in Escherichia coli II. Strain differences in the degradation of protein and nucleic acid resulting from starvation."
+# Journal of Biological Chemistry 246.22 (1971): 6956-6967.
 # http://www.jbc.org/content/246/22/6956.full.pdf
-# The total amount of enzyme undergoing degrada- tion (2 to 7%) was the same
+# The total amount of enzyme undergoing degradation (2 to 7%) was the same
 # during growth and during various kinds of starvation.
 kdeg_low, kdeg_up = 0.02, 0.07
 kdeg_enz = (kdeg_low + kdeg_up)/2
@@ -265,7 +311,7 @@ def get_mrna_metrics():
     return kdeg_mrna, mrna_length_avg
 
 def get_enz_metrics():
-    return kdeg_mrna, peptide_length_avg
+    return kdeg_enz, peptide_length_avg
 
 # Generate a coupling dict
 def is_gpr(s):

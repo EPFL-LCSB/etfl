@@ -106,10 +106,17 @@ class EnzymeMassBalance(EnzymeConstraint):
 
 class mRNAMassBalance(GeneConstraint):
     """
-    Class to represent a enzymatic mass balance constraint
+    Class to represent a mRNA mass balance constraint
     """
 
     prefix = 'MB_'
+
+class DNAMassBalance(ModelConstraint):
+    """
+    Class to represent a DNA mass balance constraint
+    """
+
+    prefix = 'DB_'
 
 
 class SynthesisConstraint(ReactionConstraint):

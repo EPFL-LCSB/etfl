@@ -24,7 +24,8 @@ from pytfa.utils.logger import get_timestr
 from etfl_data import   get_model, get_thermo_data, get_coupling_dict, \
                         get_mrna_dict, get_rib, get_rnap, get_monomers_dict, \
                         get_nt_sequences, get_ratios, get_neidhardt_data, \
-                        get_mrna_metrics, get_enz_metrics, remove_from_biomass_equation
+                        get_mrna_metrics, get_enz_metrics, \
+                        remove_from_biomass_equation, get_ecoli_gen_stats
 
 from pytfa.thermo import ThermoModel
 
@@ -64,17 +65,17 @@ def create_model(has_thermo, has_expression, has_neidhardt):
     time_str = get_timestr()
 
     coupling_dict = get_coupling_dict(vanilla_model)
-    aa_dict, rna_nucleotides = get_monomers_dict()
+    aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides = get_monomers_dict()
 
     # Initialize the model
 
     name = 'iJO1366_T{:1}E{:1}N{:1}_{}_enz_{}_bins_{}.json'.format(
-        has_thermo,
-        has_expression,
-        has_neidhardt,
-        len(coupling_dict),
-        n_mu_bins,
-        time_str)
+                                                            has_thermo,
+                                                            has_expression,
+                                                            has_neidhardt,
+                                                            len(coupling_dict),
+                                                            n_mu_bins,
+                                                            time_str)
 
     if has_thermo:
 
@@ -101,13 +102,7 @@ def create_model(has_thermo, has_expression, has_neidhardt):
     ecoli.name = name
     ecoli.logger.setLevel(logging.WARNING)
 
-    # Set the solver
-    ecoli.solver = solver
-    ecoli.solver.configuration.verbosity = 1
-    ecoli.solver.configuration.tolerances.feasibility = 1e-9
-    if solver == 'optlang_gurobi':
-        ecoli.solver.problem.Params.NumericFocus = 3
-    ecoli.solver.configuration.presolve = True
+
 
     if has_thermo:
         # Annotate the cobra_model
@@ -129,7 +124,9 @@ def create_model(has_thermo, has_expression, has_neidhardt):
 
     remove_from_biomass_equation(model = ecoli,
                                  nt_dict = rna_nucleotides,
-                                 aa_dict = aa_dict)
+                                 aa_dict = aa_dict,
+                                 atp_id='atp_c',
+                                 adp_id='adp_c')
 
     ##########################
     ##    MODEL CREATION    ##
@@ -140,29 +137,30 @@ def create_model(has_thermo, has_expression, has_neidhardt):
     ecoli.add_nucleotide_sequences(nt_sequences)
     ecoli.add_mrnas(mrna_dict.values())
 
-    ecoli.build_expression( aa_dict = aa_dict,
-                            nt_dict = rna_nucleotides,
-                            atp='atp_c',
-                            amp='amp_c',
-                            gtp='gtp_c',
-                            gdp='gdp_c',
-                            ppi='ppi_c',
-                            h2o='h2o_c',
-                            h='h_c',
-                            rnap_genes = rnap_genes,
-                            rrna_genes = rrna_genes,
-                            rprot_genes= rprot_genes
-                            )
+    ecoli.build_expression(aa_dict = aa_dict,
+                           rna_nucleotides= rna_nucleotides,
+                           atp='atp_c',
+                           amp='amp_c',
+                           gtp='gtp_c',
+                           gdp='gdp_c',
+                           ppi='ppi_c',
+                           h2o='h2o_c',
+                           h='h_c',
+                           rnap_genes = rnap_genes,
+                           rrna_genes = rrna_genes,
+                           rprot_genes= rprot_genes
+                           )
     ecoli.add_enzymatic_coupling(coupling_dict)
     ecoli.populate_expression()
-    ecoli.add_degradation()
+    ecoli.add_degradation(rna_nucleotides_mp = rna_nucleotides_mp)
 
     if has_neidhardt:
 
         nt_ratios, aa_ratios = get_ratios()
+        chromosome_len, gc_ratio = get_ecoli_gen_stats()
         kdeg_mrna, mrna_length_avg  = get_mrna_metrics()
         kdeg_enz,  peptide_length_avg   = get_enz_metrics()
-        neidhardt_mu, neidhardt_rrel, neidhardt_prel = get_neidhardt_data()
+        neidhardt_mu, neidhardt_rrel, neidhardt_prel, neidhardt_drel = get_neidhardt_data()
 
         ecoli.add_interpolation_variables()
         ecoli.add_dummies(nt_ratios=nt_ratios,
@@ -173,10 +171,17 @@ def create_model(has_thermo, has_expression, has_neidhardt):
                           peptide_length=peptide_length_avg)
         ecoli.add_protein_mass_requirement(neidhardt_mu, neidhardt_prel)
         ecoli.add_rna_mass_requirement(neidhardt_mu, neidhardt_rrel)
+        ecoli.add_dna_mass_requirement(mu_values=neidhardt_mu,
+                                       dna_rel=neidhardt_drel,
+                                       gc_ratio=gc_ratio,
+                                       chromosome_len=chromosome_len,
+                                       dna_dict=dna_nucleotides)
 
 
     ecoli.print_info()
     ecoli.growth_reaction.lower_bound = observed_growth
+
+    need_relax = False
 
     try:
         ecoli.optimize()
@@ -184,6 +189,7 @@ def create_model(has_thermo, has_expression, has_neidhardt):
         need_relax = True
 
     if has_thermo and need_relax:
+        from ipdb import set_trace; set_trace()
         final_model, slack_model, relax_table = relax_dgo(ecoli)
     else:
         final_model = ecoli
@@ -248,9 +254,9 @@ if __name__ == '__main__':
 
     # Models defined by Thermo - Expression - Neidhardt
     model_calls = [
-                        (False,  True,   False),
-                        (True,   True,   False),
-                        (False,  True,   True),
+                        # (False,  True,   False),
+                        # (True,   True,   False),
+                        # (False,  True,   True),
                         (True,   True,   True),
                         ]
 

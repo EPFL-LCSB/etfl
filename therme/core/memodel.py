@@ -22,6 +22,7 @@ from Bio.SeqUtils import molecular_weight
 from ..utils.parsing import parse_gpr
 from ..utils.utils import replace_by_enzymatic_reaction, replace_by_me_gene
 from .genes import ExpressedGene
+from .dna import DNA
 from .mrna  import mRNA
 from .enzyme import Enzyme, Peptide
 from .reactions import EnzymaticReaction, ProteinComplexation, \
@@ -30,14 +31,14 @@ from .expression import build_trna_charging, \
     make_stoich_from_aa_sequence, make_stoich_from_nt_sequence, \
     degrade_peptide, degrade_mrna
 from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,\
-    BackwardCatalyticConstraint, EnzymeMassBalance, mRNAMassBalance, \
+    BackwardCatalyticConstraint, EnzymeMassBalance, mRNAMassBalance, DNAMassBalance, \
     GrowthCoupling, TotalCapacity, ExpressionCoupling, RibosomeRatio, \
     GrowthChoice, EnzymeDegradation, mRNADegradation,\
     LinearizationConstraint, SynthesisConstraint, SOS1Constraint,\
     InterpolationConstraint
 from ..optim.variables import ModelVariable, GrowthActivation, \
     EnzymeVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, \
-    FreeRibosomes, BinaryActivator, InterpolationVariable
+    FreeRibosomes, BinaryActivator, InterpolationVariable, DNAVariable
 
 from pytfa.core.model import LCSBModel
 from pytfa.optim.reformulation import petersen_linearization
@@ -121,7 +122,7 @@ class MEModel(LCSBModel, Model):
             self.logger.info(message)
 
         self.aa_dict = dict()
-        self.nt_dict = dict()
+        self.rna_nucleotides = dict()
         self.trna_dict = dict()
 
         self.enzymes = DictList()
@@ -305,7 +306,7 @@ class MEModel(LCSBModel, Model):
 
         # Use the input ratios to make the stoichiometry
         transcription_mets = {
-                self.metabolites.get_by_id(self.nt_dict[k]):-1*v*mrna_length/self._scaling
+                self.metabolites.get_by_id(self.rna_nucleotides[k]): -1 * v * mrna_length / self._scaling
                 for k,v in nt_ratios.items()
                 }
 
@@ -472,7 +473,7 @@ class MEModel(LCSBModel, Model):
 
     def add_rna_mass_requirement(self, mu_values, rna_rel):
         """
-        Adds protein synthesis requirement
+        Adds RNA synthesis requirement
 
         input of type:
         mu_values = [   0.6,        1.0,        1.5,        2.0,        2.5     ]
@@ -541,8 +542,113 @@ class MEModel(LCSBModel, Model):
         self.regenerate_constraints()
 
 
+    def add_dna_mass_requirement(self, mu_values, dna_rel, gc_ratio,
+                                 chromosome_len, dna_dict, ppi='ppi_c'):
+        """
+        Adds DNA synthesis requirement
 
-    def build_expression(self, aa_dict, nt_dict,
+        input of type:
+        mu_values = [   0.6,        1.0,        1.5,        2.0,        2.5     ]
+        dna_rel   = [   0.135135    0.151163    0.177829    0.205928    0.243931]
+
+        mu_values in [h^-]
+        dna_rel in [g/gDw]
+
+        :param mu_values:
+        :param dna_rel:
+        :return:
+        """
+
+        self.dna_nucleotides = dna_dict
+
+        # Get mu interpolation
+        activation_vars = self.get_variables_of_type(BinaryActivator)
+
+        model_mus = [x[0] for x in self.mu_bins]
+        m_hat = np.interp(x= model_mus,
+                          xp=mu_values,
+                          fp=dna_rel)
+
+        m_ref = symbol_sum([x*y for x,y in zip(m_hat, activation_vars)])
+
+        # Create dummy DNA reaction
+        dna_formation = Reaction(id='DNA_formation', name = 'DNA Formation')
+        self.add_reactions([dna_formation])
+
+        # In this formulation, we make 1 unit of the whole chromosome with NTPs
+        g = gc_ratio
+        mets = {v: -1*chromosome_len*(g if k.lower() in 'gc' else 1-g)/self._scaling
+                for k,v in self.dna_nucleotides.items()}
+        #Don't forget to release ppi (2 ppi per bp)
+        mets[ppi] = 2*chromosome_len/self._scaling
+
+
+        dna_formation.add_metabolites(mets)
+
+        # Add DNA variable:
+
+        dna = DNA(kdeg = 0) # Assumption: kdeg for DNA is close to 0
+        self.add_dna(dna)
+
+
+        # Add mass balance : 0 = v_syn - [mu]*[DNA]
+        self.add_mass_balance_constraint(
+                                synthesis_flux=dna_formation,
+                                macromolecule=dna)
+
+        # DNA mass (BioPython has g.mol^-1, while we are in mmol)
+        ma = molecular_weight('A', seq_type='DNA')/ 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+        mt = molecular_weight('T', seq_type='DNA')/ 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+        mc = molecular_weight('C', seq_type='DNA')/ 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+        mg = molecular_weight('G', seq_type='DNA')/ 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+
+        #              g.mmol(bp)^-1        * mmol(bp)/mmol(dna) * mmol(dna).gDW^-1
+        tot_dna = ( (1-g)*(ma+mt) + g*(mc+mg) ) * chromosome_len * dna.variable
+
+        # For legibility
+        dna_ggdw = self.add_variable(kind=InterpolationVariable,
+                                      hook=self,
+                                      id_='dna_ggdw',
+                                      lb=0,
+                                      ub=1, #can't have more dna than cell mass
+                                      )
+
+        # MW_avg*[DNA] = mRNA_ggdw
+        # 1/scaling because the [X]s are scaled (eg mmol.ggDW^-1 -> back to mol.ggDW^1)
+        mass_variable_def  = tot_dna / self._scaling - dna_ggdw
+
+        # mRNA_ggdw = mRNA_ref
+        mass_coupling_expr = dna_ggdw - m_ref
+
+        epsilon = max(abs(np.diff(m_hat)))
+
+        self.add_constraint(kind=InterpolationConstraint,
+                            hook=self,
+                            id_='DNA_weight_definition',
+                            expr=mass_variable_def,
+                            lb=0,
+                            ub=0,
+                            )
+
+        self.add_constraint(kind=InterpolationConstraint,
+                            hook=self,
+                            id_='DNA_interpolation',
+                            expr=mass_coupling_expr,
+                            lb=-1*epsilon,
+                            ub=epsilon,
+                            )
+
+
+        self.interpolation_dna = m_hat
+        self._interpolation_dna_tolerance = epsilon
+
+        self.regenerate_variables()
+        self.regenerate_constraints()
+
+
+
+
+    def build_expression(self, aa_dict, rna_nucleotides,
                          rnap_genes,
                          rrna_genes,
                          rprot_genes,
@@ -568,12 +674,12 @@ class MEModel(LCSBModel, Model):
                         ...
                     }
             ```
-        :param nt_dict: A dictionnary of RNA nucleotide letter to nucleotide met id
+        :param rna_nucleotides: A dictionnary of RNA nucleotide letter to nucleotideTP met id
             Example :
             ```python
-            nt_dict = {
-                        'A':'ade_c',
-                        'U':'ura_c',
+            rna_nucleotides = {
+                        'A':'atp_c',
+                        'U':'utp_c',
                         ...
                     }
             ```
@@ -588,7 +694,7 @@ class MEModel(LCSBModel, Model):
         """
 
         self.aa_dict = aa_dict
-        self.nt_dict = nt_dict
+        self.rna_nucleotides = rna_nucleotides
         self.rnap_genes = rnap_genes
         self.rrna_genes = rrna_genes
         self.rprot_genes = rprot_genes
@@ -610,7 +716,7 @@ class MEModel(LCSBModel, Model):
                 continue
 
             # Build the transcription
-            self._add_gene_transcription_reaction(gene)
+            self._add_gene_transcription_reaction(gene,ppi)
             # Build the translation
             self._add_gene_translation_reaction(gene,gtp,gdp,h2o,h)
 
@@ -659,7 +765,7 @@ class MEModel(LCSBModel, Model):
         self.peptides += [free_peptide]
 
         
-    def _add_gene_transcription_reaction(self, gene):
+    def _add_gene_transcription_reaction(self, gene, ppi):
         """
 
         :param gene: A gene of the model that has sequence data
@@ -674,8 +780,9 @@ class MEModel(LCSBModel, Model):
         self.add_reactions([rxn])
 
         nt_stoichiometry = make_stoich_from_nt_sequence(gene.rna,
-                                                        self,
-                                                        self.nt_dict)
+                                                        self.rna_nucleotides,
+                                                        ppi
+                                                        )
 
         # Scale the stoichiometry
         nt_stoichiometry_scaled = {k:v/self._scaling \
@@ -813,18 +920,26 @@ class MEModel(LCSBModel, Model):
                                 - macromolecule.kdeg * macromolecule.variable \
                                     - self.mu * macromolecule.variable
 
+        kwargs = dict()
         if isinstance(macromolecule, Enzyme):
             kind = EnzymeMassBalance
+            hook = macromolecule
         elif isinstance(macromolecule, mRNA):
             kind = mRNAMassBalance
+            hook = macromolecule
+        elif isinstance(macromolecule, DNA):
+            kind = DNAMassBalance
+            kwargs['id_'] = 'dna'
+            hook = self
         else:
             raise Exception('Macro-molecule type not recognized: {}'
                             .format(macromolecule))
 
         self.add_constraint(kind=kind,
-                            hook=macromolecule,
+                            hook=hook,
                             expr=mass_balance_expr,
-                            lb=0, ub=0)
+                            lb=0, ub=0,
+                            **kwargs)
 
 
     def is_me_compatible(self, reaction):
@@ -1045,16 +1160,16 @@ class MEModel(LCSBModel, Model):
             enz.init_variable()
 
         for enz in enzyme_list:
-            enz.variable.ub = self.big_M
+            enz.variable.ub = self.max_enzyme_concentration
 
         self.enzymes += enzyme_list
 
 
     def add_mrnas(self, mrna_list):
         """
-        Adds an Enzyme object, or iterable of Enzyme objects, to the model
-        :param enzyme_list:
-        :type enzyme_list:Iterable(Enzyme) or Enzyme
+        Adds a mRNA object, or iterable of mRNA objects, to the model
+        :param mrna_list:
+        :type enzyme_list:Iterable(mRNA) or mRNA
         :return:
         """
         if not hasattr(mrna_list, '__iter__'):
@@ -1070,9 +1185,24 @@ class MEModel(LCSBModel, Model):
             mrna.init_variable()
 
         for mrna in mrna_list:
-            mrna.variable.ub = self.big_M
+            mrna.variable.ub = self.max_enzyme_concentration
 
         self.mrnas += mrna_list
+
+
+    def add_dna(self, dna):
+        """
+        Adds a DNA object to the model
+        :param dna:
+        :type dna: DNA
+        :return:
+        """
+
+        dna._model = self
+        dna.init_variable()
+        dna.variable.ub = self.max_enzyme_concentration
+
+        self.dna = dna
 
     def remove_enzymes(self, enzyme_list):
         """
@@ -1119,9 +1249,11 @@ class MEModel(LCSBModel, Model):
         return new_enzymes
 
 
-    def add_degradation(self):
+    def add_degradation(self, rna_nucleotides_mp):
         for enzyme in self.enzymes:
             self._add_enzyme_degradation(enzyme)
+
+        self.rna_nucleotides_mp = rna_nucleotides_mp
 
         for mRNA in self.mrnas:
             self._add_mrna_degradation(mRNA)
@@ -1169,7 +1301,7 @@ class MEModel(LCSBModel, Model):
         if mrna.kdeg is None or np.isnan(mrna.kdeg):
             return None
 
-        degradation_mets = degrade_mrna(mrna, self.nt_dict)
+        degradation_mets = degrade_mrna(mrna, self.rna_nucleotides_mp)
         deg_stoich = {k:v/self._scaling for k,v in degradation_mets.items()}
 
 

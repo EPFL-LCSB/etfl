@@ -70,12 +70,12 @@ def make_stoich_from_aa_sequence(sequence, aa_dict, trna_dict,
     stoich[h] = 2 * len(sequence)
     return stoich
 
-def make_stoich_from_nt_sequence(sequence, model, nt_dict):
+def make_stoich_from_nt_sequence(sequence, nt_dict, ppi):
     stoich = defaultdict(int)
     for letter in sequence:
         met_id = nt_dict[letter]
-        met = model.metabolites.get_by_id(met_id)
-        stoich[met]-=1
+        stoich[met_id]-=1
+    stoich[ppi] = len(sequence)
     return stoich
 
 def degrade_peptide(peptide, aa_dict):

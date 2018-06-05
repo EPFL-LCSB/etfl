@@ -138,6 +138,13 @@ class LinearizationVariable(ModelVariable):
     prefix = 'LZ_'
 
 
+class DNAVariable(ModelVariable):
+    """
+    Class to represent DNA in the model
+    """
+    prefix = 'DN_'
+
+
 class RibosomeUsage(GeneVariable):
     """
     Class to represent the ribosomes that are assigned to producing the enzyme
