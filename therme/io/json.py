@@ -23,11 +23,11 @@ def save_json_model(model, filepath):
         json.dump(obj, fid, cls=MyEncoder)
 
 
-def load_json_model(filepath):
+def load_json_model(filepath, solver = None):
 
     filepath = check_json_extension(filepath)
     with open(filepath, 'r') as fid:
         obj = json.load(fid)
 
-    model = model_from_dict(obj)
+    model = model_from_dict(obj, solver=solver)
     return model

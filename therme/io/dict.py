@@ -208,6 +208,12 @@ def model_to_dict(model):
         obj['max_ph'] = model.MAX_pH
         is_thermo = True
 
+        # Relaxation info
+        try:
+            obj['relaxation'] = model.relaxation
+        except AttributeError:
+            pass
+
     if isinstance(model, MEModel):
 
         # Convenience attributes
@@ -215,7 +221,14 @@ def model_to_dict(model):
         # obj['compositions'] = archive_compositions(model.compositions)
         # obj['coupling_dict'] = archive_coupling_dict(model.coupling_dict)
         obj['mu_bins'] = model.mu_bins
-        obj['nt_dict'] = model.nt_dict
+        obj['rna_nucleotides'] = model.rna_nucleotides
+        obj['rna_nucleotides_mp'] = model.rna_nucleotides_mp
+        try:
+            obj['dna_nucleotides'] = model.dna_nucleotides
+            obj['dna_nucleotides'] = model.dna_nucleotides
+        except AttributeError:
+            # DNA has not been added
+            pass
         obj['aa_dict'] = model.aa_dict
         # obj['trna_dict'] = model.trna_dict
         obj['scaling']   = model._scaling
@@ -240,6 +253,7 @@ def model_to_dict(model):
 
     if isinstance(model, ThermoMEModel):
         obj['kind'] = 'ThermoMEModel'
+        is_me = True
 
 
     # Metabolite and Reaction-level cleanup
@@ -265,7 +279,7 @@ def model_to_dict(model):
         if is_me:
             if the_met_id in model.peptides:
                 met_dict['kind'] = 'Peptide'
-                met_dict['gene_id'] = the_met.gene.id
+                met_dict['gene_id'] = the_met._gene_id
                 is_peptide = True
 
         if is_thermo and not is_peptide: # peptides have no thermo
@@ -398,7 +412,13 @@ def init_me_model_from_dict(new, obj):
     # new._mu = new.variables.get(obj['_mu'])
     # new.compositions = rebuild_compositions(new, obj['compositions'])
     new.mu_bins = obj['mu_bins']
-    new.nt_dict = obj['nt_dict']
+    new.rna_nucleotides = obj['rna_nucleotides']
+    new.rna_nucleotides_mp = obj['rna_nucleotides_mp']
+    try:
+        new.dna_nucleotides = obj['dna_nucleotides']
+    except KeyError:
+        # No DNA data
+        pass
     new.aa_dict = obj['aa_dict']
     # new.trna_dict = obj['trna_dict']
 
@@ -454,6 +474,13 @@ def init_thermo_model_from_dict(new, obj):
 
         if 'thermo' in met_dict:
             new._prepare_metabolite(met)
+
+    # Relaxation info
+    try:
+        new.relaxation = obj['relaxation']
+    except KeyError:
+        pass
+
     return new
 
 
