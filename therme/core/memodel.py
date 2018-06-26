@@ -1572,9 +1572,24 @@ class MEModel(LCSBModel, Model):
         # it will be the same for all the translations of the model, so we can
         # call it from the ribosomal protein translation for example
 
+        # /!\ rRNA has mRNA scaling, while peptides have protein scaling
+
+        # σ_m is mRNA scaling factor, σ_p is protein scaling factor
+        # d[rRNA]/dt = v_transcription - v_complexation
+        # σ_m * d[rRNA]/dt = σ_m * v_transcription \
+        #                   - σ_m/σ_p * σ_p * v_complexation
+        # d[rRNA]_hat/dt = v_transcription_hat - σ_m/σ_p * v_complexation_hat
+
+        scaling_factor = self._mrna_scaling/self._prot_scaling
+
         rrna_stoich = defaultdict(int)
         for rrna_id in self.rrna_genes:
-            rrna_stoich[self.mrnas.get_by_id(rrna_id)] -= 1
+            rrna_stoich[self.mrnas.get_by_id(rrna_id)] -= 1*scaling_factor
+
+
+        # d[rProt]/dt = v_translation - v_complexation
+        # σ_p * d[rProt]/dt = σ_p * v_translation - σ_p * v_complexation
+        # d[rProt]_hat/dt = v_translation_hat - v_complexation_hat
 
         rprot_stoich = defaultdict(int)
         for rprot_id in self.rprot_genes:
