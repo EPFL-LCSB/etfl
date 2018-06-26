@@ -43,14 +43,13 @@ class ThermoMEModel(MEModel, ThermoModel):
                  temperature=std.TEMPERATURE_0,
                  min_ph=std.MIN_PH,
                  max_ph=std.MAX_PH,
-                 scaling = 1000):
+                 prot_scaling = 1000,
+                 mrna_scaling = None,):
 
         if name is None:
             name = 'ThermoME2-' + model.id if model.id else 'tME2 model'
 
         LCSBModel.__init__(self, model, name)
-
-        self._scaling = scaling
 
         ###############
         #   ME part   #
@@ -76,7 +75,7 @@ class ThermoMEModel(MEModel, ThermoModel):
         self._n_mu_bins = n_mu_bins
         self._mu_in = mu
 
-        self._scaling = scaling
+        self.init_scaling(prot_scaling, mrna_scaling)
 
         if mu is not None and mu_error == 0:
             self._mu = mu

@@ -231,7 +231,8 @@ def model_to_dict(model):
             pass
         obj['aa_dict'] = model.aa_dict
         # obj['trna_dict'] = model.trna_dict
-        obj['scaling']   = model._scaling
+        obj['prot_scaling']   = model._prot_scaling
+        obj['mrna_scaling']   = model._mrna_scaling
 
         # Growth
         obj['growth_reaction'] = model.growth_reaction.id
@@ -406,7 +407,8 @@ def model_from_dict(obj, solver=None):
 
 def init_me_model_from_dict(new, obj):
     new.max_enzyme_concentration = obj['max_enzyme_concentration']
-    new._scaling = obj['scaling']
+    new._prot_scaling = obj['prot_scaling']
+    new._mrna_scaling = obj['mrna_scaling']
 
     # Convenience attributes
     # new._mu = new.variables.get(obj['_mu'])
