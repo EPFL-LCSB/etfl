@@ -125,7 +125,7 @@ def get_nt_sequences():
 # Davidi, Dan, et al.
 # "Global characterization of in vivo enzyme catalytic rates and their correspondence to in vitro kcat measurements."
 # Proceedings of the National Academy of Sciences 113.12 (2016): 3401-3406.
-kcat_info_milo = pd.read_excel('../models/pnas.1514240113.sd01.xlsx',
+kcat_info_milo = pd.read_excel('../organism_data/info_ecoli/pnas.1514240113.sd01.xlsx',
                                sheet_name='kcat 1s',
                                header=1,
                                )
@@ -259,6 +259,10 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id):
 
     mets_to_rm = dict()
 
+    old_total_stoich = abs(sum([x for x in
+                                model.growth_reaction.metabolites.values() if
+                                x<0]))
+
     expression_mets = list(nt_dict.values()) + list(aa_dict.values())
 
     for m,stoich in model.growth_reaction.metabolites.items():
@@ -276,6 +280,19 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id):
     atp = model.metabolites.get_by_id(atp_id)
     atp_recovery = model.growth_reaction.metabolites[adp]
     model.growth_reaction.add_metabolites({atp:-1*atp_recovery})
+
+
+    # Rescale so that stoichiometry adds up to 1:
+    met_dict = model.growth_reaction.metabolites
+    # Be careful to only take lhs stoich
+    new_total_stoich = abs(sum([x for x in met_dict.values() if x<0]))
+
+    # for met, stoich in met_dict.items():
+    #     # to reset the stoich to 0 VVV
+    #     met_dict[met] =     -1*stoich   + stoich*old_total_stoich/new_total_stoich
+    # model.growth_reaction.add_metabolites(met_dict)
+
+
 
 
 # Prot degradation
@@ -560,6 +577,14 @@ def get_rib():
 
     return rib, rrna_genes, rpeptide_genes
 
+# http://bionumbers.hms.harvard.edu/bionumber.aspx?&id=100060&ver=32
+# Bionumber ID  100060
+# Value 	    85 nt/sec
+# Source        Bremer, H., Dennis, P. P. (1996) Modulation of chemical composition and other parameters of the cell by growth rate.
+#               Neidhardt, et al. eds. Escherichia coli and Salmonella typhimurium: Cellular and Molecular Biology, 2nd ed. chapter 97 Table 3
+
+ktrans = 85
+
 def get_rnap():
     """
     # RNAP
@@ -574,7 +599,7 @@ def get_rnap():
 
     rnap = RNAPolymerase(id='rnap',
                          name='RNA Polymerase',
-                         ktrans = 1000*3600,
+                         ktrans = ktrans*3600,
                          kdeg = 0.2)
 
     rnap_genes = ['b3295','b3649','b3987','b3988']
