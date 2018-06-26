@@ -33,8 +33,7 @@ class GrowthRate(ModelVariable):
     """
 
     def __init__(self, model, **kwargs):
-        id_ = 'mu'
-        ModelVariable.__init__(self, model=model, id_= id_, **kwargs)
+        ModelVariable.__init__(self, model=model, **kwargs)
 
     prefix = 'MU_'
 
