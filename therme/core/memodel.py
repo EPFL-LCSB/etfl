@@ -86,28 +86,24 @@ class MEModel(LCSBModel, Model):
         if model is not None:
             self.sanitize_varnames()
 
+        self.init_etfl(big_M, growth_reaction, max_enzyme_concentration, mrna_scaling, mu_range,
+                       n_mu_bins, name, prot_scaling)
+
+    def init_etfl(self, big_M, growth_reaction, max_enzyme_concentration, mrna_scaling, mu_range,
+                  n_mu_bins, name, prot_scaling):
         self.max_enzyme_concentration = max_enzyme_concentration
         self.big_M = big_M
-
-
         self._var_dict = dict()
         self._cons_dict = dict()
-
         self.logger.info('# ETFL Model {} initialized'.format(name))
-
         self._growth_reaction_id = growth_reaction
-
-
         self._mu_range = mu_range
         self._n_mu_bins = n_mu_bins
-
-
         self.init_scaling(prot_scaling, mrna_scaling)
-
         if mu_range is not None:
             self._mu = self.add_variable(kind=GrowthRate,
                                          hook=self,
-                                         id_='total', # Will read MU_total
+                                         id_='total',  # Will read MU_total
                                          lb=mu_range[0],
                                          ub=mu_range[1])
             self.init_mu_variables()
@@ -117,11 +113,9 @@ class MEModel(LCSBModel, Model):
             message = "Empty model initialized"
             # raise ValueError(message)
             self.logger.info(message)
-
         self.aa_dict = dict()
         self.rna_nucleotides = dict()
         self.trna_dict = dict()
-
         self.enzymes = DictList()
         self.mrnas = DictList()
         self.peptides = DictList()
@@ -306,7 +300,7 @@ class MEModel(LCSBModel, Model):
                           kdeg=mrna_kdeg)
         
         nt_weights = [v*molecular_weight(k, 'RNA') for k,v in nt_ratios.items()]
-        dummy_mrna.molecular_weight = mrna_length*sum(nt_weights)
+        dummy_mrna.molecular_weight = mrna_length*sum(nt_weights)/ 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
         
         self.add_mrnas([dummy_mrna])
 
@@ -334,7 +328,8 @@ class MEModel(LCSBModel, Model):
                                 gene_id=dummy_gene.id)
         
         aa_weights = [v*molecular_weight(k, 'protein') for k,v in aa_ratios.items()]
-        dummy_peptide.molecular_weight = peptide_length*sum(aa_weights)
+
+        dummy_peptide.molecular_weight = peptide_length*sum(aa_weights)/ 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
 
         dummy_translation = TranslationReaction(id='dummy_translation',
                                                 name='Dummy Translation',
