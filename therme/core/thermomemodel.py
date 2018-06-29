@@ -60,54 +60,8 @@ class ThermoMEModel(MEModel, ThermoModel):
         if model is not None:
             self.sanitize_varnames()
 
-        self.max_enzyme_concentration = max_enzyme_concentration
-        self.big_M = big_M
-
-        self._var_dict = dict()
-        self._cons_dict = dict()
-
-        self.logger.info('# ME Model initialized')
-
-        self._growth_reaction_id = growth_reaction
-
-        self._mu_error = mu_error
-        self._mu_range = mu_range
-        self._n_mu_bins = n_mu_bins
-        self._mu_in = mu
-
-        self.init_scaling(prot_scaling, mrna_scaling)
-
-        if mu is not None and mu_error == 0:
-            self._mu = mu
-        elif mu is not None and mu_error > 0:
-            self._mu = optlang.Variable(id='mu', name='mu')
-            self._mu.lb = mu - mu_error
-            self._mu.ub = mu + mu_error
-            self.init_mu_variables()
-        elif mu_range is not None:
-            self._mu = optlang.Variable(id='mu', name='mu')
-            self._mu.lb = mu_range[0]
-            self._mu.ub = mu_range[1]
-            self._n_mu_bins = n_mu_bins
-            self.init_mu_variables()
-        else:
-            # message = """ You need to supply either mu, or mu_range.
-            #             If you supply mu_error, it must be positive."""
-            message = "Empty model initialized"
-            # raise ValueError(message)
-            self.logger.info(message)
-
-        self.aa_dict = dict()
-        self.nt_dict = dict()
-        self.trna_dict = dict()
-
-        self.enzymes = DictList()
-        self.mrnas = DictList()
-        self.peptides = DictList()
-        self.transcription_reactions = DictList()
-        self.translation_reactions = DictList()
-        self.complexation_reactions = DictList()
-        self.degradation_reactions = DictList()
+        self.init_etfl(big_M, growth_reaction, max_enzyme_concentration, mrna_scaling, mu_range,
+                       n_mu_bins, name, prot_scaling)
 
         ###############
         # Thermo part #
