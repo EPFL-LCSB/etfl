@@ -65,11 +65,11 @@ def create_fba_model(solver = GLPK):
     h = the_model.metabolites.h_c
     h2o = the_model.metabolites.h2o_c
 
-    ppi = cobra.Metabolite(id='ppi_c', formula='P2O7')
+    ppi = cobra.Metabolite(id='ppi_c', formula='P2O7', compartment = 'c')
     ppi_hydrolysis = cobra.Reaction(id='pi_to_ppi')
     ppi_hydrolysis.add_metabolites({ppi:-1, h2o:-1,pi:2, h:2 })
 
-    gdp = cobra.Metabolite(id='gdp_c', formula='C10H15N5O11P2' )
+    gdp = cobra.Metabolite(id='gdp_c', formula='C10H15N5O11P2', compartment = 'c' )
     gdp_ex = cobra.Reaction(id='EX_g6p')
     gdp_ex.add_metabolites({gdp: -1})
 
@@ -100,7 +100,7 @@ def add_e_metabolites(model):
         try:
             the_met = model.metabolites.get_by_id(metid)
         except KeyError:
-            the_met = cobra.Metabolite(id = metid)
+            the_met = cobra.Metabolite(id = metid, compartment = 'c')
             model.add_metabolites([the_met])
 
             ex_rxn = cobra.Reaction('EX_{}'.format(metid))
@@ -112,8 +112,8 @@ def add_e_metabolites(model):
 
 
 def create_etfl_model(has_thermo, has_neidhardt,
-                      prot_scaling=1e6,
-                      mrna_scaling=1e6,
+                      prot_scaling=1e3,
+                      mrna_scaling=1e3,
                       n_mu_bins = 64,
                       mu_max = 3,
                       ):
@@ -215,7 +215,11 @@ def create_etfl_model(has_thermo, has_neidhardt,
                                  nt_dict = rna_nucleotides,
                                  aa_dict = aa_dict,
                                  atp_id='atp_c',
-                                 adp_id='adp_c')
+                                 adp_id='adp_c',
+                                 pi_id='pi_c',
+                                 h2o_id='h2o_c',
+                                 h_id='h_c',
+                                 )
 
     ##########################
     ##    MODEL CREATION    ##
