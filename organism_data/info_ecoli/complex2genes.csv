@@ -1,0 +1,1465 @@
+,complex,putative_genes,coeffs,monomer_id,gene,obj_ids
+0,"1,4-dihydroxy-2-naphthoyl-CoA hydrolase",menI,4,G6912-MONOMER,menI,G6912-MONOMER
+1,"1,4-dihydroxy-2-naphthoyl-CoA synthase",menB,6,NAPHTHOATE-SYN-MONOMER,menB,NAPHTHOATE-SYN-MONOMER
+2,1-deoxy-D-xylulose 5-phosphate reductoisomerase,dxr,2,DXPREDISOM-MONOMER,dxr,DXPREDISOM-MONOMER
+3,1-deoxy-D-xylulose-5-phosphate synthase,dxs,2,DXS-MONOMER,dxs,DXS-MONOMER
+4,1-hydroxy-2-methyl-2-(E)-butenyl 4-diphosphate reductase,ispH,2,EG11081-MONOMER,ispH,EG11081-MONOMER
+5,1-phosphofructokinase,fruK,2,1-PFK-MONOMER,fruK,1-PFK-MONOMER
+6,16S rRNA 2'-<i>O</i>-ribose C1402 methyltransferase,rsmI,2,G7641-MONOMER,rsmI,G7641-MONOMER
+7,16S rRNA m<sup>3</sup>U1498 methyltransferase,rsmE,2,EG12366-MONOMER,rsmE,EG12366-MONOMER
+8,16S rRNA m<sup>4</sup>C1402 methyltransferase,rsmH,2,EG11085-MONOMER,rsmH,EG11085-MONOMER
+9,"2,3-bisphosphoglycerate-dependent phosphoglycerate mutase",gpmA,2,GPMA-MONOMER,gpmA,GPMA-MONOMER
+10,"2,3-diaminopropionate ammonia-lyase",ygeX,2,G7490-MONOMER,ygeX,G7490-MONOMER
+11,"2,3-dihydro-2,3-dihydroxybenzoate dehydrogenase",entA,4,ENTA-MONOMER,entA,ENTA-MONOMER
+12,"2,3-dihydroxybenzoate-AMP ligase",entE,2,ENTE-MONOMER,entE,ENTE-MONOMER
+13,"2,3-diketo-L-gulonate reductase",yiaK,2,EG12279-MONOMER,yiaK,EG12279-MONOMER
+14,"2,3-diketo-L-gulonate:Na<sup>+</sup> symporter - periplasmic binding protein"" // ""2,3-diketo-L-gulonate:Na<sup>+</sup> symporter - membrane subunit"" // ""2,3-diketo-L-gulonate:Na<sup>+</sup> symporter - membrane subunit","yiaM"" // ""yiaN"" // ""yiaO",1,MONOMER0-422,yiaM,MONOMER0-422
+15,"2,3-diketo-L-gulonate:Na<sup>+</sup> symporter - periplasmic binding protein"" // ""2,3-diketo-L-gulonate:Na<sup>+</sup> symporter - membrane subunit"" // ""2,3-diketo-L-gulonate:Na<sup>+</sup> symporter - membrane subunit","yiaM"" // ""yiaN"" // ""yiaO",1,EG12282-MONOMER,yiaN,EG12282-MONOMER
+16,"2,3-diketo-L-gulonate:Na<sup>+</sup> symporter - periplasmic binding protein"" // ""2,3-diketo-L-gulonate:Na<sup>+</sup> symporter - membrane subunit"" // ""2,3-diketo-L-gulonate:Na<sup>+</sup> symporter - membrane subunit","yiaM"" // ""yiaN"" // ""yiaO",1,EG12283-MONOMER,yiaO,EG12283-MONOMER
+17,2-amino-3-ketobutyrate CoA ligase,kbl,2,AKBLIG-MONOMER,kbl,AKBLIG-MONOMER
+18,"2-<i>C</i>-methyl-D-erythritol 2,4-cyclodiphosphate synthase",ispF,3,EG11816-MONOMER,ispF,EG11816-MONOMER
+19,2-hydroxy-6-oxononatrienedioate hydrolase,mhpC,2,MHPCHYDROL-MONOMER,mhpC,MHPCHYDROL-MONOMER
+20,"2-hydroxycyclohepta-1,4,6-triene-1-carboxyl-CoA thioesterase",paaY,3,G6721-MONOMER,paaY,G6721-MONOMER
+21,2-hydroxypentadienoate hydratase,mhpD,5,MHPDHYDROL-MONOMER,mhpD,MHPDHYDROL-MONOMER
+22,2-keto-3-deoxy-L-rhamnonate aldolase,yfaU,6,G7158-MONOMER,yfaU,G7158-MONOMER
+23,2-methylcitrate synthase,prpC,2,G6198-MONOMER,prpC,G6198-MONOMER
+24,2-methylisocitrate lyase,prpB,4,G6196-MONOMER,prpB,G6196-MONOMER
+25,"2-oxoglutarate decarboxylase, thiamine-requiring",sucA,1,E1O-MONOMER,sucA,E1O-MONOMER
+26,2-oxoglutarate dehydrogenase complex,"lpd"" // ""sucB"" // ""sucA",1,E3-CPLX,,E3-CPLX
+27,2-oxoglutarate dehydrogenase complex,"lpd"" // ""sucB"" // ""sucA",2,E3-MONOMER,lpd,E3-MONOMER
+28,2-oxoglutarate dehydrogenase complex,"lpd"" // ""sucB"" // ""sucA",1,E2O,,E2O
+29,2-oxoglutarate dehydrogenase complex,"lpd"" // ""sucB"" // ""sucA",2,E2O-MONOMER,sucB,E2O-MONOMER
+30,2-oxoglutarate dehydrogenase complex,"lpd"" // ""sucB"" // ""sucA",1,E1O,,E1O
+31,2-oxoglutarate dehydrogenase complex,"lpd"" // ""sucB"" // ""sucA",1,E1O-MONOMER,sucA,E1O-MONOMER
+32,2-succinyl-5-enolpyruvyl-6-hydroxy-3-cyclohexene-1-carboxylate synthase,menD,2,MEND-MONOMER,menD,MEND-MONOMER
+33,23S rRNA 2'-<i>O</i>-ribose G2251 methyltransferase,rlmB,2,G7845-MONOMER,rlmB,G7845-MONOMER
+34,23S rRNA m<sup>3</sup>&Psi;1915 methyltransferase,rlmH,2,EG11254-MONOMER,rlmH,EG11254-MONOMER
+35,23S rRNA m<sup>5</sup>C1962 methyltransferase,rlmI,2,G6501-MONOMER,rlmI,G6501-MONOMER
+36,2Fe-2S cluster-containing protein YeaW,yeaW,3,G6988-MONOMER,yeaW,G6988-MONOMER
+37,"3,4-dihydroxy-2-butanone-4-phosphate synthase",ribB,2,DIOHBUTANONEPSYN-MONOMER,ribB,DIOHBUTANONEPSYN-MONOMER
+38,"3-carboxyethylcatechol 2,3-dioxygenase",mhpB,4,DHPDIOXYGEN-MONOMER,mhpB,DHPDIOXYGEN-MONOMER
+39,3-dehydroquinate dehydratase,aroD,2,AROD-MONOMER,aroD,AROD-MONOMER
+40,"3-deoxy-7-phosphoheptulonate synthase, Phe-sensitive",aroG,4,AROG-MONOMER,aroG,AROG-MONOMER
+41,"3-deoxy-7-phosphoheptulonate synthase, Trp-sensitive",aroH,2,AROH-MONOMER,aroH,AROH-MONOMER
+42,"3-deoxy-7-phosphoheptulonate synthase, Tyr-sensitive",aroF,2,AROF-MONOMER,aroF,AROF-MONOMER
+43,3-deoxy-D-<i>manno</i>-octulosonate 8-phosphate phosphatase KdsC,kdsC,4,G7663-MONOMER,kdsC,G7663-MONOMER
+44,3-deoxy-D-<i>manno</i>-octulosonate 8-phosphate synthase,kdsA,4,KDO-8PSYNTH-MONOMER,kdsA,KDO-8PSYNTH-MONOMER
+45,3-hydroxy acid dehydrogenase,ydfG,4,EG12345-MONOMER,ydfG,EG12345-MONOMER
+46,"3-hydroxy-2,4-pentadione 5-phosphate thiolase",lsrF,1,G6804-MONOMER,lsrF,G6804-MONOMER
+47,3-hydroxy-acyl-[acyl-carrier-protein] dehydratase,fabZ,6,FABZ-MONOMER,fabZ,FABZ-MONOMER
+48,3-isopropylmalate dehydratase,"leuD"" // ""leuC",1,LEUD-MONOMER,leuD,LEUD-MONOMER
+49,3-isopropylmalate dehydratase,"leuD"" // ""leuC",1,LEUC-MONOMER,leuC,LEUC-MONOMER
+50,3-isopropylmalate dehydrogenase,leuB,2,3-ISOPROPYLMALDEHYDROG-MONOMER,leuB,3-ISOPROPYLMALDEHYDROG-MONOMER
+51,3-keto-L-gulonate-6-phosphate decarboxylase UlaD,ulaD,2,G7858-MONOMER,ulaD,G7858-MONOMER
+52,3-methyl-2-oxobutanoate hydroxymethyltransferase,panB,1,3-CH3-2-OXOBUTANOATE-OH-CH3-XFER-MONOMER,panB,3-CH3-2-OXOBUTANOATE-OH-CH3-XFER-MONOMER
+53,3-octaprenyl-4-hydroxybenzoate decarboxylase,ubiD,6,EG11396-MONOMER,ubiD,EG11396-MONOMER
+54,3-oxoacyl-[acyl-carrier-protein] reductase FabG,fabG,4,3-OXOACYL-ACP-REDUCT-MONOMER,fabG,3-OXOACYL-ACP-REDUCT-MONOMER
+55,3-sulfolactaldehyde reductase,yihU,4,EG11847-MONOMER,yihU,EG11847-MONOMER
+56,4-(cytidine 5'-diphospho)-2-<i>C</i>-methyl-D-erythritol kinase,ispE,2,EG11294-MONOMER,ispE,EG11294-MONOMER
+57,"aminodeoxychorismate synthase subunit 1"" // ""aminodeoxychorismate synthase subunit 2","pabA"" // ""pabB",1,PABASYN-COMPII-MONOMER,pabA,PABASYN-COMPII-MONOMER
+58,"aminodeoxychorismate synthase subunit 1"" // ""aminodeoxychorismate synthase subunit 2","pabA"" // ""pabB",1,PABASYN-COMPI-MONOMER,pabB,PABASYN-COMPI-MONOMER
+59,4-aminobutyrate aminotransferase GabT,gabT,2,GABATRANSAM-MONOMER,gabT,GABATRANSAM-MONOMER
+60,4-diphosphocytidyl-2C-methyl-D-erythritol synthase,ispD,2,G7423-MONOMER,ispD,G7423-MONOMER
+61,4-hydroxy-tetrahydrodipicolinate reductase,dapB,4,DIHYDROPICRED-MONOMER,dapB,DIHYDROPICRED-MONOMER
+62,4-hydroxy-tetrahydrodipicolinate synthase,dapA,4,DIHYDRODIPICSYN-MONOMER,dapA,DIHYDRODIPICSYN-MONOMER
+63,4-hydroxythreonine-4-phosphate dehydrogenase,pdxA,2,PDXA-MONOMER,pdxA,PDXA-MONOMER
+64,5'-methylthioadenosine/<i>S</i>-adenosylhomocysteine nucleosidase,mtn,2,EG11090-MONOMER,mtn,EG11090-MONOMER
+65,"5,10-methylenetetrahydrofolate reductase",metF,4,METHYLENETHFREDUCT-MONOMER,metF,METHYLENETHFREDUCT-MONOMER
+66,5-(carboxyamino)imidazole ribonucleotide synthase,purK,2,PURK-MONOMER,purK,PURK-MONOMER
+67,5-carboxymethylaminomethyluridine-tRNA syntase subunit MnmG,mnmG,2,EG10375-MONOMER,mnmG,EG10375-MONOMER
+68,5-carboxymethylaminomethyluridine-tRNA synthase GTPase subunit,mnmE,2,EG10997-MONOMER,mnmE,EG10997-MONOMER
+69,5-dehydro-4-deoxy-<small>D</small>-glucuronate isomerase,kduI,6,G7463-MONOMER,kduI,G7463-MONOMER
+70,5-oxoprolinase,"pxpA"" // ""pxpB"" // ""pxpC",1,G6382-MONOMER,pxpA,G6382-MONOMER
+71,5-oxoprolinase,"pxpA"" // ""pxpB"" // ""pxpC",1,G6380-MONOMER,pxpB,G6380-MONOMER
+72,5-oxoprolinase,"pxpA"" // ""pxpB"" // ""pxpC",1,G6381-MONOMER,pxpC,G6381-MONOMER
+73,"5-phospho-&alpha;-D-ribosyl 1,2-cyclic phosphate phosphodiesterase",phnP,2,EG10725-MONOMER,phnP,EG10725-MONOMER
+74,50S ribosomal protein complex L8,"rplL"" // ""rplJ",2,CPLX0-3955,,CPLX0-3955
+75,50S ribosomal protein complex L8,"rplL"" // ""rplJ",4,EG10873-MONOMER,rplL,EG10873-MONOMER
+76,50S ribosomal protein complex L8,"rplL"" // ""rplJ",1,EG10871-MONOMER,rplJ,EG10871-MONOMER
+77,"6,7-dimethyl-8-ribityllumazine synthase",ribE,6,LUMAZINESYN-MONOMER,ribE,LUMAZINESYN-MONOMER
+78,"6-carboxy-5,6,7,8-tetrahydropterin synthase",queD,6,G7431-MONOMER,queD,G7431-MONOMER
+79,6-phosphofructokinase I,pfkA,4,6PFK-1-MONOMER,pfkA,6PFK-1-MONOMER
+80,6-phosphofructokinase II,pfkB,2,6PFK-2-MONOMER,pfkB,6PFK-2-MONOMER
+81,"6-phosphogluconate dehydrogenase, decarboxylating",gnd,2,6PGLUCONDEHYDROG-MONOMER,gnd,6PGLUCONDEHYDROG-MONOMER
+82,7-&alpha;-hydroxysteroid dehydrogenase,hdhA,4,7-ALPHA-HYDROXYSTEROID-DEH-MONOMER,hdhA,7-ALPHA-HYDROXYSTEROID-DEH-MONOMER
+83,7-cyano-7-deazaguanine reductase,queF,2,G7452-MONOMER,queF,G7452-MONOMER
+84,8-amino-7-oxononanoate synthase,bioF,2,7KAPSYN-MONOMER,bioF,7KAPSYN-MONOMER
+85,acetate / glycolate : cation symporter,actP,2,YJCG-MONOMER,actP,YJCG-MONOMER
+86,"acetolactate synthase II subunit IlvG, N-terminal fragment (pseudogene)"" // ""acetolactate synthase II subunit IlvM","ilvM"" // ""ilvG_1",1,SMALLILVM-MONOMER,ilvM,SMALLILVM-MONOMER
+87,"acetolactate synthase II subunit IlvG, N-terminal fragment (pseudogene)"" // ""acetolactate synthase II subunit IlvM","ilvM"" // ""ilvG_1",1,G8221-MONOMER,ilvG_1,G8221-MONOMER
+88,"acetohydroxy acid synthase I subunit IlvB"" // ""acetohydroxy acid synthase I subunit IlvN","ilvN"" // ""ilvB",2,SMALLILVN-MONOMER,ilvN,SMALLILVN-MONOMER
+89,"acetohydroxy acid synthase I subunit IlvB"" // ""acetohydroxy acid synthase I subunit IlvN","ilvN"" // ""ilvB",2,LARGEILVB-MONOMER,ilvB,LARGEILVB-MONOMER
+90,"acetolactate synthase / acetohydroxybutanoate synthase, catalytic subunit"" // ""acetolactate synthase / acetohydroxybutanoate synthase, regulatory subunit","ilvH"" // ""ilvI",2,ACETOLACTSYNIII-HCHAIN-MONOMER,ilvH,ACETOLACTSYNIII-HCHAIN-MONOMER
+91,"acetolactate synthase / acetohydroxybutanoate synthase, catalytic subunit"" // ""acetolactate synthase / acetohydroxybutanoate synthase, regulatory subunit","ilvH"" // ""ilvI",2,ACETOLACTSYNIII-ICHAIN-MONOMER,ilvI,ACETOLACTSYNIII-ICHAIN-MONOMER
+92,acetyl-CoA acetyltransferase,atoB,4,ACETYL-COA-ACETYLTRANSFER-MONOMER,atoB,ACETYL-COA-ACETYLTRANSFER-MONOMER
+93,"acetyl-CoA carboxyltransferase subunit &alpha;"" // ""acetyl-CoA carboxyltransferase subunit &beta;","accD"" // ""accA",2,CARBOXYL-TRANSFERASE-BETA-MONOMER,accD,CARBOXYL-TRANSFERASE-BETA-MONOMER
+94,"acetyl-CoA carboxyltransferase subunit &alpha;"" // ""acetyl-CoA carboxyltransferase subunit &beta;","accD"" // ""accA",2,CARBOXYL-TRANSFERASE-ALPHA-MONOMER,accA,CARBOXYL-TRANSFERASE-ALPHA-MONOMER
+95,acetyl-CoA:oxalate CoA-transferase,yfdE,2,G7234-MONOMER,yfdE,G7234-MONOMER
+96,acetylesterase,aes,2,EG11101-MONOMER,aes,EG11101-MONOMER
+97,acetylglutamate kinase,argB,2,ACETYLGLUTKIN-MONOMER,argB,ACETYLGLUTKIN-MONOMER
+98,acetylornithine deacetylase,argE,2,ACETYLORNDEACET-MONOMER,argE,ACETYLORNDEACET-MONOMER
+99,acid phosphatase / phosphotransferase,aphA,4,APHA-MONOMER,aphA,APHA-MONOMER
+100,aconitate hydratase A,acnA,2,ACONITASE-MONOMER,acnA,ACONITASE-MONOMER
+101,acrylyl-CoA reductase,yhdH,2,EG11315-MONOMER,yhdH,EG11315-MONOMER
+102,activated pyruvate-formate lyase,pflB,2,PYRUVFORMLY-MONOMER,pflB,PYRUVFORMLY-MONOMER
+103,acyl-CoA thioesterase II,tesB,4,THIOESTERII-MONOMER,tesB,THIOESTERII-MONOMER
+104,adenine deaminase,adeD,2,EG11692-MONOMER,adeD,EG11692-MONOMER
+105,adenine phosphoribosyltransferase,apt,2,ADENPRIBOSYLTRAN-MONOMER,apt,ADENPRIBOSYLTRAN-MONOMER
+106,adenosylmethionine-8-amino-7-oxononanoate aminotransferase,bioA,2,DAPASYN-MONOMER,bioA,DAPASYN-MONOMER
+107,adenylosuccinate lyase,purB,4,ASL-MONOMER,purB,ASL-MONOMER
+108,adenylosuccinate synthetase,purA,2,ADENYLOSUCCINATE-SYN-MONOMER,purA,ADENYLOSUCCINATE-SYN-MONOMER
+109,adenylyl-sulfate kinase,cysC,2,ADENYLYLSULFKIN-MONOMER,cysC,ADENYLYLSULFKIN-MONOMER
+110,ADP-L-glycero-D-mannoheptose 6-epimerase,rfaD,5,EG10838-MONOMER,rfaD,EG10838-MONOMER
+111,ADP-sugar diphosphatase NudE,nudE,2,G7740-MONOMER,nudE,G7740-MONOMER
+112,ADP-sugar pyrophosphatase,nudF,2,EG12633-MONOMER,nudF,EG12633-MONOMER
+113,aerobic glycerol 3-phosphate dehydrogenase,glpD,2,AERGLYC3PDEHYDROG-MONOMER,glpD,AERGLYC3PDEHYDROG-MONOMER
+114,agmatinase,speB,2,AGMATIN-MONOMER,speB,AGMATIN-MONOMER
+115,"alanine racemase 1, PLP-binding, biosynthetic",alr,2,ALARACEBIOSYN-MONOMER,alr,ALARACEBIOSYN-MONOMER
+116,alanine racemase 2,dadX,2,ALARACECAT-MONOMER,dadX,ALARACECAT-MONOMER
+117,alanine&mdash;tRNA ligase/DNA-binding transcriptional repressor,alaS,2,ALAS-MONOMER,alaS,ALAS-MONOMER
+118,"aldehyde dehydrogenase, Fe-S subunit"" // ""aldehyde dehydrogenase, FAD-binding subunit"" // ""aldehyde dehydrogenase: molybdenum cofactor-binding subunit","paoC"" // ""paoB"" // ""paoA",1,G6155-MONOMER,paoC,G6155-MONOMER
+119,"aldehyde dehydrogenase, Fe-S subunit"" // ""aldehyde dehydrogenase, FAD-binding subunit"" // ""aldehyde dehydrogenase: molybdenum cofactor-binding subunit","paoC"" // ""paoB"" // ""paoA",1,G6156-MONOMER,paoB,G6156-MONOMER
+120,"aldehyde dehydrogenase, Fe-S subunit"" // ""aldehyde dehydrogenase, FAD-binding subunit"" // ""aldehyde dehydrogenase: molybdenum cofactor-binding subunit","paoC"" // ""paoB"" // ""paoA",1,G6157-MONOMER,paoA,G6157-MONOMER
+121,"aldehyde dehydrogenase A, NAD-linked",aldA,4,LACTALDDEHYDROG-MONOMER,aldA,LACTALDDEHYDROG-MONOMER
+122,aldehyde dehydrogenase B,aldB,4,ALDDEHYDROGB-MONOMER,aldB,ALDDEHYDROGB-MONOMER
+123,aldehyde-alcohol dehydrogenase,adhE,4,ADHE-MONOMER,adhE,ADHE-MONOMER
+124,aliphatic sulfonate ABC transporter,"ssuB"" // ""ssuC"" // ""ssuA",2,YCBE-MONOMER,ssuB,YCBE-MONOMER
+125,aliphatic sulfonate ABC transporter,"ssuB"" // ""ssuC"" // ""ssuA",2,YCBM-MONOMER,ssuC,YCBM-MONOMER
+126,aliphatic sulfonate ABC transporter,"ssuB"" // ""ssuC"" // ""ssuA",1,G6478-MONOMER,ssuA,G6478-MONOMER
+127,alkaline phosphatase,phoA,2,ALKAPHOSPHA-MONOMER,phoA,ALKAPHOSPHA-MONOMER
+128,alkyl hydroperoxide reductase,"ahpF"" // ""ahpC",2,EG11385-MONOMER,ahpF,EG11385-MONOMER
+129,alkyl hydroperoxide reductase,"ahpF"" // ""ahpC",1,EG11384-MONOMER,ahpC,EG11384-MONOMER
+130,<i>all-trans</i>-octaprenyl-diphosphate synthase,ispB,2,OPPSYN-MONOMER,ispB,OPPSYN-MONOMER
+131,allantoate amidohydrolase,allC,2,G6285-MONOMER,allC,G6285-MONOMER
+132,allantoinase,allB,4,G6281-MONOMER,allB,G6281-MONOMER
+133,allose-6-phosphate isomerase / ribose-5-phosphate isomerase B,rpiB,2,RIB5PISOMB-MONOMER,rpiB,RIB5PISOMB-MONOMER
+134,&alpha; complex,atoD,2,ATOD-MONOMER,atoD,ATOD-MONOMER
+135,&alpha;-D-xyloside xylohydrolase,yicI,6,EG11685-MONOMER,yicI,EG11685-MONOMER
+136,&alpha;-dehydro-&beta;-deoxy-<i>D</i>-glucarate aldolase,garL,6,KDGALDOL-MONOMER,garL,KDGALDOL-MONOMER
+137,&alpha;-galactosidase,melA,2,ALPHAGALACTOSID-MONOMER,melA,ALPHAGALACTOSID-MONOMER
+138,amidophosphoribosyltransferase,purF,4,PRPPAMIDOTRANS-MONOMER,purF,PRPPAMIDOTRANS-MONOMER
+139,amino acid racemase,ygeA,2,EG11157-MONOMER,ygeA,EG11157-MONOMER
+140,aminodeoxychorismate lyase,pabC,2,ADCLY-MONOMER,pabC,ADCLY-MONOMER
+141,aminopeptidase A/I and DNA-binding transcriptional repressor,pepA,6,EG10694-MONOMER,pepA,EG10694-MONOMER
+142,aminopeptidase B,pepB,6,EG12310-MONOMER,pepB,EG12310-MONOMER
+143,ammonia / ammonium transporter,amtB,3,AMTB-MONOMER,amtB,AMTB-MONOMER
+144,AMP nucleosidase,amn,6,AMP-NUCLEOSID-MONOMER,amn,AMP-NUCLEOSID-MONOMER
+145,anaerobic fatty acid &beta;-oxidation complex,"fadJ"" // ""fadI",1,G7212-MONOMER,fadJ,G7212-MONOMER
+146,anaerobic fatty acid &beta;-oxidation complex,"fadJ"" // ""fadI",1,G7213-MONOMER,fadI,G7213-MONOMER
+147,anaerobic glycerol-3-phosphate dehydrogenase,"glpC"" // ""glpB"" // ""glpA",1,ANGLYC3PDEHYDROGSUBUNITC-MONOMER,glpC,ANGLYC3PDEHYDROGSUBUNITC-MONOMER
+148,anaerobic glycerol-3-phosphate dehydrogenase,"glpC"" // ""glpB"" // ""glpA",1,ANGLYC3PDEHYDROGSUBUNITB-MONOMER,glpB,ANGLYC3PDEHYDROGSUBUNITB-MONOMER
+149,anaerobic glycerol-3-phosphate dehydrogenase,"glpC"" // ""glpB"" // ""glpA",1,ANGLYC3PDEHYDROGSUBUNITA-MONOMER,glpA,ANGLYC3PDEHYDROGSUBUNITA-MONOMER
+150,anaerobic ribonucleoside-triphosphate reductase,nrdD,2,RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER,nrdD,RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER
+151,anaerobic ribonucleoside-triphosphate reductase activating protein,nrdG,2,RNTRACTIV-MONOMER,nrdG,RNTRACTIV-MONOMER
+152,"anthranilate synthase subunit TrpE"" // ""anthranilate synthase subunit TrpD","trpD"" // ""trpE",2,ANTHRANSYNCOMPII-MONOMER,trpD,ANTHRANSYNCOMPII-MONOMER
+153,"anthranilate synthase subunit TrpE"" // ""anthranilate synthase subunit TrpD","trpD"" // ""trpE",2,ANTHRANSYNCOMPI-MONOMER,trpE,ANTHRANSYNCOMPI-MONOMER
+154,anti-sigma factor stabilizing protein RseB,rseB,2,G7348-MONOMER,rseB,G7348-MONOMER
+155,antitoxin/DNA-binding transcriptional repressor YefM,yefM,2,EG12844-MONOMER,yefM,EG12844-MONOMER
+156,arabinose ABC transporter,"araF"" // ""araH"" // ""araG",1,ARAF-MONOMER,araF,ARAF-MONOMER
+157,arabinose ABC transporter,"araF"" // ""araH"" // ""araG",2,ARAH-MONOMER,araH,ARAH-MONOMER
+158,arabinose ABC transporter,"araF"" // ""araH"" // ""araG",2,ARAG-MONOMER,araG,ARAG-MONOMER
+159,AraC DNA-binding transcriptional dual regulator,araC,2,PD00242,araC,PD00242
+160,"arginine decarboxylase, biosynthetic",speA,4,ARGDECARBOXBIO-MONOMER,speA,ARGDECARBOXBIO-MONOMER
+161,"arginine decarboxylase, degradative",adiA,1,ARGDECARBOXDEG-MONOMER,adiA,ARGDECARBOXDEG-MONOMER
+162,arginine:agmatine antiporter,adiC,2,YJDE-MONOMER,adiC,YJDE-MONOMER
+163,argininosuccinate synthetase,argG,4,ARGSUCCINSYN-MONOMER,argG,ARGSUCCINSYN-MONOMER
+164,aromatic carboxylic acid efflux pump,"aaeB"" // ""aaeA",1,G7685-MONOMER,aaeB,G7685-MONOMER
+165,aromatic carboxylic acid efflux pump,"aaeB"" // ""aaeA",1,G7686-MONOMER,aaeA,G7686-MONOMER
+166,arsenite/antimonite:H<sup>+</sup> antiporter,arsB,2,ARSF-MONOMER,arsB,ARSF-MONOMER
+167,arylamine <i>N</i>-acetyltransferase,nhoA,2,G6770-MONOMER,nhoA,G6770-MONOMER
+168,asparaginase II,ansB,4,ANSB-MONOMER,ansB,ANSB-MONOMER
+169,asparagine synthetase A,asnA,2,ASNSYNA-MONOMER,asnA,ASNSYNA-MONOMER
+170,asparagine synthetase B,asnB,2,ASNSYNB-MONOMER,asnB,ASNSYNB-MONOMER
+171,asparagine&mdash;tRNA ligase,asnS,2,ASNS-MONOMER,asnS,ASNS-MONOMER
+172,aspartate aminotransferase,aspC,2,ASPAMINOTRANS-MONOMER,aspC,ASPAMINOTRANS-MONOMER
+173,aspartate ammonia-lyase,aspA,4,ASPARTASE-MONOMER,aspA,ASPARTASE-MONOMER
+174,aspartate carbamoyltransferase catalytic subunit,pyrB,3,ASPCARBCAT-MONOMER,pyrB,ASPCARBCAT-MONOMER
+175,"aspartate carbamoyltransferase, regulatory subunit",pyrI,2,ASPCARBREG-MONOMER,pyrI,ASPCARBREG-MONOMER
+176,aspartate kinase III,lysC,2,ASPKINIII-MONOMER,lysC,ASPKINIII-MONOMER
+177,aspartate&mdash;tRNA ligase,aspS,2,ASPS-MONOMER,aspS,ASPS-MONOMER
+178,aspartate-semialdehyde dehydrogenase,asd,2,ASP-SEMIALDEHYDE-DEHYDROGENASE-MONOMER,asd,ASP-SEMIALDEHYDE-DEHYDROGENASE-MONOMER
+179,ATP dependent structure specific DNA nuclease,"sbcD"" // ""sbcC",1,EG11094-MONOMER,sbcD,EG11094-MONOMER
+180,ATP dependent structure specific DNA nuclease,"sbcD"" // ""sbcC",1,EG10927-MONOMER,sbcC,EG10927-MONOMER
+181,ATP phosphoribosyltransferase,hisG,2,ATPPHOSRIBOSTRANS-MONOMER,hisG,ATPPHOSRIBOSTRANS-MONOMER
+182,ATP synthase F<sub>1</sub> complex subunit &alpha;,atpA,3,,,ATPA-MONOMER
+183,ATP synthase F<sub>1</sub> complex subunit &beta;,atpD,3,ATPD-MONOMER,atpD,ATPD-MONOMER
+184,ATP synthase F<sub>o</sub> complex - subunit b,atpF,2,ATPF-MONOMER,atpF,ATPF-MONOMER
+185,ATP synthase F<sub>o</sub> complex - subunit c,atpE,1,ATPE-MONOMER,atpE,ATPE-MONOMER
+186,ATP-dependent DNA helicase Rep,rep,2,EG10837-MONOMER,rep,EG10837-MONOMER
+187,ATP-dependent Lipid A-core flippase,msbA,2,EG10613-MONOMER,msbA,EG10613-MONOMER
+188,ATP-independent periplasmic chaperone,spy,2,G6939-MONOMER,spy,G6939-MONOMER
+189,"Autoinducer-2 ABC transporter periplasmic binding protein"" // ""Autoinducer-2 ABC transporter membrane subunit LsrD"" // ""Autoinducer-2 ABC transporter membrane subunit LsrC"" // ""Autoinducer-2 ABC transporter ATP binding subunit","lsrA"" // ""lsrC"" // ""lsrD"" // ""lsrB",2,YDEX-MONOMER,lsrA,YDEX-MONOMER
+190,"Autoinducer-2 ABC transporter periplasmic binding protein"" // ""Autoinducer-2 ABC transporter membrane subunit LsrD"" // ""Autoinducer-2 ABC transporter membrane subunit LsrC"" // ""Autoinducer-2 ABC transporter ATP binding subunit","lsrA"" // ""lsrC"" // ""lsrD"" // ""lsrB",1,YDEY-MONOMER,lsrC,YDEY-MONOMER
+191,"Autoinducer-2 ABC transporter periplasmic binding protein"" // ""Autoinducer-2 ABC transporter membrane subunit LsrD"" // ""Autoinducer-2 ABC transporter membrane subunit LsrC"" // ""Autoinducer-2 ABC transporter ATP binding subunit","lsrA"" // ""lsrC"" // ""lsrD"" // ""lsrB",1,YDEZ-MONOMER,lsrD,YDEZ-MONOMER
+192,"Autoinducer-2 ABC transporter periplasmic binding protein"" // ""Autoinducer-2 ABC transporter membrane subunit LsrD"" // ""Autoinducer-2 ABC transporter membrane subunit LsrC"" // ""Autoinducer-2 ABC transporter ATP binding subunit","lsrA"" // ""lsrC"" // ""lsrD"" // ""lsrB",1,YNEA-MONOMER,lsrB,YNEA-MONOMER
+193,bacterioferritin,bfr,2,EG10113-MONOMER,bfr,EG10113-MONOMER
+194,&beta; complex,atoA,2,ATOA-MONOMER,atoA,ATOA-MONOMER
+195,&beta;-glucuronidase,uidA,4,BETA-GLUCURONID-MONOMER,uidA,BETA-GLUCURONID-MONOMER
+196,&beta;-galactosidase,lacZ,4,BETAGALACTOSID-MONOMER,lacZ,BETAGALACTOSID-MONOMER
+197,&beta;-glucoside specific PTS enzyme II,ascF,2,ASCF-MONOMER,ascF,ASCF-MONOMER
+198,&beta;-glucoside specific PTS enzyme II - cys24 phosphorylated,bglF,2,BGLF-MONOMER,bglF,BGLF-MONOMER
+199,&beta;-glucoside specific PTS enzyme II / BglG kinase / BglG phosphatase,bglF,2,BGLF-MONOMER,bglF,BGLF-MONOMER
+200,&beta;-hydroxyacyl-acyl carrier protein dehydratase/isomerase,fabA,2,FABA-MONOMER,fabA,FABA-MONOMER
+201,&beta;-ketoacyl-[acyl carrier protein] synthase I,fabB,2,FABB-MONOMER,fabB,FABB-MONOMER
+202,&beta;-ketoacyl-[acyl carrier protein] synthase II,fabF,2,3-OXOACYL-ACP-SYNTHII-MONOMER,fabF,3-OXOACYL-ACP-SYNTHII-MONOMER
+203,&beta;-ketoacyl-[acyl carrier protein] synthase III,fabH,2,FABH-MONOMER,fabH,FABH-MONOMER
+204,betaine aldehyde dehydrogenase,betB,4,BADH-MONOMER,betB,BADH-MONOMER
+205,BglG - his101 phosphorylated,bglG,2,EG10116-MONOMER,bglG,EG10116-MONOMER
+206,BglG - his208 phosphorylated,bglG,2,EG10116-MONOMER,bglG,EG10116-MONOMER
+207,bifunctional 3-demethylubiquinone-<i>8</i> 3-<i>O</i>-methyltransferase and 2-octaprenyl-6-hydroxyphenol methylase,ubiG,2,DHHB-METHYLTRANSFER-MONOMER,ubiG,DHHB-METHYLTRANSFER-MONOMER
+208,"bifunctional 5,10-methylene-tetrahydrofolate dehydrogenase/ 5,10-methylene-tetrahydrofolate cyclohydrolase",folD,2,FOLD-MONOMER,folD,FOLD-MONOMER
+209,bifunctional aconitate hydratase B and 2-methylisocitrate dehydratase,acnB,2,ACONITATEDEHYDRB-MONOMER,acnB,ACONITATEDEHYDRB-MONOMER
+210,bifunctional sensory histidine kinase PhoQ,phoQ,2,PHOQ-MONOMER,phoQ,PHOQ-MONOMER
+211,biotin carboxyl carrier protein (dimer),accB,2,BCCP-BIOTIN,,BCCP-BIOTIN
+212,biotin carboxylase,accC,2,BIOTIN-CARBOXYL-MONOMER,accC,BIOTIN-CARBOXYL-MONOMER
+213,biotin synthase,bioB,2,BIOTIN-SYN-MONOMER,bioB,BIOTIN-SYN-MONOMER
+214,branched chain amino acid / phenylalanine ABC transporter,"livJ"" // ""livM"" // ""livH"" // ""livG"" // ""livF",1,LIVJ-MONOMER,livJ,LIVJ-MONOMER
+215,branched chain amino acid / phenylalanine ABC transporter,"livJ"" // ""livM"" // ""livH"" // ""livG"" // ""livF",1,LIVM-MONOMER,livM,LIVM-MONOMER
+216,branched chain amino acid / phenylalanine ABC transporter,"livJ"" // ""livM"" // ""livH"" // ""livG"" // ""livF",1,LIVH-MONOMER,livH,LIVH-MONOMER
+217,branched chain amino acid / phenylalanine ABC transporter,"livJ"" // ""livM"" // ""livH"" // ""livG"" // ""livF",1,LIVG-MONOMER,livG,LIVG-MONOMER
+218,branched chain amino acid / phenylalanine ABC transporter,"livJ"" // ""livM"" // ""livH"" // ""livG"" // ""livF",1,LIVF-MONOMER,livF,LIVF-MONOMER
+219,branched-chain-amino-acid aminotransferase,ilvE,6,BRANCHED-CHAINAMINOTRANSFER-MONOMER,ilvE,BRANCHED-CHAINAMINOTRANSFER-MONOMER
+220,c-di-GMP-binding biofilm dispersal mediator protein,bdcA,2,G7880-MONOMER,bdcA,G7880-MONOMER
+221,"carbamoyl phosphate synthetase subunit &beta;"" // ""carbamoyl phosphate synthetase subunit &alpha;","carA"" // ""carB",2,CARBPSYN-SMALL,carA,CARBPSYN-SMALL
+222,"carbamoyl phosphate synthetase subunit &beta;"" // ""carbamoyl phosphate synthetase subunit &alpha;","carA"" // ""carB",2,CARBPSYN-LARGE,carB,CARBPSYN-LARGE
+223,carbon storage regulator,csrA,2,EG11447-MONOMER,csrA,EG11447-MONOMER
+224,carbon-phosphorus lyase core complex,"phnG"" // ""phnH"" // ""phnI"" // ""phnJ",2,EG10716-MONOMER,phnG,EG10716-MONOMER
+225,carbon-phosphorus lyase core complex,"phnG"" // ""phnH"" // ""phnI"" // ""phnJ",2,EG10717-MONOMER,phnH,EG10717-MONOMER
+226,carbon-phosphorus lyase core complex,"phnG"" // ""phnH"" // ""phnI"" // ""phnJ",2,EG10718-MONOMER,phnI,EG10718-MONOMER
+227,carbon-phosphorus lyase core complex,"phnG"" // ""phnH"" // ""phnI"" // ""phnJ",2,EG10719-MONOMER,phnJ,EG10719-MONOMER
+228,carbonic anhydrase 1,cynT,2,CARBODEHYDRAT-MONOMER,cynT,CARBODEHYDRAT-MONOMER
+229,carbonic anhydrase 2,can,4,EG12319-MONOMER,can,EG12319-MONOMER
+230,carboxy-<i>S</i>-adenosyl-L-methionine synthase,cmoA,2,G7020-MONOMER,cmoA,G7020-MONOMER
+231,carboxylate-amine ligase,ybdK,2,G6326-MONOMER,ybdK,G6326-MONOMER
+232,carboxylesterase,yjfP,2,G7853-MONOMER,yjfP,G7853-MONOMER
+233,carnitine monooxygenase,"yeaW"" // ""yeaX",1,G6988-MONOMER,yeaW,G6988-MONOMER
+234,carnitine monooxygenase,"yeaW"" // ""yeaX",1,G6989-MONOMER,yeaX,G6989-MONOMER
+235,Cas2 dimer,cas2,2,EG12845-MONOMER,cas2,EG12845-MONOMER
+236,catabolic threonine dehydratase,tdcB,4,THREDEHYDCAT-MONOMER,tdcB,THREDEHYDCAT-MONOMER
+237,catalase II,katE,4,HYDROPEROXIDII-MONOMER,katE,HYDROPEROXIDII-MONOMER
+238,cell division factor ZapB,zapB,2,EG11878-MONOMER,zapB,EG11878-MONOMER
+239,cell division factor ZapD,zapD,2,EG12313-MONOMER,zapD,EG12313-MONOMER
+240,cell division protein ZapA,zapA,4,EG12878-MONOMER,zapA,EG12878-MONOMER
+241,cellulose synthase,"bcsA"" // ""bcsB",1,EG12260-MONOMER,bcsA,EG12260-MONOMER
+242,cellulose synthase,"bcsA"" // ""bcsB",1,EG12259-MONOMER,bcsB,EG12259-MONOMER
+243,chaperone protein DnaJ,dnaJ,2,EG10240-MONOMER,dnaJ,EG10240-MONOMER
+244,chemotaxis protein CheZ,cheZ,2,CHEZ-MONOMER,cheZ,CHEZ-MONOMER
+245,chemotaxis signaling complex - aspartate sensing,"tar"" // ""cheW"" // ""cheA",3,CPLX0-8102,,CPLX0-8102
+246,chemotaxis signaling complex - aspartate sensing,"tar"" // ""cheW"" // ""cheA",6,TAR-MONOMER,tar,TAR-MONOMER
+247,chemotaxis signaling complex - aspartate sensing,"tar"" // ""cheW"" // ""cheA",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+248,chemotaxis signaling complex - aspartate sensing,"tar"" // ""cheW"" // ""cheA",1,CHEA-CPLX,,CHEA-CPLX
+249,chemotaxis signaling complex - aspartate sensing,"tar"" // ""cheW"" // ""cheA",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+250,chemotaxis signaling complex - dipeptide sensing,"tap"" // ""cheW"" // ""cheA",3,CPLX0-8104,,CPLX0-8104
+251,chemotaxis signaling complex - dipeptide sensing,"tap"" // ""cheW"" // ""cheA",6,TAP-MONOMER,tap,TAP-MONOMER
+252,chemotaxis signaling complex - dipeptide sensing,"tap"" // ""cheW"" // ""cheA",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+253,chemotaxis signaling complex - dipeptide sensing,"tap"" // ""cheW"" // ""cheA",1,CHEA-CPLX,,CHEA-CPLX
+254,chemotaxis signaling complex - dipeptide sensing,"tap"" // ""cheW"" // ""cheA",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+255,chemotaxis signaling complex - ribose/galactose/glucose sensing,"trg"" // ""cheW"" // ""cheA",3,CPLX0-8105,,CPLX0-8105
+256,chemotaxis signaling complex - ribose/galactose/glucose sensing,"trg"" // ""cheW"" // ""cheA",6,TRG-MONOMER,trg,TRG-MONOMER
+257,chemotaxis signaling complex - ribose/galactose/glucose sensing,"trg"" // ""cheW"" // ""cheA",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+258,chemotaxis signaling complex - ribose/galactose/glucose sensing,"trg"" // ""cheW"" // ""cheA",1,CHEA-CPLX,,CHEA-CPLX
+259,chemotaxis signaling complex - ribose/galactose/glucose sensing,"trg"" // ""cheW"" // ""cheA",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+260,chemotaxis signaling complex - serine sensing,"tsr"" // ""cheA"" // ""cheW",3,CPLX0-8103,,CPLX0-8103
+261,chemotaxis signaling complex - serine sensing,"tsr"" // ""cheA"" // ""cheW",6,TSR-MONOMER,tsr,TSR-MONOMER
+262,chemotaxis signaling complex - serine sensing,"tsr"" // ""cheA"" // ""cheW",1,CHEA-CPLX,,CHEA-CPLX
+263,chemotaxis signaling complex - serine sensing,"tsr"" // ""cheA"" // ""cheW",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+264,chemotaxis signaling complex - serine sensing,"tsr"" // ""cheA"" // ""cheW",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+265,chloride:H<sup>+</sup> antiporter ClcA,clcA,2,YADQ-MONOMER,clcA,YADQ-MONOMER
+266,chorismate synthase,aroC,4,AROC-MONOMER,aroC,AROC-MONOMER
+267,ChpB-ChpS complex,"chpS"" // ""chpB",1,EG11250-MONOMER,chpS,EG11250-MONOMER
+268,ChpB-ChpS complex,"chpS"" // ""chpB",1,EG12096-MONOMER,chpB,EG12096-MONOMER
+269,chromate reductase,yieF,2,EG11723-MONOMER,yieF,EG11723-MONOMER
+270,chromosome partitioning protein MukB,mukB,2,EG10618-MONOMER,mukB,EG10618-MONOMER
+271,citrate lyase [acyl carrier protein] component,citD,6,ACPSUB-MONOMER,citD,ACPSUB-MONOMER
+272,"citrate lyase, citrate-acyl carrier protein transferase component",citF,6,CITTRANS-MONOMER,citF,CITTRANS-MONOMER
+273,"citrate lyase, citryl-acyl carrrier protein lyase component",citE,6,CITRYLY-MONOMER,citE,CITRYLY-MONOMER
+274,citrate synthase,gltA,6,CITSYN-MONOMER,gltA,CITSYN-MONOMER
+275,ClpA ATP-dependent protease specificity component and chaperone,clpA,6,EG10156-MONOMER,clpA,EG10156-MONOMER
+276,ClpB chaperone,clpB,6,EG10157-MONOMER,clpB,EG10157-MONOMER
+277,ClpP serine protease,clpP,1,EG10158-MONOMER,clpP,EG10158-MONOMER
+278,ClpX ATP-dependent protease specificity component and chaperone,clpX,6,EG10159-MONOMER,clpX,EG10159-MONOMER
+279,ClpXP protease specificity-enhancing factor,sspB,2,EG10978-MONOMER,sspB,EG10978-MONOMER
+280,cobinamide-P guanylyltransferase / cobinamide kinase,cobU,2,COBU-MONOMER,cobU,COBU-MONOMER
+281,conserved DNA-binding protein,ybaB,2,EG11100-MONOMER,ybaB,EG11100-MONOMER
+282,conserved protein,ydiE,2,EG12391-MONOMER,ydiE,EG12391-MONOMER
+283,copper binding protein CutA,cutA,3,EG12177-MONOMER,cutA,EG12177-MONOMER
+284,copper-containing amine oxidase,tynA,2,AMINEOXID-MONOMER,tynA,AMINEOXID-MONOMER
+285,copper/silver export system,"cusA"" // ""cusF"" // ""cusB"" // ""cusC",3,YBDE-MONOMER,cusA,YBDE-MONOMER
+286,copper/silver export system,"cusA"" // ""cusF"" // ""cusB"" // ""cusC",1,G6321-MONOMER,cusF,G6321-MONOMER
+287,copper/silver export system,"cusA"" // ""cusF"" // ""cusB"" // ""cusC",6,G6322-MONOMER,cusB,G6322-MONOMER
+288,copper/silver export system,"cusA"" // ""cusF"" // ""cusB"" // ""cusC",3,G6320-MONOMER,cusC,G6320-MONOMER
+289,coproporphyrinogen III oxidase,hemF,2,COPROGENOXI-MONOMER,hemF,COPROGENOXI-MONOMER
+290,"CP4-57 prophage; RNase LS, toxin of the RnlAB toxin-antitoxin system",rnlA,2,G7365-MONOMER,rnlA,G7365-MONOMER
+291,CP4-6 prophage; putative 2-keto-3-deoxygluconate aldolase,yagE,4,G6140-MONOMER,yagE,G6140-MONOMER
+292,CRISPR-associated complex for antiviral defense,"casE"" // ""casD"" // ""casC"" // ""casB"" // ""casA",1,G7426-MONOMER,casE,G7426-MONOMER
+293,CRISPR-associated complex for antiviral defense,"casE"" // ""casD"" // ""casC"" // ""casB"" // ""casA",1,G7427-MONOMER,casD,G7427-MONOMER
+294,CRISPR-associated complex for antiviral defense,"casE"" // ""casD"" // ""casC"" // ""casB"" // ""casA",6,G7428-MONOMER,casC,G7428-MONOMER
+295,CRISPR-associated complex for antiviral defense,"casE"" // ""casD"" // ""casC"" // ""casB"" // ""casA",2,G7429-MONOMER,casB,G7429-MONOMER
+296,CRISPR-associated complex for antiviral defense,"casE"" // ""casD"" // ""casC"" // ""casB"" // ""casA",1,G7430-MONOMER,casA,G7430-MONOMER
+297,cryptic phosphonate ABC transporter,"phnD"" // ""phnE_1"" // ""phnC",1,PHND-MONOMER,phnD,PHND-MONOMER
+298,cryptic phosphonate ABC transporter,"phnD"" // ""phnE_1"" // ""phnC",2,PHNE-MONOMER,phnE_1,PHNE-MONOMER
+299,cryptic phosphonate ABC transporter,"phnD"" // ""phnE_1"" // ""phnC",2,PHNC-MONOMER,phnC,PHNC-MONOMER
+300,CTP synthase,pyrG,4,CTPSYN-MONOMER,pyrG,CTPSYN-MONOMER
+301,"curli transport specificity factor"" // ""curli secretion channel","csgG"" // ""csgE",9,G6543-MONOMER,csgG,G6543-MONOMER
+302,"curli transport specificity factor"" // ""curli secretion channel","csgG"" // ""csgE",9,G6545-MONOMER,csgE,G6545-MONOMER
+303,curved DNA-binding protein,cbpA,2,EG12193-MONOMER,cbpA,EG12193-MONOMER
+304,cyanase,cynS,1,CYANLY-MONOMER,cynS,CYANLY-MONOMER
+305,cyclic di-GMP phosphodiesterase PdeF,pdeF,2,G7314-MONOMER,pdeF,G7314-MONOMER
+306,cyclic pyranopterin monophosphate synthase,moaC,6,EG11666-MONOMER,moaC,EG11666-MONOMER
+307,cyclopropane fatty acyl phospholipid synthase,cfa,2,CFA-MONOMER,cfa,CFA-MONOMER
+308,cystathionine-&beta;-lyase / L-cysteine desulfhydrase,metC,4,CYSTATHIONINE-BETA-LYASE-MONOMER,metC,CYSTATHIONINE-BETA-LYASE-MONOMER
+309,cysteine desulfurase,iscS,2,G7325-MONOMER,iscS,G7325-MONOMER
+310,cysteine sulfinate desulfinase,csdA,2,G7454-MONOMER,csdA,G7454-MONOMER
+311,cysteine synthase A,cysK,2,ACSERLYA-MONOMER,cysK,ACSERLYA-MONOMER
+312,cysteine synthase B,cysM,2,ACSERLYB-MONOMER,cysM,ACSERLYB-MONOMER
+313,cystine / cysteine ABC transporter,"tcyJ"" // ""tcyL"" // ""tcyN",1,G7039-MONOMER,tcyJ,G7039-MONOMER
+314,cystine / cysteine ABC transporter,"tcyJ"" // ""tcyL"" // ""tcyN",2,G7037-MONOMER,tcyL,G7037-MONOMER
+315,cystine / cysteine ABC transporter,"tcyJ"" // ""tcyL"" // ""tcyN",2,EG12347-MONOMER,tcyN,EG12347-MONOMER
+316,cytidine/deoxycytidine deaminase,cdd,2,CYTIDEAM-MONOMER,cdd,CYTIDEAM-MONOMER
+317,"cytochrome <i>bd</i>-I ubiquinol oxidase subunit I"" // ""cytochrome <i>bd</i>-I ubiquinol oxidase subunit II"" // ""cytochrome <i>bd</i>-I ubiquinol oxidase subunit CydX","cydX"" // ""cydB"" // ""cydA",1,MONOMER0-2663,cydX,MONOMER0-2663
+318,"cytochrome <i>bd</i>-I ubiquinol oxidase subunit I"" // ""cytochrome <i>bd</i>-I ubiquinol oxidase subunit II"" // ""cytochrome <i>bd</i>-I ubiquinol oxidase subunit CydX","cydX"" // ""cydB"" // ""cydA",1,CYDB-MONOMER,cydB,CYDB-MONOMER
+319,"cytochrome <i>bd</i>-I ubiquinol oxidase subunit I"" // ""cytochrome <i>bd</i>-I ubiquinol oxidase subunit II"" // ""cytochrome <i>bd</i>-I ubiquinol oxidase subunit CydX","cydX"" // ""cydB"" // ""cydA",1,CYDA-MONOMER,cydA,CYDA-MONOMER
+320,cytochrome <i>bd</i>-II ubiquinol oxidase,"appB"" // ""appC",1,APPB-MONOMER,appB,APPB-MONOMER
+321,cytochrome <i>bd</i>-II ubiquinol oxidase,"appB"" // ""appC",1,APPC-MONOMER,appC,APPC-MONOMER
+322,cytochrome <i>bo<sub>3</sub></i> ubiquinol oxidase,"cyoC"" // ""cyoB"" // ""cyoA"" // ""cyoD",1,CYOC-MONOMER,cyoC,CYOC-MONOMER
+323,cytochrome <i>bo<sub>3</sub></i> ubiquinol oxidase,"cyoC"" // ""cyoB"" // ""cyoA"" // ""cyoD",1,CYOB-MONOMER,cyoB,CYOB-MONOMER
+324,cytochrome <i>bo<sub>3</sub></i> ubiquinol oxidase,"cyoC"" // ""cyoB"" // ""cyoA"" // ""cyoD",1,CYOA-MONOMER,cyoA,CYOA-MONOMER
+325,cytochrome <i>bo<sub>3</sub></i> ubiquinol oxidase,"cyoC"" // ""cyoB"" // ""cyoA"" // ""cyoD",1,CYOD-MONOMER,cyoD,CYOD-MONOMER
+326,cytosine/isoguanine deaminase,codA,6,CYTDEAM-MONOMER,codA,CYTDEAM-MONOMER
+327,D-alanine&mdash;D-alanine ligase B,ddlB,2,DALADALALIGB-MONOMER,ddlB,DALADALALIGB-MONOMER
+328,"D-allose ABC transporter ATP binding subunit"" // ""D-allose ABC transporter membrane subunit"" // ""D-allose ABC transporter periplasmic binding protein","alsB"" // ""alsC"" // ""alsA",1,YJCX-MONOMER,alsB,YJCX-MONOMER
+329,"D-allose ABC transporter ATP binding subunit"" // ""D-allose ABC transporter membrane subunit"" // ""D-allose ABC transporter periplasmic binding protein","alsB"" // ""alsC"" // ""alsA",2,YJCV-MONOMER,alsC,YJCV-MONOMER
+330,"D-allose ABC transporter ATP binding subunit"" // ""D-allose ABC transporter membrane subunit"" // ""D-allose ABC transporter periplasmic binding protein","alsB"" // ""alsC"" // ""alsA",1,YJCW-MONOMER,alsA,YJCW-MONOMER
+331,D-amino acid dehydrogenase,dadA,2,DALADEHYDROGA-MONOMER,dadA,DALADEHYDROGA-MONOMER
+332,D-aminoacyl-tRNA deacylase,dtd,2,EG11852-MONOMER,dtd,EG11852-MONOMER
+333,D-arabinose 5-phosphate isomerase GutQ,gutQ,4,,,EG10973-MONOMER
+334,D-arabinose 5-phosphate isomerase KdsD,kdsD,4,G7662-MONOMER,kdsD,G7662-MONOMER
+335,D-cysteine desulfhydrase,dcyD,2,DCYSDESULF-MONOMER,dcyD,DCYSDESULF-MONOMER
+336,D-erythrose-4-phosphate dehydrogenase,epd,4,ERYTH4PDEHYDROG-MONOMER,epd,ERYTH4PDEHYDROG-MONOMER
+337,D-galactose / methyl-&beta;-D-galactoside ABC transporter,"mglB"" // ""mglC"" // ""mglA",1,MGLB-MONOMER,mglB,MGLB-MONOMER
+338,D-galactose / methyl-&beta;-D-galactoside ABC transporter,"mglB"" // ""mglC"" // ""mglA",2,MGLC-MONOMER,mglC,MGLC-MONOMER
+339,D-galactose / methyl-&beta;-D-galactoside ABC transporter,"mglB"" // ""mglC"" // ""mglA",1,MGLA-MONOMER,mglA,MGLA-MONOMER
+340,"D-gluconate kinase, thermostable",gntK,2,GLUCONOKINII-MONOMER,gntK,GLUCONOKINII-MONOMER
+341,D-lactate dehydrogenase - fermentative,ldhA,4,DLACTDEHYDROGNAD-MONOMER,ldhA,DLACTDEHYDROGNAD-MONOMER
+342,D-ribose pyranase,rbsD,1,EG10817-MONOMER,rbsD,EG10817-MONOMER
+343,D-sedoheptulose 7-phosphate isomerase,lpcA,4,G6106-MONOMER,lpcA,G6106-MONOMER
+344,dCMP phosphohydrolase,yfbR,2,G7185-MONOMER,yfbR,G7185-MONOMER
+345,dCTP deaminase,dcd,3,DCTP-DEAM-MONOMER,dcd,DCTP-DEAM-MONOMER
+346,deoxyuridine triphosphatase,dut,3,DUTP-PYROP-MONOMER,dut,DUTP-PYROP-MONOMER
+347,Der GTPase-activating protein YihI,yihI,2,EG11835-MONOMER,yihI,EG11835-MONOMER
+348,dethiobiotin synthetase,bioD,2,DETHIOBIOTIN-SYN-MONOMER,bioD,DETHIOBIOTIN-SYN-MONOMER
+349,dGTP triphosphohydrolase,dgt,6,DGTPTRIPHYDRO-MONOMER,dgt,DGTPTRIPHYDRO-MONOMER
+350,diacylglycerol kinase,dgkA,3,DIACYLGLYKIN-MONOMER,dgkA,DIACYLGLYKIN-MONOMER
+351,diaminopimelate decarboxylase,lysA,2,DIAMINOPIMDECARB-MONOMER,lysA,DIAMINOPIMDECARB-MONOMER
+352,diaminopimelate epimerase,dapF,2,DIAMINOPIMEPIM-MONOMER,dapF,DIAMINOPIMEPIM-MONOMER
+353,diguanylate cyclase DgcM,dgcM,4,G6673-MONOMER,dgcM,G6673-MONOMER
+354,diguanylate cyclase DgcZ,dgcZ,2,EG11643-MONOMER,dgcZ,EG11643-MONOMER
+355,diguanylate cyclase DosC,dosC,2,G6784-MONOMER,dosC,G6784-MONOMER
+356,dihydroneopterin aldolase,folB,8,H2NEOPTERINALDOL-MONOMER,folB,H2NEOPTERINALDOL-MONOMER
+357,dihydroneopterin triphosphate 2'-epimerase,folX,8,H2NTPEPIM-MONOMER,folX,H2NTPEPIM-MONOMER
+358,dihydroorotase,pyrC,2,DIHYDROOROT-MONOMER,pyrC,DIHYDROOROT-MONOMER
+359,dihydropteroate synthase,folP,2,H2PTEROATESYNTH-MONOMER,folP,H2PTEROATESYNTH-MONOMER
+360,dihydroxy-acid dehydratase,ilvD,2,DIHYDROXYACIDDEHYDRAT-MONOMER,ilvD,DIHYDROXYACIDDEHYDRAT-MONOMER
+361,"dihydroxyacetone kinase, phosphotransferase component/protein-acetyllysine deacetylase",dhaM,2,EG12399-MONOMER,dhaM,EG12399-MONOMER
+362,dimer of DNA topoisomerase IV subunit A,parC,2,EG10686-MONOMER,parC,EG10686-MONOMER
+363,"dimethyl sulfoxide reductase subunit A"" // ""dimethyl sulfoxide reductase subunit B"" // ""dimethyl sulfoxide reductase subunit C","dmsC"" // ""dmsB"" // ""dmsA",1,DMSC-MONOMER,dmsC,DMSC-MONOMER
+364,"dimethyl sulfoxide reductase subunit A"" // ""dimethyl sulfoxide reductase subunit B"" // ""dimethyl sulfoxide reductase subunit C","dmsC"" // ""dmsB"" // ""dmsA",1,DMSB-MONOMER,dmsB,DMSB-MONOMER
+365,"dimethyl sulfoxide reductase subunit A"" // ""dimethyl sulfoxide reductase subunit B"" // ""dimethyl sulfoxide reductase subunit C","dmsC"" // ""dmsB"" // ""dmsA",1,DMSA-MONOMER,dmsA,DMSA-MONOMER
+366,DinJ-YafQ antitoxin/toxin complex / DNA-binding transcriptional repressor,"dinJ"" // ""yafQ",2,G6110-MONOMER,dinJ,G6110-MONOMER
+367,DinJ-YafQ antitoxin/toxin complex / DNA-binding transcriptional repressor,"dinJ"" // ""yafQ",2,G6109-MONOMER,yafQ,G6109-MONOMER
+368,dipeptide ABC transporter,"dppA"" // ""dppC"" // ""dppB"" // ""dppF"" // ""dppD",1,DPPA-MONOMER,dppA,DPPA-MONOMER
+369,dipeptide ABC transporter,"dppA"" // ""dppC"" // ""dppB"" // ""dppF"" // ""dppD",1,DPPC-MONOMER,dppC,DPPC-MONOMER
+370,dipeptide ABC transporter,"dppA"" // ""dppC"" // ""dppB"" // ""dppF"" // ""dppD",1,DPPB-MONOMER,dppB,DPPB-MONOMER
+371,dipeptide ABC transporter,"dppA"" // ""dppC"" // ""dppB"" // ""dppF"" // ""dppD",1,DPPF-MONOMER,dppF,DPPF-MONOMER
+372,dipeptide ABC transporter,"dppA"" // ""dppC"" // ""dppB"" // ""dppF"" // ""dppD",1,DPPD-MONOMER,dppD,DPPD-MONOMER
+373,disulfide reductase,yfcG,2,G7194-MONOMER,yfcG,G7194-MONOMER
+374,disulfide reductase / organic hydroperoxide reductase,yghU,2,G7553-MONOMER,yghU,G7553-MONOMER
+375,dITP/XTP pyrophosphatase,rdgB,2,G7530-MONOMER,rdgB,G7530-MONOMER
+376,divisome protein complex FtsEX,"ftsX"" // ""ftsE",1,FTSX-MONOMER,ftsX,FTSX-MONOMER
+377,divisome protein complex FtsEX,"ftsX"" // ""ftsE",2,FTSE-MONOMER,ftsE,FTSE-MONOMER
+378,DLP12 prophage; crossover junction endodeoxyribonuclease RusA,rusA,2,G6306-MONOMER,rusA,G6306-MONOMER
+379,DLP12 prophage; DNA base-flipping protein,ybcN,2,G6303-MONOMER,ybcN,G6303-MONOMER
+380,DNA gyrase,"gyrB"" // ""gyrA",2,EG10424-MONOMER,gyrB,EG10424-MONOMER
+381,DNA gyrase,"gyrB"" // ""gyrA",2,EG10423-MONOMER,gyrA,EG10423-MONOMER
+382,DNA polymerase III subunit &beta;,dnaN,2,EG10242-MONOMER,dnaN,EG10242-MONOMER
+383,"DNA polymerase III, core enzyme","holE"" // ""dnaQ"" // ""dnaE",1,EG11505-MONOMER,holE,EG11505-MONOMER
+384,"DNA polymerase III, core enzyme","holE"" // ""dnaQ"" // ""dnaE",1,EG10243-MONOMER,dnaQ,EG10243-MONOMER
+385,"DNA polymerase III, core enzyme","holE"" // ""dnaQ"" // ""dnaE",1,EG10238-MONOMER,dnaE,EG10238-MONOMER
+386,"DNA polymerase III, &psi;-&chi; subunit","holD"" // ""holC",1,EG11414-MONOMER,holD,EG11414-MONOMER
+387,"DNA polymerase III, &psi;-&chi; subunit","holD"" // ""holC",1,EG11413-MONOMER,holC,EG11413-MONOMER
+388,DNA polymerase V,"umuD"" // ""umuC",2,EG11057-MONOMER,umuD,EG11057-MONOMER
+389,DNA polymerase V,"umuD"" // ""umuC",1,EG11056-MONOMER,umuC,EG11056-MONOMER
+390,DNA replication inhibitor,cspD,2,EG11111-MONOMER,cspD,EG11111-MONOMER
+391,DNA-binding transcriptional activator CaiF,caiF,2,G6088-MONOMER,caiF,G6088-MONOMER
+392,DNA-binding transcriptional activator/c-di-GMP phosphodiesterase PdeL,pdeL,2,EG11236-MONOMER,pdeL,EG11236-MONOMER
+393,DNA-binding transcriptional dual regulator ArgP,argP,2,EG10490-MONOMER,argP,EG10490-MONOMER
+394,DNA-binding transcriptional dual regulator ArgR,argR,6,PD00194,argR,PD00194
+395,DNA-binding transcriptional dual regulator AsnC,asnC,2,PD00250,asnC,PD00250
+396,DNA-binding transcriptional dual regulator Cra,cra,4,PD00521,cra,PD00521
+397,DNA-binding transcriptional dual regulator CRP,crp,2,PD00257,crp,PD00257
+398,DNA-binding transcriptional dual regulator CysB,cysB,4,PD00232,cysB,PD00232
+399,DNA-binding transcriptional dual regulator DsdC,dsdC,2,PD00297,dsdC,PD00297
+400,DNA-binding transcriptional dual regulator Fis,fis,2,PD00196,fis,PD00196
+401,DNA-binding transcriptional dual regulator FNR,fnr,2,PD00197,fnr,PD00197
+402,DNA-binding transcriptional dual regulator HU,"hupB"" // ""hupA",1,EG10467-MONOMER,hupB,EG10467-MONOMER
+403,DNA-binding transcriptional dual regulator HU,"hupB"" // ""hupA",1,EG10466-MONOMER,hupA,EG10466-MONOMER
+404,DNA-binding transcriptional dual regulator IHF,"ihfB"" // ""ihfA",1,PD00348,ihfB,PD00348
+405,DNA-binding transcriptional dual regulator IHF,"ihfB"" // ""ihfA",1,PD00347,ihfA,PD00347
+406,DNA-binding transcriptional dual regulator MetR,metR,2,PD03938,metR,PD03938
+407,DNA-binding transcriptional dual regulator ModE,modE,2,MONOMER0-185,modE,MONOMER0-185
+408,DNA-binding transcriptional dual regulator MurR,murR,4,G7262-MONOMER,murR,G7262-MONOMER
+409,DNA-binding transcriptional dual regulator TorR,torR,2,TORR-MONOMER,torR,TORR-MONOMER
+410,DNA-binding transcriptional repressor ArsR,arsR,2,EG12235-MONOMER,arsR,EG12235-MONOMER
+411,DNA-binding transcriptional repressor CytR,cytR,2,PD04028,cytR,PD04028
+412,DNA-binding transcriptional repressor FrmR,frmR,4,G6209-MONOMER,frmR,G6209-MONOMER
+413,DNA-binding transcriptional repressor LexA,lexA,2,PD00205,lexA,PD00205
+414,DNA-binding transcriptional repressor LsrR,lsrR,4,G6799-MONOMER,lsrR,G6799-MONOMER
+415,DNA-binding transcriptional repressor MarR,marR,2,PD00364,marR,PD00364
+416,DNA-binding transcriptional repressor MngR,mngR,2,PD01103,mngR,PD01103
+417,DNA-binding transcriptional repressor MprA,mprA,2,EG10603-MONOMER,mprA,EG10603-MONOMER
+418,DNA-binding transcriptional repressor NsrR,nsrR,2,EG11212-MONOMER,nsrR,EG11212-MONOMER
+419,DNA-binding transcriptional repressor PaaX,paaX,2,G6720-MONOMER,paaX,G6720-MONOMER
+420,DNA-binding transcriptional repressor PurR,purR,2,PD00219,purR,PD00219
+421,DNA-binding transcriptional repressor TreR,treR,2,EG12202-MONOMER,treR,EG12202-MONOMER
+422,DNA-binding transcriptional repressor TrpR,trpR,2,PD00423,trpR,PD00423
+423,DNA-binding transcriptional repressor Zur,zur,2,EG11929-MONOMER,zur,EG11929-MONOMER
+424,DNA-binding transcriptional repressor/NMN adenylyltransferase NadR,nadR,4,PD04413,nadR,PD04413
+425,DnaA initiator-associating factor for replication initiation,diaA,4,YRAO-MONOMER,diaA,YRAO-MONOMER
+426,DosC-DosP complex,"dosC"" // ""dosP",1,G6784-MONOMER,dosC,G6784-MONOMER
+427,DosC-DosP complex,"dosC"" // ""dosP",1,G6783-MONOMER,dosP,G6783-MONOMER
+428,Dps complex; stationary phase nucleoid component that sequesters iron and protects DNA from damage,dps,1,EG11415-MONOMER,dps,EG11415-MONOMER
+429,DsbG<sub>oxidized</sub>,dsbG,2,DSBG-MONOMER,dsbG,DSBG-MONOMER
+430,DsbG<sub>reduced</sub>,dsbG,2,DSBG-MONOMER,dsbG,DSBG-MONOMER
+431,dTDP-4-dehydro-6-deoxy-D-glucose transaminase,wecE,4,RFFTRANS-MONOMER,wecE,RFFTRANS-MONOMER
+432,"dTDP-glucose 4,6-dehydratase 1",rfbB,2,DTDPGLUCDEHYDRAT-MONOMER,rfbB,DTDPGLUCDEHYDRAT-MONOMER
+433,dTDP-glucose pyrophosphorylase,rfbA,4,DTDPGLUCOSEPP-MONOMER,rfbA,DTDPGLUCOSEPP-MONOMER
+434,dTDP-glucose pyrophosphorylase 2,rffH,4,DTDPGLUCOSEPP2-MONOMER,rffH,DTDPGLUCOSEPP2-MONOMER
+435,dTDP-L-rhamnose synthetase complex,"rfbD"" // ""rfbC",1,DTDPDEHYRHAMREDUCT-MONOMER,rfbD,DTDPDEHYRHAMREDUCT-MONOMER
+436,dTDP-L-rhamnose synthetase complex,"rfbD"" // ""rfbC",1,DTDPDEHYDRHAMEPIM-MONOMER,rfbC,DTDPDEHYDRHAMEPIM-MONOMER
+437,DUF892 domain-containing protein YciF,yciF,2,EG11126-MONOMER,yciF,EG11126-MONOMER
+438,<I>Eco</I>KI restriction-modification system,"hsdS"" // ""hsdR"" // ""hsdM",1,EG10460-MONOMER,hsdS,EG10460-MONOMER
+439,<I>Eco</I>KI restriction-modification system,"hsdS"" // ""hsdR"" // ""hsdM",2,EG10459-MONOMER,hsdR,EG10459-MONOMER
+440,<I>Eco</I>KI restriction-modification system,"hsdS"" // ""hsdR"" // ""hsdM",2,EG10458-MONOMER,hsdM,EG10458-MONOMER
+441,EF-P-lysine lysyltransferase,epmA,2,EG11211-MONOMER,epmA,EG11211-MONOMER
+442,"enamine/imine deaminase, redox regulated chaperone",ridA,3,G7877-MONOMER,ridA,G7877-MONOMER
+443,energy transducing Ton complex,"exbD"" // ""exbB"" // ""tonB",1,EG10272-MONOMER,exbD,EG10272-MONOMER
+444,energy transducing Ton complex,"exbD"" // ""exbB"" // ""tonB",1,EG10271-MONOMER,exbB,EG10271-MONOMER
+445,energy transducing Ton complex,"exbD"" // ""exbB"" // ""tonB",1,EG11012-MONOMER,tonB,EG11012-MONOMER
+446,enolase,eno,2,ENOLASE-MONOMER,eno,ENOLASE-MONOMER
+447,enoyl-[acyl-carrier-protein] reductase,fabI,4,ENOYL-ACP-REDUCT-NADH-MONOMER,fabI,ENOYL-ACP-REDUCT-NADH-MONOMER
+448,Enterobacterial Common Antigen Biosynthesis Protein Complex,"wzzE"" // ""wzyE"" // ""wzxE",1,EG11295-MONOMER,wzzE,EG11295-MONOMER
+449,Enterobacterial Common Antigen Biosynthesis Protein Complex,"wzzE"" // ""wzyE"" // ""wzxE",1,FUC4NACTRANS-MONOMER,wzyE,FUC4NACTRANS-MONOMER
+450,Enterobacterial Common Antigen Biosynthesis Protein Complex,"wzzE"" // ""wzyE"" // ""wzxE",1,EG11486-MONOMER,wzxE,EG11486-MONOMER
+451,erythronate-4-phosphate dehydrogenase,pdxB,2,ERYTHRON4PDEHYDROG-MONOMER,pdxB,ERYTHRON4PDEHYDROG-MONOMER
+452,ethanol dehydrogenase / alcohol dehydrogenase,adhP,4,ADHP-MONOMER,adhP,ADHP-MONOMER
+453,"ethanolamine ammonia-lyase subunit &alpha;"" // ""ethanolamine ammonia-lyase subunit &beta;","eutC"" // ""eutB",6,EUTC-MONOMER,eutC,EUTC-MONOMER
+454,"ethanolamine ammonia-lyase subunit &alpha;"" // ""ethanolamine ammonia-lyase subunit &beta;","eutC"" // ""eutB",6,EUTB-MONOMER,eutB,EUTB-MONOMER
+455,evolved &beta;-D-galactosidase,"ebgC"" // ""ebgA",4,EG10253-MONOMER,ebgC,EG10253-MONOMER
+456,evolved &beta;-D-galactosidase,"ebgC"" // ""ebgA",4,EG10252-MONOMER,ebgA,EG10252-MONOMER
+457,excision nuclease UvrABC,"uvrA"" // ""uvrC"" // ""uvrB",1,EG11061-MONOMER,uvrA,EG11061-MONOMER
+458,excision nuclease UvrABC,"uvrA"" // ""uvrC"" // ""uvrB",1,EG11063-MONOMER,uvrC,EG11063-MONOMER
+459,excision nuclease UvrABC,"uvrA"" // ""uvrC"" // ""uvrB",1,EG11062-MONOMER,uvrB,EG11062-MONOMER
+460,exodeoxyribonuclease V,"recB"" // ""recC"" // ""recD",1,EG10824-MONOMER,recB,EG10824-MONOMER
+461,exodeoxyribonuclease V,"recB"" // ""recC"" // ""recD",1,EG10825-MONOMER,recC,EG10825-MONOMER
+462,exodeoxyribonuclease V,"recB"" // ""recC"" // ""recD",1,EG10826-MONOMER,recD,EG10826-MONOMER
+463,exodeoxyribonuclease VII,"xseB"" // ""xseA",4,EG11098-MONOMER,xseB,EG11098-MONOMER
+464,exodeoxyribonuclease VII,"xseB"" // ""xseA",1,EG11072-MONOMER,xseA,EG11072-MONOMER
+465,exopolyphosphatase,ppx,2,PPX-MONOMER,ppx,PPX-MONOMER
+466,"fatty acid oxidation complex, &alpha; component",fadB,2,FADB-MONOMER,fadB,FADB-MONOMER
+467,"fatty acid oxidation complex, &beta; component",fadA,2,FADA-MONOMER,fadA,FADA-MONOMER
+468,fatty acyl-CoA synthetase,fadD,2,ACYLCOASYN-MONOMER,fadD,ACYLCOASYN-MONOMER
+469,FecAR Signal Transduction System,"fecR"" // ""fecA",1,EG10292-MONOMER,fecR,EG10292-MONOMER
+470,FecAR Signal Transduction System,"fecR"" // ""fecA",1,EG10286-MONOMER,fecA,EG10286-MONOMER
+471,ferric citrate ABC transporter,"fecB"" // ""fecD"" // ""fecC"" // ""fecE",1,FECB-MONOMER,fecB,FECB-MONOMER
+472,ferric citrate ABC transporter,"fecB"" // ""fecD"" // ""fecC"" // ""fecE",1,FECD-MONOMER,fecD,FECD-MONOMER
+473,ferric citrate ABC transporter,"fecB"" // ""fecD"" // ""fecC"" // ""fecE",1,FECC-MONOMER,fecC,FECC-MONOMER
+474,ferric citrate ABC transporter,"fecB"" // ""fecD"" // ""fecC"" // ""fecE",2,FECE-MONOMER,fecE,FECE-MONOMER
+475,ferric enterobactin ABC transporter,"fepB"" // ""fepG"" // ""fepD"" // ""fepC",1,FEPB-MONOMER,fepB,FEPB-MONOMER
+476,ferric enterobactin ABC transporter,"fepB"" // ""fepG"" // ""fepD"" // ""fepC",1,FEPG-MONOMER,fepG,FEPG-MONOMER
+477,ferric enterobactin ABC transporter,"fepB"" // ""fepG"" // ""fepD"" // ""fepC",1,FEPD-MONOMER,fepD,FEPD-MONOMER
+478,ferric enterobactin ABC transporter,"fepB"" // ""fepG"" // ""fepD"" // ""fepC",2,FEPC-MONOMER,fepC,FEPC-MONOMER
+479,ferritin iron-storage complex,ftnA,2,EG10921-MONOMER,ftnA,EG10921-MONOMER
+480,FicT-FicA complex,"yhfG"" // ""fic",1,EG12374-MONOMER,yhfG,EG12374-MONOMER
+481,FicT-FicA complex,"yhfG"" // ""fic",1,EG10307-MONOMER,fic,EG10307-MONOMER
+482,fimbrial complex,"fimH"" // ""fimG"" // ""fimF"" // ""fimA",1,EG10315-MONOMER,fimH,EG10315-MONOMER
+483,fimbrial complex,"fimH"" // ""fimG"" // ""fimF"" // ""fimA",1,EG10314-MONOMER,fimG,EG10314-MONOMER
+484,fimbrial complex,"fimH"" // ""fimG"" // ""fimF"" // ""fimA",1,EG10313-MONOMER,fimF,EG10313-MONOMER
+485,fimbrial complex,"fimH"" // ""fimG"" // ""fimF"" // ""fimA",1,EG10308-MONOMER,fimA,EG10308-MONOMER
+486,FKBP-type peptidyl-prolyl <i>cis-trans</i> isomerase FklB,fklB,2,G7865-MONOMER,fklB,G7865-MONOMER
+487,FKBP-type peptidyl-prolyl <i>cis-trans</I> isomerase SlyD,slyD,2,EG11663-MONOMER,slyD,EG11663-MONOMER
+488,flagellar export apparatus,"fliJ"" // ""fliI"" // ""fliH"" // ""fliR"" // ""fliQ"" // ""fliP"" // ""fliO"" // ""flhB"" // ""flhA",1,G378-MONOMER,fliJ,G378-MONOMER
+489,flagellar export apparatus,"fliJ"" // ""fliI"" // ""fliH"" // ""fliR"" // ""fliQ"" // ""fliP"" // ""fliO"" // ""flhB"" // ""flhA",6,G377-MONOMER,fliI,G377-MONOMER
+490,flagellar export apparatus,"fliJ"" // ""fliI"" // ""fliH"" // ""fliR"" // ""fliQ"" // ""fliP"" // ""fliO"" // ""flhB"" // ""flhA",1,EG11656-MONOMER,fliH,EG11656-MONOMER
+491,flagellar export apparatus,"fliJ"" // ""fliI"" // ""fliH"" // ""fliR"" // ""fliQ"" // ""fliP"" // ""fliO"" // ""flhB"" // ""flhA",1,EG11977-MONOMER,fliR,EG11977-MONOMER
+492,flagellar export apparatus,"fliJ"" // ""fliI"" // ""fliH"" // ""fliR"" // ""fliQ"" // ""fliP"" // ""fliO"" // ""flhB"" // ""flhA",1,EG11976-MONOMER,fliQ,EG11976-MONOMER
+493,flagellar export apparatus,"fliJ"" // ""fliI"" // ""fliH"" // ""fliR"" // ""fliQ"" // ""fliP"" // ""fliO"" // ""flhB"" // ""flhA",1,EG11975-MONOMER,fliP,EG11975-MONOMER
+494,flagellar export apparatus,"fliJ"" // ""fliI"" // ""fliH"" // ""fliR"" // ""fliQ"" // ""fliP"" // ""fliO"" // ""flhB"" // ""flhA",1,EG11224-MONOMER,fliO,EG11224-MONOMER
+495,flagellar export apparatus,"fliJ"" // ""fliI"" // ""fliH"" // ""fliR"" // ""fliQ"" // ""fliP"" // ""fliO"" // ""flhB"" // ""flhA",1,G7028-MONOMER,flhB,G7028-MONOMER
+496,flagellar export apparatus,"fliJ"" // ""fliI"" // ""fliH"" // ""fliR"" // ""fliQ"" // ""fliP"" // ""fliO"" // ""flhB"" // ""flhA",1,G370-MONOMER,flhA,G370-MONOMER
+497,flagellar motor switch complex,"fliN"" // ""fliM"" // ""fliG",1,FLIN-FLAGELLAR-C-RING-SWITCH,fliN,FLIN-FLAGELLAR-C-RING-SWITCH
+498,flagellar motor switch complex,"fliN"" // ""fliM"" // ""fliG",3,FLIM-FLAGELLAR-C-RING-SWITCH,fliM,FLIM-FLAGELLAR-C-RING-SWITCH
+499,flagellar motor switch complex,"fliN"" // ""fliM"" // ""fliG",2,FLIG-FLAGELLAR-SWITCH-PROTEIN,fliG,FLIG-FLAGELLAR-SWITCH-PROTEIN
+500,FlhDC DNA-binding transcriptional dual regulator,"flhC"" // ""flhD",2,MONOMER0-2488,flhC,MONOMER0-2488
+501,FlhDC DNA-binding transcriptional dual regulator,"flhC"" // ""flhD",4,EG10320-MONOMER,flhD,EG10320-MONOMER
+502,FMN dependent NADH:quinone oxidoreductase,azoR,2,G6731-MONOMER,azoR,G6731-MONOMER
+503,FMNH<sub>2</sub>-dependent alkanesulfonate monooxygenase,ssuD,4,MONOMER-162,ssuD,MONOMER-162
+504,formaldehyde dehydrogenase,frmA,2,ADHC-MONOMER,frmA,ADHC-MONOMER
+505,formate channel FocA,focA,5,FOCA-MONOMER,focA,FOCA-MONOMER
+506,formate dehydrogenase formation protein,fdhE,2,EG10284-MONOMER,fdhE,EG10284-MONOMER
+507,"formate dehydrogenase N, subcomplex","fdnG"" // ""fdnH"" // ""fdnI",1,FDNG-MONOMER,fdnG,FDNG-MONOMER
+508,"formate dehydrogenase N, subcomplex","fdnG"" // ""fdnH"" // ""fdnI",1,FDNH-MONOMER,fdnH,FDNH-MONOMER
+509,"formate dehydrogenase N, subcomplex","fdnG"" // ""fdnH"" // ""fdnI",1,FDNI-MONOMER,fdnI,FDNI-MONOMER
+510,formate dehydrogenase O,"fdoI"" // ""fdoH"" // ""fdoG",1,FDOI-MONOMER,fdoI,FDOI-MONOMER
+511,formate dehydrogenase O,"fdoI"" // ""fdoH"" // ""fdoG",1,FDOH-MONOMER,fdoH,FDOH-MONOMER
+512,formate dehydrogenase O,"fdoI"" // ""fdoH"" // ""fdoG",1,FDOG-MONOMER,fdoG,FDOG-MONOMER
+513,formyl-CoA transferase,frc,2,G7237-MONOMER,frc,G7237-MONOMER
+514,formyltetrahydrofolate deformylase,purU,6,FORMYLTHFDEFORMYL-MONOMER,purU,FORMYLTHFDEFORMYL-MONOMER
+515,free methionine-(<i>R</i>)-sulfoxide reductase,msrC,2,G7005-MONOMER,msrC,G7005-MONOMER
+516,"fructose 1,6-bisphosphatase YggF",yggF,2,EG11245-MONOMER,yggF,EG11245-MONOMER
+517,"fructose-1,6-bisphosphatase 1",fbp,4,F16B-MONOMER,fbp,F16B-MONOMER
+518,"fructose-1,6-bisphosphatase 2",glpX,2,EG11517-MONOMER,glpX,EG11517-MONOMER
+519,fructose-6-phosphate aldolase 1,fsaA,1,G6428-MONOMER,fsaA,G6428-MONOMER
+520,fructose-bisphosphate aldolase class I,fbaB,1,FRUCBISALD-CLASSI-MONOMER,fbaB,FRUCBISALD-CLASSI-MONOMER
+521,fructose-bisphosphate aldolase class II,fbaA,2,FRUCTBISALD-CLASSII-MONOMER,fbaA,FRUCTBISALD-CLASSII-MONOMER
+522,fructoselysine 3-epimerase,frlC,8,G7724-MONOMER,frlC,G7724-MONOMER
+523,fructoselysine 6-phosphate deglycase,frlB,1,G7723-MONOMER,frlB,G7723-MONOMER
+524,FtsLBQ cell division complex,"ftsL"" // ""ftsB"" // ""ftsQ",1,EG11086-MONOMER,ftsL,EG11086-MONOMER
+525,FtsLBQ cell division complex,"ftsL"" // ""ftsB"" // ""ftsQ",1,G7424-MONOMER,ftsB,G7424-MONOMER
+526,FtsLBQ cell division complex,"ftsL"" // ""ftsB"" // ""ftsQ",1,EG10342-MONOMER,ftsQ,EG10342-MONOMER
+527,fumarase A,fumA,2,FUMA-MONOMER,fumA,FUMA-MONOMER
+528,fumarase B,fumB,2,FUMB-MONOMER,fumB,FUMB-MONOMER
+529,fumarase C,fumC,4,FUMC-MONOMER,fumC,FUMC-MONOMER
+530,"fumarate reductase flavoprotein subunit"" // ""fumarate reductase iron-sulfur protein"" // ""fumarate reductase membrane protein FrdC"" // ""fumarate reductase membrane protein FrdD","frdD"" // ""frdC"" // ""frdB"" // ""frdA",1,FUM-MEMB2,frdD,FUM-MEMB2
+531,"fumarate reductase flavoprotein subunit"" // ""fumarate reductase iron-sulfur protein"" // ""fumarate reductase membrane protein FrdC"" // ""fumarate reductase membrane protein FrdD","frdD"" // ""frdC"" // ""frdB"" // ""frdA",1,FUM-MEMB1,frdC,FUM-MEMB1
+532,"fumarate reductase flavoprotein subunit"" // ""fumarate reductase iron-sulfur protein"" // ""fumarate reductase membrane protein FrdC"" // ""fumarate reductase membrane protein FrdD","frdD"" // ""frdC"" // ""frdB"" // ""frdA",1,FUM-FE-S,frdB,FUM-FE-S
+533,"fumarate reductase flavoprotein subunit"" // ""fumarate reductase iron-sulfur protein"" // ""fumarate reductase membrane protein FrdC"" // ""fumarate reductase membrane protein FrdD","frdD"" // ""frdC"" // ""frdB"" // ""frdA",1,FUM-FLAVO,frdA,FUM-FLAVO
+534,fused 4'-phosphopantothenoylcysteine decarboxylase and phosphopantothenoylcysteine synthetase,dfp,1,EG10004-MONOMER,dfp,EG10004-MONOMER
+535,fused aspartate kinase/homoserine dehydrogenase 1,thrA,4,ASPKINIHOMOSERDEHYDROGI-MONOMER,thrA,ASPKINIHOMOSERDEHYDROGI-MONOMER
+536,fused aspartate kinase/homoserine dehydrogenase 2,metL,2,ASPKINIIHOMOSERDEHYDROGII-MONOMER,metL,ASPKINIIHOMOSERDEHYDROGII-MONOMER
+537,fused chorismate mutase/prephenate dehydratase,pheA,2,CHORISMUTPREPHENDEHYDRAT-MONOMER,pheA,CHORISMUTPREPHENDEHYDRAT-MONOMER
+538,fused chorismate mutase/prephenate dehydrogenase,tyrA,2,CHORISMUTPREPHENDEHYDROG-MONOMER,tyrA,CHORISMUTPREPHENDEHYDROG-MONOMER
+539,fused diaminohydroxyphosphoribosylaminopyrimidine deaminase / 5-amino-6-(5-phosphoribosylamino)uracil reductase,ribD,2,RIBOFLAVINSYNDEAM-MONOMER,ribD,RIBOFLAVINSYNDEAM-MONOMER
+540,fused glutathionylspermidine amidase / glutathionylspermidine synthetase,gss,2,GSP-MONOMER,gss,GSP-MONOMER
+541,fused heptose 7-phosphate kinase/heptose 1-phosphate adenyltransferase,rfaE,2,G7590-MONOMER,rfaE,G7590-MONOMER
+542,fused N-acetylglucosamine-1-phosphate uridyltransferase and glucosamine-1-phosphate acetyltransferase,glmU,3,NAG1P-URIDYLTRANS-MONOMER,glmU,NAG1P-URIDYLTRANS-MONOMER
+543,galactitol-1-phosphate 5-dehydrogenase,gatD,2,GALACTITOLPDEHYD-MONOMER,gatD,GALACTITOLPDEHYD-MONOMER
+544,galactitol-specific PTS enzyme II,"gatA"" // ""gatB"" // ""gatC",1,GATA-MONOMER,gatA,GATA-MONOMER
+545,galactitol-specific PTS enzyme II,"gatA"" // ""gatB"" // ""gatC",1,GATB-MONOMER,gatB,GATB-MONOMER
+546,galactitol-specific PTS enzyme II,"gatA"" // ""gatB"" // ""gatC",2,GATC-MONOMER,gatC,GATC-MONOMER
+547,galactofuranose ABC transporter,"ytfQ"" // ""ytfT"" // ""ytfR"" // ""yjfF",1,YTFQ-MONOMER,ytfQ,YTFQ-MONOMER
+548,galactofuranose ABC transporter,"ytfQ"" // ""ytfT"" // ""ytfR"" // ""yjfF",1,YTFT-MONOMER,ytfT,YTFT-MONOMER
+549,galactofuranose ABC transporter,"ytfQ"" // ""ytfT"" // ""ytfR"" // ""yjfF",1,YTFR-MONOMER,ytfR,YTFR-MONOMER
+550,galactofuranose ABC transporter,"ytfQ"" // ""ytfT"" // ""ytfR"" // ""yjfF",1,YJFF-MONOMER,yjfF,YJFF-MONOMER
+551,galactosamine-specific PTS enzyme II (cryptic),"agaD"" // ""agaC"" // ""agaB",1,AGAD-MONOMER,agaD,AGAD-MONOMER
+552,galactosamine-specific PTS enzyme II (cryptic),"agaD"" // ""agaC"" // ""agaB",1,AGAC-MONOMER,agaC,AGAC-MONOMER
+553,galactosamine-specific PTS enzyme II (cryptic),"agaD"" // ""agaC"" // ""agaB",1,AGAB-MONOMER,agaB,AGAB-MONOMER
+554,galactose-1-phosphate uridylyltransferase,galT,2,GALACTURIDYLYLTRANS-MONOMER,galT,GALACTURIDYLYLTRANS-MONOMER
+555,galactoside <i>O</i>-acetyltransferase,lacA,3,GALACTOACETYLTRAN-MONOMER,lacA,GALACTOACETYLTRAN-MONOMER
+556,&gamma;-aminobutyraldehyde dehydrogenase,patD,4,G6755-MONOMER,patD,G6755-MONOMER
+557,&gamma;-butyrobetainyl-CoA:carnitine CoA transferase,caiB,2,CARNDEHYDRA-MONOMER,caiB,CARNDEHYDRA-MONOMER
+558,&gamma;-glutamyl-&gamma;-aminobutyrate hydrolase,puuD,2,G6645-MONOMER,puuD,G6645-MONOMER
+559,GDP-fucose synthase,fcl,2,FCL-MONOMER,fcl,FCL-MONOMER
+560,"GDP-mannose 4,6-dehydratase",gmd,2,GDPMANDEHYDRA-MONOMER,gmd,GDPMANDEHYDRA-MONOMER
+561,GDP-mannose hydrolase,nudK,2,EG12410-MONOMER,nudK,EG12410-MONOMER
+562,GDP-mannose mannosyl hydrolase,gmm,2,GDPMANMANHYDRO-MONOMER,gmm,GDPMANMANHYDRO-MONOMER
+563,glucosamine-6-phosphate deaminase,nagB,6,GLUCOSAMINE-6-P-DEAMIN-MONOMER,nagB,GLUCOSAMINE-6-P-DEAMIN-MONOMER
+564,glucose-1-phosphatase,agp,2,GLUCOSE-1-PHOSPHAT-MONOMER,agp,GLUCOSE-1-PHOSPHAT-MONOMER
+565,glucose-1-phosphate adenylyltransferase,glgC,4,GLUC1PADENYLTRANS-MONOMER,glgC,GLUC1PADENYLTRANS-MONOMER
+566,glucose-6-phosphate isomerase,pgi,2,PGLUCISOM,pgi,PGLUCISOM
+567,glutamate / aspartate ABC transporter,"gltL"" // ""gltJ"" // ""gltK"" // ""gltI",2,GLTL-MONOMER,gltL,GLTL-MONOMER
+568,glutamate / aspartate ABC transporter,"gltL"" // ""gltJ"" // ""gltK"" // ""gltI",1,GLTJ-MONOMER,gltJ,GLTJ-MONOMER
+569,glutamate / aspartate ABC transporter,"gltL"" // ""gltJ"" // ""gltK"" // ""gltI",1,GLTK-MONOMER,gltK,GLTK-MONOMER
+570,glutamate / aspartate ABC transporter,"gltL"" // ""gltJ"" // ""gltK"" // ""gltI",1,G6359-MONOMER,gltI,G6359-MONOMER
+571,glutamate 5-kinase,proB,4,GLUTKIN-MONOMER,proB,GLUTKIN-MONOMER
+572,glutamate decarboxylase A,gadA,6,GLUTDECARBOXA-MONOMER,gadA,GLUTDECARBOXA-MONOMER
+573,glutamate decarboxylase B,gadB,6,GLUTDECARBOXB-MONOMER,gadB,GLUTDECARBOXB-MONOMER
+574,glutamate dehydrogenase,gdhA,6,GDHA-MONOMER,gdhA,GDHA-MONOMER
+575,glutamate synthase,"gltB"" // ""gltD",1,GLUSYNLARGE-MONOMER,gltB,GLUSYNLARGE-MONOMER
+576,glutamate synthase,"gltB"" // ""gltD",1,GLUSYNSMALL-MONOMER,gltD,GLUSYNSMALL-MONOMER
+577,glutamate&mdash;pyruvate aminotransferase AlaA,alaA,2,G7184-MONOMER,alaA,G7184-MONOMER
+578,glutamate&mdash;pyruvate aminotransferase AlaC,alaC,2,G7242-MONOMER,alaC,G7242-MONOMER
+579,glutamate-1-semialdehyde aminotransferase,hemL,2,GSAAMINOTRANS-MONOMER,hemL,GSAAMINOTRANS-MONOMER
+580,glutamate-5-semialdehyde dehydrogenase,proA,4,GLUTSEMIALDEHYDROG-MONOMER,proA,GLUTSEMIALDEHYDROG-MONOMER
+581,glutamate-putrescine ligase,puuA,1,G6644-MONOMER,puuA,G6644-MONOMER
+582,glutaminase 1,glsA,4,G6261-MONOMER,glsA,G6261-MONOMER
+583,glutaminase 2,glsB,2,G6810-MONOMER,glsB,G6810-MONOMER
+584,glutamyl-tRNA reductase,hemA,2,GLUTRNAREDUCT-MONOMER,hemA,GLUTRNAREDUCT-MONOMER
+585,glutaredoxin 4,grxD,2,EG12181-MONOMER,grxD,EG12181-MONOMER
+586,glutathione / L-cysteine ABC exporter CydDC,"cydC"" // ""cydD",1,CYDC-MONOMER,cydC,CYDC-MONOMER
+587,glutathione / L-cysteine ABC exporter CydDC,"cydC"" // ""cydD",1,CYDD-MONOMER,cydD,CYDD-MONOMER
+588,glutathione ABC transporter,"gsiC"" // ""gsiD"" // ""gsiB"" // ""gsiA",1,YLIC-MONOMER,gsiC,YLIC-MONOMER
+589,glutathione ABC transporter,"gsiC"" // ""gsiD"" // ""gsiB"" // ""gsiA",1,YLID-MONOMER,gsiD,YLID-MONOMER
+590,glutathione ABC transporter,"gsiC"" // ""gsiD"" // ""gsiB"" // ""gsiA",1,YLIB-MONOMER,gsiB,YLIB-MONOMER
+591,glutathione ABC transporter,"gsiC"" // ""gsiD"" // ""gsiB"" // ""gsiA",1,YLIA-MONOMER,gsiA,YLIA-MONOMER
+592,glutathione reductase (NADPH),gor,2,GLUTATHIONE-REDUCT-NADPH-MONOMER,gor,GLUTATHIONE-REDUCT-NADPH-MONOMER
+593,glutathione <i>S</i>-transferase GstA,gstA,2,GST-MONOMER,gstA,GST-MONOMER
+594,glutathione synthetase,gshB,4,GLUTATHIONE-SYN-MONOMER,gshB,GLUTATHIONE-SYN-MONOMER
+595,glutathionyl-hydroquinone reductase YqjG,yqjG,2,G7616-MONOMER,yqjG,G7616-MONOMER
+596,glyceraldehyde-3-phosphate dehydrogenase A,gapA,4,GAPDH-A-MONOMER,gapA,GAPDH-A-MONOMER
+597,glycerol facilitator,glpF,4,GLPF-MONOMER,glpF,GLPF-MONOMER
+598,glycerol kinase,glpK,4,GLYCEROL-KIN-MONOMER,glpK,GLYCEROL-KIN-MONOMER
+599,"glycerol-3-phosphate dehydrogenase, biosynthetic",gpsA,2,GLYC3PDEHYDROGBIOSYN-MONOMER,gpsA,GLYC3PDEHYDROGBIOSYN-MONOMER
+600,"glycerophosphoryl diester phosphodiesterase, periplasmic",glpQ,2,GLYCPDIESTER-PERI-MONOMER,glpQ,GLYCPDIESTER-PERI-MONOMER
+601,glycine betaine ABC transporter,"proX"" // ""proW"" // ""proV",1,PROX-MONOMER,proX,PROX-MONOMER
+602,glycine betaine ABC transporter,"proX"" // ""proW"" // ""proV",2,PROW-MONOMER,proW,PROW-MONOMER
+603,glycine betaine ABC transporter,"proX"" // ""proW"" // ""proV",2,PROV-MONOMER,proV,PROV-MONOMER
+604,"glycine betaine ABC transporter, non-osmoregulatory","yehW"" // ""yehX"" // ""yehY"" // ""osmF",1,YEHW-MONOMER,yehW,YEHW-MONOMER
+605,"glycine betaine ABC transporter, non-osmoregulatory","yehW"" // ""yehX"" // ""yehY"" // ""osmF",1,YEHX-MONOMER,yehX,YEHX-MONOMER
+606,"glycine betaine ABC transporter, non-osmoregulatory","yehW"" // ""yehX"" // ""yehY"" // ""osmF",1,YEHY-MONOMER,yehY,YEHY-MONOMER
+607,"glycine betaine ABC transporter, non-osmoregulatory","yehW"" // ""yehX"" // ""yehY"" // ""osmF",1,YEHZ-MONOMER,osmF,YEHZ-MONOMER
+608,glycine decarboxylase,gcvP,2,GCVP-MONOMER,gcvP,GCVP-MONOMER
+609,glycine&mdash;tRNA ligase,"glyQ"" // ""glyS",2,GLYQ-MONOMER,glyQ,GLYQ-MONOMER
+610,glycine&mdash;tRNA ligase,"glyQ"" // ""glyS",2,GLYS-MONOMER,glyS,GLYS-MONOMER
+611,glycogen phosphorylase,glgP,2,GLYCOPHOSPHORYL-MONOMER,glgP,GLYCOPHOSPHORYL-MONOMER
+612,glycolate dehydrogenase,"glcF"" // ""glcE"" // ""glcD",1,MONOMER0-561,glcF,MONOMER0-561
+613,glycolate dehydrogenase,"glcF"" // ""glcE"" // ""glcD",1,G7544-MONOMER,glcE,G7544-MONOMER
+614,glycolate dehydrogenase,"glcF"" // ""glcE"" // ""glcD",1,G7545-MONOMER,glcD,G7545-MONOMER
+615,glyoxalase I,gloA,2,GLYOXI-MONOMER,gloA,GLYOXI-MONOMER
+616,glyoxylate carboligase,gcl,2,GLYOCARBOLIG-MONOMER,gcl,GLYOCARBOLIG-MONOMER
+617,glyoxylate reductase,ghrB,2,MONOMER-43,ghrB,MONOMER-43
+618,GMP reductase,guaC,4,GMP-REDUCT-MONOMER,guaC,GMP-REDUCT-MONOMER
+619,GMP synthetase,guaA,2,GMP-SYN-MONOMER,guaA,GMP-SYN-MONOMER
+620,GroEL-GroES chaperonin complex,"groS"" // ""groL",1,EG10600-MONOMER,groS,EG10600-MONOMER
+621,GroEL-GroES chaperonin complex,"groS"" // ""groL",1,EG10599-MONOMER,groL,EG10599-MONOMER
+622,Grx4-BolA complex,"grxD"" // ""bolA",1,EG12181-MONOMER,grxD,EG12181-MONOMER
+623,Grx4-BolA complex,"grxD"" // ""bolA",1,EG10125-MONOMER,bolA,EG10125-MONOMER
+624,Grx4-IbaG complex,"grxD"" // ""ibaG",1,EG12181-MONOMER,grxD,EG12181-MONOMER
+625,Grx4-IbaG complex,"grxD"" // ""ibaG",1,G7657-MONOMER,ibaG,G7657-MONOMER
+626,GTP cyclohydrolase 1,folE,1,GTP-CYCLOHYDRO-I-MONOMER,folE,GTP-CYCLOHYDRO-I-MONOMER
+627,GTP cyclohydrolase 2,ribA,2,GTP-CYCLOHYDRO-II-MONOMER,ribA,GTP-CYCLOHYDRO-II-MONOMER
+628,"guanosine-5'-triphosphate,3'-diphosphate phosphatase",gpp,2,PPPGPPHYDRO-MONOMER,gpp,PPPGPPHYDRO-MONOMER
+629,guanylate kinase,gmk,2,GUANYL-KIN-MONOMER,gmk,GUANYL-KIN-MONOMER
+630,"heat shock protein, hemimethylated DNA-binding protein",hspQ,2,G6500-MONOMER,hspQ,G6500-MONOMER
+631,heme trafficking system CcmABCDE,"ccmC"" // ""ccmE"" // ""ccmA"" // ""ccmB"" // ""ccmD",1,CCMC-MONOMER,ccmC,CCMC-MONOMER
+632,heme trafficking system CcmABCDE,"ccmC"" // ""ccmE"" // ""ccmA"" // ""ccmB"" // ""ccmD",1,CCME-MONOMER,ccmE,CCME-MONOMER
+633,heme trafficking system CcmABCDE,"ccmC"" // ""ccmE"" // ""ccmA"" // ""ccmB"" // ""ccmD",2,CCMA-MONOMER,ccmA,CCMA-MONOMER
+634,heme trafficking system CcmABCDE,"ccmC"" // ""ccmE"" // ""ccmA"" // ""ccmB"" // ""ccmD",1,CCMB-MONOMER,ccmB,CCMB-MONOMER
+635,heme trafficking system CcmABCDE,"ccmC"" // ""ccmE"" // ""ccmA"" // ""ccmB"" // ""ccmD",1,EG12169-MONOMER,ccmD,EG12169-MONOMER
+636,heme-containing peroxidase/deferrochelatase,efeB,2,EG11735-MONOMER,efeB,EG11735-MONOMER
+637,HflK-HflC complex; regulator of FtsH protease,"hflC"" // ""hflK",1,EG10435-MONOMER,hflC,EG10435-MONOMER
+638,HflK-HflC complex; regulator of FtsH protease,"hflC"" // ""hflK",1,EG10436-MONOMER,hflK,EG10436-MONOMER
+639,HigA antoxin of the HigB-HigA toxin-antitoxin system and DNA-binding transcriptional repressor,higA,2,G7601-MONOMER,higA,G7601-MONOMER
+640,HigB translation-dependent mRNA interferase and toxin of the HigB-HigA toxin-antitoxin system,higB,2,G7602-MONOMER,higB,G7602-MONOMER
+641,HipAB toxin/antitoxin complex / DNA-binding transcriptional repressor,"hipA"" // ""hipB",1,EG10443-MONOMER,hipA,EG10443-MONOMER
+642,HipAB toxin/antitoxin complex / DNA-binding transcriptional repressor,"hipA"" // ""hipB",1,CPLX0-7757,,CPLX0-7757
+643,HipAB toxin/antitoxin complex / DNA-binding transcriptional repressor,"hipA"" // ""hipB",2,EG10442-MONOMER,hipB,EG10442-MONOMER
+644,HipB antitoxin / DNA-binding transcriptional repressor,hipB,2,EG10442-MONOMER,hipB,EG10442-MONOMER
+645,histidinal/histidinol dehydrogenase,hisD,2,HISTDEHYD-MONOMER,hisD,HISTDEHYD-MONOMER
+646,histidine ABC transporter,"hisJ"" // ""hisQ"" // ""hisM"" // ""hisP",1,HISJ-MONOMER,hisJ,HISJ-MONOMER
+647,histidine ABC transporter,"hisJ"" // ""hisQ"" // ""hisM"" // ""hisP",1,HISQ-MONOMER,hisQ,HISQ-MONOMER
+648,histidine ABC transporter,"hisJ"" // ""hisQ"" // ""hisM"" // ""hisP",1,HISM-MONOMER,hisM,HISM-MONOMER
+649,histidine ABC transporter,"hisJ"" // ""hisQ"" // ""hisM"" // ""hisP",2,HISP-MONOMER,hisP,HISP-MONOMER
+650,histidine&mdash;tRNA ligase,hisS,2,HISS-MONOMER,hisS,HISS-MONOMER
+651,histidinol-phosphate aminotransferase,hisC,2,HISTPHOSTRANS-MONOMER,hisC,HISTPHOSTRANS-MONOMER
+652,holo-[acyl-carrier-protein] synthase,acpS,2,HOLO-ACP-SYNTH-MONOMER,acpS,HOLO-ACP-SYNTH-MONOMER
+653,holocytochrome <I>c</I> synthetase,"ccmH"" // ""ccmG"" // ""ccmF"" // ""ccmE",1,EG12052-MONOMER,ccmH,EG12052-MONOMER
+654,holocytochrome <I>c</I> synthetase,"ccmH"" // ""ccmG"" // ""ccmF"" // ""ccmE",1,EG12053-MONOMER,ccmG,EG12053-MONOMER
+655,holocytochrome <I>c</I> synthetase,"ccmH"" // ""ccmG"" // ""ccmF"" // ""ccmE",1,EG12054-MONOMER,ccmF,EG12054-MONOMER
+656,holocytochrome <I>c</I> synthetase,"ccmH"" // ""ccmG"" // ""ccmF"" // ""ccmE",1,CCME-MONOMER,ccmE,CCME-MONOMER
+657,homoserine kinase,thrB,2,HOMOSERKIN-MONOMER,thrB,HOMOSERKIN-MONOMER
+658,homoserine <i>O</i>-succinyltransferase,metA,2,HOMSUCTRAN-MONOMER,metA,HOMSUCTRAN-MONOMER
+659,HslU hexamer,hslU,6,EG11881-MONOMER,hslU,EG11881-MONOMER
+660,HslV hexamer,hslV,6,EG11676-MONOMER,hslV,EG11676-MONOMER
+661,hydrogenase 1,"hyaC"" // ""hyaB"" // ""hyaA",1,HYAC-MONOMER,hyaC,HYAC-MONOMER
+662,hydrogenase 1,"hyaC"" // ""hyaB"" // ""hyaA",2,HYAB-MONOMER,hyaB,HYAB-MONOMER
+663,hydrogenase 1,"hyaC"" // ""hyaB"" // ""hyaA",2,HYAA-MONOMER,hyaA,HYAA-MONOMER
+664,hydrogenase 2,"hybC"" // ""hybO"" // ""hybB"" // ""hybA",1,HYBC-MONOMER,hybC,HYBC-MONOMER
+665,hydrogenase 2,"hybC"" // ""hybO"" // ""hybB"" // ""hybA",1,MONOMER0-145,hybO,MONOMER0-145
+666,hydrogenase 2,"hybC"" // ""hybO"" // ""hybB"" // ""hybA",1,EG11800-MONOMER,hybB,EG11800-MONOMER
+667,hydrogenase 2,"hybC"" // ""hybO"" // ""hybB"" // ""hybA",1,HYBA-MONOMER,hybA,HYBA-MONOMER
+668,hydrogenase 3,"hycE"" // ""hycB"" // ""hycG"" // ""hycF"" // ""hycC"" // ""hycD",1,HYCELARGE-MONOMER,hycE,HYCELARGE-MONOMER
+669,hydrogenase 3,"hycE"" // ""hycB"" // ""hycG"" // ""hycF"" // ""hycC"" // ""hycD",1,HYCBSMALL-MONOMER,hycB,HYCBSMALL-MONOMER
+670,hydrogenase 3,"hycE"" // ""hycB"" // ""hycG"" // ""hycF"" // ""hycC"" // ""hycD",1,HYCG-MONOMER,hycG,HYCG-MONOMER
+671,hydrogenase 3,"hycE"" // ""hycB"" // ""hycG"" // ""hycF"" // ""hycC"" // ""hycD",1,HYCF-MONOMER,hycF,HYCF-MONOMER
+672,hydrogenase 3,"hycE"" // ""hycB"" // ""hycG"" // ""hycF"" // ""hycC"" // ""hycD",1,HYCC-MONOMER,hycC,HYCC-MONOMER
+673,hydrogenase 3,"hycE"" // ""hycB"" // ""hycG"" // ""hycF"" // ""hycC"" // ""hycD",1,HYCD-MONOMER,hycD,HYCD-MONOMER
+674,hydrogenase 4,"hyfH"" // ""hyfF"" // ""hyfE"" // ""hyfD"" // ""hyfC"" // ""hyfB"" // ""hyfA"" // ""hyfI"" // ""hyfG",1,MONOMER0-144,hyfH,MONOMER0-144
+675,hydrogenase 4,"hyfH"" // ""hyfF"" // ""hyfE"" // ""hyfD"" // ""hyfC"" // ""hyfB"" // ""hyfA"" // ""hyfI"" // ""hyfG",1,MONOMER0-143,hyfF,MONOMER0-143
+676,hydrogenase 4,"hyfH"" // ""hyfF"" // ""hyfE"" // ""hyfD"" // ""hyfC"" // ""hyfB"" // ""hyfA"" // ""hyfI"" // ""hyfG",1,MONOMER0-142,hyfE,MONOMER0-142
+677,hydrogenase 4,"hyfH"" // ""hyfF"" // ""hyfE"" // ""hyfD"" // ""hyfC"" // ""hyfB"" // ""hyfA"" // ""hyfI"" // ""hyfG",1,MONOMER0-141,hyfD,MONOMER0-141
+678,hydrogenase 4,"hyfH"" // ""hyfF"" // ""hyfE"" // ""hyfD"" // ""hyfC"" // ""hyfB"" // ""hyfA"" // ""hyfI"" // ""hyfG",1,MONOMER0-154,hyfC,MONOMER0-154
+679,hydrogenase 4,"hyfH"" // ""hyfF"" // ""hyfE"" // ""hyfD"" // ""hyfC"" // ""hyfB"" // ""hyfA"" // ""hyfI"" // ""hyfG",1,MONOMER0-153,hyfB,MONOMER0-153
+680,hydrogenase 4,"hyfH"" // ""hyfF"" // ""hyfE"" // ""hyfD"" // ""hyfC"" // ""hyfB"" // ""hyfA"" // ""hyfI"" // ""hyfG",1,MONOMER0-152,hyfA,MONOMER0-152
+681,hydrogenase 4,"hyfH"" // ""hyfF"" // ""hyfE"" // ""hyfD"" // ""hyfC"" // ""hyfB"" // ""hyfA"" // ""hyfI"" // ""hyfG",1,MONOMER0-151,hyfI,MONOMER0-151
+682,hydrogenase 4,"hyfH"" // ""hyfF"" // ""hyfE"" // ""hyfD"" // ""hyfC"" // ""hyfB"" // ""hyfA"" // ""hyfI"" // ""hyfG",1,MONOMER0-150,hyfG,MONOMER0-150
+683,hydrogenase isozymes nickel incorporation protein HypB,hypB,2,EG10484-MONOMER,hypB,EG10484-MONOMER
+684,hydroperoxidase I,katG,4,HYDROPEROXIDI-MONOMER,katG,HYDROPEROXIDI-MONOMER
+685,hydroxyethylthiazole kinase,thiM,2,THZ-KIN-MONOMER,thiM,THZ-KIN-MONOMER
+686,hydroxyisourate hydrolase / transthyretin-related protein,yedX,4,G7058-MONOMER,yedX,G7058-MONOMER
+687,bifunctional hydroxymethylpyrimidine kinase/phosphomethylpyrimidine kinase,thiD,4,HMP-P-KIN-MONOMER,thiD,HMP-P-KIN-MONOMER
+688,hydroxypyruvate isomerase,hyi,2,G6277-MONOMER,hyi,G6277-MONOMER
+689,HypA-HypB heterodimer,"hypB"" // ""hypA",1,EG10484-MONOMER,hypB,EG10484-MONOMER
+690,HypA-HypB heterodimer,"hypB"" // ""hypA",1,EG10483-MONOMER,hypA,EG10483-MONOMER
+691,HypCD complex involved in hydrogenase maturation,"hypC"" // ""hypD",1,EG10485-MONOMER,hypC,EG10485-MONOMER
+692,HypCD complex involved in hydrogenase maturation,"hypC"" // ""hypD",1,EG10486-MONOMER,hypD,EG10486-MONOMER
+693,hypoxanthine phosphoribosyltransferase,hpt,4,HYPOXANPRIBOSYLTRAN-MONOMER,hpt,HYPOXANPRIBOSYLTRAN-MONOMER
+694,HypT-[Met-oxidized] DNA-binding transcriptional dual regulator,hypT,2,G7924-MONOMER,hypT,G7924-MONOMER
+695,HypT-[Met]reduced,hypT,2,G7924-MONOMER,hypT,G7924-MONOMER
+696,"imidazole glycerol phosphate synthase subunit HisH"" // ""imidazole glycerol phosphate synthase subunit HisF","hisF"" // ""hisH",1,CYCLASE-MONOMER,hisF,CYCLASE-MONOMER
+697,"imidazole glycerol phosphate synthase subunit HisH"" // ""imidazole glycerol phosphate synthase subunit HisF","hisF"" // ""hisH",1,GLUTAMIDOTRANS-MONOMER,hisH,GLUTAMIDOTRANS-MONOMER
+698,imidazoleglycerol-phosphate dehydratase / histidinol-phosphatase,hisB,2,IMIDPHOSPHADEHYDHISTIDPHOSPHA-MONOMER,hisB,IMIDPHOSPHADEHYDHISTIDPHOSPHA-MONOMER
+699,IMP dehydrogenase,guaB,4,IMP-DEHYDROG-MONOMER,guaB,IMP-DEHYDROG-MONOMER
+700,inorganic pyrophosphatase,ppa,6,INORGPYROPHOSPHAT-MONOMER,ppa,INORGPYROPHOSPHAT-MONOMER
+701,inosine/guanosine kinase,gsk,2,GSK-MONOMER,gsk,GSK-MONOMER
+702,intermembrane phospholipid transport system,"mlaF"" // ""mlaE"" // ""mlaD"" // ""mlaB",2,YRBF-MONOMER,mlaF,YRBF-MONOMER
+703,intermembrane phospholipid transport system,"mlaF"" // ""mlaE"" // ""mlaD"" // ""mlaB",2,YRBE-MONOMER,mlaE,YRBE-MONOMER
+704,intermembrane phospholipid transport system,"mlaF"" // ""mlaE"" // ""mlaD"" // ""mlaB",6,EG12799-MONOMER,mlaD,EG12799-MONOMER
+705,intermembrane phospholipid transport system,"mlaF"" // ""mlaE"" // ""mlaD"" // ""mlaB",2,G7658-MONOMER,mlaB,G7658-MONOMER
+706,intermembrane transport protein PqiB,pqiB,6,G6491-MONOMER,pqiB,G6491-MONOMER
+707,iron(III) hydroxamate ABC transporter,"fhuD"" // ""fhuB"" // ""fhuC",1,FHUD-MONOMER,fhuD,FHUD-MONOMER
+708,iron(III) hydroxamate ABC transporter,"fhuD"" // ""fhuB"" // ""fhuC",1,FHUB-MONOMER,fhuB,FHUB-MONOMER
+709,iron(III) hydroxamate ABC transporter,"fhuD"" // ""fhuB"" // ""fhuC",2,FHUC-MONOMER,fhuC,FHUC-MONOMER
+710,iron-sulfur cluster insertion protein ErpA,erpA,2,EG12332-MONOMER,erpA,EG12332-MONOMER
+711,iron-sulfur cluster insertion protein IscA,iscA,4,EG12132-MONOMER,iscA,EG12132-MONOMER
+712,iron-sulfur cluster insertion protein NfuA,nfuA,2,G7748-MONOMER,nfuA,G7748-MONOMER
+713,iron-sulfur cluster insertion protein SufA,sufA,2,EG11378-MONOMER,sufA,EG11378-MONOMER
+714,IS2 insertion element repressor InsA,insC-1,2,G6212-MONOMER,insC-1,G6212-MONOMER
+715,isoaspartyl dipeptidase,iadA,8,G7925-MONOMER,iadA,G7925-MONOMER
+716,isochorismate synthase MenF,menF,2,MENF-MONOMER,menF,MENF-MONOMER
+717,isocitrate dehydrogenase,icd,2,ISOCITDEH-SUBUNIT,icd,ISOCITDEH-SUBUNIT
+718,isocitrate dehydrogenase kinase/phosphatase,aceK,2,ICITDEHASE-KIN-PHOSPHA,aceK,ICITDEHASE-KIN-PHOSPHA
+719,isocitrate dehydrogenase-P,icd,2,ISOCITDEH-SUBUNIT,icd,ISOCITDEH-SUBUNIT
+720,isocitrate lyase,aceA,4,ISOCIT-LYASE-MONOMER,aceA,ISOCIT-LYASE-MONOMER
+721,isovaleryl-CoA dehydrogenase and DNA-binding transcriptional repressor,aidB,4,EG11811-MONOMER,aidB,EG11811-MONOMER
+722,K<sup>+</sup> : H<sup>+</sup> antiporter KefC,kefC,2,KEFC-MONOMER,kefC,KEFC-MONOMER
+723,K<sup>+</sup> transporting P-type ATPase,"kdpC"" // ""kdpB"" // ""kdpA"" // ""kdpF",1,EG10515-MONOMER,kdpC,EG10515-MONOMER
+724,K<sup>+</sup> transporting P-type ATPase,"kdpC"" // ""kdpB"" // ""kdpA"" // ""kdpF",1,KDPB-MONOMER,kdpB,KDPB-MONOMER
+725,K<sup>+</sup> transporting P-type ATPase,"kdpC"" // ""kdpB"" // ""kdpA"" // ""kdpF",1,EG10513-MONOMER,kdpA,EG10513-MONOMER
+726,K<sup>+</sup> transporting P-type ATPase,"kdpC"" // ""kdpB"" // ""kdpA"" // ""kdpF",1,MONOMER0-12,kdpF,MONOMER0-12
+727,ketol-acid reductoisomerase (NADP<sup>+</sup>),ilvC,4,KETOLREDUCTOISOM-MONOMER,ilvC,KETOLREDUCTOISOM-MONOMER
+728,KHG/KDPG aldolase,eda,3,KDPGALDOL-4OH2OXOGLUTARALDOL-MONOMER,eda,KDPGALDOL-4OH2OXOGLUTARALDOL-MONOMER
+729,"L(+)-tartrate dehydratase subunit &alpha;"" // ""L(+)-tartrate dehydratase subunit &beta;","ttdB"" // ""ttdA",2,TTDB-MONOMER,ttdB,TTDB-MONOMER
+730,"L(+)-tartrate dehydratase subunit &alpha;"" // ""L(+)-tartrate dehydratase subunit &beta;","ttdB"" // ""ttdA",2,TTDA-MONOMER,ttdA,TTDA-MONOMER
+731,"L-1,2-propanediol dehydrogenase / glycerol dehydrogenase",gldA,8,GLYCDEH-MONOMER,gldA,GLYCDEH-MONOMER
+732,"L-1,2-propanediol oxidoreductase",fucO,2,LACTALDREDUCT-MONOMER,fucO,LACTALDREDUCT-MONOMER
+733,L-amino acid N-acyltransferase,mnaT,2,G6759-MONOMER,mnaT,G6759-MONOMER
+734,L-arabinose isomerase,araA,6,ARABISOM-MONOMER,araA,ARABISOM-MONOMER
+735,L-arginine ABC transporter,"artP"" // ""artM"" // ""artQ"" // ""artJ",2,ARTP-MONOMER,artP,ARTP-MONOMER
+736,L-arginine ABC transporter,"artP"" // ""artM"" // ""artQ"" // ""artJ",1,ARTM-MONOMER,artM,ARTM-MONOMER
+737,L-arginine ABC transporter,"artP"" // ""artM"" // ""artQ"" // ""artJ",1,ARTQ-MONOMER,artQ,ARTQ-MONOMER
+738,L-arginine ABC transporter,"artP"" // ""artM"" // ""artQ"" // ""artJ",1,ARTJ-MONOMER,artJ,ARTJ-MONOMER
+739,L-ascorbate specific PTS enzyme II,"ulaA"" // ""ulaB"" // ""ulaC",2,SGAT-MONOMER,ulaA,SGAT-MONOMER
+740,L-ascorbate specific PTS enzyme II,"ulaA"" // ""ulaB"" // ""ulaC",1,YJFT-MONOMER,ulaB,YJFT-MONOMER
+741,L-ascorbate specific PTS enzyme II,"ulaA"" // ""ulaB"" // ""ulaC",1,YJFU-MONOMER,ulaC,YJFU-MONOMER
+742,L-ascorbate-6-phosphate lactonase,ulaG,6,G7855-MONOMER,ulaG,G7855-MONOMER
+743,L-asparaginase 1,ansA,4,ANSA-MONOMER,ansA,ANSA-MONOMER
+744,L-carnitine:&gamma;-butyrobetaine antiporter,caiT,3,CAIT-MONOMER,caiT,CAIT-MONOMER
+745,L-cysteine desulfurase,sufS,2,G6906-MONOMER,sufS,G6906-MONOMER
+746,L-fucose isomerase,fucI,6,FUCISOM-MONOMER,fucI,FUCISOM-MONOMER
+747,L-fucose mutarotase,fucU,6,EG10355-MONOMER,fucU,EG10355-MONOMER
+748,L-fuculose-phosphate aldolase,fucA,4,FUCPALDOL-MONOMER,fucA,FUCPALDOL-MONOMER
+749,L-glutamine ABC transporter,"glnH"" // ""glnP"" // ""glnQ",1,GLNH-MONOMER,glnH,GLNH-MONOMER
+750,L-glutamine ABC transporter,"glnH"" // ""glnP"" // ""glnQ",2,GLNP-MONOMER,glnP,GLNP-MONOMER
+751,L-glutamine ABC transporter,"glnH"" // ""glnP"" // ""glnQ",2,GLNQ-MONOMER,glnQ,GLNQ-MONOMER
+752,L-glutamine&mdash;D-fructose-6-phosphate aminotransferase,glmS,2,L-GLN-FRUCT-6-P-AMINOTRANS-MONOMER,glmS,L-GLN-FRUCT-6-P-AMINOTRANS-MONOMER
+753,L-methionine/D-methionine ABC transporter,"metQ"" // ""metI"" // ""metN",1,METQ-MONOMER,metQ,METQ-MONOMER
+754,L-methionine/D-methionine ABC transporter,"metQ"" // ""metI"" // ""metN",2,METI-MONOMER,metI,METI-MONOMER
+755,L-methionine/D-methionine ABC transporter,"metQ"" // ""metI"" // ""metN",2,ABC-MONOMER,metN,ABC-MONOMER
+756,L-rhamnonate dehydratase,rhmD,8,G7160-MONOMER,rhmD,G7160-MONOMER
+757,L-rhamnose isomerase,rhaA,4,RHAMNISOM-MONOMER,rhaA,RHAMNISOM-MONOMER
+758,L-rhamnose mutarotase,rhaM,2,EG11865-MONOMER,rhaM,EG11865-MONOMER
+759,L-ribulose-5-phosphate 4-epimerase AraD,araD,4,RIBULPEPIM-MONOMER,araD,RIBULPEPIM-MONOMER
+760,L-serine deaminase III,tdcG,2,LSERINEDEAM3-MONOMER,tdcG,LSERINEDEAM3-MONOMER
+761,L-valine exporter,"ygaH"" // ""ygaZ",1,G7406-MONOMER,ygaH,G7406-MONOMER
+762,L-valine exporter,"ygaH"" // ""ygaZ",1,G7405-MONOMER,ygaZ,G7405-MONOMER
+763,L-xylulose kinase,lyxK,2,LYXK-MONOMER,lyxK,LYXK-MONOMER
+764,large conductance mechanosensitive channel,mscL,5,EG11180-MONOMER,mscL,EG11180-MONOMER
+765,leucine / L-phenylalanine ABC transporter,"livF"" // ""livG"" // ""livH"" // ""livM"" // ""livK",1,LIVF-MONOMER,livF,LIVF-MONOMER
+766,leucine / L-phenylalanine ABC transporter,"livF"" // ""livG"" // ""livH"" // ""livM"" // ""livK",1,LIVG-MONOMER,livG,LIVG-MONOMER
+767,leucine / L-phenylalanine ABC transporter,"livF"" // ""livG"" // ""livH"" // ""livM"" // ""livK",1,LIVH-MONOMER,livH,LIVH-MONOMER
+768,leucine / L-phenylalanine ABC transporter,"livF"" // ""livG"" // ""livH"" // ""livM"" // ""livK",1,LIVM-MONOMER,livM,LIVM-MONOMER
+769,leucine / L-phenylalanine ABC transporter,"livF"" // ""livG"" // ""livH"" // ""livM"" // ""livK",1,LIVK-MONOMER,livK,LIVK-MONOMER
+770,lipid A disaccharide synthase,lpxB,8,LIPIDADISACCHARIDESYNTH-MONOMER,lpxB,LIPIDADISACCHARIDESYNTH-MONOMER
+771,lipid hydroperoxide peroxidase,tpx,2,G6660-MONOMER,tpx,G6660-MONOMER
+772,Lipid IV<sub>A</sub> palmitoyltransferase,pagP,2,EG12180-MONOMER,pagP,EG12180-MONOMER
+773,lipoamide dehydrogenase,lpd,2,E3-MONOMER,lpd,E3-MONOMER
+774,lipopolysaccharide transport system - outer membrane assembly complex,"lptE"" // ""lptD",1,EG10855-MONOMER,lptE,EG10855-MONOMER
+775,lipopolysaccharide transport system - outer membrane assembly complex,"lptE"" // ""lptD",1,EG11569-MONOMER,lptD,EG11569-MONOMER
+776,lipoprotein NlpI,nlpI,2,EG12371-MONOMER,nlpI,EG12371-MONOMER
+777,lipoprotein release complex,"lolC"" // ""lolD"" // ""lolE",1,YCFU-MONOMER,lolC,YCFU-MONOMER
+778,lipoprotein release complex,"lolC"" // ""lolD"" // ""lolE",2,YCFV-MONOMER,lolD,YCFV-MONOMER
+779,lipoprotein release complex,"lolC"" // ""lolD"" // ""lolE",1,YCFW-MONOMER,lolE,YCFW-MONOMER
+780,lipoyl synthase,lipA,2,EG11306-MONOMER,lipA,EG11306-MONOMER
+781,Lon protease,lon,6,EG10542-MONOMER,lon,EG10542-MONOMER
+782,low-specificity L-threonine aldolase,ltaE,4,LTAA-MONOMER,ltaE,LTAA-MONOMER
+783,lysine / arginine / ornithine ABC transporter,"argT"" // ""hisM"" // ""hisP"" // ""hisQ",1,ARGT-MONOMER,argT,ARGT-MONOMER
+784,lysine / arginine / ornithine ABC transporter,"argT"" // ""hisM"" // ""hisP"" // ""hisQ",1,HISM-MONOMER,hisM,HISM-MONOMER
+785,lysine / arginine / ornithine ABC transporter,"argT"" // ""hisM"" // ""hisP"" // ""hisQ",2,HISP-MONOMER,hisP,HISP-MONOMER
+786,lysine / arginine / ornithine ABC transporter,"argT"" // ""hisM"" // ""hisP"" // ""hisQ",1,HISQ-MONOMER,hisQ,HISQ-MONOMER
+787,lysine decarboxylase 1,cadA,1,LYSDECARBOX-MONOMER,cadA,LYSDECARBOX-MONOMER
+788,lysine decarboxylase 2,ldcC,1,LDC2-MONOMER,ldcC,LDC2-MONOMER
+789,lysine&mdash;tRNA ligase/Ap<sub>4</sub>A synthetase/Ap<sub>3</sub>A synthetase,lysU,2,LYSU-MONOMER,lysU,LYSU-MONOMER
+790,"lysine&mdash;tRNA ligase, constitutive",lysS,2,LYSS-MONOMER,lysS,LYSS-MONOMER
+791,macrodomain Ter protein,matP,2,EG12855-MONOMER,matP,EG12855-MONOMER
+792,macrolide ABC exporter,"macA"" // ""macB"" // ""tolC",6,MACA,macA,MACA
+793,macrolide ABC exporter,"macA"" // ""macB"" // ""tolC",2,MACB,macB,MACB
+794,macrolide ABC exporter,"macA"" // ""macB"" // ""tolC",2,EG11009-MONOMER,tolC,EG11009-MONOMER
+795,malate dehydrogenase,mdh,2,MALATE-DEHASE-MONOMER,mdh,MALATE-DEHASE-MONOMER
+796,malate dehydrogenase,maeB,6,MALIC-NADP-MONOMER,maeB,MALIC-NADP-MONOMER
+797,"malate dehydrogenase, NAD-requiring",maeA,4,MALIC-NAD-MONOMER,maeA,MALIC-NAD-MONOMER
+798,maltodextrin phosphorylase,malP,2,MALDEXPHOSPHORYL-MONOMER,malP,MALDEXPHOSPHORYL-MONOMER
+799,maltose ABC transporter,"malE"" // ""malG"" // ""malF"" // ""malK",1,MALE-MONOMER,malE,MALE-MONOMER
+800,maltose ABC transporter,"malE"" // ""malG"" // ""malF"" // ""malK",1,MALG-MONOMER,malG,MALG-MONOMER
+801,maltose ABC transporter,"malE"" // ""malG"" // ""malF"" // ""malK",1,MALF-MONOMER,malF,MALF-MONOMER
+802,maltose ABC transporter,"malE"" // ""malG"" // ""malF"" // ""malK",2,MALK-MONOMER,malK,MALK-MONOMER
+803,maltose <i>O</i>-acetyltransferase,maa,3,MALTACETYLTRAN-MONOMER,maa,MALTACETYLTRAN-MONOMER
+804,maltose outer membrane porin / phage lambda receptor protein,lamB,3,EG10528-MONOMER,lamB,EG10528-MONOMER
+805,mannitol-specific PTS enzyme II,mtlA,2,MTLA-MONOMER,mtlA,MTLA-MONOMER
+806,mannitol-specific PTS enzyme II CmtBA,"cmtA"" // ""cmtB",1,CMTA-MONOMER,cmtA,CMTA-MONOMER
+807,mannitol-specific PTS enzyme II CmtBA,"cmtA"" // ""cmtB",1,CMTB-MONOMER,cmtB,CMTB-MONOMER
+808,mannose-specific PTS enzyme II,"manX"" // ""manY"" // ""manZ",2,MANX-MONOMER,manX,MANX-MONOMER
+809,mannose-specific PTS enzyme II,"manX"" // ""manY"" // ""manZ",1,MANY-MONOMER,manY,MANY-MONOMER
+810,mannose-specific PTS enzyme II,"manX"" // ""manY"" // ""manZ",2,MANZ-MONOMER,manZ,MANZ-MONOMER
+811,mannose-specific PTS enzyme IIAB component,manX,2,MANX-MONOMER,manX,MANX-MONOMER
+812,MazE antitoxin of the MazF-MazE toxin-antitoxin system / DNA-binding transcriptional repressor,mazE,2,EG10571-MONOMER,mazE,EG10571-MONOMER
+813,MazF toxin of the MazF-MazE toxin-antitoxin system that exhibits ribonuclease activity,mazF,2,EG11249-MONOMER,mazF,EG11249-MONOMER
+814,McrBC restriction endonuclease,"mcrC"" // ""mcrB",1,EG10575-MONOMER,mcrC,EG10575-MONOMER
+815,McrBC restriction endonuclease,"mcrC"" // ""mcrB",1,EG10574-MONOMER,mcrB,EG10574-MONOMER
+816,methionine adenosyltransferase,metK,4,S-ADENMETSYN-MONOMER,metK,S-ADENMETSYN-MONOMER
+817,methionine&mdash;tRNA ligase,metG,2,METG-MONOMER,metG,METG-MONOMER
+818,methyl-accepting chemotaxis protein - dipeptide-sensing,tap,2,TAP-MONOMER,tap,TAP-MONOMER
+819,methyl-accepting chemotaxis protein - serine-sensing,tsr,2,TSR-MONOMER,tsr,TSR-MONOMER
+820,methyl-accepting chemotaxis protein Tar,tar,2,TAR-MONOMER,tar,TAR-MONOMER
+821,methyl-accepting chemotaxis protein Trg - ribose/galactose/glucose-sensing,trg,2,TRG-MONOMER,trg,TRG-MONOMER
+822,methylglyoxal synthase,mgsA,6,METHGLYSYN-MONOMER,mgsA,METHGLYSYN-MONOMER
+823,methylmalonyl-CoA decarboxylase,scpB,6,G7516-MONOMER,scpB,G7516-MONOMER
+824,methylmalonyl-CoA mutase,scpA,2,METHYLMALONYL-COA-MUT-MONOMER,scpA,METHYLMALONYL-COA-MUT-MONOMER
+825,methylphosphonate degradation complex,"phnI"" // ""phnG"" // ""phnH"" // ""phnL",1,EG10718-MONOMER,phnI,EG10718-MONOMER
+826,methylphosphonate degradation complex,"phnI"" // ""phnG"" // ""phnH"" // ""phnL",1,EG10716-MONOMER,phnG,EG10716-MONOMER
+827,methylphosphonate degradation complex,"phnI"" // ""phnG"" // ""phnH"" // ""phnL",1,EG10717-MONOMER,phnH,EG10717-MONOMER
+828,methylphosphonate degradation complex,"phnI"" // ""phnG"" // ""phnH"" // ""phnL",1,PHNL-MONOMER,phnL,PHNL-MONOMER
+829,miniconductance mechanosensitive channel MscM,mscM,7,G7840-MONOMER,mscM,G7840-MONOMER
+830,miniconductance mechanosensitive channel YbdG,ybdG,7,G6323-MONOMER,ybdG,G6323-MONOMER
+831,MoaB protein,moaB,6,MONOMER0-1501,moaB,MONOMER0-1501
+832,moderate conductance mechanosensitive channel,ybiO,7,G6417-MONOMER,ybiO,G6417-MONOMER
+833,"molecular chaperone, HSP90 family",htpG,2,EG10461-MONOMER,htpG,EG10461-MONOMER
+834,molybdate ABC transporter,"modA"" // ""modB"" // ""modC",1,MODA-MONOMER,modA,MODA-MONOMER
+835,molybdate ABC transporter,"modA"" // ""modB"" // ""modC",2,MODB-MONOMER,modB,MODB-MONOMER
+836,molybdate ABC transporter,"modA"" // ""modB"" // ""modC",1,MODC-MONOMER,modC,MODC-MONOMER
+837,molybdenum cofactor insertion chaperone for PaoABC,paoD,2,G6154-MONOMER,paoD,G6154-MONOMER
+838,molybdopterin adenylyltransferase,mog,3,EG11511-MONOMER,mog,EG11511-MONOMER
+839,molybdopterin molybdotransferase,moeA,2,EG10153-MONOMER,moeA,EG10153-MONOMER
+840,molybdopterin-guanine dinucleotide biosynthesis adaptor protein,mobB,2,EG11828-MONOMER,mobB,EG11828-MONOMER
+841,molybdopterin-synthase adenylyltransferase,moeB,2,EG10154-MONOMER,moeB,EG10154-MONOMER
+842,monoacetylchitobiose-6-phosphate hydrolase,chbF,4,EG10144-MONOMER,chbF,EG10144-MONOMER
+843,MqsA-MqsR antitoxin/toxin complex,"mqsR"" // ""mqsA",4,G7572-MONOMER,mqsR,G7572-MONOMER
+844,MqsA-MqsR antitoxin/toxin complex,"mqsR"" // ""mqsA",2,G7571-MONOMER,mqsA,G7571-MONOMER
+845,MukF dimer,mukF,2,EG12165-MONOMER,mukF,EG12165-MONOMER
+846,multidrug / betaine / choline efflux pump EmrE,emrE,2,EMRE-MONOMER,emrE,EMRE-MONOMER
+847,multidrug ABC exporter,"ybhF"" // ""ybhR"" // ""ybhS",1,YBHF-MONOMER,ybhF,YBHF-MONOMER
+848,multidrug ABC exporter,"ybhF"" // ""ybhR"" // ""ybhS",1,YBHR-MONOMER,ybhR,YBHR-MONOMER
+849,multidrug ABC exporter,"ybhF"" // ""ybhR"" // ""ybhS",1,YBHS-MONOMER,ybhS,YBHS-MONOMER
+850,multidrug/spermidine efflux pump,"mdtI"" // ""mdtJ",1,B1599-MONOMER,mdtI,B1599-MONOMER
+851,multidrug/spermidine efflux pump,"mdtI"" // ""mdtJ",1,B1600-MONOMER,mdtJ,B1600-MONOMER
+852,multifunctional acyl-CoA thioesterase I and protease I and lysophospholipase L1,tesA,4,THIOESTERI-MONOMER,tesA,THIOESTERI-MONOMER
+853,multifunctional nuclease Cas1,cas1,2,G7425-MONOMER,cas1,G7425-MONOMER
+854,murein tripeptide ABC transporter,"mppA"" // ""oppF"" // ""oppD"" // ""oppC"" // ""oppB",1,G6665-MONOMER,mppA,G6665-MONOMER
+855,murein tripeptide ABC transporter,"mppA"" // ""oppF"" // ""oppD"" // ""oppC"" // ""oppB",1,OPPF-MONOMER,oppF,OPPF-MONOMER
+856,murein tripeptide ABC transporter,"mppA"" // ""oppF"" // ""oppD"" // ""oppC"" // ""oppB",1,OPPD-MONOMER,oppD,OPPD-MONOMER
+857,murein tripeptide ABC transporter,"mppA"" // ""oppF"" // ""oppD"" // ""oppC"" // ""oppB",1,OPPC-MONOMER,oppC,OPPC-MONOMER
+858,murein tripeptide ABC transporter,"mppA"" // ""oppF"" // ""oppD"" // ""oppC"" // ""oppB",1,OPPB-MONOMER,oppB,OPPB-MONOMER
+859,murein tripeptide amidase A,mpaA,2,G6662-MONOMER,mpaA,G6662-MONOMER
+860,"MutHLS complex, methyl-directed mismatch repair","mutH"" // ""mutS"" // ""mutL",1,EG10624-MONOMER,mutH,EG10624-MONOMER
+861,"MutHLS complex, methyl-directed mismatch repair","mutH"" // ""mutS"" // ""mutL",2,EG10625-MONOMER,mutS,EG10625-MONOMER
+862,"MutHLS complex, methyl-directed mismatch repair","mutH"" // ""mutS"" // ""mutL",1,EG11281-MONOMER,mutL,EG11281-MONOMER
+863,"<I>N,N'</I>-diacetylchitobiose-specific PTS enzyme II","chbB"" // ""chbC"" // ""chbA",1,CELA-MONOMER,chbB,CELA-MONOMER
+864,"<I>N,N'</I>-diacetylchitobiose-specific PTS enzyme II","chbB"" // ""chbC"" // ""chbA",1,CELB-MONOMER,chbC,CELB-MONOMER
+865,"<I>N,N'</I>-diacetylchitobiose-specific PTS enzyme II","chbB"" // ""chbC"" // ""chbA",1,CELC-MONOMER,chbA,CELC-MONOMER
+866,<i>N</i>-acetylneuraminate lyase,nanA,4,ACNEULY-MONOMER,nanA,ACNEULY-MONOMER
+867,<I>N</I>-acetyl-D-galactosamine specific PTS (cryptic),"agaW"" // ""agaV",1,G7633-MONOMER,agaW,G7633-MONOMER
+868,<I>N</I>-acetyl-D-galactosamine specific PTS (cryptic),"agaW"" // ""agaV",1,G7632-MONOMER,agaV,G7632-MONOMER
+869,N-acetylglucosamine specific PTS enzyme II,nagE,2,NAGE-MONOMER,nagE,NAGE-MONOMER
+870,<i>N</i>-acetylglucosamine-6-phosphate deacetylase,nagA,4,NAG6PDEACET-MONOMER,nagA,NAG6PDEACET-MONOMER
+871,N-acetylglutamate synthase,argA,6,N-ACETYLTRANSFER-MONOMER,argA,N-ACETYLTRANSFER-MONOMER
+872,<i>N</i>-acetylmuramic acid 6-phosphate etherase,murQ,2,G7263-MONOMER,murQ,G7263-MONOMER
+873,N-acetylmuramic acid-specific PTS enzyme II,"crr"" // ""murP",1,CRR-MONOMER,crr,CRR-MONOMER
+874,N-acetylmuramic acid-specific PTS enzyme II,"crr"" // ""murP",1,MONOMER0-5,murP,MONOMER0-5
+875,<i>N</i>-acetylneuraminate mutarotase,nanM,2,G7920-MONOMER,nanM,G7920-MONOMER
+876,<i>N</i>-acetylornithine aminotransferase / <i>N</i>-succinyldiaminopimelate aminotransferase,argD,2,ACETYLORNTRANSAM-MONOMER,argD,ACETYLORNTRANSAM-MONOMER
+877,<i>N</i>-succinylarginine dihydrolase,astB,2,SUCCARGDIHYDRO-MONOMER,astB,SUCCARGDIHYDRO-MONOMER
+878,<i>N<sup>5</sup></i>-carboxyaminoimidazole ribonucleotide mutase,purE,8,PURE-MONOMER,purE,PURE-MONOMER
+879,"N<sup>6</sup>-L-threonylcarbamoyladenine synthase, TsaB-TsaD dimer subunit","tsaD"" // ""tsaB",1,EG11171-MONOMER,tsaD,EG11171-MONOMER
+880,"N<sup>6</sup>-L-threonylcarbamoyladenine synthase, TsaB-TsaD dimer subunit","tsaD"" // ""tsaB",1,G6991-MONOMER,tsaB,G6991-MONOMER
+881,Na<sup>+</sup>:H<sup>+</sup> antiporter NhaA,nhaA,2,NHAA-MONOMER,nhaA,NHAA-MONOMER
+882,NAD kinase,nadK,6,MONOMER0-541,nadK,MONOMER0-541
+883,"NAD synthetase, NH<sub>3</sub>-dependent",nadE,2,NAD-SYNTH-MONOMER,nadE,NAD-SYNTH-MONOMER
+884,NAD(P)H nitroreductase NfsB,nfsB,2,DIHYDROPTERIREDUCT-MONOMER,nfsB,DIHYDROPTERIREDUCT-MONOMER
+885,NAD(P)H:quinone oxidoreductase,wrbA,4,PD01343,wrbA,PD01343
+886,NAD<sup>+</sup>-dependent succinate semialdehyde dehydrogenase,sad,2,G6811-MONOMER,sad,G6811-MONOMER
+887,NAD-dependent dihydropyrimidine dehydrogenase,"preA"" // ""preT",2,EG11289-MONOMER,preA,EG11289-MONOMER
+888,NAD-dependent dihydropyrimidine dehydrogenase,"preA"" // ""preT",2,G7145-MONOMER,preT,G7145-MONOMER
+889,NADH pyrophosphatase,nudC,2,EG11702-MONOMER,nudC,EG11702-MONOMER
+890,"NADH:quinone oxidoreductase I, peripheral arm","nuoI"" // ""nuoG"" // ""nuoF"" // ""nuoE"" // ""nuoC"" // ""nuoB",1,NUOI-MONOMER,nuoI,NUOI-MONOMER
+891,"NADH:quinone oxidoreductase I, peripheral arm","nuoI"" // ""nuoG"" // ""nuoF"" // ""nuoE"" // ""nuoC"" // ""nuoB",1,NUOG-MONOMER,nuoG,NUOG-MONOMER
+892,"NADH:quinone oxidoreductase I, peripheral arm","nuoI"" // ""nuoG"" // ""nuoF"" // ""nuoE"" // ""nuoC"" // ""nuoB",1,NUOF-MONOMER,nuoF,NUOF-MONOMER
+893,"NADH:quinone oxidoreductase I, peripheral arm","nuoI"" // ""nuoG"" // ""nuoF"" // ""nuoE"" // ""nuoC"" // ""nuoB",1,NUOE-MONOMER,nuoE,NUOE-MONOMER
+894,"NADH:quinone oxidoreductase I, peripheral arm","nuoI"" // ""nuoG"" // ""nuoF"" // ""nuoE"" // ""nuoC"" // ""nuoB",1,NUOC-MONOMER,nuoC,NUOC-MONOMER
+895,"NADH:quinone oxidoreductase I, peripheral arm","nuoI"" // ""nuoG"" // ""nuoF"" // ""nuoE"" // ""nuoC"" // ""nuoB",1,NUOB-MONOMER,nuoB,NUOB-MONOMER
+896,NADP<sup>+</sup>-dependent succinate-semialdehyde dehydrogenase,gabD,4,SUCCSEMIALDDEHYDROG-MONOMER,gabD,SUCCSEMIALDDEHYDROG-MONOMER
+897,NADPH-dependent aldehyde reductase YqhD,yqhD,2,G7564-MONOMER,yqhD,G7564-MONOMER
+898,NADPH-dependent curcumin/dihydrocurcumin reductase,curA,2,G6760-MONOMER,curA,G6760-MONOMER
+899,NADPH-dependent FMN reductase,ssuE,2,MONOMER0-146,ssuE,MONOMER0-146
+900,NADPH-dependent nitroreductase NfsA,nfsA,2,EG11261-MONOMER,nfsA,EG11261-MONOMER
+901,NADPH:quinone oxidoreductase MdaB,mdaB,2,EG12656-MONOMER,mdaB,EG12656-MONOMER
+902,negative regulator of MalT activity/cystathionine &beta;-lyase,malY,2,EG10564-MONOMER,malY,EG10564-MONOMER
+903,Ni(2+) ABC transporter,"nikA"" // ""nikC"" // ""nikB"" // ""nikE"" // ""nikD",1,NIKA-MONOMER,nikA,NIKA-MONOMER
+904,Ni(2+) ABC transporter,"nikA"" // ""nikC"" // ""nikB"" // ""nikE"" // ""nikD",1,NIKC-MONOMER,nikC,NIKC-MONOMER
+905,Ni(2+) ABC transporter,"nikA"" // ""nikC"" // ""nikB"" // ""nikE"" // ""nikD",1,NIKB-MONOMER,nikB,NIKB-MONOMER
+906,Ni(2+) ABC transporter,"nikA"" // ""nikC"" // ""nikB"" // ""nikE"" // ""nikD",1,NIKE-MONOMER,nikE,NIKE-MONOMER
+907,Ni(2+) ABC transporter,"nikA"" // ""nikC"" // ""nikB"" // ""nikE"" // ""nikD",1,NIKD-MONOMER,nikD,NIKD-MONOMER
+908,nicotinate-nucleotide&mdash;dimethylbenzimidazole phosphoribosyltransferase,cobT,2,DMBPPRIBOSYLTRANS-MONOMER,cobT,DMBPPRIBOSYLTRANS-MONOMER
+909,nitrate reductase A,"narI"" // ""narH"" // ""narG",2,NARI-MONOMER,narI,NARI-MONOMER
+910,nitrate reductase A,"narI"" // ""narH"" // ""narG",2,NARH-MONOMER,narH,NARH-MONOMER
+911,nitrate reductase A,"narI"" // ""narH"" // ""narG",2,NARG-MONOMER,narG,NARG-MONOMER
+912,nitrate reductase Z,"narV"" // ""narZ"" // ""narY",1,NARV-MONOMER,narV,NARV-MONOMER
+913,nitrate reductase Z,"narV"" // ""narZ"" // ""narY",1,NARZ-MONOMER,narZ,NARZ-MONOMER
+914,nitrate reductase Z,"narV"" // ""narZ"" // ""narY",1,NARY-MONOMER,narY,NARY-MONOMER
+915,"nitrite reductase subunit NirD"" // ""nitrite reductase catalytic subunit NirB","nirB"" // ""nirD",1,NIRB-MONOMER,nirB,NIRB-MONOMER
+916,"nitrite reductase subunit NirD"" // ""nitrite reductase catalytic subunit NirB","nirB"" // ""nirD",1,NIRD-MONOMER,nirD,NIRD-MONOMER
+917,NMN aminohydrolase,pncC,2,G7409-MONOMER,pncC,G7409-MONOMER
+918,nonspecific DNA-binding protein YbiB,ybiB,2,EG11580-MONOMER,ybiB,EG11580-MONOMER
+919,nucleoid occlusion factor SlmA,slmA,2,EG11191-MONOMER,slmA,EG11191-MONOMER
+920,nucleoside diphosphate kinase,ndk,4,NUCLEOSIDE-DIP-KIN-MONOMER,ndk,NUCLEOSIDE-DIP-KIN-MONOMER
+921,nucleoside triphosphate pyrophosphatase YhdE,yhdE,2,EG11298-MONOMER,yhdE,EG11298-MONOMER
+922,nucleoside triphosphate pyrophosphohydrolase,mazG,2,EG10572-MONOMER,mazG,EG10572-MONOMER
+923,nucleotide exchange factor GrpE,grpE,2,EG10416-MONOMER,grpE,EG10416-MONOMER
+924,NusB-S10 complex,"nusB"" // ""rpsJ",1,EG10666-MONOMER,nusB,EG10666-MONOMER
+925,NusB-S10 complex,"nusB"" // ""rpsJ",1,EG10909-MONOMER,rpsJ,EG10909-MONOMER
+926,"<i>O</i>-acetyl-ADP-ribose deacetylase, regulator of RNase III activity",ymdB,2,G6550-MONOMER,ymdB,G6550-MONOMER
+927,<i>o</i>-succinylbenzoate&mdash;CoA ligase,menE,4,O-SUCCINYLBENZOATE-COA-LIG-MONOMER,menE,O-SUCCINYLBENZOATE-COA-LIG-MONOMER
+928,<i>O</i>-succinylhomoserine(thiol)-lyase / <i>O</i>-succinylhomoserine lyase,metB,4,O-SUCCHOMOSERLYASE-MONOMER,metB,O-SUCCHOMOSERLYASE-MONOMER
+929,oligopeptide ABC transporter,"oppA"" // ""oppB"" // ""oppF"" // ""oppD"" // ""oppC",1,OPPA-MONOMER,oppA,OPPA-MONOMER
+930,oligopeptide ABC transporter,"oppA"" // ""oppB"" // ""oppF"" // ""oppD"" // ""oppC",1,OPPB-MONOMER,oppB,OPPB-MONOMER
+931,oligopeptide ABC transporter,"oppA"" // ""oppB"" // ""oppF"" // ""oppD"" // ""oppC",1,OPPF-MONOMER,oppF,OPPF-MONOMER
+932,oligopeptide ABC transporter,"oppA"" // ""oppB"" // ""oppF"" // ""oppD"" // ""oppC",1,OPPD-MONOMER,oppD,OPPD-MONOMER
+933,oligopeptide ABC transporter,"oppA"" // ""oppB"" // ""oppF"" // ""oppD"" // ""oppC",1,OPPC-MONOMER,oppC,OPPC-MONOMER
+934,oligoribonuclease,orn,2,G7842-MONOMER,orn,G7842-MONOMER
+935,ornithine carbamoyltransferase,argI,3,CHAINI-MONOMER,argI,CHAINI-MONOMER
+936,ornithine carbamoyltransferase,argF,3,CHAINF-MONOMER,argF,CHAINF-MONOMER
+937,"ornithine decarboxylase, biosynthetic",speC,2,ORNDECARBOX-BIO-MONOMER,speC,ORNDECARBOX-BIO-MONOMER
+938,"ornithine decarboxylase, degradative",speF,2,ORNDECARBOXDEG-MONOMER,speF,ORNDECARBOXDEG-MONOMER
+939,orotate phosphoribosyltransferase,pyrE,2,OROPRIBTRANS-MONOMER,pyrE,OROPRIBTRANS-MONOMER
+940,orotidine-5'-phosphate decarboxylase,pyrF,2,OROTPDECARB-MONOMER,pyrF,OROTPDECARB-MONOMER
+941,osmolyte:H<sup>+</sup> symporter ProP,proP,2,PROP-MONOMER,proP,PROP-MONOMER
+942,osmotically inducible peroxiredoxin,osmC,2,EG10680-MONOMER,osmC,EG10680-MONOMER
+943,outer membrane channel TolC,tolC,3,EG11009-MONOMER,tolC,EG11009-MONOMER
+944,outer membrane phospholipase A,pldA,2,MONOMER0-341,pldA,MONOMER0-341
+945,outer membrane porin C,ompC,3,EG10670-MONOMER,ompC,EG10670-MONOMER
+946,outer membrane porin F,ompF,3,EG10671-MONOMER,ompF,EG10671-MONOMER
+947,outer membrane porin PhoE,phoE,3,MONOMER0-282,phoE,MONOMER0-282
+948,Outer Membrane Protein Assembly Complex,"bamB"" // ""bamA"" // ""bamD"" // ""bamC"" // ""bamE",1,G7320-MONOMER,bamB,G7320-MONOMER
+949,Outer Membrane Protein Assembly Complex,"bamB"" // ""bamA"" // ""bamD"" // ""bamC"" // ""bamE",1,G6093-MONOMER,bamA,G6093-MONOMER
+950,Outer Membrane Protein Assembly Complex,"bamB"" // ""bamA"" // ""bamD"" // ""bamC"" // ""bamE",1,G7352-MONOMER,bamD,G7352-MONOMER
+951,Outer Membrane Protein Assembly Complex,"bamB"" // ""bamA"" // ""bamD"" // ""bamC"" // ""bamE",1,EG10658-MONOMER,bamC,EG10658-MONOMER
+952,Outer Membrane Protein Assembly Complex,"bamB"" // ""bamA"" // ""bamD"" // ""bamC"" // ""bamE",1,EG10952-MONOMER,bamE,EG10952-MONOMER
+953,oxalyl-CoA decarboxylase,oxc,4,G7236-MONOMER,oxc,G7236-MONOMER
+954,oxidized flavorubredoxin,norV,4,G7413-MONOMER,norV,G7413-MONOMER
+955,oxidized ribonucleoside-triphosphate reductase,nrdD,2,RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER,nrdD,RIBONUCLEOSIDE-TRIP-REDUCT-MONOMER
+956,oxygen-sensing c-di-GMP phosphodiesterase DosP,dosP,2,G6783-MONOMER,dosP,G6783-MONOMER
+957,<i>p</i>-aminobenzoyl-glutamate hydrolase,"abgA"" // ""abgB",2,G6670-MONOMER,abgA,G6670-MONOMER
+958,<i>p</i>-aminobenzoyl-glutamate hydrolase,"abgA"" // ""abgB",2,G6669-MONOMER,abgB,G6669-MONOMER
+959,PaaF-PaaG hydratase-isomerase complex,"paaF"" // ""paaG",6,G6714-MONOMER,paaF,G6714-MONOMER
+960,PaaF-PaaG hydratase-isomerase complex,"paaF"" // ""paaG",6,G6715-MONOMER,paaG,G6715-MONOMER
+961,pantetheine-phosphate adenylyltransferase,coaD,6,PANTEPADENYLYLTRAN-MONOMER,coaD,PANTEPADENYLYLTRAN-MONOMER
+962,pantothenate kinase,coaA,2,PANTOTHENATE-KIN-MONOMER,coaA,PANTOTHENATE-KIN-MONOMER
+963,pantothenate synthetase,panC,2,PANTOATE-BETA-ALANINE-LIG-MONOMER,panC,PANTOATE-BETA-ALANINE-LIG-MONOMER
+964,PEP synthetase regulatory protein,ppsR,4,EG11132-MONOMER,ppsR,EG11132-MONOMER
+965,peptidase D,pepD,2,EG10695-MONOMER,pepD,EG10695-MONOMER
+966,peptidase T,pepT,2,EG11549-MONOMER,pepT,EG11549-MONOMER
+967,peptide antibiotic/peptide nucleic acid transporter,sbmA,2,SBMA-MONOMER,sbmA,SBMA-MONOMER
+968,peptidoglycan DD-endopeptidase/peptidoglycan LD-endopeptidase,mepA,2,EG10580-MONOMER,mepA,EG10580-MONOMER
+969,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase - MrcA-LpoA complex,"mrcA"" // ""lpoA",1,EG10748-MONOMER,mrcA,EG10748-MONOMER
+970,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase - MrcA-LpoA complex,"mrcA"" // ""lpoA",1,G7642-MONOMER,lpoA,G7642-MONOMER
+971,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase - MrcB-LpoB complex,"lpoB"" // ""mrcB",1,G6565-MONOMER,lpoB,G6565-MONOMER
+972,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase - MrcB-LpoB complex,"lpoB"" // ""mrcB",1,EG10605-MONOMER,mrcB,EG10605-MONOMER
+973,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase MrcA,mrcA,2,EG10748-MONOMER,mrcA,EG10748-MONOMER
+974,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase MrcB,mrcB,2,EG10605-MONOMER,mrcB,EG10605-MONOMER
+975,peptidyl-lysine acetyltransferase,patZ,4,G7350-MONOMER,patZ,G7350-MONOMER
+976,periplasmic acid stress chaperone,hdeA,2,EG11398-MONOMER,hdeA,EG11398-MONOMER
+977,periplasmic acid stress chaperone,hdeB,2,EG11399-MONOMER,hdeB,EG11399-MONOMER
+978,"periplasmic chaperone, inhibitor of vertebrate C-type lysozyme",ivy,2,G6104-MONOMER,ivy,G6104-MONOMER
+979,periplasmic nitrate reductase,"napA"" // ""napB",1,NAPA-MONOMER,napA,NAPA-MONOMER
+980,periplasmic nitrate reductase,"napA"" // ""napB",1,NAPB-MONOMER,napB,NAPB-MONOMER
+981,periplasmic nitrite reductase NrfAB,"nrfB"" // ""nrfA",1,CYTOCHROMEC-MONOMER,nrfB,CYTOCHROMEC-MONOMER
+982,periplasmic nitrite reductase NrfAB,"nrfB"" // ""nrfA",1,CYTOCHROMEC552-MONOMER,nrfA,CYTOCHROMEC552-MONOMER
+983,periplasmic phosphoanhydride phosphatase/multiple inositol-polyphosphate phosphatase,appA,2,APPA-MONOMER,appA,APPA-MONOMER
+984,periplasmic protein CpxP,cpxP,2,G7816-MONOMER,cpxP,G7816-MONOMER
+985,periplasmic protein ZraP,zraP,8,EG11918-MONOMER,zraP,EG11918-MONOMER
+986,periplasmic protein-L-methionine sulfoxide reducing system,"msrP"" // ""msrQ",1,G7059-MONOMER,msrP,G7059-MONOMER
+987,periplasmic protein-L-methionine sulfoxide reducing system,"msrP"" // ""msrQ",1,G7060-MONOMER,msrQ,G7060-MONOMER
+988,periplasmic serine endoprotease,degQ,1,G7682-MONOMER,degQ,G7682-MONOMER
+989,periplasmic serine endoprotease DegP,degP,1,EG10463-MONOMER,degP,EG10463-MONOMER
+990,PF08943 family protein CsiD,csiD,4,G7394-MONOMER,csiD,G7394-MONOMER
+991,phenylacetaldehyde dehydrogenase,feaB,4,PHENDEHYD-MONOMER,feaB,PHENDEHYD-MONOMER
+992,"phenylacetyl-CoA 1,2-epoxidase","paaB"" // ""paaC"" // ""paaA"" // ""paaE",1,G6710-MONOMER,paaB,G6710-MONOMER
+993,"phenylacetyl-CoA 1,2-epoxidase","paaB"" // ""paaC"" // ""paaA"" // ""paaE",1,G6711-MONOMER,paaC,G6711-MONOMER
+994,"phenylacetyl-CoA 1,2-epoxidase","paaB"" // ""paaC"" // ""paaA"" // ""paaE",1,G6709-MONOMER,paaA,G6709-MONOMER
+995,"phenylacetyl-CoA 1,2-epoxidase","paaB"" // ""paaC"" // ""paaA"" // ""paaE",1,G6713-MONOMER,paaE,G6713-MONOMER
+996,phenylacetyl-CoA thioesterase,paaI,4,G6717-MONOMER,paaI,G6717-MONOMER
+997,phenylalanine&mdash;tRNA ligase,"pheT"" // ""pheS",2,PHET-MONOMER,pheT,PHET-MONOMER
+998,phenylalanine&mdash;tRNA ligase,"pheT"" // ""pheS",2,PHES-MONOMER,pheS,PHES-MONOMER
+999,phenylhydantoinase,hyuA,4,G7492-MONOMER,hyuA,G7492-MONOMER
+1000,phosphate ABC transporter,"pstS"" // ""pstC"" // ""pstA"" // ""pstB",1,PSTS-MONOMER,pstS,PSTS-MONOMER
+1001,phosphate ABC transporter,"pstS"" // ""pstC"" // ""pstA"" // ""pstB",1,PSTC-MONOMER,pstC,PSTC-MONOMER
+1002,phosphate ABC transporter,"pstS"" // ""pstC"" // ""pstA"" // ""pstB",1,PSTA-MONOMER,pstA,PSTA-MONOMER
+1003,phosphate ABC transporter,"pstS"" // ""pstC"" // ""pstA"" // ""pstB",2,PSTB-MONOMER,pstB,PSTB-MONOMER
+1004,phosphate acetyltransferase,pta,6,PHOSACETYLTRANS-MONOMER,pta,PHOSACETYLTRANS-MONOMER
+1005,phosphate acetyltransferase EutD,eutD,2,G7288-MONOMER,eutD,G7288-MONOMER
+1006,phosphate signaling protein PhoU,phoU,2,EG10735-MONOMER,phoU,EG10735-MONOMER
+1007,"phosphatidylserine decarboxylase, heterodimer",psd,1,PHOSPHASERDECARB-DIMER,,PHOSPHASERDECARB-DIMER
+1008,"phosphatidylserine decarboxylase, heterodimer",psd,1,PHOSPHASERDECARB-BETA-MONOMER,psd,PHOSPHASERDECARB-BETA-MONOMER
+1009,"phosphatidylserine decarboxylase, heterodimer",psd,1,PHOSPHASERDECARB-ALPHA-MONOMER,psd,PHOSPHASERDECARB-ALPHA-MONOMER
+1010,phosphatidylserine synthase,pssA,1,PHOSPHASERSYN-MONOMER,pssA,PHOSPHASERSYN-MONOMER
+1011,phosphoadenosine phosphosulfate reductase,cysH,2,PAPSSULFOTRANS-MONOMER,cysH,PAPSSULFOTRANS-MONOMER
+1012,phosphodiesterase YfcE,yfcE,4,G7192-MONOMER,yfcE,G7192-MONOMER
+1013,phosphoenolpyruvate carboxylase,ppc,4,PEPCARBOX-MONOMER,ppc,PEPCARBOX-MONOMER
+1014,phosphoenolpyruvate synthetase,ppsA,2,PEPSYNTH-MONOMER,ppsA,PEPSYNTH-MONOMER
+1015,phosphoglycerate dehydrogenase,serA,4,PGLYCDEHYDROG-MONOMER,serA,PGLYCDEHYDROG-MONOMER
+1016,phosphoribosylaminoimidazole-succinocarboxamide synthase,purC,3,SAICARSYN-MONOMER,purC,SAICARSYN-MONOMER
+1017,phosphoribosylformylglycinamide cyclo-ligase,purM,2,AIRS-MONOMER,purM,AIRS-MONOMER
+1018,phosphoserine/phosphohydroxythreonine aminotransferase,serC,2,PSERTRANSAM-MONOMER,serC,PSERTRANSAM-MONOMER
+1019,poly-<i>N</i>-acetyl-D-glucosamine synthase,"pgaC"" // ""pgaD",1,G6529-MONOMER,pgaC,G6529-MONOMER
+1020,poly-<i>N</i>-acetyl-D-glucosamine synthase,"pgaC"" // ""pgaD",1,G6528-MONOMER,pgaD,G6528-MONOMER
+1021,polynucleotide phosphorylase,pnp,3,EG10743-MONOMER,pnp,EG10743-MONOMER
+1022,polyphosphate kinase,ppk,2,PPK-MONOMER,ppk,PPK-MONOMER
+1023,polysaccharide export complex,"wzc"" // ""wza",4,G7105-MONOMER,wzc,G7105-MONOMER
+1024,polysaccharide export complex,"wzc"" // ""wza",8,G7107-MONOMER,wza,G7107-MONOMER
+1025,porphobilinogen synthase,hemB,8,PORPHOBILSYNTH-MONOMER,hemB,PORPHOBILSYNTH-MONOMER
+1026,predicted carbamoyltransferase,ygeW,3,G7489-MONOMER,ygeW,G7489-MONOMER
+1027,predicted carboxysome structural protein,eutN,6,G7286-MONOMER,eutN,G7286-MONOMER
+1028,predicted enamine/imine deaminase,tdcF,3,G7626-MONOMER,tdcF,G7626-MONOMER
+1029,predicted oxidoreductase,ydjA,2,EG11134-MONOMER,ydjA,EG11134-MONOMER
+1030,predicted rRNA methyltransferase,yjtD,2,EG12309-MONOMER,yjtD,EG12309-MONOMER
+1031,"predicted structural protein, ethanolamine utilization microcompartment",eutM,6,G7287-MONOMER,eutM,G7287-MONOMER
+1032,"predicted structural protein, ethanolamine utilization microcompartment",eutL,3,G7271-MONOMER,eutL,G7271-MONOMER
+1033,"predicted structural protein, ethanolamine utilization microcompartment",eutS,6,G7292-MONOMER,eutS,G7292-MONOMER
+1034,predicted xanthine dehydrogenase,"ygfM"" // ""xdhD",1,G7499-MONOMER,ygfM,G7499-MONOMER
+1035,predicted xanthine dehydrogenase,"ygfM"" // ""xdhD",1,G7500-MONOMER,xdhD,G7500-MONOMER
+1036,primosomal protein DnaT,dnaT,3,EG10244-MONOMER,dnaT,EG10244-MONOMER
+1037,primosomal replication protein N,priB,2,EG10764-MONOMER,priB,EG10764-MONOMER
+1038,proline aminopeptidase P II,pepP,4,EG10697-MONOMER,pepP,EG10697-MONOMER
+1039,proline&mdash;tRNA ligase,proS,2,PROS-MONOMER,proS,PROS-MONOMER
+1040,proofreading thioesterase in enterobactin biosynthesis,entH,4,EG11105-MONOMER,entH,EG11105-MONOMER
+1041,"protease IV, a signal peptide peptidase",sppA,4,EG10968-MONOMER,sppA,EG10968-MONOMER
+1042,protein disulfide isomerase/protein disulfide oxidoreductase - DsbC<sub>oxidised</sub>,dsbC,2,DSBC-MONOMER,dsbC,DSBC-MONOMER
+1043,protein disulfide isomerase/protein disulfide oxidoreductase - DsbC<sub>reduced</sub>,dsbC,2,DSBC-MONOMER,dsbC,DSBC-MONOMER
+1044,protein HokC,hokC,2,MONOMER0-1564,hokC,MONOMER0-1564
+1045,protein translocation ATPase,secA,2,SECA,secA,SECA
+1046,protein/nucleic acid deglycase 1,hchA,2,G7055-MONOMER,hchA,G7055-MONOMER
+1047,protein/nucleic acid deglycase 3,yajL,2,HMP-KIN-MONOMER,yajL,HMP-KIN-MONOMER
+1048,protoporphyrinogen oxidase,hemG,4,PROTOPORGENOXI-MONOMER,hemG,PROTOPORGENOXI-MONOMER
+1049,pseudouridine-5'-phosphate glycosidase,psuG,3,EG12033-MONOMER,psuG,EG12033-MONOMER
+1050,PspF DNA-binding transcriptional dual regulator,pspF,6,EG12344-MONOMER,pspF,EG12344-MONOMER
+1051,PTS enzyme I,ptsI,2,PTSI-MONOMER,ptsI,PTSI-MONOMER
+1052,purine nucleoside phosphoramidase,hinT,2,EG12172-MONOMER,hinT,EG12172-MONOMER
+1053,purine nucleoside phosphorylase,deoD,6,DEOD-MONOMER,deoD,DEOD-MONOMER
+1054,PutA DNA-binding transcriptional repressor / proline dehydrogenase / 1-pyrroline-5-carboxylate dehydrogenase,putA,2,PUTA-MONOMER,putA,PUTA-MONOMER
+1055,putative 3-phenylpropionate/cinnamate dioxygenase,"hcaE"" // ""hcaF"" // ""hcaD"" // ""hcaC",1,PHENYLPRODIOXY-MONOMER,hcaE,PHENYLPRODIOXY-MONOMER
+1056,putative 3-phenylpropionate/cinnamate dioxygenase,"hcaE"" // ""hcaF"" // ""hcaD"" // ""hcaC",1,HCAA2-MONOMER,hcaF,HCAA2-MONOMER
+1057,putative 3-phenylpropionate/cinnamate dioxygenase,"hcaE"" // ""hcaF"" // ""hcaD"" // ""hcaC",1,HCAD-MONOMER,hcaD,HCAD-MONOMER
+1058,putative 3-phenylpropionate/cinnamate dioxygenase,"hcaE"" // ""hcaF"" // ""hcaD"" // ""hcaC",1,HCAC-MONOMER,hcaC,HCAC-MONOMER
+1059,putative 4-oxalocrotonate tautomerase (4-OT),pptA,2,EG11761-MONOMER,pptA,EG11761-MONOMER
+1060,putative ABC transporter ArtPQMI,"artP"" // ""artQ"" // ""artM"" // ""artI",2,ARTP-MONOMER,artP,ARTP-MONOMER
+1061,putative ABC transporter ArtPQMI,"artP"" // ""artQ"" // ""artM"" // ""artI",1,ARTQ-MONOMER,artQ,ARTQ-MONOMER
+1062,putative ABC transporter ArtPQMI,"artP"" // ""artQ"" // ""artM"" // ""artI",1,ARTM-MONOMER,artM,ARTM-MONOMER
+1063,putative ABC transporter ArtPQMI,"artP"" // ""artQ"" // ""artM"" // ""artI",1,ARTI-MONOMER,artI,ARTI-MONOMER
+1064,"putative D,D-dipeptide ABC transporter","ddpF"" // ""ddpD"" // ""ddpA"" // ""ddpC"" // ""ddpB",1,YDDO-MONOMER,ddpF,YDDO-MONOMER
+1065,"putative D,D-dipeptide ABC transporter","ddpF"" // ""ddpD"" // ""ddpA"" // ""ddpC"" // ""ddpB",1,YDDP-MONOMER,ddpD,YDDP-MONOMER
+1066,"putative D,D-dipeptide ABC transporter","ddpF"" // ""ddpD"" // ""ddpA"" // ""ddpC"" // ""ddpB",1,YDDS-MONOMER,ddpA,YDDS-MONOMER
+1067,"putative D,D-dipeptide ABC transporter","ddpF"" // ""ddpD"" // ""ddpA"" // ""ddpC"" // ""ddpB",1,YDDQ-MONOMER,ddpC,YDDQ-MONOMER
+1068,"putative D,D-dipeptide ABC transporter","ddpF"" // ""ddpD"" // ""ddpA"" // ""ddpC"" // ""ddpB",1,YDDR-MONOMER,ddpB,YDDR-MONOMER
+1069,putative hydrolase,ycaC,8,EG11241-MONOMER,ycaC,EG11241-MONOMER
+1070,putative menaquinol-cytochrome <i>c</i> reductase NrfCD,"nrfC"" // ""nrfD",1,NRFC-MONOMER,nrfC,NRFC-MONOMER
+1071,putative menaquinol-cytochrome <i>c</i> reductase NrfCD,"nrfC"" // ""nrfD",1,NRFD-MONOMER,nrfD,NRFD-MONOMER
+1072,putative monooxygenase YdhR,ydhR,2,G6895-MONOMER,ydhR,G6895-MONOMER
+1073,putative multidrug efflux pump MdtNOP,"mdtN"" // ""mdtO"" // ""mdtP",1,EG11954-MONOMER,mdtN,EG11954-MONOMER
+1074,putative multidrug efflux pump MdtNOP,"mdtN"" // ""mdtO"" // ""mdtP",1,YJCQ-MONOMER,mdtO,YJCQ-MONOMER
+1075,putative multidrug efflux pump MdtNOP,"mdtN"" // ""mdtO"" // ""mdtP",1,EG11952-MONOMER,mdtP,EG11952-MONOMER
+1076,"putative oligopeptide ABC transporter ATP binding subunit"" // ""putative oligopeptide ABC transporter membrane subunit YejB"" // ""putative oligopeptide ABC transporter membrane subunit YejE"" // ""putative oligopeptide ABC transporter periplasmic binding protein","yejA"" // ""yejE"" // ""yejB"" // ""yejF",1,YEJA-MONOMER,yejA,YEJA-MONOMER
+1077,"putative oligopeptide ABC transporter ATP binding subunit"" // ""putative oligopeptide ABC transporter membrane subunit YejB"" // ""putative oligopeptide ABC transporter membrane subunit YejE"" // ""putative oligopeptide ABC transporter periplasmic binding protein","yejA"" // ""yejE"" // ""yejB"" // ""yejF",1,YEJE-MONOMER,yejE,YEJE-MONOMER
+1078,"putative oligopeptide ABC transporter ATP binding subunit"" // ""putative oligopeptide ABC transporter membrane subunit YejB"" // ""putative oligopeptide ABC transporter membrane subunit YejE"" // ""putative oligopeptide ABC transporter periplasmic binding protein","yejA"" // ""yejE"" // ""yejB"" // ""yejF",1,YEJB-MONOMER,yejB,YEJB-MONOMER
+1079,"putative oligopeptide ABC transporter ATP binding subunit"" // ""putative oligopeptide ABC transporter membrane subunit YejB"" // ""putative oligopeptide ABC transporter membrane subunit YejE"" // ""putative oligopeptide ABC transporter periplasmic binding protein","yejA"" // ""yejE"" // ""yejB"" // ""yejF",1,YEJF-MONOMER,yejF,YEJF-MONOMER
+1080,putative phosphatidylethanolamine synthesis regulator GnsA,gnsA,2,MONOMER0-1701,gnsA,MONOMER0-1701
+1081,putative PTS enzyme II FrvAB,"frvA"" // ""frvB",1,FRVA-MONOMER,frvA,FRVA-MONOMER
+1082,putative PTS enzyme II FrvAB,"frvA"" // ""frvB",1,FRVB-MONOMER,frvB,FRVB-MONOMER
+1083,putative PTS enzyme II FrwCBDPtsA,"ptsA"" // ""frwD"" // ""frwB"" // ""frwC",1,EG11906-MONOMER,ptsA,EG11906-MONOMER
+1084,putative PTS enzyme II FrwCBDPtsA,"ptsA"" // ""frwD"" // ""frwB"" // ""frwC",1,EG11912-MONOMER,frwD,EG11912-MONOMER
+1085,putative PTS enzyme II FrwCBDPtsA,"ptsA"" // ""frwD"" // ""frwB"" // ""frwC",1,FRWB-MONOMER,frwB,FRWB-MONOMER
+1086,putative PTS enzyme II FrwCBDPtsA,"ptsA"" // ""frwD"" // ""frwB"" // ""frwC",1,FRWC-MONOMER,frwC,FRWC-MONOMER
+1087,putative PTS enzyme II FryBCA,"fryA"" // ""fryB"" // ""fryC",1,G7246-MONOMER,fryA,G7246-MONOMER
+1088,putative PTS enzyme II FryBCA,"fryA"" // ""fryB"" // ""fryC",1,G7250-MONOMER,fryB,G7250-MONOMER
+1089,putative PTS enzyme II FryBCA,"fryA"" // ""fryB"" // ""fryC",1,MONOMER0-6,fryC,MONOMER0-6
+1090,putative PTS enzyme II SgcBCA,"sgcA"" // ""sgcC"" // ""sgcB",1,SGCA-MONOMER,sgcA,SGCA-MONOMER
+1091,putative PTS enzyme II SgcBCA,"sgcA"" // ""sgcC"" // ""sgcB",1,SGCC-MONOMER,sgcC,SGCC-MONOMER
+1092,putative PTS enzyme II SgcBCA,"sgcA"" // ""sgcC"" // ""sgcB",1,MONOMER0-2121,sgcB,MONOMER0-2121
+1093,putative quinol monooxygenase YgiN,ygiN,2,EG12657-MONOMER,ygiN,EG12657-MONOMER
+1094,putative quinone oxidoreductase 1,qorA,2,QOR-MONOMER,qorA,QOR-MONOMER
+1095,"putative transport complex, ABC superfamily","ybbA"" // ""ybbP",1,YBBA-MONOMER,ybbA,YBBA-MONOMER
+1096,"putative transport complex, ABC superfamily","ybbA"" // ""ybbP",1,YBBP-MONOMER,ybbP,YBBP-MONOMER
+1097,"putative transport complex, ABC superfamily","ycjV"" // ""ycjN"" // ""ycjO"" // ""ycjP",1,YCJV-MONOMER,ycjV,YCJV-MONOMER
+1098,"putative transport complex, ABC superfamily","ycjV"" // ""ycjN"" // ""ycjO"" // ""ycjP",1,YCJN-MONOMER,ycjN,YCJN-MONOMER
+1099,"putative transport complex, ABC superfamily","ycjV"" // ""ycjN"" // ""ycjO"" // ""ycjP",1,YCJO-MONOMER,ycjO,YCJO-MONOMER
+1100,"putative transport complex, ABC superfamily","ycjV"" // ""ycjN"" // ""ycjO"" // ""ycjP",1,YCJP-MONOMER,ycjP,YCJP-MONOMER
+1101,"putative transport complex, ABC superfamily","yadH"" // ""yadG",1,YADH-MONOMER,yadH,YADH-MONOMER
+1102,"putative transport complex, ABC superfamily","yadH"" // ""yadG",1,YADG-MONOMER,yadG,YADG-MONOMER
+1103,"putative transport complex, ABC superfamily","yhdW"" // ""yhdX"" // ""yhdY"" // ""yhdZ",1,YHDW-MONOMER,yhdW,YHDW-MONOMER
+1104,"putative transport complex, ABC superfamily","yhdW"" // ""yhdX"" // ""yhdY"" // ""yhdZ",1,YHDX-MONOMER,yhdX,YHDX-MONOMER
+1105,"putative transport complex, ABC superfamily","yhdW"" // ""yhdX"" // ""yhdY"" // ""yhdZ",1,YHDY-MONOMER,yhdY,YHDY-MONOMER
+1106,"putative transport complex, ABC superfamily","yhdW"" // ""yhdX"" // ""yhdY"" // ""yhdZ",1,YHDZ-MONOMER,yhdZ,YHDZ-MONOMER
+1107,"putative transport complex, ABC superfamily","ydcU"" // ""ydcV"" // ""ydcT"" // ""ydcS",1,YDCU-MONOMER,ydcU,YDCU-MONOMER
+1108,"putative transport complex, ABC superfamily","ydcU"" // ""ydcV"" // ""ydcT"" // ""ydcS",1,YDCV-MONOMER,ydcV,YDCV-MONOMER
+1109,"putative transport complex, ABC superfamily","ydcU"" // ""ydcV"" // ""ydcT"" // ""ydcS",1,YDCT-MONOMER,ydcT,YDCT-MONOMER
+1110,"putative transport complex, ABC superfamily","ydcU"" // ""ydcV"" // ""ydcT"" // ""ydcS",1,YDCS-MONOMER,ydcS,YDCS-MONOMER
+1111,"putative transport complex, ABC superfamily","yphE"" // ""yphF"" // ""yphD",1,YPHE-MONOMER,yphE,YPHE-MONOMER
+1112,"putative transport complex, ABC superfamily","yphE"" // ""yphF"" // ""yphD",1,G7342-MONOMER,yphF,G7342-MONOMER
+1113,"putative transport complex, ABC superfamily","yphE"" // ""yphF"" // ""yphD",1,YPHD-MONOMER,yphD,YPHD-MONOMER
+1114,"putative transport complex, ABC superfamily","ynjB"" // ""ynjD"" // ""ynjC",1,G6949-MONOMER,ynjB,G6949-MONOMER
+1115,"putative transport complex, ABC superfamily","ynjB"" // ""ynjD"" // ""ynjC",1,YNJD-MONOMER,ynjD,YNJD-MONOMER
+1116,"putative transport complex, ABC superfamily","ynjB"" // ""ynjD"" // ""ynjC",1,YNJC-MONOMER,ynjC,YNJC-MONOMER
+1117,putative xanthine dehydrogenase,"xdhC"" // ""xdhB"" // ""xdhA",1,G7487-MONOMER,xdhC,G7487-MONOMER
+1118,putative xanthine dehydrogenase,"xdhC"" // ""xdhB"" // ""xdhA",1,G7486-MONOMER,xdhB,G7486-MONOMER
+1119,putative xanthine dehydrogenase,"xdhC"" // ""xdhB"" // ""xdhA",1,G7485-MONOMER,xdhA,G7485-MONOMER
+1120,putrescine ABC exporter,"sapD"" // ""sapB"" // ""sapC"" // ""sapF",1,SAPD-MONOMER,sapD,SAPD-MONOMER
+1121,putrescine ABC exporter,"sapD"" // ""sapB"" // ""sapC"" // ""sapF",1,SAPB-MONOMER,sapB,SAPB-MONOMER
+1122,putrescine ABC exporter,"sapD"" // ""sapB"" // ""sapC"" // ""sapF",1,SAPC-MONOMER,sapC,SAPC-MONOMER
+1123,putrescine ABC exporter,"sapD"" // ""sapB"" // ""sapC"" // ""sapF",1,SAPF-MONOMER,sapF,SAPF-MONOMER
+1124,putrescine ABC transporter,"potF"" // ""potI"" // ""potH"" // ""potG",1,POTF-MONOMER,potF,POTF-MONOMER
+1125,putrescine ABC transporter,"potF"" // ""potI"" // ""potH"" // ""potG",1,POTI-MONOMER,potI,POTI-MONOMER
+1126,putrescine ABC transporter,"potF"" // ""potI"" // ""potH"" // ""potG",1,POTH-MONOMER,potH,POTH-MONOMER
+1127,putrescine ABC transporter,"potF"" // ""potI"" // ""potH"" // ""potG",2,POTG-MONOMER,potG,POTG-MONOMER
+1128,putrescine aminotransferase,patA,2,G7596-MONOMER,patA,G7596-MONOMER
+1129,"pyridine nucleotide transhydrogenase subunit &beta;"" // ""pyridine nucleotide transhydrogenase subunit &alpha;","pntA"" // ""pntB",2,PNTA-MONOMER,pntA,PNTA-MONOMER
+1130,"pyridine nucleotide transhydrogenase subunit &beta;"" // ""pyridine nucleotide transhydrogenase subunit &alpha;","pntA"" // ""pntB",2,PNTB-MONOMER,pntB,PNTB-MONOMER
+1131,pyridoxal kinase 2,pdxY,2,PDXY-MONOMER,pdxY,PDXY-MONOMER
+1132,pyridoxal kinase I / hydroxymethylpyrimidine kinase,pdxK,2,PDXK-MONOMER,pdxK,PDXK-MONOMER
+1133,pyridoxal 5-phosphate synthase,pdxH,2,PDXH-MONOMER,pdxH,PDXH-MONOMER
+1134,pyridoxine 5'-phosphate synthase,pdxJ,8,PDXJ-MONOMER,pdxJ,PDXJ-MONOMER
+1135,pyrimidine-specific ribonucleoside hydrolase RihB,rihB,4,EG12030-MONOMER,rihB,EG12030-MONOMER
+1136,pyrroline-5-carboxylate reductase,proC,1,PYRROLINECARBREDUCT-MONOMER,proC,PYRROLINECARBREDUCT-MONOMER
+1137,pyruvate dehydrogenase,aceE,2,E1P-MONOMER,aceE,E1P-MONOMER
+1138,pyruvate formate-lyase (inactive),pflB,2,PYRUVFORMLY-MONOMER,pflB,PYRUVFORMLY-MONOMER
+1139,pyruvate kinase I,pykF,4,PKI-MONOMER,pykF,PKI-MONOMER
+1140,pyruvate kinase II,pykA,4,PKII-MONOMER,pykA,PKII-MONOMER
+1141,pyruvate oxidase,poxB,4,PYRUVOXID-MONOMER,poxB,PYRUVOXID-MONOMER
+1142,Qin prophage; antitoxin/DNA-binding transcriptional repressor RelB,relB,4,EG10836-MONOMER,relB,EG10836-MONOMER
+1143,quinolinate phosphoribosyltransferase (decarboxylating),nadC,2,QUINOPRIBOTRANS-MONOMER,nadC,QUINOPRIBOTRANS-MONOMER
+1144,quinolinate synthase,nadA,2,QUINOLINATE-SYNTHA-MONOMER,nadA,QUINOLINATE-SYNTHA-MONOMER
+1145,radiation resistance protein YbgI,ybgI,6,G6379-MONOMER,ybgI,G6379-MONOMER
+1146,RecFOR complex,"recO"" // ""recR"" // ""recF",1,EG10832-MONOMER,recO,EG10832-MONOMER
+1147,RecFOR complex,"recO"" // ""recR"" // ""recF",1,EG10834-MONOMER,recR,EG10834-MONOMER
+1148,RecFOR complex,"recO"" // ""recR"" // ""recF",1,EG10828-MONOMER,recF,EG10828-MONOMER
+1149,redox-responsive ATPase YchF,ychF,2,EG11404-MONOMER,ychF,EG11404-MONOMER
+1150,reduced flavorubredoxin,norV,4,G7413-MONOMER,norV,G7413-MONOMER
+1151,"regulator of acid resistance, influenced by indole",ariR,2,G6606-MONOMER,ariR,G6606-MONOMER
+1152,regulator of CsrB and CsrC decay,csrD,4,EG10018-MONOMER,csrD,EG10018-MONOMER
+1153,regulator of KefC-mediated potassium transport and quinone oxidoreductase,kefF,2,EG11568-MONOMER,kefF,EG11568-MONOMER
+1154,regulatory ATPase RavA,ravA,6,EG11731-MONOMER,ravA,EG11731-MONOMER
+1155,RelB-RelE antitoxin/toxin complex / DNA-binding transcriptional repressor,"relE"" // ""relB",4,EG11131-MONOMER,relE,EG11131-MONOMER
+1156,RelB-RelE antitoxin/toxin complex / DNA-binding transcriptional repressor,"relE"" // ""relB",4,EG10836-MONOMER,relB,EG10836-MONOMER
+1157,replicative DNA helicase,dnaB,6,EG10236-MONOMER,dnaB,EG10236-MONOMER
+1158,resolvasome,"ruvA"" // ""ruvB"" // ""ruvC",4,EG10923-MONOMER,ruvA,EG10923-MONOMER
+1159,resolvasome,"ruvA"" // ""ruvB"" // ""ruvC",1,EG10924-MONOMER,ruvB,EG10924-MONOMER
+1160,resolvasome,"ruvA"" // ""ruvB"" // ""ruvC",2,EG10925-MONOMER,ruvC,EG10925-MONOMER
+1161,rhamnulose-1-phosphate aldolase,rhaD,4,RHAMNULPALDOL-MONOMER,rhaD,RHAMNULPALDOL-MONOMER
+1162,"RhlB, ATP-dependent RNA helicase of the RNA degradosome",rhlB,2,EG10844-MONOMER,rhlB,EG10844-MONOMER
+1163,riboflavin synthase,ribC,3,RIBOFLAVIN-SYN-MONOMER,ribC,RIBOFLAVIN-SYN-MONOMER
+1164,ribokinase,rbsK,2,RIBOKIN-MONOMER,rbsK,RIBOKIN-MONOMER
+1165,ribonuclease BN,rbn,2,G7175-MONOMER,rbn,G7175-MONOMER
+1166,ribonuclease E,rne,4,EG10859-MONOMER,rne,EG10859-MONOMER
+1167,ribonuclease E inhibitor protein A,rraA,3,EG11879-MONOMER,rraA,EG11879-MONOMER
+1168,ribonuclease E inhibitor protein B,rraB,2,G7885-MONOMER,rraB,G7885-MONOMER
+1169,"ribonucleoside-diphosphate reductase 1, &alpha; subunit dimer",nrdA,2,NRDA-MONOMER,nrdA,NRDA-MONOMER
+1170,"ribonucleoside-diphosphate reductase 1, &beta; subunit dimer",nrdB,2,NRDB-MONOMER,nrdB,NRDB-MONOMER
+1171,"ribonucleoside-diphosphate reductase 2, &alpha; subunit dimer",nrdE,2,NRDE-MONOMER,nrdE,NRDE-MONOMER
+1172,"ribonucleoside-diphosphate reductase 2, &beta; subunit dimer",nrdF,2,NRDF-MONOMER,nrdF,NRDF-MONOMER
+1173,ribose ABC transporter,"rbsB"" // ""rbsC"" // ""rbsA",1,RBSB-MONOMER,rbsB,RBSB-MONOMER
+1174,ribose ABC transporter,"rbsB"" // ""rbsC"" // ""rbsA",2,RBSC-MONOMER,rbsC,RBSC-MONOMER
+1175,ribose ABC transporter,"rbsB"" // ""rbsC"" // ""rbsA",1,RBSA-MONOMER,rbsA,RBSA-MONOMER
+1176,ribose-5-phosphate isomerase A,rpiA,2,RIB5PISOMA-MONOMER,rpiA,RIB5PISOMA-MONOMER
+1177,ribosomal protein S6 modification protein,rimK,4,EG10852-MONOMER,rimK,EG10852-MONOMER
+1178,ribosomal protein-arginine oxygenase,roxA,2,EG11430-MONOMER,roxA,EG11430-MONOMER
+1179,ribulokinase,araB,2,RIBULOKIN-MONOMER,araB,RIBULOKIN-MONOMER
+1180,"RNA polymerase, core enzyme","rpoB"" // ""rpoC"" // ""rpoA",1,RPOB-MONOMER,rpoB,RPOB-MONOMER
+1181,"RNA polymerase, core enzyme","rpoB"" // ""rpoC"" // ""rpoA",1,RPOC-MONOMER,rpoC,RPOC-MONOMER
+1182,"RNA polymerase, core enzyme","rpoB"" // ""rpoC"" // ""rpoA",2,EG10893-MONOMER,rpoA,EG10893-MONOMER
+1183,RNA-binding protein Hfq,hfq,6,EG10438-MONOMER,hfq,EG10438-MONOMER
+1184,RNase adaptor protein,rapZ,3,EG12146-MONOMER,rapZ,EG12146-MONOMER
+1185,RNase G,rng,2,EG11299-MONOMER,rng,EG11299-MONOMER
+1186,RNase III,rnc,2,EG10857-MONOMER,rnc,EG10857-MONOMER
+1187,RNase T,rnt,2,EG11547-MONOMER,rnt,EG11547-MONOMER
+1188,RnlA-RnlB toxin-antitoxin complex,"rnlA"" // ""rnlB",1,G7365-MONOMER,rnlA,G7365-MONOMER
+1189,RnlA-RnlB toxin-antitoxin complex,"rnlA"" // ""rnlB",1,G7366-MONOMER,rnlB,G7366-MONOMER
+1190,<i>S</i>-formylglutathione hydrolase / <i>S</i>-lactoylglutathione hydrolase,yeiG,4,EG12026-MONOMER,yeiG,EG12026-MONOMER
+1191,S6:S18 ribosomal subunit complex,"rpsF"" // ""rpsR",1,EG10905-MONOMER,rpsF,EG10905-MONOMER
+1192,S6:S18 ribosomal subunit complex,"rpsF"" // ""rpsR",1,EG10917-MONOMER,rpsR,EG10917-MONOMER
+1193,Sec translocon accessory complex,"secD"" // ""secF"" // ""yajC"" // ""yidC",1,SECD,secD,SECD
+1194,Sec translocon accessory complex,"secD"" // ""secF"" // ""yajC"" // ""yidC",1,SECF,secF,SECF
+1195,Sec translocon accessory complex,"secD"" // ""secF"" // ""yajC"" // ""yidC",1,EG11096-MONOMER,yajC,EG11096-MONOMER
+1196,Sec translocon accessory complex,"secD"" // ""secF"" // ""yajC"" // ""yidC",1,YIDC,yidC,YIDC
+1197,SecB chaperone,secB,4,SECB,secB,SECB
+1198,SecYEG translocon,"secY"" // ""secG"" // ""secE",1,SECY,secY,SECY
+1199,SecYEG translocon,"secY"" // ""secG"" // ""secE",1,SECG,secG,SECG
+1200,SecYEG translocon,"secY"" // ""secG"" // ""secE",1,SECE,secE,SECE
+1201,selenate reductase,"ynfH"" // ""ynfG"" // ""ynfF"" // ""ynfE",1,G6848-MONOMER,ynfH,G6848-MONOMER
+1202,selenate reductase,"ynfH"" // ""ynfG"" // ""ynfF"" // ""ynfE",1,G6847-MONOMER,ynfG,G6847-MONOMER
+1203,selenate reductase,"ynfH"" // ""ynfG"" // ""ynfF"" // ""ynfE",1,G6846-MONOMER,ynfF,G6846-MONOMER
+1204,selenate reductase,"ynfH"" // ""ynfG"" // ""ynfF"" // ""ynfE",1,G6845-MONOMER,ynfE,G6845-MONOMER
+1205,"selenide, water dikinase",selD,2,EG10943-MONOMER,selD,EG10943-MONOMER
+1206,selenocysteine synthase,selA,1,EG10941-MONOMER,selA,EG10941-MONOMER
+1207,sensory histidine kinase AtoS,atoS,2,ATOS-MONOMER,atoS,ATOS-MONOMER
+1208,sensory histidine kinase CreC,creC,2,CREC-MONOMER,creC,CREC-MONOMER
+1209,sensory histidine kinase EnvZ,envZ,2,ENVZ-MONOMER,envZ,ENVZ-MONOMER
+1210,sensory histidine kinase EnvZ - phosphorylated,envZ,2,ENVZ-MONOMER,envZ,ENVZ-MONOMER
+1211,sensory histidine kinase KdpD,kdpD,2,KDPD-MONOMER,kdpD,KDPD-MONOMER
+1212,sensory histidine kinase NarX,narX,2,NARX-MONOMER,narX,NARX-MONOMER
+1213,sensory histidine kinase NtrB,glnL,2,PROTEIN-NRII,glnL,PROTEIN-NRII
+1214,sensory histidine kinase NtrB - phosphorylated,glnL,2,PROTEIN-NRII,glnL,PROTEIN-NRII
+1215,sensory histidine kinase PhoR,phoR,2,PHOR-MONOMER,phoR,PHOR-MONOMER
+1216,serine acetyltransferase,cysE,6,SERINE-O-ACETTRAN-MONOMER,cysE,SERINE-O-ACETTRAN-MONOMER
+1217,serine endoprotease,degS,3,EG11652-MONOMER,degS,EG11652-MONOMER
+1218,serine hydroxymethyltransferase,glyA,2,GLYOHMETRANS-MONOMER,glyA,GLYOHMETRANS-MONOMER
+1219,serine protease inhibitor ecotin,eco,2,EG10255-MONOMER,eco,EG10255-MONOMER
+1220,serine&mdash;tRNA ligase,serS,2,SERS-MONOMER,serS,SERS-MONOMER
+1221,shikimate dehydrogenase / quinate dehydrogenase,ydiB,2,EG11234-MONOMER,ydiB,EG11234-MONOMER
+1222,siroheme synthase,cysG,2,SIROHEMESYN-MONOMER,cysG,SIROHEMESYN-MONOMER
+1223,Skp periplasmic chaperone,skp,3,EG10455-MONOMER,skp,EG10455-MONOMER
+1224,small conductance mechanosensitive channel MscS,mscS,7,EG11160-MONOMER,mscS,EG11160-MONOMER
+1225,small conductance mechanosensitive channel YnaI,ynaI,7,MONOMER0-82,ynaI,MONOMER0-82
+1226,small heat shock protein IbpA homodimer,ibpA,2,EG11534-MONOMER,ibpA,EG11534-MONOMER
+1227,small heat shock protein IbpB homodimer,ibpB,2,EG11535-MONOMER,ibpB,EG11535-MONOMER
+1228,<i>sn</i>-glycerol 3-phosphate / glycerophosphodiester ABC transporter,"ugpB"" // ""ugpE"" // ""ugpA"" // ""ugpC",1,UGPB-MONOMER,ugpB,UGPB-MONOMER
+1229,<i>sn</i>-glycerol 3-phosphate / glycerophosphodiester ABC transporter,"ugpB"" // ""ugpE"" // ""ugpA"" // ""ugpC",1,UGPE-MONOMER,ugpE,UGPE-MONOMER
+1230,<i>sn</i>-glycerol 3-phosphate / glycerophosphodiester ABC transporter,"ugpB"" // ""ugpE"" // ""ugpA"" // ""ugpC",1,UGPA-MONOMER,ugpA,UGPA-MONOMER
+1231,<i>sn</i>-glycerol 3-phosphate / glycerophosphodiester ABC transporter,"ugpB"" // ""ugpE"" // ""ugpA"" // ""ugpC",2,UGPC-MONOMER,ugpC,UGPC-MONOMER
+1232,soluble pyridine nucleotide transhydrogenase,sthA,8,UDHA-MONOMER,sthA,UDHA-MONOMER
+1233,sorbitol-6-phosphate 2-dehydrogenase,srlD,4,SORB6PDEHYDROG-MONOMER,srlD,SORB6PDEHYDROG-MONOMER
+1234,sorbitol-specific PTS enzyme II,"srlE"" // ""srlB"" // ""srlA",1,GUTA-MONOMER,srlE,GUTA-MONOMER
+1235,sorbitol-specific PTS enzyme II,"srlE"" // ""srlB"" // ""srlA",1,GUTB-MONOMER,srlB,GUTB-MONOMER
+1236,sorbitol-specific PTS enzyme II,"srlE"" // ""srlB"" // ""srlA",1,G8210-MONOMER,srlA,G8210-MONOMER
+1237,spermidine <i>N</i>-acetyltransferase,speG,4,SPERMACTRAN-MONOMER,speG,SPERMACTRAN-MONOMER
+1238,spermidine preferential ABC transporter,"potD"" // ""potC"" // ""potB"" // ""potA",1,POTD-MONOMER,potD,POTD-MONOMER
+1239,spermidine preferential ABC transporter,"potD"" // ""potC"" // ""potB"" // ""potA",1,POTC-MONOMER,potC,POTC-MONOMER
+1240,spermidine preferential ABC transporter,"potD"" // ""potC"" // ""potB"" // ""potA",1,POTB-MONOMER,potB,POTB-MONOMER
+1241,spermidine preferential ABC transporter,"potD"" // ""potC"" // ""potB"" // ""potA",2,POTA-MONOMER,potA,POTA-MONOMER
+1242,spermidine synthase,speE,2,SPERMIDINESYN-MONOMER,speE,SPERMIDINESYN-MONOMER
+1243,ssDNA translocase and dsDNA helicase - DNA helicase II,uvrD,2,EG11064-MONOMER,uvrD,EG11064-MONOMER
+1244,ssDNA-binding protein,ssb,4,EG10976-MONOMER,ssb,EG10976-MONOMER
+1245,succinate:quinone oxidoreductase subcomplex,"sdhD"" // ""sdhC"" // ""sdhB"" // ""sdhA",1,SDH-MEMB2,sdhD,SDH-MEMB2
+1246,succinate:quinone oxidoreductase subcomplex,"sdhD"" // ""sdhC"" // ""sdhB"" // ""sdhA",1,SDH-MEMB1,sdhC,SDH-MEMB1
+1247,succinate:quinone oxidoreductase subcomplex,"sdhD"" // ""sdhC"" // ""sdhB"" // ""sdhA",1,SDH-FE-S,sdhB,SDH-FE-S
+1248,succinate:quinone oxidoreductase subcomplex,"sdhD"" // ""sdhC"" // ""sdhB"" // ""sdhA",1,SDH-FLAVO,sdhA,SDH-FLAVO
+1249,"succinyl-CoA synthetase subunit &alpha;"" // ""succinyl-CoA synthetase subunit &beta;","sucC"" // ""sucD",2,SUCCCOASYN-BETA,sucC,SUCCCOASYN-BETA
+1250,"succinyl-CoA synthetase subunit &alpha;"" // ""succinyl-CoA synthetase subunit &beta;","sucC"" // ""sucD",2,SUCCCOASYN-ALPHA,sucD,SUCCCOASYN-ALPHA
+1251,succinyl-diaminopimelate desuccinylase,dapE,2,MONOMER0-1981,dapE,MONOMER0-1981
+1252,succinylornithine transaminase,astC,2,SUCCORNTRANSAM-MONOMER,astC,SUCCORNTRANSAM-MONOMER
+1253,SufBC<sub>2</sub>D Fe-S cluster scaffold complex,"sufD"" // ""sufC"" // ""sufB",1,G6907-MONOMER,sufD,G6907-MONOMER
+1254,SufBC<sub>2</sub>D Fe-S cluster scaffold complex,"sufD"" // ""sufC"" // ""sufB",2,G6908-MONOMER,sufC,G6908-MONOMER
+1255,SufBC<sub>2</sub>D Fe-S cluster scaffold complex,"sufD"" // ""sufC"" // ""sufB",1,G6909-MONOMER,sufB,G6909-MONOMER
+1256,sulfate adenylyltransferase,"cysN"" // ""cysD",4,CYSN-MONOMER,cysN,CYSN-MONOMER
+1257,sulfate adenylyltransferase,"cysN"" // ""cysD",4,CYSD-MONOMER,cysD,CYSD-MONOMER
+1258,sulfate/thiosulfate ABC transporter,"cysA"" // ""cysU"" // ""cysW"" // ""sbp",2,CYSA-MONOMER,cysA,CYSA-MONOMER
+1259,sulfate/thiosulfate ABC transporter,"cysA"" // ""cysU"" // ""cysW"" // ""sbp",1,CYST-MONOMER,cysU,CYST-MONOMER
+1260,sulfate/thiosulfate ABC transporter,"cysA"" // ""cysU"" // ""cysW"" // ""sbp",1,CYSW-MONOMER,cysW,CYSW-MONOMER
+1261,sulfate/thiosulfate ABC transporter,"cysA"" // ""cysU"" // ""cysW"" // ""sbp",1,SBP-MONOMER,sbp,SBP-MONOMER
+1262,"sulfite reductase, flavoprotein subunit complex",cysJ,8,ALPHACOMP-MONOMER,cysJ,ALPHACOMP-MONOMER
+1263,sulfoquinovose isomerase,yihS,6,EG11845-MONOMER,yihS,EG11845-MONOMER
+1264,sulfur acceptor for SufS cysteine desulfurase,sufE,2,G6905-MONOMER,sufE,G6905-MONOMER
+1265,sulfur acceptor protein CsdE,csdE,2,G7455-MONOMER,csdE,G7455-MONOMER
+1266,sulfurtransferase complex TusBCD,"tusD"" // ""tusC"" // ""tusB",2,G7714-MONOMER,tusD,G7714-MONOMER
+1267,sulfurtransferase complex TusBCD,"tusD"" // ""tusC"" // ""tusB",2,G7713-MONOMER,tusC,G7713-MONOMER
+1268,sulfurtransferase complex TusBCD,"tusD"" // ""tusC"" // ""tusB",2,G7712-MONOMER,tusB,G7712-MONOMER
+1269,sulfurtransferase for molybdenum cofactor sulfuration,fdhD,2,EG11859-MONOMER,fdhD,EG11859-MONOMER
+1270,superoxide dismutase (Fe),sodB,2,SUPEROX-DISMUTFE-MONOMER,sodB,SUPEROX-DISMUTFE-MONOMER
+1271,superoxide dismutase (Mn),sodA,2,SUPEROX-DISMUTMN-MONOMER,sodA,SUPEROX-DISMUTMN-MONOMER
+1272,"tagatose-1,6-bisphosphate aldolase 1","kbaZ"" // ""kbaY",1,G7631-MONOMER,kbaZ,G7631-MONOMER
+1273,"tagatose-1,6-bisphosphate aldolase 1","kbaZ"" // ""kbaY",4,TAGAALDOL1-MONOMER,kbaY,TAGAALDOL1-MONOMER
+1274,"tagatose-1,6-bisphosphate aldolase 2","gatZ"" // ""gatY",1,G7128-MONOMER,gatZ,G7128-MONOMER
+1275,"tagatose-1,6-bisphosphate aldolase 2","gatZ"" // ""gatY",1,TAGAALDOL2-MONOMER,gatY,TAGAALDOL2-MONOMER
+1276,Tap<SUP>gln</SUP>,"tap"" // ""cheW"" // ""cheA",3,CPLX0-8104,,CPLX0-8104
+1277,Tap<SUP>gln</SUP>,"tap"" // ""cheW"" // ""cheA",6,TAP-MONOMER,tap,TAP-MONOMER
+1278,Tap<SUP>gln</SUP>,"tap"" // ""cheW"" // ""cheA",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+1279,Tap<SUP>gln</SUP>,"tap"" // ""cheW"" // ""cheA",1,CHEA-CPLX,,CHEA-CPLX
+1280,Tap<SUP>gln</SUP>,"tap"" // ""cheW"" // ""cheA",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+1281,Tap<SUP>glu</SUP>,"tap"" // ""cheW"" // ""cheA",3,CPLX0-8104,,CPLX0-8104
+1282,Tap<SUP>glu</SUP>,"tap"" // ""cheW"" // ""cheA",6,TAP-MONOMER,tap,TAP-MONOMER
+1283,Tap<SUP>glu</SUP>,"tap"" // ""cheW"" // ""cheA",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+1284,Tap<SUP>glu</SUP>,"tap"" // ""cheW"" // ""cheA",1,CHEA-CPLX,,CHEA-CPLX
+1285,Tap<SUP>glu</SUP>,"tap"" // ""cheW"" // ""cheA",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+1286,Tap<SUP>glu-Me</SUP>,"tap"" // ""cheW"" // ""cheA",3,CPLX0-8104,,CPLX0-8104
+1287,Tap<SUP>glu-Me</SUP>,"tap"" // ""cheW"" // ""cheA",6,TAP-MONOMER,tap,TAP-MONOMER
+1288,Tap<SUP>glu-Me</SUP>,"tap"" // ""cheW"" // ""cheA",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+1289,Tap<SUP>glu-Me</SUP>,"tap"" // ""cheW"" // ""cheA",1,CHEA-CPLX,,CHEA-CPLX
+1290,Tap<SUP>glu-Me</SUP>,"tap"" // ""cheW"" // ""cheA",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+1291,Tar<SUP>gln</SUP>,"tar"" // ""cheW"" // ""cheA",3,CPLX0-8102,,CPLX0-8102
+1292,Tar<SUP>gln</SUP>,"tar"" // ""cheW"" // ""cheA",6,TAR-MONOMER,tar,TAR-MONOMER
+1293,Tar<SUP>gln</SUP>,"tar"" // ""cheW"" // ""cheA",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+1294,Tar<SUP>gln</SUP>,"tar"" // ""cheW"" // ""cheA",1,CHEA-CPLX,,CHEA-CPLX
+1295,Tar<SUP>gln</SUP>,"tar"" // ""cheW"" // ""cheA",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+1296,Tar<SUP>glu</SUP>,"tar"" // ""cheW"" // ""cheA",3,CPLX0-8102,,CPLX0-8102
+1297,Tar<SUP>glu</SUP>,"tar"" // ""cheW"" // ""cheA",6,TAR-MONOMER,tar,TAR-MONOMER
+1298,Tar<SUP>glu</SUP>,"tar"" // ""cheW"" // ""cheA",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+1299,Tar<SUP>glu</SUP>,"tar"" // ""cheW"" // ""cheA",1,CHEA-CPLX,,CHEA-CPLX
+1300,Tar<SUP>glu</SUP>,"tar"" // ""cheW"" // ""cheA",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+1301,Tar<SUP>glu-Me</SUP>,"tar"" // ""cheW"" // ""cheA",3,CPLX0-8102,,CPLX0-8102
+1302,Tar<SUP>glu-Me</SUP>,"tar"" // ""cheW"" // ""cheA",6,TAR-MONOMER,tar,TAR-MONOMER
+1303,Tar<SUP>glu-Me</SUP>,"tar"" // ""cheW"" // ""cheA",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+1304,Tar<SUP>glu-Me</SUP>,"tar"" // ""cheW"" // ""cheA",1,CHEA-CPLX,,CHEA-CPLX
+1305,Tar<SUP>glu-Me</SUP>,"tar"" // ""cheW"" // ""cheA",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+1306,tartronate semialdehyde reductase 2,glxR,4,G6278-MONOMER,glxR,G6278-MONOMER
+1307,"taurine ABC transporter periplasmic binding protein"" // ""taurine ABC transporter membrane subunit"" // ""taurine ABC transporter ATP binding subunit","tauB"" // ""tauC"" // ""tauA",2,TAUB-MONOMER,tauB,TAUB-MONOMER
+1308,"taurine ABC transporter periplasmic binding protein"" // ""taurine ABC transporter membrane subunit"" // ""taurine ABC transporter ATP binding subunit","tauB"" // ""tauC"" // ""tauA",2,TAUC-MONOMER,tauC,TAUC-MONOMER
+1309,"taurine ABC transporter periplasmic binding protein"" // ""taurine ABC transporter membrane subunit"" // ""taurine ABC transporter ATP binding subunit","tauB"" // ""tauC"" // ""tauA",1,TAUA-MONOMER,tauA,TAUA-MONOMER
+1310,taurine dioxygenase,tauD,2,MONOMER0-147,tauD,MONOMER0-147
+1311,tellurite methyltransferase,tehB,2,EG11884-MONOMER,tehB,EG11884-MONOMER
+1312,tetrahydrodipicolinate succinylase,dapD,2,MONOMER0-2001,dapD,MONOMER0-2001
+1313,The Tol-Pal Cell Envelope Complex,"tolQ"" // ""tolR"" // ""tolB"" // ""tolA"" // ""pal",1,EG11010-MONOMER,tolQ,EG11010-MONOMER
+1314,The Tol-Pal Cell Envelope Complex,"tolQ"" // ""tolR"" // ""tolB"" // ""tolA"" // ""pal",1,EG11011-MONOMER,tolR,EG11011-MONOMER
+1315,The Tol-Pal Cell Envelope Complex,"tolQ"" // ""tolR"" // ""tolB"" // ""tolA"" // ""pal",1,EG11008-MONOMER,tolB,EG11008-MONOMER
+1316,The Tol-Pal Cell Envelope Complex,"tolQ"" // ""tolR"" // ""tolB"" // ""tolA"" // ""pal",1,EG11007-MONOMER,tolA,EG11007-MONOMER
+1317,The Tol-Pal Cell Envelope Complex,"tolQ"" // ""tolR"" // ""tolB"" // ""tolA"" // ""pal",1,EG10684-MONOMER,pal,EG10684-MONOMER
+1318,"thiamin ABC transporter ATP binding subunit"" // ""thiamin ABC transporter membrane subunit"" // ""thiamin ABC transporter periplasmic binding protein","tbpA"" // ""thiP"" // ""thiQ",1,SFUA-MONOMER,tbpA,SFUA-MONOMER
+1319,"thiamin ABC transporter ATP binding subunit"" // ""thiamin ABC transporter membrane subunit"" // ""thiamin ABC transporter periplasmic binding protein","tbpA"" // ""thiP"" // ""thiQ",2,SFUB-MONOMER,thiP,SFUB-MONOMER
+1320,"thiamin ABC transporter ATP binding subunit"" // ""thiamin ABC transporter membrane subunit"" // ""thiamin ABC transporter periplasmic binding protein","tbpA"" // ""thiP"" // ""thiQ",2,SFUC-MONOMER,thiQ,SFUC-MONOMER
+1321,thiazole synthase,"thiH"" // ""thiG",6,THIH-MONOMER,thiH,THIH-MONOMER
+1322,thiazole synthase,"thiH"" // ""thiG",6,THIG-MONOMER,thiG,THIG-MONOMER
+1323,thioredoxin reductase,trxB,2,THIOREDOXIN-REDUCT-NADPH-MONOMER,trxB,THIOREDOXIN-REDUCT-NADPH-MONOMER
+1324,thiosulfate sulfurtransferase GlpE,glpE,2,EG10395-MONOMER,glpE,EG10395-MONOMER
+1325,thiosulfate sulfurtransferase YgaP,ygaP,2,G7398-MONOMER,ygaP,G7398-MONOMER
+1326,thiosulfate/sulfate ABC transporter,"cysP"" // ""cysU"" // ""cysW"" // ""cysA",1,CYSP-MONOMER,cysP,CYSP-MONOMER
+1327,thiosulfate/sulfate ABC transporter,"cysP"" // ""cysU"" // ""cysW"" // ""cysA",1,CYST-MONOMER,cysU,CYST-MONOMER
+1328,thiosulfate/sulfate ABC transporter,"cysP"" // ""cysU"" // ""cysW"" // ""cysA",1,CYSW-MONOMER,cysW,CYSW-MONOMER
+1329,thiosulfate/sulfate ABC transporter,"cysP"" // ""cysU"" // ""cysW"" // ""cysA",2,CYSA-MONOMER,cysA,CYSA-MONOMER
+1330,threonine deaminase,ilvA,4,THREDEHYDSYN-MONOMER,ilvA,THREDEHYDSYN-MONOMER
+1331,threonine dehydrogenase,tdh,4,THREODEHYD-MONOMER,tdh,THREODEHYD-MONOMER
+1332,threonine&mdash;tRNA ligase,thrS,2,THRS-MONOMER,thrS,THRS-MONOMER
+1333,thymidine phosphorylase,deoA,2,DEOA-MONOMER,deoA,DEOA-MONOMER
+1334,thymidylate synthase,thyA,2,THYMIDYLATESYN-MONOMER,thyA,THYMIDYLATESYN-MONOMER
+1335,TorR-Phosphorylated DNA-binding transcriptional dual regulator,torR,2,TORR-MONOMER,torR,TORR-MONOMER
+1336,TorR-TorI,torR,2,TORR-MONOMER,torR,TORR-MONOMER
+1337,transaldolase B,talB,2,TRANSALDOLB-MONOMER,talB,TRANSALDOLB-MONOMER
+1338,transcription antiterminator and regulator of RNA stability,cspE,2,EG12179-MONOMER,cspE,EG12179-MONOMER
+1339,transcription termination factor Rho,rho,6,EG10845-MONOMER,rho,EG10845-MONOMER
+1340,transcriptional activator RhaS,rhaS,2,PD00221,rhaS,PD00221
+1341,transcriptional antiterminator BglG,bglG,2,EG10116-MONOMER,bglG,EG10116-MONOMER
+1342,transketolase 1,tktA,2,TRANSKETOI-MONOMER,tktA,TRANSKETOI-MONOMER
+1343,transketolase 2,tktB,1,TRANSKETOII-MONOMER,tktB,TRANSKETOII-MONOMER
+1344,translocation and assembly module,"tamA"" // ""tamB",1,G7874-MONOMER,tamA,G7874-MONOMER
+1345,translocation and assembly module,"tamA"" // ""tamB",1,G7875-MONOMER,tamB,G7875-MONOMER
+1346,trehalose-specific PTS enzyme II,"crr"" // ""treB",1,CRR-MONOMER,crr,CRR-MONOMER
+1347,trehalose-specific PTS enzyme II,"crr"" // ""treB",2,TREB-MONOMER,treB,TREB-MONOMER
+1348,Trg<SUP>gln</SUP>,"trg"" // ""cheW"" // ""cheA",3,CPLX0-8105,,CPLX0-8105
+1349,Trg<SUP>gln</SUP>,"trg"" // ""cheW"" // ""cheA",6,TRG-MONOMER,trg,TRG-MONOMER
+1350,Trg<SUP>gln</SUP>,"trg"" // ""cheW"" // ""cheA",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+1351,Trg<SUP>gln</SUP>,"trg"" // ""cheW"" // ""cheA",1,CHEA-CPLX,,CHEA-CPLX
+1352,Trg<SUP>gln</SUP>,"trg"" // ""cheW"" // ""cheA",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+1353,Trg<SUP>glu</SUP>,"trg"" // ""cheW"" // ""cheA",3,CPLX0-8105,,CPLX0-8105
+1354,Trg<SUP>glu</SUP>,"trg"" // ""cheW"" // ""cheA",6,TRG-MONOMER,trg,TRG-MONOMER
+1355,Trg<SUP>glu</SUP>,"trg"" // ""cheW"" // ""cheA",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+1356,Trg<SUP>glu</SUP>,"trg"" // ""cheW"" // ""cheA",1,CHEA-CPLX,,CHEA-CPLX
+1357,Trg<SUP>glu</SUP>,"trg"" // ""cheW"" // ""cheA",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+1358,Trg<SUP>glu-Me</SUP>,"trg"" // ""cheW"" // ""cheA",3,CPLX0-8105,,CPLX0-8105
+1359,Trg<SUP>glu-Me</SUP>,"trg"" // ""cheW"" // ""cheA",6,TRG-MONOMER,trg,TRG-MONOMER
+1360,Trg<SUP>glu-Me</SUP>,"trg"" // ""cheW"" // ""cheA",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+1361,Trg<SUP>glu-Me</SUP>,"trg"" // ""cheW"" // ""cheA",1,CHEA-CPLX,,CHEA-CPLX
+1362,Trg<SUP>glu-Me</SUP>,"trg"" // ""cheW"" // ""cheA",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+1363,trimethylamine N-oxide reductase 1,"torA"" // ""torC",1,TORA-MONOMER,torA,TORA-MONOMER
+1364,trimethylamine N-oxide reductase 1,"torA"" // ""torC",1,EG11815-MONOMER,torC,EG11815-MONOMER
+1365,trimethylamine N-oxide reductase 2,"torY"" // ""torZ",1,G7023-MONOMER,torY,G7023-MONOMER
+1366,trimethylamine N-oxide reductase 2,"torY"" // ""torZ",1,G7022-MONOMER,torZ,G7022-MONOMER
+1367,triose-phosphate isomerase,tpiA,2,TPI-MONOMER,tpiA,TPI-MONOMER
+1368,tRNA (cytidine/uridine-2'-<i>O</i>)-ribose methyltransferase,trmL,2,EG11888-MONOMER,trmL,EG11888-MONOMER
+1369,tRNA adenosine<sup>34</sup> deaminase,tadA,2,EG11372-MONOMER,tadA,EG11372-MONOMER
+1370,tRNA Cm32/Um32 methyltransferase,trmJ,2,G7327-MONOMER,trmJ,G7327-MONOMER
+1371,tRNA cytosine<sup>32</sup> 2-sulfurtransferase TtcA,ttcA,2,G6675-MONOMER,ttcA,G6675-MONOMER
+1372,tRNA m<sup>1</sup>G37 methyltransferase,trmD,2,EG11023-MONOMER,trmD,EG11023-MONOMER
+1373,tRNA pseudouridine<sup>38-40</sup> synthase,truA,2,EG10454-MONOMER,truA,EG10454-MONOMER
+1374,tRNA threonylcarbamoyladenosine dehydratase,tcdA,2,G7456-MONOMER,tcdA,G7456-MONOMER
+1375,tRNA U34 carboxymethyltransferase,cmoB,4,G7021-MONOMER,cmoB,G7021-MONOMER
+1376,tRNA-guanine transglycosylase,tgt,3,EG10996-MONOMER,tgt,EG10996-MONOMER
+1377,truncated RNase PH,rph,1,EG10863-MONOMER,rph,EG10863-MONOMER
+1378,"tryptophan synthase, &beta; subunit dimer",trpB,2,TRYPSYN-BPROTEIN,trpB,TRYPSYN-BPROTEIN
+1379,tryptophan&mdash;tRNA ligase,trpS,2,TRPS-MONOMER,trpS,TRPS-MONOMER
+1380,tryptophanase,tnaA,4,TRYPTOPHAN-MONOMER,tnaA,TRYPTOPHAN-MONOMER
+1381,Tsr<SUP>gln</SUP>,"tsr"" // ""cheA"" // ""cheW",3,CPLX0-8103,,CPLX0-8103
+1382,Tsr<SUP>gln</SUP>,"tsr"" // ""cheA"" // ""cheW",6,TSR-MONOMER,tsr,TSR-MONOMER
+1383,Tsr<SUP>gln</SUP>,"tsr"" // ""cheA"" // ""cheW",1,CHEA-CPLX,,CHEA-CPLX
+1384,Tsr<SUP>gln</SUP>,"tsr"" // ""cheA"" // ""cheW",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+1385,Tsr<SUP>gln</SUP>,"tsr"" // ""cheA"" // ""cheW",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+1386,Tsr<SUP>glu</SUP>,"tsr"" // ""cheA"" // ""cheW",3,CPLX0-8103,,CPLX0-8103
+1387,Tsr<SUP>glu</SUP>,"tsr"" // ""cheA"" // ""cheW",6,TSR-MONOMER,tsr,TSR-MONOMER
+1388,Tsr<SUP>glu</SUP>,"tsr"" // ""cheA"" // ""cheW",1,CHEA-CPLX,,CHEA-CPLX
+1389,Tsr<SUP>glu</SUP>,"tsr"" // ""cheA"" // ""cheW",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+1390,Tsr<SUP>glu</SUP>,"tsr"" // ""cheA"" // ""cheW",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+1391,Tsr<SUP>glu-Me</SUP>,"tsr"" // ""cheA"" // ""cheW",3,CPLX0-8103,,CPLX0-8103
+1392,Tsr<SUP>glu-Me</SUP>,"tsr"" // ""cheA"" // ""cheW",6,TSR-MONOMER,tsr,TSR-MONOMER
+1393,Tsr<SUP>glu-Me</SUP>,"tsr"" // ""cheA"" // ""cheW",1,CHEA-CPLX,,CHEA-CPLX
+1394,Tsr<SUP>glu-Me</SUP>,"tsr"" // ""cheA"" // ""cheW",2,PROTEIN-CHEA,cheA,PROTEIN-CHEA
+1395,Tsr<SUP>glu-Me</SUP>,"tsr"" // ""cheA"" // ""cheW",2,CHEW-MONOMER,cheW,CHEW-MONOMER
+1396,twin arginine protein translocation system,"tatA"" // ""tatE"" // ""tatC"" // ""tatB",1,TATA,tatA,TATA
+1397,twin arginine protein translocation system,"tatA"" // ""tatE"" // ""tatC"" // ""tatB",1,EG11305-MONOMER,tatE,EG11305-MONOMER
+1398,twin arginine protein translocation system,"tatA"" // ""tatE"" // ""tatC"" // ""tatB",1,EG11479-MONOMER,tatC,EG11479-MONOMER
+1399,twin arginine protein translocation system,"tatA"" // ""tatE"" // ""tatC"" // ""tatB",1,G7808-MONOMER,tatB,G7808-MONOMER
+1400,type I fimbriae usher protein,fimD,2,EG10311-MONOMER,fimD,EG10311-MONOMER
+1401,Type II secretion system,"gspO"" // ""gspM"" // ""gspL"" // ""gspK"" // ""gspJ"" // ""gspI"" // ""gspH"" // ""gspG"" // ""gspF"" // ""gspE"" // ""gspD"" // ""gspC",1,EG11359-MONOMER,gspO,EG11359-MONOMER
+1402,Type II secretion system,"gspO"" // ""gspM"" // ""gspL"" // ""gspK"" // ""gspJ"" // ""gspI"" // ""gspH"" // ""gspG"" // ""gspF"" // ""gspE"" // ""gspD"" // ""gspC",1,EG12173-MONOMER,gspM,EG12173-MONOMER
+1403,Type II secretion system,"gspO"" // ""gspM"" // ""gspL"" // ""gspK"" // ""gspJ"" // ""gspI"" // ""gspH"" // ""gspG"" // ""gspF"" // ""gspE"" // ""gspD"" // ""gspC",1,G7711-MONOMER,gspL,G7711-MONOMER
+1404,Type II secretion system,"gspO"" // ""gspM"" // ""gspL"" // ""gspK"" // ""gspJ"" // ""gspI"" // ""gspH"" // ""gspG"" // ""gspF"" // ""gspE"" // ""gspD"" // ""gspC",1,G7710-MONOMER,gspK,G7710-MONOMER
+1405,Type II secretion system,"gspO"" // ""gspM"" // ""gspL"" // ""gspK"" // ""gspJ"" // ""gspI"" // ""gspH"" // ""gspG"" // ""gspF"" // ""gspE"" // ""gspD"" // ""gspC",1,G7709-MONOMER,gspJ,G7709-MONOMER
+1406,Type II secretion system,"gspO"" // ""gspM"" // ""gspL"" // ""gspK"" // ""gspJ"" // ""gspI"" // ""gspH"" // ""gspG"" // ""gspF"" // ""gspE"" // ""gspD"" // ""gspC",1,G7708-MONOMER,gspI,G7708-MONOMER
+1407,Type II secretion system,"gspO"" // ""gspM"" // ""gspL"" // ""gspK"" // ""gspJ"" // ""gspI"" // ""gspH"" // ""gspG"" // ""gspF"" // ""gspE"" // ""gspD"" // ""gspC",1,G7707-MONOMER,gspH,G7707-MONOMER
+1408,Type II secretion system,"gspO"" // ""gspM"" // ""gspL"" // ""gspK"" // ""gspJ"" // ""gspI"" // ""gspH"" // ""gspG"" // ""gspF"" // ""gspE"" // ""gspD"" // ""gspC",1,G7706-MONOMER,gspG,G7706-MONOMER
+1409,Type II secretion system,"gspO"" // ""gspM"" // ""gspL"" // ""gspK"" // ""gspJ"" // ""gspI"" // ""gspH"" // ""gspG"" // ""gspF"" // ""gspE"" // ""gspD"" // ""gspC",1,G7705-MONOMER,gspF,G7705-MONOMER
+1410,Type II secretion system,"gspO"" // ""gspM"" // ""gspL"" // ""gspK"" // ""gspJ"" // ""gspI"" // ""gspH"" // ""gspG"" // ""gspF"" // ""gspE"" // ""gspD"" // ""gspC",1,G7704-MONOMER,gspE,G7704-MONOMER
+1411,Type II secretion system,"gspO"" // ""gspM"" // ""gspL"" // ""gspK"" // ""gspJ"" // ""gspI"" // ""gspH"" // ""gspG"" // ""gspF"" // ""gspE"" // ""gspD"" // ""gspC",1,G7703-MONOMER,gspD,G7703-MONOMER
+1412,Type II secretion system,"gspO"" // ""gspM"" // ""gspL"" // ""gspK"" // ""gspJ"" // ""gspI"" // ""gspH"" // ""gspG"" // ""gspF"" // ""gspE"" // ""gspD"" // ""gspC",1,G7702-MONOMER,gspC,G7702-MONOMER
+1413,tyrosine aminotransferase,tyrB,2,TYRB-MONOMER,tyrB,TYRB-MONOMER
+1414,tyrosine&mdash;tRNA ligase,tyrS,2,TYRS-MONOMER,tyrS,TYRS-MONOMER
+1415,ubiquinol&mdash;[NapC cytochrome <i>c</i>] reductase NapGH,"napH"" // ""napG",1,NAPH-MONOMER,napH,NAPH-MONOMER
+1416,ubiquinol&mdash;[NapC cytochrome <i>c</i>] reductase NapGH,"napH"" // ""napG",1,NAPG-MONOMER,napG,NAPG-MONOMER
+1417,UDP-3-<i>O</i>-(3-hydroxymyristoyl)glucosamine <i>N</i>-acyltransferase,lpxD,3,UDPHYDROXYMYRGLUCOSAMNACETYLTRANS-MONO,lpxD,UDPHYDROXYMYRGLUCOSAMNACETYLTRANS-MONO
+1418,UDP-4-amino-4-deoxy-L-arabinose formyltransferase/UDP-glucuronate dehydrogenase,arnA,6,G7168-MONOMER,arnA,G7168-MONOMER
+1419,UDP-glucose 4-epimerase,galE,2,UDPGLUCEPIM-MONOMER,galE,UDPGLUCEPIM-MONOMER
+1420,UDP-glucose 6-dehydrogenase,ugd,2,UGD-MONOMER,ugd,UGD-MONOMER
+1421,UDP-<i>N</i>-acetyl-D-mannosamine dehydrogenase,wecC,2,UDPMANNACADEHYDROG-MONOMER,wecC,UDPMANNACADEHYDROG-MONOMER
+1422,UDP-<i>N</i>-acetylglucosamine 2-epimerase,wecB,2,UDPGLCNACEPIM-MONOMER,wecB,UDPGLCNACEPIM-MONOMER
+1423,UDP-N-acetylglucosamine acyltransferase,lpxA,3,UDPNACETYLGLUCOSAMACYLTRANS-MONOMER,lpxA,UDPNACETYLGLUCOSAMACYLTRANS-MONOMER
+1424,UDP-<i>N</i>-acetylglucosamine&mdash;undecaprenyl-phosphate <i>N</i>-acetylglucosaminephosphotransferase,rfe,2,GLCNACPTRANS-MONOMER,rfe,GLCNACPTRANS-MONOMER
+1425,UDP-<i>N</i>-acetylmuramate&mdash;L-alanine ligase,murC,2,UDP-NACMUR-ALA-LIG-MONOMER,murC,UDP-NACMUR-ALA-LIG-MONOMER
+1426,UMP kinase,pyrH,6,UMPKI-MONOMER,pyrH,UMPKI-MONOMER
+1427,undecaprenyl diphosphate synthase,ispU,2,UPPSYN-MONOMER,ispU,UPPSYN-MONOMER
+1428,"undecaprenyl-phosphate-&alpha;-L-Ara4N flippase - ArnE subunit"" // ""undecaprenyl-phosphate-&alpha;-L-Ara4N flippase - ArnF subunit","arnF"" // ""arnE",1,G7171-MONOMER,arnF,G7171-MONOMER
+1429,"undecaprenyl-phosphate-&alpha;-L-Ara4N flippase - ArnE subunit"" // ""undecaprenyl-phosphate-&alpha;-L-Ara4N flippase - ArnF subunit","arnF"" // ""arnE",1,MONOMER0-2682,arnE,MONOMER0-2682
+1430,universal stress protein G,uspG,2,G6334-MONOMER,uspG,G6334-MONOMER
+1431,uracil phosphoribosyltransferase,upp,3,URACIL-PRIBOSYLTRANS-MONOMER,upp,URACIL-PRIBOSYLTRANS-MONOMER
+1432,,uraA,2,URAA-MONOMER,uraA,URAA-MONOMER
+1433,ureidoglycolate dehydrogenase,allD,2,G6286-MONOMER,allD,G6286-MONOMER
+1434,uridine phosphorylase,udp,6,URPHOS-MONOMER,udp,URPHOS-MONOMER
+1435,UTP&mdash;glucose-1-phosphate uridylyltransferase,galU,4,GLUC1PURIDYLTRANS-MONOMER,galU,GLUC1PURIDYLTRANS-MONOMER
+1436,vitamin B<sub>12</sub> ABC transporter,"btuF"" // ""btuC"" // ""btuD",1,EG12334-MONOMER,btuF,EG12334-MONOMER
+1437,vitamin B<sub>12</sub> ABC transporter,"btuF"" // ""btuC"" // ""btuD",2,BTUC-MONOMER,btuC,BTUC-MONOMER
+1438,vitamin B<sub>12</sub> ABC transporter,"btuF"" // ""btuC"" // ""btuD",2,BTUD-MONOMER,btuD,BTUD-MONOMER
+1439,voltage-gated K<sup>+</sup> channel,kch,4,KCH-MONOMER,kch,KCH-MONOMER
+1440,water channel AqpZ,aqpZ,4,AQPZ-MONOMER,aqpZ,AQPZ-MONOMER
+1441,Xaa-Pro dipeptidase,pepQ,2,EG10698-MONOMER,pepQ,EG10698-MONOMER
+1442,xanthine-guanine phosphoribosyltransferase,gpt,4,GPT-MONOMER,gpt,GPT-MONOMER
+1443,xanthosine phosphorylase,xapA,6,XANTHOSINEPHOSPHORY-MONOMER,xapA,XANTHOSINEPHOSPHORY-MONOMER
+1444,Xer site-specific recombination system,"xerD"" // ""xerC",1,EG11071-MONOMER,xerD,EG11071-MONOMER
+1445,Xer site-specific recombination system,"xerD"" // ""xerC",1,EG11069-MONOMER,xerC,EG11069-MONOMER
+1446,ITPase/XTPase,yjjX,2,EG12600-MONOMER,yjjX,EG12600-MONOMER
+1447,xylose ABC transporter,"xylF"" // ""xylH"" // ""xylG",1,XYLF-MONOMER,xylF,XYLF-MONOMER
+1448,xylose ABC transporter,"xylF"" // ""xylH"" // ""xylG",2,XYLH-MONOMER,xylH,XYLH-MONOMER
+1449,xylose ABC transporter,"xylF"" // ""xylH"" // ""xylG",1,XYLG-MONOMER,xylG,XYLG-MONOMER
+1450,xylose isomerase,xylA,4,XYLISOM-MONOMER,xylA,XYLISOM-MONOMER
+1451,xylulokinase,xylB,2,XYLULOKIN-MONOMER,xylB,XYLULOKIN-MONOMER
+1452,YefM-YoeB antitoxin/toxin complex / DNA-binding transcriptional repressor,"yefM"" // ""yoeB",2,EG12844-MONOMER,yefM,EG12844-MONOMER
+1453,YefM-YoeB antitoxin/toxin complex / DNA-binding transcriptional repressor,"yefM"" // ""yoeB",1,MONOMER0-1041,yoeB,MONOMER0-1041
+1454,YhaV-PrlF toxin-antitoxin complex,"yhaV"" // ""prlF",4,G7629-MONOMER,yhaV,G7629-MONOMER
+1455,YhaV-PrlF toxin-antitoxin complex,"yhaV"" // ""prlF",2,EG10955-MONOMER,prlF,EG10955-MONOMER
+1456,Z-ring inhibitor complex MinCD,"minC"" // ""minD",2,EG10596-MONOMER,minC,EG10596-MONOMER
+1457,Z-ring inhibitor complex MinCD,"minC"" // ""minD",2,EG10597-MONOMER,minD,EG10597-MONOMER
+1458,Z-ring positioning protein MinC,minC,2,EG10596-MONOMER,minC,EG10596-MONOMER
+1459,zinc-binding phosphatase,ycdX,3,G6540-MONOMER,ycdX,G6540-MONOMER
+1460,"Zn<sup>2+</sup> ABC transporter ATP binding subunit"" // ""Zn<sup>2+</sup> ABC transporter membrane subunit"" // ""Zn<sup>2+</sup> ABC transporter periplasmic binding protein","znuA"" // ""znuB"" // ""znuC",1,ZNUA-MONOMER,znuA,ZNUA-MONOMER
+1461,"Zn<sup>2+</sup> ABC transporter ATP binding subunit"" // ""Zn<sup>2+</sup> ABC transporter membrane subunit"" // ""Zn<sup>2+</sup> ABC transporter periplasmic binding protein","znuA"" // ""znuB"" // ""znuC",2,ZNUB-MONOMER,znuB,ZNUB-MONOMER
+1462,"Zn<sup>2+</sup> ABC transporter ATP binding subunit"" // ""Zn<sup>2+</sup> ABC transporter membrane subunit"" // ""Zn<sup>2+</sup> ABC transporter periplasmic binding protein","znuA"" // ""znuB"" // ""znuC",2,ZNUC-MONOMER,znuC,ZNUC-MONOMER
+1463,Zn<sup>2+</sup>/Fe<sup>2+</sup>/Cd<sup>2+</sup> exporter,fieF,2,YIIP-MONOMER,fieF,YIIP-MONOMER

@@ -1,0 +1,1151 @@
+,complex,ec
+0,"1,4-dihydroxy-2-naphthoyl-CoA hydrolase",3.1.2.28
+1,"1,4-dihydroxy-2-naphthoyl-CoA synthase",4.1.3.36
+2,1-deoxy-D-xylulose 5-phosphate reductoisomerase,1.1.1.267
+3,1-deoxy-D-xylulose-5-phosphate synthase,2.2.1.7
+4,1-hydroxy-2-methyl-2-(E)-butenyl 4-diphosphate reductase,1.17.7.4
+5,1-phosphofructokinase,2.7.1.56
+6,16S rRNA 2'-<i>O</i>-ribose C1402 methyltransferase,2.1.1.198
+7,16S rRNA m<sup>3</sup>U1498 methyltransferase,2.1.1.193
+8,16S rRNA m<sup>4</sup>C1402 methyltransferase,2.1.1.199
+9,"2,3-bisphosphoglycerate-dependent phosphoglycerate mutase",5.4.2.11
+10,"2,3-diaminopropionate ammonia-lyase",4.3.1.15
+11,"2,3-dihydro-2,3-dihydroxybenzoate dehydrogenase",1.3.1.28
+12,"2,3-dihydroxybenzoate-AMP ligase",2.7.7
+13,"2,3-dihydroxybenzoate-AMP ligase",6.3.2.14
+14,"2,3-dihydroxybenzoate-AMP ligase",2.7.7.58
+15,"2,3-dihydroxybenzoate-AMP ligase",2.5.1
+16,"2,3-dihydroxybenzoyl-EntB",3.3.2.1
+17,"2,3-dihydroxybenzoyl-EntB",6.3.2.14
+18,"2,3-dihydroxybenzoyl-EntB",2.7.7.58
+19,"2,3-dihydroxybenzoyl-EntB",2.5.1
+20,"2,3-diketo-L-gulonate reductase",1.1.1.130
+21,2-amino-3-ketobutyrate CoA ligase,2.3.1.29
+22,"2-<i>C</i>-methyl-D-erythritol 2,4-cyclodiphosphate synthase",4.6.1.12
+23,2-hydroxy-6-oxononatrienedioate hydrolase,3.7.1.14
+24,"2-hydroxycyclohepta-1,4,6-triene-1-carboxyl-CoA thioesterase",3.1.2
+25,2-hydroxypentadienoate hydratase,4.2.1.80
+26,2-keto-3-deoxy-L-rhamnonate aldolase,4.1.2.53
+27,2-methylcitrate synthase,2.3.3.5
+28,2-methylcitrate synthase,2.3.3.16
+29,2-methylcitrate synthase,2.3.3.1
+30,2-methylisocitrate lyase,4.1.3.30
+31,"2-oxoglutarate decarboxylase, thiamine-requiring",1.2.4.2
+32,"2-oxoglutarate decarboxylase, thiamine-requiring",2.3.1.61
+33,"2-oxoglutarate decarboxylase, thiamine-requiring",1.8.1.4
+34,2-oxoglutarate dehydrogenase complex,1.8.1.4
+35,2-oxoglutarate dehydrogenase complex,1.2.4.2
+36,2-oxoglutarate dehydrogenase complex,2.3.1.61
+37,2-oxoglutarate dehydrogenase complex,1.4.4.2
+38,2-oxoglutarate dehydrogenase complex,2.1.2.10
+39,2-oxoglutarate dehydrogenase complex,1.2.1
+40,2-oxoglutarate dehydrogenase complex,1.2.4.1
+41,2-oxoglutarate dehydrogenase complex,2.3.1.12
+42,2-oxoglutarate dehydrogenase complex,""""""
+43,2-succinyl-5-enolpyruvyl-6-hydroxy-3-cyclohexene-1-carboxylate synthase,2.2.1.9
+44,23S rRNA 2'-<i>O</i>-ribose G2251 methyltransferase,2.1.1.185
+45,23S rRNA m<sup>3</sup>&Psi;1915 methyltransferase,2.1.1.177
+46,23S rRNA m<sup>5</sup>C1962 methyltransferase,2.1.1.191
+47,2Fe-2S cluster-containing protein YeaW,1.14.13
+48,"3,4-dihydroxy-2-butanone-4-phosphate synthase",4.1.99.12
+49,"3-carboxyethylcatechol 2,3-dioxygenase",1.13.11.16
+50,3-dehydroquinate dehydratase,4.2.1.10
+51,"3-deoxy-7-phosphoheptulonate synthase, Phe-sensitive",2.5.1.54
+52,"3-deoxy-7-phosphoheptulonate synthase, Trp-sensitive",2.5.1.54
+53,"3-deoxy-7-phosphoheptulonate synthase, Tyr-sensitive",2.5.1.54
+54,3-deoxy-D-<i>manno</i>-octulosonate 8-phosphate phosphatase KdsC,3.1.3.45
+55,3-deoxy-D-<i>manno</i>-octulosonate 8-phosphate synthase,2.5.1.55
+56,3-hydroxy acid dehydrogenase,1.1.1.298
+57,"3-hydroxy-2,4-pentadione 5-phosphate thiolase",2.3.1.245
+58,3-hydroxy-acyl-[acyl-carrier-protein] dehydratase,4.2.1.59
+59,3-hydroxy-acyl-[acyl-carrier-protein] dehydratase,2.3.1.86
+60,3-hydroxy-acyl-[acyl-carrier-protein] dehydratase,2.3.1.85
+61,3-keto-L-gulonate-6-phosphate decarboxylase UlaD,4.1.1.85
+62,3-methyl-2-oxobutanoate hydroxymethyltransferase,2.1.2.11
+63,3-octaprenyl-4-hydroxybenzoate decarboxylase,4.1.1.98
+64,3-oxoacyl-[acyl-carrier-protein] reductase FabG,2.3.1.86
+65,3-oxoacyl-[acyl-carrier-protein] reductase FabG,2.3.1.85
+66,3-oxoacyl-[acyl-carrier-protein] reductase FabG,1.1.1.100
+67,3-sulfolactaldehyde reductase,1.1.1.373
+68,3-sulfolactaldehyde reductase,1.1.1.61
+69,4-(cytidine 5'-diphospho)-2-<i>C</i>-methyl-D-erythritol kinase,2.7.1.148
+70,"aminodeoxychorismate synthase subunit 1"" // ""aminodeoxychorismate synthase subunit 2",2.6.1.85
+71,4-aminobutyrate aminotransferase GabT,2.6.1.19
+72,4-aminobutyrate aminotransferase GabT,2.6.1.11
+73,4-diphosphocytidyl-2C-methyl-D-erythritol synthase,2.7.7.60
+74,4-hydroxy-tetrahydrodipicolinate reductase,1.17.1.8
+75,4-hydroxy-tetrahydrodipicolinate synthase,4.3.3.7
+76,5'-methylthioadenosine/<i>S</i>-adenosylhomocysteine nucleosidase,3.2.2.9
+77,5'-methylthioadenosine/<i>S</i>-adenosylhomocysteine nucleosidase,3.2.2.16
+78,"5,10-methylenetetrahydrofolate reductase",1.5.1.20
+79,5-(carboxyamino)imidazole ribonucleotide synthase,6.3.4.18
+80,5-dehydro-4-deoxy-<small>D</small>-glucuronate isomerase,5.3.1.17
+81,5-oxoprolinase,3.5.2.9
+82,"5-phospho-&alpha;-D-ribosyl 1,2-cyclic phosphate phosphodiesterase",3.1.4.55
+83,"6,7-dimethyl-8-ribityllumazine synthase",2.5.1.78
+84,"6-carboxy-5,6,7,8-tetrahydropterin synthase",4.1.2.50
+85,6-phosphofructokinase I,2.7.1
+86,6-phosphofructokinase I,2.7.1.11
+87,6-phosphofructokinase II,2.7.1.11
+88,6-phosphofructokinase II,2.7.1.144
+89,"6-phosphogluconate dehydrogenase, decarboxylating",1.1.1.44
+90,7-&alpha;-hydroxysteroid dehydrogenase,1.1.1.159
+91,7-cyano-7-deazaguanine reductase,1.7.1.13
+92,8-amino-7-oxononanoate synthase,2.3.1.47
+93,"&beta; complex"" // ""&alpha; complex",2.8.3.9
+94,"acetolactate synthase II subunit IlvG, N-terminal fragment (pseudogene)"" // ""acetolactate synthase II subunit IlvM",2.2.1.6
+95,"acetohydroxy acid synthase I subunit IlvB"" // ""acetohydroxy acid synthase I subunit IlvN",2.2.1.6
+96,"acetolactate synthase / acetohydroxybutanoate synthase, catalytic subunit"" // ""acetolactate synthase / acetohydroxybutanoate synthase, regulatory subunit",2.2.1.6
+97,acetyl-CoA acetyltransferase,2.3.1.9
+98,acetyl-CoA carboxylase complex,""""
+99,acetyl-CoA carboxylase complex,6.3.4.14
+100,acetyl-CoA carboxylase complex,"2.1.3
+""acetyl-CoA carboxyltransferase subunit &alpha;"""
+101,acetyl-CoA carboxylase complex,"""acetyl-CoA carboxyltransferase subunit &beta;"
+102,acetyl-CoA:oxalate CoA-transferase,2.8.3.19
+103,acetylesterase,3.1.1.6
+104,acetylglutamate kinase,2.7.2.8
+105,acetylornithine deacetylase,3.5.1.16
+106,acid phosphatase / phosphotransferase,3.1.3.2
+107,acid phosphatase / phosphotransferase,3.1.3.31
+108,acid phosphatase / phosphotransferase,3.1.3.5
+109,acid phosphatase / phosphotransferase,3.1.3.91
+110,acid phosphatase / phosphotransferase,3.1.3.99
+111,acid phosphatase / phosphotransferase,3.1.3.6
+112,acid phosphatase / phosphotransferase,3.1.3.89
+113,acid phosphatase / phosphotransferase,3.1.3.35
+114,acid phosphatase / phosphotransferase,3.1.3.34
+115,acid phosphatase / phosphotransferase,3.1.3
+116,acid phosphatase / phosphotransferase,3.1.3.3
+117,acrylyl-CoA reductase,1.3.1.84
+118,activated pyruvate-formate lyase,2.3.1.54
+119,activated pyruvate-formate lyase,2.3.1
+120,acyl-CoA thioesterase II,3.1.2.20
+121,adenine deaminase,3.5.4.2
+122,adenine deaminase,1.11.1.6
+123,adenine deaminase,1.11.1.21
+124,adenine phosphoribosyltransferase,2.4.2.7
+125,adenosylmethionine-8-amino-7-oxononanoate aminotransferase,2.6.1.62
+126,adenylosuccinate lyase,4.3.2.2
+127,adenylosuccinate synthetase,6.3.4.4
+128,adenylyl-sulfate kinase,2.7.1.25
+129,ADP-L-glycero-D-mannoheptose 6-epimerase,5.1.3.20
+130,ADP-sugar diphosphatase NudE,3.6.1.21
+131,ADP-sugar pyrophosphatase,3.6.1.53
+132,ADP-sugar pyrophosphatase,3.6.1.13
+133,ADP-sugar pyrophosphatase,3.6.1.21
+134,aerobic fatty acid oxidation complex,2.3.1.16
+135,aerobic fatty acid oxidation complex,1.1.1.35
+136,aerobic fatty acid oxidation complex,1.1.1.211
+137,aerobic fatty acid oxidation complex,4.2.1.17
+138,aerobic fatty acid oxidation complex,5.3.3.8
+139,aerobic fatty acid oxidation complex,5.1.2.3
+140,aerobic glycerol 3-phosphate dehydrogenase,1.1.5.3
+141,agmatinase,3.5.3.11
+142,"alanine racemase 1, PLP-binding, biosynthetic",5.1.1.1
+143,alanine racemase 2,5.1.1.1
+144,alanine&mdash;tRNA ligase/DNA-binding transcriptional repressor,6.1.1.7
+145,"aldehyde dehydrogenase, Fe-S subunit"" // ""aldehyde dehydrogenase, FAD-binding subunit"" // ""aldehyde dehydrogenase: molybdenum cofactor-binding subunit",1.2.99.6
+146,"aldehyde dehydrogenase A, NAD-linked",1.2.1.22
+147,"aldehyde dehydrogenase A, NAD-linked",1.2.1.21
+148,aldehyde dehydrogenase B,1.2.1.4
+149,aldehyde-alcohol dehydrogenase,1.1.1.1
+150,aldehyde-alcohol dehydrogenase,1.2.1.10
+151,aliphatic sulfonate ABC transporter,3.6.3
+152,alkaline phosphatase,3.1.3.1
+153,alkaline phosphatase,3.1.3.75
+154,alkaline phosphatase,3.1.3
+155,alkaline phosphatase,3.1.3.41
+156,alkaline phosphatase,3.1.3.74
+157,alkaline phosphatase,3.1.3.99
+158,alkaline phosphatase,3.1.3.5
+159,alkaline phosphatase,3.1.3.6
+160,alkaline phosphatase,3.1.3.89
+161,alkaline phosphatase,3.1.3.91
+162,alkaline phosphatase,3.1.3.60
+163,alkaline phosphatase,3.1.3.15
+164,alkaline phosphatase,3.1.3.102
+165,alkaline phosphatase,3.1.3.2
+166,alkaline phosphatase,3.1.3.11
+167,alkaline phosphatase,3.1.3.20
+168,alkaline phosphatase,3.1.3.19
+169,alkaline phosphatase,3.1.3.3
+170,alkaline phosphatase,3.6.1.25
+171,alkaline phosphatase,3.6.1.1
+172,alkaline phosphatase,3.1.3.58
+173,alkaline phosphatase,3.1.3.9
+174,alkaline phosphatase,3.1.3.23
+175,alkaline phosphatase,3.1.3.22
+176,alkaline phosphatase,3.1.3.50
+177,alkaline phosphatase,3.1.3.10
+178,alkaline phosphatase,3.1.3.38
+179,alkaline phosphatase,3.1.3.18
+180,alkaline phosphatase,3.1.3.68
+181,alkaline phosphatase,3.9.1.1
+182,alkyl hydroperoxide reductase,1.8.1
+183,<i>all-trans</i>-octaprenyl-diphosphate synthase,2.5.1.90
+184,allantoate amidohydrolase,3.5.3.9
+185,allantoinase,3.5.2.5
+186,allose-6-phosphate isomerase / ribose-5-phosphate isomerase B,5.3.1
+187,allose-6-phosphate isomerase / ribose-5-phosphate isomerase B,5.3.1.6
+188,&alpha; complex,2.8.3.9
+189,&alpha;-D-xyloside xylohydrolase,3.2.1.177
+190,&alpha;-dehydro-&beta;-deoxy-<i>D</i>-glucarate aldolase,4.1.2.20
+191,&alpha;-galactosidase,3.2.1.22
+192,amidophosphoribosyltransferase,2.4.2.14
+193,amino acid racemase,5.1.1
+194,aminodeoxychorismate lyase,4.1.3.38
+195,aminopeptidase A/I and DNA-binding transcriptional repressor,3.4.11.9
+196,aminopeptidase A/I and DNA-binding transcriptional repressor,3.4.11.1
+197,aminopeptidase A/I and DNA-binding transcriptional repressor,3.4.13.18
+198,aminopeptidase B,3.4.11.23
+199,aminopeptidase B,3.4.13.18
+200,AMP nucleosidase,3.2.2.4
+201,anaerobic fatty acid &beta;-oxidation complex,1.1.1.35
+202,anaerobic fatty acid &beta;-oxidation complex,1.1.1.211
+203,anaerobic fatty acid &beta;-oxidation complex,4.2.1.17
+204,anaerobic fatty acid &beta;-oxidation complex,5.1.2.3
+205,anaerobic fatty acid &beta;-oxidation complex,5.3.3.8
+206,anaerobic fatty acid &beta;-oxidation complex,2.3.1.16
+207,anaerobic glycerol-3-phosphate dehydrogenase,1.1.5.3
+208,anaerobic nucleoside-triphosphate reductase activating system,1.97.1
+209,anaerobic nucleoside-triphosphate reductase activating system,1.1.98.6
+210,anaerobic ribonucleoside-triphosphate reductase,1.1.98.6
+211,anaerobic ribonucleoside-triphosphate reductase activating protein,1.97.1
+212,"anthranilate synthase subunit TrpE"" // ""anthranilate synthase subunit TrpD",2.4.2.18
+213,"anthranilate synthase subunit TrpE"" // ""anthranilate synthase subunit TrpD",4.1.3.27
+214,arabinose ABC transporter,3.6.3
+215,"arginine decarboxylase, biosynthetic",4.1.1.19
+216,"arginine decarboxylase, degradative",4.1.1.19
+217,argininosuccinate synthetase,6.3.4.5
+218,arylamine <i>N</i>-acetyltransferase,2.3.1.5
+219,arylamine <i>N</i>-acetyltransferase,2.3.1.118
+220,asparaginase II,3.5.1.38
+221,asparaginase II,3.5.1.1
+222,asparagine synthetase A,6.3.1.1
+223,asparagine synthetase B,6.3.5.4
+224,asparagine synthetase B,6.3.1.1
+225,asparagine synthetase B,3.5.1.38
+226,asparagine synthetase B,3.5.1.2
+227,asparagine&mdash;tRNA ligase,6.1.1.22
+228,aspartate 1-decarboxylase,4.1.1.11
+229,aspartate aminotransferase,2.6.1.1
+230,aspartate aminotransferase,2.6.1.57
+231,aspartate aminotransferase,2.6.1.5
+232,aspartate aminotransferase,2.6.1.7
+233,aspartate aminotransferase,2.6.1.3
+234,aspartate ammonia-lyase,4.3.1.1
+235,"aspartate carbamoyltransferase catalytic subunit"" // ""aspartate carbamoyltransferase, regulatory subunit",2.1.3.2
+236,aspartate carbamoyltransferase catalytic subunit,2.1.3.2
+237,"aspartate carbamoyltransferase, regulatory subunit",2.1.3.2
+238,aspartate kinase III,2.7.2.4
+239,aspartate&mdash;tRNA ligase,6.1.1.12
+240,aspartate-semialdehyde dehydrogenase,1.2.1.11
+241,assimilatory sulfite reductase (NADPH),1.8.1.2
+242,assimilatory sulfite reductase (NADPH),1.5.1.30
+243,ATP dependent structure specific DNA nuclease,3.1.11
+244,ATP phosphoribosyltransferase,2.4.2.17
+245,"ATP synthase F<sub>o</sub> complex"" // ""ATP synthase F<sub>1</sub> complex",3.6.3.14
+246,ATP synthase F<sub>1</sub> complex,3.6.3.14
+247,ATP synthase F<sub>1</sub> complex subunit &alpha;,3.6.3.14
+248,ATP synthase F<sub>1</sub> complex subunit &beta;,3.6.3.14
+249,ATP synthase F<sub>o</sub> complex,3.6.3.14
+250,ATP synthase F<sub>o</sub> complex - subunit b,3.6.3.14
+251,ATP synthase F<sub>o</sub> complex - subunit c,3.6.3.14
+252,ATP-dependent Lipid A-core flippase,3.6.3
+253,ATP-dependent Lipid A-core flippase,3.6.3.39
+254,"Autoinducer-2 ABC transporter periplasmic binding protein"" // ""Autoinducer-2 ABC transporter membrane subunit LsrD"" // ""Autoinducer-2 ABC transporter membrane subunit LsrC"" // ""Autoinducer-2 ABC transporter ATP binding subunit",3.6.3
+255,bacterioferritin,1.16.3.1
+256,&beta; complex,2.8.3.9
+257,&beta;-glucuronidase,3.2.1.31
+258,&beta;-galactosidase,3.2.1.108
+259,&beta;-galactosidase,3.2.1.23
+260,&beta;-galactosidase,5.4.1
+261,&beta;-galactosidase,3.2.1
+262,&beta;-glucoside specific PTS enzyme II,2.7.1.199
+263,&beta;-glucoside specific PTS enzyme II - cys24 phosphorylated,2.7.1.199
+264,&beta;-glucoside specific PTS enzyme II / BglG kinase / BglG phosphatase,2.7.1.199
+265,&beta;-hydroxyacyl-acyl carrier protein dehydratase/isomerase,2.3.1.86
+266,&beta;-hydroxyacyl-acyl carrier protein dehydratase/isomerase,2.3.1.85
+267,&beta;-hydroxyacyl-acyl carrier protein dehydratase/isomerase,4.2.1.59
+268,&beta;-hydroxyacyl-acyl carrier protein dehydratase/isomerase,5.3.3.14
+269,&beta;-ketoacyl-[acyl carrier protein] synthase I,2.3.1.179
+270,&beta;-ketoacyl-[acyl carrier protein] synthase I,2.3.1.41
+271,&beta;-ketoacyl-[acyl carrier protein] synthase I,2.3.1.85
+272,&beta;-ketoacyl-[acyl carrier protein] synthase I,2.3.1.86
+273,&beta;-ketoacyl-[acyl carrier protein] synthase I,2.3.1
+274,&beta;-ketoacyl-[acyl carrier protein] synthase II,2.3.1.179
+275,&beta;-ketoacyl-[acyl carrier protein] synthase II,2.3.1.41
+276,&beta;-ketoacyl-[acyl carrier protein] synthase II,2.3.1.85
+277,&beta;-ketoacyl-[acyl carrier protein] synthase II,2.3.1.86
+278,&beta;-ketoacyl-[acyl carrier protein] synthase III,2.3.1.180
+279,&beta;-ketoacyl-[acyl carrier protein] synthase III,2.3.1.86
+280,&beta;-ketoacyl-[acyl carrier protein] synthase III,2.3.1.85
+281,&beta;-ketoacyl-[acyl carrier protein] synthase III,2.3.1.38
+282,betaine aldehyde dehydrogenase,1.2.1.8
+283,bifunctional 3-demethylubiquinone-<i>8</i> 3-<i>O</i>-methyltransferase and 2-octaprenyl-6-hydroxyphenol methylase,2.1.1.222
+284,bifunctional 3-demethylubiquinone-<i>8</i> 3-<i>O</i>-methyltransferase and 2-octaprenyl-6-hydroxyphenol methylase,2.1.1.64
+285,"bifunctional 5,10-methylene-tetrahydrofolate dehydrogenase/ 5,10-methylene-tetrahydrofolate cyclohydrolase",3.5.4.9
+286,"bifunctional 5,10-methylene-tetrahydrofolate dehydrogenase/ 5,10-methylene-tetrahydrofolate cyclohydrolase",1.5.1.5
+287,bifunctional aconitate hydratase B and 2-methylisocitrate dehydratase,4.2.1.99
+288,biotin carboxylase,6.3.4.14
+289,biotin synthase,2.8.1.6
+290,branched chain amino acid / phenylalanine ABC transporter,3.6.3.22
+291,branched-chain-amino-acid aminotransferase,2.6.1.57
+292,branched-chain-amino-acid aminotransferase,2.6.1.42
+293,branched-chain-amino-acid aminotransferase,2.6.1.6
+294,"carbamoyl phosphate synthetase subunit &beta;"" // ""carbamoyl phosphate synthetase subunit &alpha;",6.3.5.5
+295,"carbamoyl phosphate synthetase subunit &beta;"" // ""carbamoyl phosphate synthetase subunit &alpha;",3.5.1.38
+296,"carbamoyl phosphate synthetase subunit &beta;"" // ""carbamoyl phosphate synthetase subunit &alpha;",3.5.1.2
+297,"carbamoyl phosphate synthetase subunit &beta;"" // ""carbamoyl phosphate synthetase subunit &alpha;",6.3.4.16
+298,carbon-phosphorus lyase core complex,2.7.8.37
+299,carbon-phosphorus lyase core complex,4.7.1.1
+300,carbonic anhydrase 1,4.2.1.1
+301,carbonic anhydrase 2,4.2.1.1
+302,carboxylesterase,3.1.1.1
+303,carnitine monooxygenase,1.14.13
+304,catabolic threonine dehydratase,4.3.1.17
+305,catabolic threonine dehydratase,4.3.1.19
+306,catalase II,1.11.1.6
+307,catalase II,1.11.1.21
+308,cellulose synthase,2.4.1.12
+309,chorismate synthase,4.2.3.5
+310,ChpB-ChpS complex,""""
+311,ChpB-ChpS complex,"3.1.27
+""chromate reductase"
+312,citrate lyase,4.1.3.6
+313,citrate lyase,2.8.3.10
+314,citrate lyase,4.1.3.34
+315,citrate lyase [acyl carrier protein] component,4.1.3.6
+316,citrate lyase [acyl carrier protein] component,2.8.3.10
+317,citrate lyase [acyl carrier protein] component,4.1.3.34
+318,"citrate lyase, citrate-acyl carrier protein transferase component",4.1.3.6
+319,"citrate lyase, citrate-acyl carrier protein transferase component",2.8.3.10
+320,"citrate lyase, citrate-acyl carrier protein transferase component",4.1.3.34
+321,"citrate lyase, citryl-acyl carrrier protein lyase component",4.1.3.6
+322,"citrate lyase, citryl-acyl carrrier protein lyase component",2.8.3.10
+323,"citrate lyase, citryl-acyl carrrier protein lyase component",4.1.3.34
+324,"citrate lyase, inactive",4.1.3.6
+325,"citrate lyase, inactive",2.8.3.10
+326,"citrate lyase, inactive",4.1.3.34
+327,citrate synthase,2.3.3.16
+328,citrate synthase,2.3.3.1
+329,ClpA ATP-dependent protease specificity component and chaperone,3.4.21.92
+330,ClpAP,3.4.21.92
+331,ClpAXP,3.4.21.92
+332,ClpP serine protease,3.4.21.92
+333,ClpX ATP-dependent protease specificity component and chaperone,3.4.21.92
+334,ClpXP,3.4.21.92
+335,cobinamide-P guanylyltransferase / cobinamide kinase,2.7.7.62
+336,cobinamide-P guanylyltransferase / cobinamide kinase,2.7.1.156
+337,copper-containing amine oxidase,1.4.3.21
+338,coproporphyrinogen III oxidase,1.3.3.3
+339,"CP4-57 prophage; RNase LS, toxin of the RnlAB toxin-antitoxin system",3.1.26
+340,CP4-6 prophage; putative 2-keto-3-deoxygluconate aldolase,4.1.2.28
+341,CP4-6 prophage; putative 2-keto-3-deoxygluconate aldolase,4.1.2.51
+342,cryptic phosphonate ABC transporter,3.6.3.28
+343,cryptic phosphonate ABC transporter,3.6.3
+344,CTP synthase,6.3.4.2
+345,CTP synthase,3.5.1.38
+346,CTP synthase,3.5.1.2
+347,cyanase,4.2.1.104
+348,cyclic di-GMP phosphodiesterase PdeF,3.1.4.52
+349,cyclic pyranopterin monophosphate synthase,4.6.1.17
+350,cyclopropane fatty acyl phospholipid synthase,2.1.1.79
+351,cystathionine-&beta;-lyase / L-cysteine desulfhydrase,4.4.1.8
+352,cystathionine-&beta;-lyase / L-cysteine desulfhydrase,4.4.1.1
+353,cystathionine-&beta;-lyase / L-cysteine desulfhydrase,4.4.1.28
+354,cysteine desulfurase,2.8.1.7
+355,cysteine sulfinate desulfinase,3.13.1
+356,cysteine synthase A,2.5.1.47
+357,cysteine synthase A,4.4.1.1
+358,cysteine synthase A,4.4.1.28
+359,cysteine synthase B,2.5.1
+360,cysteine synthase B,2.5.1.47
+361,cysteine synthase B,4.4.1.1
+362,cysteine synthase B,4.4.1.28
+363,cysteine synthase complex,2.5.1.47
+364,cysteine synthase complex,4.4.1.1
+365,cysteine synthase complex,4.4.1.28
+366,cysteine synthase complex,2.3.1.30
+367,cystine / cysteine ABC transporter,3.6.3
+368,cytidine/deoxycytidine deaminase,3.5.4.5
+369,"cytochrome <i>bd</i>-I ubiquinol oxidase subunit I"" // ""cytochrome <i>bd</i>-I ubiquinol oxidase subunit II"" // ""cytochrome <i>bd</i>-I ubiquinol oxidase subunit CydX",1.10.3.14
+370,cytochrome <i>bd</i>-II ubiquinol oxidase,1.10.3.14
+371,cytochrome <i>bo<sub>3</sub></i> ubiquinol oxidase,1.10.3.10
+372,cytosine/isoguanine deaminase,3.5.4.1
+373,D-alanine&mdash;D-alanine ligase B,6.3.2.4
+374,"D-allose ABC transporter ATP binding subunit"" // ""D-allose ABC transporter membrane subunit"" // ""D-allose ABC transporter periplasmic binding protein",3.6.3
+375,D-amino acid dehydrogenase,1.4.5.1
+376,D-amino acid dehydrogenase,1.4.5
+377,D-aminoacyl-tRNA deacylase,3.1.1.96
+378,D-arabinose 5-phosphate isomerase GutQ,5.3.1.13
+379,D-arabinose 5-phosphate isomerase KdsD,5.3.1.13
+380,D-cysteine desulfhydrase,4.4.1.15
+381,D-cysteine desulfhydrase,4.5.1.2
+382,D-erythrose-4-phosphate dehydrogenase,1.2.1.72
+383,"D-gluconate kinase, thermostable",2.7.1.12
+384,D-lactate dehydrogenase - fermentative,1.1.1.28
+385,D-ribose pyranase,5.4.99.62
+386,D-sedoheptulose 7-phosphate isomerase,5.3.1.28
+387,dCMP phosphohydrolase,3.1.3.89
+388,dCMP phosphohydrolase,3.1.3.35
+389,dCTP deaminase,3.5.4.13
+390,degradosome,4.2.1.11
+391,degradosome,3.1.13.1
+392,degradosome,2.7.7.8
+393,degradosome,3.6.4.13
+394,degradosome,3.1.26.12
+395,degradosome,2.7.4.1
+396,deoxyuridine triphosphatase,3.6.1.23
+397,deoxyuridine triphosphatase,3.6.1.9
+398,dethiobiotin synthetase,6.3.3.3
+399,dGTP triphosphohydrolase,3.1.5.1
+400,diacylglycerol kinase,2.7.1.107
+401,diaminopimelate decarboxylase,4.1.1.20
+402,diaminopimelate epimerase,5.1.1.7
+403,diguanylate cyclase DgcM,2.7.7.65
+404,diguanylate cyclase DgcZ,2.7.7.65
+405,diguanylate cyclase DosC,2.7.7.65
+406,dihydrolipoyltranssuccinylase,""""
+407,dihydrolipoyltranssuccinylase,1.2.4.2
+408,dihydrolipoyltranssuccinylase,2.3.1.61
+409,dihydrolipoyltranssuccinylase,"1.8.1.4
+""dihydroneopterin aldolase"
+410,dihydroneopterin triphosphate 2'-epimerase,5.1.99.7
+411,dihydroorotase,3.5.2.3
+412,dihydropteroate synthase,2.5.1.15
+413,dihydroxy-acid dehydratase,4.2.1.9
+414,dihydroxyacetone kinase,2.7.1.121
+415,"dihydroxyacetone kinase, phosphotransferase component/protein-acetyllysine deacetylase",2.7.1.121
+416,"dimethyl sulfoxide reductase subunit A"" // ""dimethyl sulfoxide reductase subunit B"" // ""dimethyl sulfoxide reductase subunit C",1.8.5.3
+417,DinJ-YafQ antitoxin/toxin complex / DNA-binding transcriptional repressor,""""
+418,DinJ-YafQ antitoxin/toxin complex / DNA-binding transcriptional repressor,"3.1.26
+""dipeptide ABC transporter"
+419,dITP/XTP pyrophosphatase,3.6.1.66
+420,dITP/XTP pyrophosphatase,3.6.1.9
+421,DNA gyrase,5.99.1.3
+422,"DNA polymerase III, core enzyme",""""
+423,"DNA polymerase III, core enzyme",3.1.11
+424,"DNA polymerase III, core enzyme","2.7.7.7
+""DNA polymerase III, holoenzyme"
+425,DNA polymerase V,2.7.7.7
+426,DNA-binding transcriptional activator/c-di-GMP phosphodiesterase PdeL,3.1.4.52
+427,DNA-binding transcriptional repressor/NMN adenylyltransferase NadR,2.7.7.1
+428,DNA-binding transcriptional repressor/NMN adenylyltransferase NadR,2.7.1.22
+429,DosC-DosP complex,2.7.7.65
+430,DosC-DosP complex,3.1.4.52
+431,DsbG<sub>oxidized</sub>,5.3.4.1
+432,DsbG<sub>reduced</sub>,5.3.4.1
+433,dTDP-4-dehydro-6-deoxy-D-glucose transaminase,2.6.1.59
+434,"dTDP-glucose 4,6-dehydratase 1",4.2.1.46
+435,dTDP-glucose pyrophosphorylase,2.7.7.24
+436,dTDP-glucose pyrophosphorylase 2,2.7.7.24
+437,dTDP-L-rhamnose synthetase complex,1.1.1.133
+438,dTDP-L-rhamnose synthetase complex,5.1.3.13
+439,<I>Eco</I>KI restriction-modification system,3.1.21.3
+440,EF-P-lysine lysyltransferase,6.3.2
+441,enolase,4.2.1.11
+442,enoyl-[acyl-carrier-protein] reductase,1.3.1.9
+443,"<i>holo</i>-EntB dimer"" // ""phosphopantetheinyl transferase EntD"" // ""<i>holo</i> [EntF peptidyl-carrier protein]"" // ""2,3-dihydroxybenzoate-AMP ligase",2.7.7
+444,"<i>holo</i>-EntB dimer"" // ""phosphopantetheinyl transferase EntD"" // ""<i>holo</i> [EntF peptidyl-carrier protein]"" // ""2,3-dihydroxybenzoate-AMP ligase",6.3.2.14
+445,"<i>holo</i>-EntB dimer"" // ""phosphopantetheinyl transferase EntD"" // ""<i>holo</i> [EntF peptidyl-carrier protein]"" // ""2,3-dihydroxybenzoate-AMP ligase",2.7.7.58
+446,"<i>holo</i>-EntB dimer"" // ""phosphopantetheinyl transferase EntD"" // ""<i>holo</i> [EntF peptidyl-carrier protein]"" // ""2,3-dihydroxybenzoate-AMP ligase",2.5.1
+447,"<i>holo</i>-EntB dimer"" // ""phosphopantetheinyl transferase EntD"" // ""<i>holo</i> [EntF peptidyl-carrier protein]"" // ""2,3-dihydroxybenzoate-AMP ligase",2.7.8.7
+448,"<i>holo</i>-EntB dimer"" // ""phosphopantetheinyl transferase EntD"" // ""<i>holo</i> [EntF peptidyl-carrier protein]"" // ""2,3-dihydroxybenzoate-AMP ligase",3.3.2.1
+449,erythronate-4-phosphate dehydrogenase,1.1.1.290
+450,ethanol dehydrogenase / alcohol dehydrogenase,1.1.1.1
+451,"ethanolamine ammonia-lyase subunit &alpha;"" // ""ethanolamine ammonia-lyase subunit &beta;",4.3.1.7
+452,excision nuclease UvrABC,3.1.25
+453,exodeoxyribonuclease V,3.6.4.12
+454,exodeoxyribonuclease V,3.1.11.5
+455,exodeoxyribonuclease V,3.1.21.2
+456,exodeoxyribonuclease VII,3.1.11.6
+457,exopolyphosphatase,3.6.1.11
+458,"fatty acid oxidation complex, &alpha; component",1.1.1.35
+459,"fatty acid oxidation complex, &alpha; component",1.1.1.211
+460,"fatty acid oxidation complex, &alpha; component",4.2.1.17
+461,"fatty acid oxidation complex, &alpha; component",5.3.3.8
+462,"fatty acid oxidation complex, &alpha; component",5.1.2.3
+463,"fatty acid oxidation complex, &beta; component",2.3.1.16
+464,fatty acyl-CoA synthetase,6.2.1.3
+465,ferric citrate ABC transporter,3.6.3
+466,ferric enterobactin ABC transporter,3.6.3
+467,ferritin iron-storage complex,1.16.3.2
+468,FKBP-type peptidyl-prolyl <i>cis-trans</i> isomerase FklB,5.2.1.8
+469,FKBP-type peptidyl-prolyl <i>cis-trans</I> isomerase SlyD,5.2.1.8
+470,FMN dependent NADH:quinone oxidoreductase,1.6.5
+471,FMN dependent NADH:quinone oxidoreductase,1.7.1
+472,FMNH<sub>2</sub>-dependent alkanesulfonate monooxygenase,1.14.14.5
+473,formaldehyde dehydrogenase,1.1.1.284
+474,"formate dehydrogenase N, subcomplex",1.17.5.3
+475,"formate dehydrogenase N, subcomplex",1.17.5.3
+476,formate dehydrogenase O,1.17.5.3
+477,"formate dehydrogenase H"" // ""hydrogenase 3",1.1.7
+478,"formate dehydrogenase H"" // ""hydrogenase 3",1.17.99.7
+479,formyl-CoA transferase,2.8.3.16
+480,formyltetrahydrofolate deformylase,3.5.1.10
+481,free methionine-(<i>R</i>)-sulfoxide reductase,1.8.4.14
+482,"fructose 1,6-bisphosphatase YggF",3.1.3.11
+483,"fructose-1,6-bisphosphatase 1",3.1.3.11
+484,"fructose-1,6-bisphosphatase 2",3.1.3.11
+485,fructose-6-phosphate aldolase 1,4.1.2
+486,fructose-bisphosphate aldolase class I,4.1.2.13
+487,fructose-bisphosphate aldolase class II,4.1.2.13
+488,fructose-bisphosphate aldolase class II,4.1.2
+489,fructose-specific PTS enzyme II,2.7.1
+490,fructose-specific PTS enzyme II,""""""
+491,fructoselysine 3-epimerase,5.1.3.41
+492,FtsH/HflKC protease complex,3.4.24
+493,fumarase A,4.2.1.2
+494,fumarase A,5.3.2.2
+495,fumarase B,4.2.1.2
+496,fumarase B,4.2.1.81
+497,fumarase C,4.2.1.2
+498,"fumarate reductase flavoprotein subunit"" // ""fumarate reductase iron-sulfur protein"" // ""fumarate reductase membrane protein FrdC"" // ""fumarate reductase membrane protein FrdD",1.3.5.4
+499,fused 4'-phosphopantothenoylcysteine decarboxylase and phosphopantothenoylcysteine synthetase,6.3.2.5
+500,fused 4'-phosphopantothenoylcysteine decarboxylase and phosphopantothenoylcysteine synthetase,4.1.1.36
+501,fused aspartate kinase/homoserine dehydrogenase 1,2.7.2.4
+502,fused aspartate kinase/homoserine dehydrogenase 1,1.1.1.3
+503,fused aspartate kinase/homoserine dehydrogenase 2,2.7.2.4
+504,fused aspartate kinase/homoserine dehydrogenase 2,1.1.1.3
+505,fused chorismate mutase/prephenate dehydratase,5.4.99.5
+506,fused chorismate mutase/prephenate dehydratase,4.2.1.51
+507,fused chorismate mutase/prephenate dehydrogenase,5.4.99.5
+508,fused chorismate mutase/prephenate dehydrogenase,1.3.1.12
+509,fused diaminohydroxyphosphoribosylaminopyrimidine deaminase / 5-amino-6-(5-phosphoribosylamino)uracil reductase,3.5.4.26
+510,fused diaminohydroxyphosphoribosylaminopyrimidine deaminase / 5-amino-6-(5-phosphoribosylamino)uracil reductase,1.1.1.193
+511,fused glutathionylspermidine amidase / glutathionylspermidine synthetase,6.3.1.9
+512,fused glutathionylspermidine amidase / glutathionylspermidine synthetase,6.3.1.8
+513,fused glutathionylspermidine amidase / glutathionylspermidine synthetase,3.5.1.78
+514,fused heptose 7-phosphate kinase/heptose 1-phosphate adenyltransferase,2.7.7.70
+515,fused heptose 7-phosphate kinase/heptose 1-phosphate adenyltransferase,2.7.1.167
+516,fused N-acetylglucosamine-1-phosphate uridyltransferase and glucosamine-1-phosphate acetyltransferase,2.7.7.23
+517,fused N-acetylglucosamine-1-phosphate uridyltransferase and glucosamine-1-phosphate acetyltransferase,2.3.1.157
+518,galactitol-1-phosphate 5-dehydrogenase,1.1.1.251
+519,galactitol-specific PTS enzyme II,2.7.1.200
+520,galactitol-specific PTS enzyme II,2.7.1.198
+521,galactose-1-phosphate uridylyltransferase,2.7.7.12
+522,galactoside <i>O</i>-acetyltransferase,2.3.1.18
+523,&gamma;-aminobutyraldehyde dehydrogenase,1.2.1.19
+524,&gamma;-butyrobetainyl-CoA:carnitine CoA transferase,2.8.3.21
+525,&gamma;-glutamyl-&gamma;-aminobutyrate hydrolase,3.5.1.94
+526,GDP-fucose synthase,1.1.1.271
+527,"GDP-mannose 4,6-dehydratase",4.2.1.47
+528,GDP-mannose mannosyl hydrolase,3.2.1.42
+529,glucosamine-6-phosphate deaminase,3.5.99.6
+530,glucose-1-phosphatase,3.1.3.10
+531,glucose-1-phosphatase,3.1.3.8
+532,glucose-1-phosphate adenylyltransferase,2.7.7.27
+533,glucose-6-phosphate isomerase,5.3.1.9
+534,glucose-specific PTS enzyme II,2.7.1.199
+535,glucose-specific PTS enzyme II,2.7.1.201
+536,glucose-specific PTS enzyme II,2.7.1.192
+537,glucose-specific PTS enzyme II,""""""
+538,glutamate / aspartate ABC transporter,3.6.3.21
+539,glutamate 5-kinase,2.7.2.11
+540,glutamate decarboxylase A,4.1.1.15
+541,glutamate decarboxylase B,4.1.1.15
+542,glutamate dehydrogenase,1.4.1.4
+543,glutamate synthase,1.4.1.13
+544,glutamate synthase,3.5.1.38
+545,glutamate synthase,3.5.1.2
+546,glutamate synthase,1.4.1.4
+547,glutamate synthase,1.4.1.13
+548,glutamate synthase,3.5.1.38
+549,glutamate synthase,3.5.1.2
+550,glutamate synthase,1.4.1.4
+551,glutamate&mdash;pyruvate aminotransferase AlaA,2.6.1.2
+552,glutamate&mdash;pyruvate aminotransferase AlaC,2.6.1.2
+553,glutamate-1-semialdehyde aminotransferase,5.4.3.8
+554,glutamate-5-semialdehyde dehydrogenase,1.2.1.41
+555,glutamate-putrescine ligase,6.3.1.11
+556,glutaminase 1,3.5.1.38
+557,glutaminase 1,3.5.1.2
+558,glutaminase 2,3.5.1.38
+559,glutaminase 2,3.5.1.2
+560,glutamine synthetase,""""
+561,glutamine synthetase,"6.3.1.2
+""glutamyl-tRNA reductase"
+562,glutathione / L-cysteine ABC exporter CydDC,3.6.3
+563,glutathione ABC transporter,3.6.3
+564,glutathione hydrolase,3.4.19.13
+565,glutathione hydrolase,2.3.2.2
+566,glutathione reductase (NADPH),1.8.1.7
+567,glutathione <i>S</i>-transferase GstA,2.5.1.18
+568,glutathione synthetase,6.3.2.3
+569,glutathionyl-hydroquinone reductase YqjG,1.8.5.7
+570,glyceraldehyde-3-phosphate dehydrogenase A,1.2.1.12
+571,glycerol kinase,2.7.1.30
+572,"glycerol-3-phosphate dehydrogenase, biosynthetic",1.1.1.94
+573,"glycerophosphoryl diester phosphodiesterase, periplasmic",3.1.4.46
+574,glycine betaine ABC transporter,3.6.3.32
+575,glycine betaine ABC transporter,3.6.3
+576,glycine cleavage system,1.4.4.2
+577,glycine cleavage system,2.1.2.10
+578,glycine cleavage system,1.8.1.4
+579,glycine cleavage system,1.2.4.2
+580,glycine cleavage system,2.3.1.61
+581,glycine cleavage system,1.2.1
+582,glycine cleavage system,1.2.4.1
+583,glycine cleavage system,2.3.1.12
+584,glycine decarboxylase,1.4.4.2
+585,glycine decarboxylase,2.1.2.10
+586,glycine decarboxylase,1.8.1.4
+587,glycine&mdash;tRNA ligase,6.1.1.14
+588,glycogen phosphorylase,2.4.1.1
+589,glycolate dehydrogenase,1.1.99.14
+590,glyoxalase I,4.4.1.5
+591,glyoxylate carboligase,4.1.1.47
+592,glyoxylate reductase,1.1.1.79
+593,glyoxylate reductase,1.1.1
+594,glyoxylate reductase,1.1.1.215
+595,GMP reductase,1.7.1.7
+596,GMP synthetase,6.3.5.2
+597,GMP synthetase,3.5.1.38
+598,GMP synthetase,3.5.1.2
+599,GTP cyclohydrolase 1,3.5.4.16
+600,GTP cyclohydrolase 2,3.5.4.25
+601,"guanosine-5'-triphosphate,3'-diphosphate phosphatase",3.6.1.40
+602,guanylate kinase,2.7.4.8
+603,guanylate kinase,2.7.4.13
+604,guanylate kinase,2.7.4.12
+605,heme trafficking system CcmABCDE,3.6.3.41
+606,heme-containing peroxidase/deferrochelatase,4.99.1.1
+607,HflK-HflC complex; regulator of FtsH protease,3.4.24
+608,HigB translation-dependent mRNA interferase and toxin of the HigB-HigA toxin-antitoxin system,3.1.26
+609,HigB-HigA toxin/antitoxin complex and DNA-binding transcriptional repressor,""""
+610,HigB-HigA toxin/antitoxin complex and DNA-binding transcriptional repressor,"3.1.26
+""HipAB toxin/antitoxin complex / DNA-binding transcriptional repressor"
+611,histidine ABC transporter,3.6.3.21
+612,histidine&mdash;tRNA ligase,6.1.1.21
+613,histidinol-phosphate aminotransferase,2.6.1.9
+614,<i>holo</i>-EntB dimer,3.3.2.1
+615,<i>holo</i>-EntB dimer,6.3.2.14
+616,<i>holo</i>-EntB dimer,2.7.7.58
+617,<i>holo</i>-EntB dimer,2.5.1
+618,holo-[acyl-carrier-protein] synthase,2.7.8.7
+619,holocytochrome <I>c</I> synthetase,""""
+620,holocytochrome <I>c</I> synthetase,"3.6.3.41
+""homoserine kinase"
+621,homoserine <i>O</i>-succinyltransferase,2.3.1.46
+622,HslU hexamer,3.4.21
+623,HslV hexamer,3.4.21
+624,HslVU protease,3.4.21
+625,hydrogenase 1,1.12.99.6
+626,"hydrogenase 1, oxygen tolerant hydrogenase",1.12.99.6
+627,hydrogenase 2,1.12.99.6
+628,hydrogenase isozymes nickel incorporation protein HypB,3.6.5.1
+629,hydrogenase isozymes nickel incorporation protein HypB,3.6.5.2
+630,hydrogenase isozymes nickel incorporation protein HypB,3.6.5.3
+631,hydrogenase isozymes nickel incorporation protein HypB,3.6.5.4
+632,hydrogenase isozymes nickel incorporation protein HypB,3.6.5.5
+633,hydrogenase isozymes nickel incorporation protein HypB,3.6.5.6
+634,hydrogenase isozymes nickel incorporation protein HypB,3.6.1.15
+635,hydroperoxidase I,1.11.1.6
+636,hydroperoxidase I,1.11.1.21
+637,hydroxyethylthiazole kinase,2.7.1.50
+638,hydroxyisourate hydrolase / transthyretin-related protein,3.5.2.17
+639,bifunctional hydroxymethylpyrimidine kinase/phosphomethylpyrimidine kinase,2.7.1.49
+640,bifunctional hydroxymethylpyrimidine kinase/phosphomethylpyrimidine kinase,2.7.4.7
+641,hydroxypyruvate isomerase,5.3.1.22
+642,HypA-HypB heterodimer,3.6.5.1
+643,HypA-HypB heterodimer,3.6.5.2
+644,HypA-HypB heterodimer,3.6.5.3
+645,HypA-HypB heterodimer,3.6.5.4
+646,HypA-HypB heterodimer,3.6.5.5
+647,HypA-HypB heterodimer,3.6.5.6
+648,HypA-HypB heterodimer,3.6.1.15
+649,HypA-HypB heterodimer,""""""
+650,hypoxanthine phosphoribosyltransferase,2.4.2.8
+651,"imidazole glycerol phosphate synthase subunit HisH"" // ""imidazole glycerol phosphate synthase subunit HisF",4.3.2
+652,"imidazole glycerol phosphate synthase subunit HisH"" // ""imidazole glycerol phosphate synthase subunit HisF",3.5.1.38
+653,"imidazole glycerol phosphate synthase subunit HisH"" // ""imidazole glycerol phosphate synthase subunit HisF",3.5.1.2
+654,imidazoleglycerol-phosphate dehydratase / histidinol-phosphatase,4.2.1.19
+655,imidazoleglycerol-phosphate dehydratase / histidinol-phosphatase,3.1.3.15
+656,IMP dehydrogenase,1.1.1.205
+657,inorganic pyrophosphatase,3.6.1.1
+658,inorganic pyrophosphatase,3.6.1.25
+659,inosine/guanosine kinase,2.7.1.73
+660,iron(III) hydroxamate ABC transporter,3.6.3
+661,isoaspartyl dipeptidase,3.4.19
+662,isoaspartyl dipeptidase / asparaginase III,3.4.19
+663,isoaspartyl dipeptidase / asparaginase III,3.5.1.38
+664,isoaspartyl dipeptidase / asparaginase III,3.5.1.1
+665,isochorismate synthase MenF,5.4.4.2
+666,isocitrate dehydrogenase,1.1.1.42
+667,isocitrate dehydrogenase kinase/phosphatase,2.7.11.5
+668,isocitrate dehydrogenase kinase/phosphatase,3.1.3
+669,isocitrate dehydrogenase-P,1.1.1.42
+670,isocitrate lyase,4.1.3.1
+671,isovaleryl-CoA dehydrogenase and DNA-binding transcriptional repressor,1.3.8.4
+672,K<sup>+</sup> transporting P-type ATPase,3.6.3.12
+673,ketol-acid reductoisomerase (NADP<sup>+</sup>),1.1.1.86
+674,ketol-acid reductoisomerase (NADP<sup>+</sup>),1.1.1.169
+675,KHG/KDPG aldolase,4.1.2.55
+676,KHG/KDPG aldolase,4.1.2.14
+677,KHG/KDPG aldolase,4.1.3.42
+678,KHG/KDPG aldolase,1.1.1.40
+679,KHG/KDPG aldolase,4.1.1.3
+680,KHG/KDPG aldolase,1.1.1.38
+681,"L(+)-tartrate dehydratase subunit &alpha;"" // ""L(+)-tartrate dehydratase subunit &beta;",4.2.1.32
+682,"L-1,2-propanediol dehydrogenase / glycerol dehydrogenase",1.1.1.75
+683,"L-1,2-propanediol dehydrogenase / glycerol dehydrogenase",1.1.1.6
+684,"L-1,2-propanediol oxidoreductase",1.1.1.77
+685,L-amino acid N-acyltransferase,2.3.1.1
+686,L-arabinose isomerase,5.3.1.4
+687,L-arginine ABC transporter,3.6.3.21
+688,L-ascorbate specific PTS enzyme II,2.7.1.194
+689,L-ascorbate-6-phosphate lactonase,3.1.1
+690,L-asparaginase 1,3.5.1.38
+691,L-asparaginase 1,3.5.1.1
+692,L-cysteine desulfurase,2.8.1.7
+693,L-cysteine desulfurase,3.13.1
+694,L-cysteine desulfurase,4.4.1.16
+695,L-fucose isomerase,5.3.1.25
+696,L-fucose isomerase,5.3.1.3
+697,L-fucose mutarotase,5.1.3.29
+698,L-fuculose-phosphate aldolase,4.1.2.17
+699,L-glutamine ABC transporter,3.6.3.21
+700,L-glutamine&mdash;D-fructose-6-phosphate aminotransferase,2.6.1.16
+701,L-methionine/D-methionine ABC transporter,3.6.3
+702,L-rhamnonate dehydratase,4.2.1.90
+703,L-rhamnose isomerase,5.3.1.14
+704,L-rhamnose isomerase,5.1.3
+705,L-rhamnose mutarotase,5.1.3.32
+706,L-ribulose-5-phosphate 4-epimerase AraD,5.1.3.4
+707,L-serine deaminase III,4.3.1.17
+708,L-xylulose kinase,2.7.1.53
+709,leucine / L-phenylalanine ABC transporter,3.6.3.22
+710,lipid A disaccharide synthase,2.4.1.182
+711,lipid hydroperoxide peroxidase,1.11.1.15
+712,Lipid IV<sub>A</sub> palmitoyltransferase,2.3.1.251
+713,lipoamide dehydrogenase,1.8.1.4
+714,lipoamide dehydrogenase,1.2.4.2
+715,lipoamide dehydrogenase,2.3.1.61
+716,lipoamide dehydrogenase,1.4.4.2
+717,lipoamide dehydrogenase,2.1.2.10
+718,lipoamide dehydrogenase,1.2.1
+719,lipoamide dehydrogenase,1.2.4.1
+720,lipoamide dehydrogenase,2.3.1.12
+721,lipoyl synthase,2.8.1.8
+722,Lon protease,3.4.21.53
+723,low-specificity L-threonine aldolase,4.1.2
+724,low-specificity L-threonine aldolase,4.1.2.48
+725,low-specificity L-threonine aldolase,4.1.2.5
+726,low-specificity L-threonine aldolase,4.1.2.26
+727,low-specificity L-threonine aldolase,4.1.2.49
+728,lysine / arginine / ornithine ABC transporter,3.6.3.21
+729,lysine decarboxylase 1,4.1.1.18
+730,lysine decarboxylase 2,4.1.1.18
+731,lysine&mdash;tRNA ligase/Ap<sub>4</sub>A synthetase/Ap<sub>3</sub>A synthetase,6.1.1.6
+732,lysine&mdash;tRNA ligase/Ap<sub>4</sub>A synthetase/Ap<sub>3</sub>A synthetase,2.7.7
+733,"lysine&mdash;tRNA ligase, constitutive",6.1.1.6
+734,malate dehydrogenase,1.1.1.37
+735,malate dehydrogenase,1.1.1.40
+736,"malate dehydrogenase, NAD-requiring",1.1.1.38
+737,"malate dehydrogenase, NAD-requiring",1.1.1.39
+738,maltodextrin phosphorylase,2.4.1.1
+739,maltose ABC transporter,3.6.3.19
+740,maltose <i>O</i>-acetyltransferase,2.3.1.79
+741,mannitol-specific PTS enzyme II,2.7.1.197
+742,mannitol-specific PTS enzyme II,2.7.1.198
+743,mannitol-specific PTS enzyme II CmtBA,2.7.1.197
+744,mannose-specific PTS enzyme II,2.7.1.191
+745,mannose-specific PTS enzyme II,2.7.1.199
+746,mannose-specific PTS enzyme II,2.7.1.193
+747,mannose-specific PTS enzyme IIAB component,2.7.1.191
+748,mannose-specific PTS enzyme IIAB component,2.7.1.199
+749,mannose-specific PTS enzyme IIAB component,2.7.1.193
+750,McrBC restriction endonuclease,3.1.21
+751,methionine adenosyltransferase,2.5.1.6
+752,methionine&mdash;tRNA ligase,6.1.1.10
+753,methylglyoxal synthase,4.2.3.3
+754,methylmalonyl-CoA decarboxylase,4.1.1
+755,methylmalonyl-CoA mutase,5.4.99.2
+756,methylphosphonate degradation complex,2.7.8.37
+757,molybdate ABC transporter,3.6.3.29
+758,molybdopterin adenylyltransferase,2.7.7.75
+759,molybdopterin molybdotransferase,2.10.1.1
+760,molybdopterin synthase,2.8.1.12
+761,molybdopterin synthase,""""""
+762,molybdopterin-synthase adenylyltransferase,2.7.7.80
+763,monoacetylchitobiose-6-phosphate hydrolase,3.2.1.86
+764,MqsA-MqsR antitoxin/toxin complex,3.1.26
+765,MqsA-MqsR antitoxin/toxin complex,""""""
+766,multidrug ABC exporter,3.6.3.44
+767,multifunctional acyl-CoA thioesterase I and protease I and lysophospholipase L1,3.1.2.14
+768,multifunctional acyl-CoA thioesterase I and protease I and lysophospholipase L1,3.1.1.5
+769,multifunctional acyl-CoA thioesterase I and protease I and lysophospholipase L1,3.1.2.2
+770,murein tripeptide ABC transporter,3.6.3.23
+771,murein tripeptide ABC transporter,3.6.3
+772,"<I>N,N'</I>-diacetylchitobiose-specific PTS enzyme II",2.7.1.196
+773,<i>N</i>-acetylneuraminate lyase,4.1.3.3
+774,N-acetylglucosamine specific PTS enzyme II,2.7.1.193
+775,N-acetylglucosamine specific PTS enzyme II,2.7.1.191
+776,<i>N</i>-acetylglucosamine-6-phosphate deacetylase,3.5.1.25
+777,N-acetylglutamate synthase,2.3.1.1
+778,<i>N</i>-acetylmuramic acid 6-phosphate etherase,4.2.1.126
+779,N-acetylmuramic acid-specific PTS enzyme II,2.7.1.199
+780,N-acetylmuramic acid-specific PTS enzyme II,2.7.1.201
+781,N-acetylmuramic acid-specific PTS enzyme II,2.7.1.192
+782,<i>N</i>-acetylneuraminate mutarotase,5.1.3.24
+783,<i>N</i>-acetylornithine aminotransferase / <i>N</i>-succinyldiaminopimelate aminotransferase,2.6.1.11
+784,<i>N</i>-acetylornithine aminotransferase / <i>N</i>-succinyldiaminopimelate aminotransferase,2.6.1.17
+785,<i>N</i>-succinylarginine dihydrolase,3.5.3.23
+786,<i>N<sup>5</sup></i>-carboxyaminoimidazole ribonucleotide mutase,5.4.99.18
+787,N<sup>6</sup>-L-threonylcarbamoyladenine synthase,2.3.1.234
+788,"N<sup>6</sup>-L-threonylcarbamoyladenine synthase, TsaB-TsaD dimer subunit",2.3.1.234
+789,NAD kinase,2.7.1.23
+790,"NAD synthetase, NH<sub>3</sub>-dependent",6.3.5.1
+791,"NAD synthetase, NH<sub>3</sub>-dependent",6.3.1.5
+792,NAD(P)H nitroreductase NfsB,1.7.1
+793,NAD(P)H nitroreductase NfsB,1.5.1.34
+794,NAD(P)H:quinone oxidoreductase,1.6.5.2
+795,NAD(P)H:quinone oxidoreductase,1.6.5.9
+796,NAD<sup>+</sup>-dependent succinate semialdehyde dehydrogenase,1.2.1.24
+797,NAD-dependent dihydropyrimidine dehydrogenase,1.3.1.1
+798,NADH pyrophosphatase,3.6.1.22
+799,NADH:quinone oxidoreductase I,1.6.5.3
+800,NADH:quinone oxidoreductase I,1.6.5
+801,"NADH:quinone oxidoreductase I, peripheral arm",1.6.5.3
+802,"NADH:quinone oxidoreductase I, peripheral arm",1.6.5
+803,NADP<sup>+</sup>-dependent succinate-semialdehyde dehydrogenase,1.2.1.79
+804,NADPH-dependent aldehyde reductase YqhD,1.1.1.2
+805,NADPH-dependent aldehyde reductase YqhD,1.1.1
+806,NADPH-dependent aldehyde reductase YqhD,1.1.1.91
+807,NADPH-dependent FMN reductase,1.5.1.38
+808,NADPH-dependent nitroreductase NfsA,1
+809,NADPH:quinone oxidoreductase MdaB,1.6.5.10
+810,negative regulator of MalT activity/cystathionine &beta;-lyase,4.4.1.8
+811,negative regulator of MalT activity/cystathionine &beta;-lyase,4.4.1.1
+812,negative regulator of MalT activity/cystathionine &beta;-lyase,4.4.1.28
+813,Ni(2+) ABC transporter,3.6.3.24
+814,nicotinate-nucleotide&mdash;dimethylbenzimidazole phosphoribosyltransferase,2.4.2.21
+815,nitrate reductase A,1.7.5.1
+816,nitrate reductase A,1.97.1
+817,nitrate reductase Z,1.7.5.1
+818,nitrate reductase Z,1.97.1
+819,"nitrite reductase subunit NirD"" // ""nitrite reductase catalytic subunit NirB",1.7.1.15
+820,NMN aminohydrolase,3.5.1.42
+821,nucleoside diphosphate kinase,2.7.4.6
+822,nucleoside triphosphate pyrophosphatase YhdE,3.6.1.9
+823,nucleoside triphosphate pyrophosphohydrolase,3.6.1.9
+824,nucleoside triphosphate pyrophosphohydrolase,3.6.1.8
+825,nucleoside triphosphate pyrophosphohydrolase,3.6.1.66
+826,nucleoside triphosphate pyrophosphohydrolase,3.6.1.65
+827,nucleoside triphosphate pyrophosphohydrolase,3.6.1.12
+828,nucleoside triphosphate pyrophosphohydrolase,3.6.1.23
+829,<i>o</i>-succinylbenzoate&mdash;CoA ligase,6.2.1.26
+830,<i>O</i>-succinylhomoserine(thiol)-lyase / <i>O</i>-succinylhomoserine lyase,2.5.1.48
+831,<i>O</i>-succinylhomoserine(thiol)-lyase / <i>O</i>-succinylhomoserine lyase,4.3.1
+832,oligopeptide ABC transporter,3.6.3.23
+833,oligopeptide ABC transporter,3.6.3
+834,oligoribonuclease,3.1.13.3
+835,ornithine carbamoyltransferase,2.1.3.3
+836,ornithine carbamoyltransferase,2.1.3.3
+837,"ornithine decarboxylase, biosynthetic",4.1.1.17
+838,"ornithine decarboxylase, degradative",4.1.1.17
+839,orotate phosphoribosyltransferase,2.4.2.10
+840,orotidine-5'-phosphate decarboxylase,4.1.1.23
+841,osmotically inducible peroxiredoxin,1.11.1.15
+842,outer membrane phospholipase A,3.1.1.4
+843,outer membrane phospholipase A,3.1.1.32
+844,oxalyl-CoA decarboxylase,4.1.1.8
+845,oxidized ribonucleoside-triphosphate reductase,1.1.98.6
+846,oxygen-sensing c-di-GMP phosphodiesterase DosP,3.1.4.52
+847,<i>p</i>-aminobenzoyl-glutamate hydrolase,3.5.1
+848,PaaF-PaaG hydratase-isomerase complex,4.2.1.17
+849,PaaF-PaaG hydratase-isomerase complex,5.3.3.18
+850,pantetheine-phosphate adenylyltransferase,2.7.7.3
+851,pantothenate kinase,2.7.1.33
+852,pantothenate synthetase,6.3.2.1
+853,<i>para</i>-aminobenzoate synthase multi-enzyme complex,4.1.3.38
+854,<i>para</i>-aminobenzoate synthase multi-enzyme complex,2.6.1.85
+855,peptidase D,3.4.13.18
+856,peptidase T,3.4.11.4
+857,peptidoglycan DD-endopeptidase/peptidoglycan LD-endopeptidase,3.4
+858,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase - MrcA-LpoA complex,2.4.1.129
+859,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase - MrcA-LpoA complex,3.4.16.4
+860,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase - MrcB-LpoB complex,2.4.1.129
+861,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase - MrcB-LpoB complex,3.4.16.4
+862,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase MrcA,2.4.1.129
+863,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase MrcA,3.4.16.4
+864,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase MrcB,2.4.1.129
+865,peptidoglycan glycosyltransferase / peptidoglycan DD-transpeptidase MrcB,3.4.16.4
+866,periplasmic nitrate reductase,1.9.6.1
+867,periplasmic nitrite reductase NrfAB,""""
+868,periplasmic nitrite reductase NrfAB,"1.7.2.2
+""periplasmic phosphoanhydride phosphatase/multiple inositol-polyphosphate phosphatase"
+869,periplasmic serine endoprotease,3.4.21
+870,periplasmic serine endoprotease DegP,3.4.21.107
+871,phenylacetaldehyde dehydrogenase,1.2.1.39
+872,"phenylacetyl-CoA 1,2-epoxidase",1.14.13.149
+873,phenylacetyl-CoA thioesterase,3.1.2
+874,phenylalanine&mdash;tRNA ligase,6.1.1.20
+875,phenylhydantoinase,3.5.2
+876,phosphate ABC transporter,3.6.3.27
+877,phosphate acetyltransferase,2.3.1.8
+878,phosphate acetyltransferase,2.3.1.222
+879,phosphate acetyltransferase EutD,2.3.1.8
+880,"phosphatidylserine decarboxylase, heterodimer",4.1.1.65
+881,"phosphatidylserine decarboxylase, heterodimer",4.1.1.65
+882,phosphatidylserine synthase,2.7.8.8
+883,phosphoadenosine phosphosulfate reductase,1.8.4.8
+884,phosphoenolpyruvate carboxylase,4.1.1.31
+885,phosphoenolpyruvate synthetase,2.7.9.2
+886,phosphoglycerate dehydrogenase,1.1.1.95
+887,phosphoglycerate dehydrogenase,1.1.1.399
+888,phosphoribosylaminoimidazole-succinocarboxamide synthase,6.3.2.6
+889,phosphoribosylformylglycinamide cyclo-ligase,6.3.3.1
+890,phosphoserine/phosphohydroxythreonine aminotransferase,2.6.1.52
+891,phosphoserine/phosphohydroxythreonine aminotransferase,2.6.1.17
+892,poly-<i>N</i>-acetyl-D-glucosamine synthase,2.4.1
+893,polynucleotide phosphorylase,3.1.13.1
+894,polynucleotide phosphorylase,2.7.7.8
+895,polyphosphate kinase,2.7.4.1
+896,polysaccharide export complex,2.7.10.2
+897,polysaccharide export complex,2.7.12.1
+898,polysaccharide export complex,2.7.10.1
+899,polysaccharide export complex,""""""
+900,porphobilinogen synthase,4.2.1.24
+901,primosome,2.7.7
+902,primosome,""""""
+903,proline aminopeptidase P II,3.4.11.9
+904,proline&mdash;tRNA ligase,6.1.1.15
+905,proofreading thioesterase in enterobactin biosynthesis,3.1.2
+906,"protease IV, a signal peptide peptidase",3.4.21
+907,protein disulfide isomerase/protein disulfide oxidoreductase - DsbC<sub>oxidised</sub>,5.3.4.1
+908,protein disulfide isomerase/protein disulfide oxidoreductase - DsbC<sub>reduced</sub>,5.3.4.1
+909,protein/nucleic acid deglycase 1,3.5.1.124
+910,protein/nucleic acid deglycase 1,4.2.1.130
+911,protein/nucleic acid deglycase 3,3.5.1.124
+912,protein/nucleic acid deglycase 3,4.2.1
+913,protoporphyrinogen oxidase,1.3.3.4
+914,protoporphyrinogen oxidase,1.3.5.3
+915,pseudouridine-5'-phosphate glycosidase,4.2.1.70
+916,purine nucleoside phosphoramidase,3.9.1
+917,purine nucleoside phosphorylase,2.4.2.1
+918,purine nucleoside phosphorylase,2.4.2.15
+919,PutA DNA-binding transcriptional repressor / proline dehydrogenase / 1-pyrroline-5-carboxylate dehydrogenase,1.5.5.2
+920,PutA DNA-binding transcriptional repressor / proline dehydrogenase / 1-pyrroline-5-carboxylate dehydrogenase,1.2.1.88
+921,putative 3-phenylpropionate/cinnamate dioxygenase,1.14.12.19
+922,putative ABC transporter ArtPQMI,3.6.3.21
+923,putative ABC transporter ArtPQMI,""""""
+924,putative menaquinol-cytochrome <i>c</i> reductase NrfCD,1.10.2.2
+925,"putative oligopeptide ABC transporter ATP binding subunit"" // ""putative oligopeptide ABC transporter membrane subunit YejB"" // ""putative oligopeptide ABC transporter membrane subunit YejE"" // ""putative oligopeptide ABC transporter periplasmic binding protein",3.6.3.23
+926,"putative oligopeptide ABC transporter ATP binding subunit"" // ""putative oligopeptide ABC transporter membrane subunit YejB"" // ""putative oligopeptide ABC transporter membrane subunit YejE"" // ""putative oligopeptide ABC transporter periplasmic binding protein",3.6.3
+927,putative quinone oxidoreductase 1,1.6.5.5
+928,"putative transport complex, ABC superfamily",""""
+929,"putative transport complex, ABC superfamily","2.3.1
+""putative transport complex, ABC superfamily"
+930,putative xanthine dehydrogenase,1.17.1.4
+931,putrescine ABC exporter,3.6.3
+932,putrescine ABC transporter,3.6.3
+933,putrescine aminotransferase,2.6.1.29
+934,"pyridine nucleotide transhydrogenase subunit &beta;"" // ""pyridine nucleotide transhydrogenase subunit &alpha;",1.6.1.5
+935,pyridoxal kinase 2,2.7.1.35
+936,pyridoxal kinase I / hydroxymethylpyrimidine kinase,2.7.1.35
+937,pyridoxal kinase I / hydroxymethylpyrimidine kinase,2.7.1.49
+938,pyridoxal 5-phosphate synthase,1.4.3.5
+939,pyridoxine 5'-phosphate synthase,2.6.99.2
+940,pyrimidine-specific ribonucleoside hydrolase RihB,3.2.2.3
+941,pyrimidine-specific ribonucleoside hydrolase RihB,3.2.2.8
+942,pyrroline-5-carboxylate reductase,1.5.1.2
+943,pyruvate dehydrogenase,1.2.1
+944,pyruvate dehydrogenase,1.2.4.1
+945,pyruvate dehydrogenase,2.3.1.12
+946,pyruvate dehydrogenase,1.8.1.4
+947,"pyruvate dehydrogenase"" // ""pyruvate dehydrogenase, E2 subunit"" // ""lipoamide dehydrogenase",1.8.1.4
+948,"pyruvate dehydrogenase"" // ""pyruvate dehydrogenase, E2 subunit"" // ""lipoamide dehydrogenase",1.2.4.2
+949,"pyruvate dehydrogenase"" // ""pyruvate dehydrogenase, E2 subunit"" // ""lipoamide dehydrogenase",2.3.1.61
+950,"pyruvate dehydrogenase"" // ""pyruvate dehydrogenase, E2 subunit"" // ""lipoamide dehydrogenase",1.4.4.2
+951,"pyruvate dehydrogenase"" // ""pyruvate dehydrogenase, E2 subunit"" // ""lipoamide dehydrogenase",2.1.2.10
+952,"pyruvate dehydrogenase"" // ""pyruvate dehydrogenase, E2 subunit"" // ""lipoamide dehydrogenase",1.2.1
+953,"pyruvate dehydrogenase"" // ""pyruvate dehydrogenase, E2 subunit"" // ""lipoamide dehydrogenase",1.2.4.1
+954,"pyruvate dehydrogenase"" // ""pyruvate dehydrogenase, E2 subunit"" // ""lipoamide dehydrogenase",2.3.1.12
+955,"pyruvate dehydrogenase"" // ""pyruvate dehydrogenase, E2 subunit"" // ""lipoamide dehydrogenase",""""""
+956,pyruvate formate-lyase (inactive),2.3.1.54
+957,pyruvate formate-lyase (inactive),2.3.1
+958,pyruvate kinase I,2.7.1.40
+959,pyruvate kinase II,2.7.1.40
+960,pyruvate oxidase,1.2.5.1
+961,quinolinate phosphoribosyltransferase (decarboxylating),2.4.2.19
+962,quinolinate synthase,2.5.1.72
+963,redox-responsive ATPase YchF,3.6.1.15
+964,redox-responsive ATPase YchF,3.6.1.3
+965,regulator of KefC-mediated potassium transport and quinone oxidoreductase,1.6.5.2
+966,regulator of KefC-mediated potassium transport and quinone oxidoreductase,1.6.5.9
+967,regulatory ATPase RavA,3.6.1.15
+968,regulatory ATPase RavA,3.6.1.3
+969,RelB-RelE antitoxin/toxin complex / DNA-binding transcriptional repressor,3.1.26
+970,RelB-RelE antitoxin/toxin complex / DNA-binding transcriptional repressor,""""""
+971,resolvasome,3.1.22.4
+972,rhamnulose-1-phosphate aldolase,4.1.2.19
+973,"RhlB, ATP-dependent RNA helicase of the RNA degradosome",3.6.4.13
+974,riboflavin synthase,2.5.1.9
+975,ribokinase,2.7.1.15
+976,ribonuclease BN,3.1.26.11
+977,ribonuclease BN,3.1.13.1
+978,ribonuclease E,3.1.26.12
+979,ribonucleoside-diphosphate reductase 1,1.17.4.1
+980,"ribonucleoside-diphosphate reductase 1, &alpha; subunit dimer",1.17.4.1
+981,"ribonucleoside-diphosphate reductase 1, &beta; subunit dimer",1.17.4.1
+982,ribonucleoside-diphosphate reductase 2,1.17.4.1
+983,"ribonucleoside-diphosphate reductase 2, &alpha; subunit dimer",1.17.4.1
+984,"ribonucleoside-diphosphate reductase 2, &beta; subunit dimer",1.17.4.1
+985,ribose-5-phosphate isomerase A,5.3.1.6
+986,ribosomal protein S6 modification protein,6.3.2
+987,ribosomal protein-arginine oxygenase,1.14.11.47
+988,ribulokinase,2.7.1.16
+989,RNA polymerase sigma 19,""""
+990,RNA polymerase sigma 19,"2.7.7.6
+""RNA polymerase sigma 24"
+991,RNA polymerase sigma 32,""""
+992,RNA polymerase sigma 32,"2.7.7.6
+""RNA polymerase sigma 54"
+993,RNase G,3.1.26.12
+994,RNase III,3.1.26.3
+995,RNase T,3.1.13.5
+996,RNase T,3.1.13
+997,RnlA-RnlB toxin-antitoxin complex,3.1.26
+998,RnlA-RnlB toxin-antitoxin complex,""""""
+999,"&alpha; cleavage product of SpeD"" // ""&beta; cleavage product of SpeD",4.1.1.50
+1000,<i>S</i>-formylglutathione hydrolase / <i>S</i>-lactoylglutathione hydrolase,3.1.2.12
+1001,<i>S</i>-formylglutathione hydrolase / <i>S</i>-lactoylglutathione hydrolase,3.1.2.6
+1002,selenate reductase,1.97.1.9
+1003,"selenide, water dikinase",2.7.9.3
+1004,selenocysteine synthase,2.9.1.1
+1005,serine acetyltransferase,2.3.1.30
+1006,serine endoprotease,3.4.21
+1007,serine hydroxymethyltransferase,2.1.2.1
+1008,serine hydroxymethyltransferase,4.1.2
+1009,serine hydroxymethyltransferase,4.1.2.48
+1010,serine hydroxymethyltransferase,4.1.2.49
+1011,serine&mdash;tRNA ligase,6.1.1.11
+1012,shikimate dehydrogenase / quinate dehydrogenase,1.1.1.282
+1013,shikimate dehydrogenase / quinate dehydrogenase,1.1.1.25
+1014,siroheme synthase,2.1.1.107
+1015,siroheme synthase,1.3.1.76
+1016,siroheme synthase,4.99.1.4
+1017,<i>sn</i>-glycerol 3-phosphate / glycerophosphodiester ABC transporter,3.6.3.20
+1018,<i>sn</i>-glycerol 3-phosphate / glycerophosphodiester ABC transporter,3.6.3
+1019,soluble pyridine nucleotide transhydrogenase,1.6.1.2
+1020,soluble pyridine nucleotide transhydrogenase,1.6.1.3
+1021,soluble pyridine nucleotide transhydrogenase,1.6.1.1
+1022,sorbitol-6-phosphate 2-dehydrogenase,1.1.1.140
+1023,sorbitol-specific PTS enzyme II,2.7.1.198
+1024,sorbitol-specific PTS enzyme II,2.7.1.197
+1025,spermidine <i>N</i>-acetyltransferase,2.3.1.57
+1026,spermidine preferential ABC transporter,3.6.3.31
+1027,spermidine preferential ABC transporter,3.6.3
+1028,spermidine synthase,2.5.1.16
+1029,spermidine synthase,2.5.1
+1030,succinate:quinone oxidoreductase subcomplex,1.3.5.1
+1031,succinate:quinone oxidoreductase subcomplex,1.3.5.1
+1032,"succinyl-CoA synthetase subunit &alpha;"" // ""succinyl-CoA synthetase subunit &beta;",6.2.1.5
+1033,succinyl-diaminopimelate desuccinylase,3.5.1.18
+1034,succinylornithine transaminase,2.6.1.81
+1035,succinylornithine transaminase,2.6.1.11
+1036,sulfate adenylyltransferase,2.7.7.4
+1037,sulfate/thiosulfate ABC transporter,3.6.3.25
+1038,"sulfite reductase, flavoprotein subunit complex",1.5.1.30
+1039,"sulfite reductase, flavoprotein subunit complex",1.8.1.2
+1040,sulfoquinovose isomerase,5.3.1.31
+1041,sulfoquinovose isomerase,5.3.1.7
+1042,sulfurtransferase complex TusBCD,2.8.1
+1043,superoxide dismutase (Fe),1.15.1.1
+1044,superoxide dismutase (Mn),1.15.1.1
+1045,"tagatose-1,6-bisphosphate aldolase 1",4.1.2.40
+1046,"tagatose-1,6-bisphosphate aldolase 2",4.1.2.40
+1047,tartronate semialdehyde reductase 2,1.1.1
+1048,"taurine ABC transporter periplasmic binding protein"" // ""taurine ABC transporter membrane subunit"" // ""taurine ABC transporter ATP binding subunit",3.6.3.36
+1049,taurine dioxygenase,1.14.11.17
+1050,tellurite methyltransferase,2.1.1.265
+1051,tetrahydrodipicolinate succinylase,2.3.1.117
+1052,"thiamin ABC transporter ATP binding subunit"" // ""thiamin ABC transporter membrane subunit"" // ""thiamin ABC transporter periplasmic binding protein",3.6.3
+1053,thiazole synthase,4.1.99.19
+1054,thiazole synthase,2.8.1.10
+1055,thioredoxin reductase,1.8.1.9
+1056,thiosulfate sulfurtransferase GlpE,2.8.1
+1057,thiosulfate sulfurtransferase GlpE,2.8.1.1
+1058,thiosulfate sulfurtransferase YgaP,2.8.1.1
+1059,thiosulfate/sulfate ABC transporter,3.6.3.25
+1060,threonine deaminase,4.3.1.19
+1061,threonine dehydrogenase,1.1.1.103
+1062,threonine&mdash;tRNA ligase,6.1.1.3
+1063,thymidine phosphorylase,2.4.2.2
+1064,thymidine phosphorylase,2.4.2.4
+1065,thymidine phosphorylase,2.4.2.3
+1066,thymidylate synthase,2.1.1.45
+1067,transaldolase B,2.2.1.2
+1068,transketolase 1,2.2.1.1
+1069,transketolase 2,2.2.1.1
+1070,trehalose-specific PTS enzyme II,2.7.1.199
+1071,trehalose-specific PTS enzyme II,2.7.1.201
+1072,trehalose-specific PTS enzyme II,2.7.1.192
+1073,trimethylamine N-oxide reductase 1,1.7.2.3
+1074,trimethylamine N-oxide reductase 2,1.7.2.3
+1075,triose-phosphate isomerase,5.3.1.1
+1076,tRNA (cytidine/uridine-2'-<i>O</i>)-ribose methyltransferase,2.1.1.207
+1077,tRNA (cytidine/uridine-2'-<i>O</i>)-ribose methyltransferase,2.1.1
+1078,tRNA adenosine<sup>34</sup> deaminase,3.5.4
+1079,tRNA Cm32/Um32 methyltransferase,2.1.1.200
+1080,tRNA Cm32/Um32 methyltransferase,2.1.1.205
+1081,tRNA cytosine<sup>32</sup> 2-sulfurtransferase TtcA,2.8.1
+1082,tRNA m<sup>1</sup>G37 methyltransferase,2.1.1.228
+1083,tRNA pseudouridine<sup>38-40</sup> synthase,5.4.99.12
+1084,tRNA-guanine transglycosylase,2.4.2.29
+1085,truncated RNase PH,2.7.7.56
+1086,"tryptophan synthase subunit &alpha;"" // ""tryptophan synthase, &beta; subunit dimer",4.2.1.20
+1087,"tryptophan synthase subunit &alpha;"" // ""tryptophan synthase, &beta; subunit dimer",4.1.2.8
+1088,"tryptophan synthase subunit &alpha;"" // ""tryptophan synthase, &beta; subunit dimer",4.2.1.122
+1089,"tryptophan synthase, &beta; subunit dimer",4.2.1.20
+1090,"tryptophan synthase, &beta; subunit dimer",4.1.2.8
+1091,"tryptophan synthase, &beta; subunit dimer",4.2.1.122
+1092,tryptophan&mdash;tRNA ligase,6.1.1.2
+1093,tryptophanase,4.1.99.1
+1094,tryptophanase,4.4.1.1
+1095,tryptophanase,4.4.1.28
+1096,Type II secretion system,3.4.23.43
+1097,Type II secretion system,""""""
+1098,tyrosine aminotransferase,2.6.1.57
+1099,tyrosine aminotransferase,2.6.1.6
+1100,tyrosine aminotransferase,2.6.1.42
+1101,tyrosine aminotransferase,2.6.1.5
+1102,tyrosine&mdash;tRNA ligase,6.1.1.1
+1103,ubiquinol&mdash;[NapC cytochrome <i>c</i>] reductase NapGH,1.10.2.2
+1104,UDP-3-<i>O</i>-(3-hydroxymyristoyl)glucosamine <i>N</i>-acyltransferase,2.3.1.191
+1105,UDP-4-amino-4-deoxy-L-arabinose formyltransferase/UDP-glucuronate dehydrogenase,2.1.2.13
+1106,UDP-4-amino-4-deoxy-L-arabinose formyltransferase/UDP-glucuronate dehydrogenase,1.1.1.305
+1107,UDP-glucose 4-epimerase,5.1.3.2
+1108,UDP-glucose 6-dehydrogenase,1.1.1.22
+1109,UDP-<i>N</i>-acetyl-D-mannosamine dehydrogenase,1.1.1.336
+1110,UDP-<i>N</i>-acetylglucosamine 2-epimerase,5.1.3.14
+1111,UDP-N-acetylglucosamine acyltransferase,2.3.1.129
+1112,UDP-<i>N</i>-acetylglucosamine&mdash;undecaprenyl-phosphate <i>N</i>-acetylglucosaminephosphotransferase,2.7.8.33
+1113,UDP-<i>N</i>-acetylmuramate&mdash;L-alanine ligase,6.3.2.8
+1114,UMP kinase,2.7.4.22
+1115,UMP kinase,2.7.4.14
+1116,undecaprenyl diphosphate synthase,2.5.1.31
+1117,uracil phosphoribosyltransferase,2.4.2.9
+1118,ureidoglycolate dehydrogenase,1.1.1.350
+1119,uridine phosphorylase,2.4.2.2
+1120,uridine phosphorylase,2.4.2.3
+1121,UTP&mdash;glucose-1-phosphate uridylyltransferase,2.7.7.64
+1122,UTP&mdash;glucose-1-phosphate uridylyltransferase,2.7.7.9
+1123,vitamin B<sub>12</sub> ABC transporter,3.6.3.33
+1124,Xaa-Pro dipeptidase,3.4.13.9
+1125,xanthine-guanine phosphoribosyltransferase,2.4.2.22
+1126,xanthine-guanine phosphoribosyltransferase,2.4.2.8
+1127,xanthosine phosphorylase,2.4.2.1
+1128,xanthosine phosphorylase,2.4.2.15
+1129,xanthosine phosphorylase,2.4.2
+1130,ITPase/XTPase,3.6.1
+1131,xylose ABC transporter,3.6.3
+1132,xylose isomerase,5.3.1.5
+1133,xylulokinase,2.7.1.17
+1134,xylulokinase,2.7.1
+1135,YhaV-PrlF toxin-antitoxin complex,3.1.26.1
+1136,YhaV-PrlF toxin-antitoxin complex,""""""
+1137,"Zn<sup>2+</sup> ABC transporter ATP binding subunit"" // ""Zn<sup>2+</sup> ABC transporter membrane subunit"" // ""Zn<sup>2+</sup> ABC transporter periplasmic binding protein",3.6.3
