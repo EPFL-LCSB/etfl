@@ -17,6 +17,16 @@ from collections import defaultdict
 
 import re
 
+def clean_string(s):
+
+   # Remove invalid characters
+   s = re.sub('[^0-9a-zA-Z]', '', s)
+
+   # Remove leading characters until we find a letter or underscore
+   s = re.sub('^[^a-zA-Z]+', '', s)
+
+   return s
+
 
 data_dir = '../organism_data/info_ecoli'
 
@@ -255,7 +265,10 @@ def get_monomers_dict():
     return aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides
 
 
-def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id):
+def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id,
+                                 h2o_id, h_id, pi_id):
+
+    # According to discussions, should only remove GAM
 
     mets_to_rm = dict()
 
@@ -276,22 +289,13 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id):
     # biomass reaction:
     # -54.119975 atp_c + .... --> 53.95 adp_c
 
-    adp = model.metabolites.get_by_id(adp_id)
     atp = model.metabolites.get_by_id(atp_id)
+    adp = model.metabolites.get_by_id(adp_id)
+    pi  = model.metabolites.get_by_id(pi_id)
+    h2o = model.metabolites.get_by_id(h2o_id)
+    h = model.metabolites.get_by_id(h_id)
     atp_recovery = model.growth_reaction.metabolites[adp]
     model.growth_reaction.add_metabolites({atp:-1*atp_recovery})
-
-
-    # Rescale so that stoichiometry adds up to 1:
-    met_dict = model.growth_reaction.metabolites
-    # Be careful to only take lhs stoich
-    new_total_stoich = abs(sum([x for x in met_dict.values() if x<0]))
-
-    # for met, stoich in met_dict.items():
-    #     # to reset the stoich to 0 VVV
-    #     met_dict[met] =     -1*stoich   + stoich*old_total_stoich/new_total_stoich
-    # model.growth_reaction.add_metabolites(met_dict)
-
 
 
 
@@ -499,7 +503,9 @@ def get_aggregated_coupling_dict(model, coupling_dict = dict()):
             if kcat is None:
                 continue
 
-            new_enzyme = Enzyme('{}_{}'.format(x.id,this_complex_name),
+            cleaned_cplx_name = clean_string(this_complex_name)
+
+            new_enzyme = Enzyme('{}_{}'.format(x.id,cleaned_cplx_name),
                                 name='{}_{}: {}'.format(x.id, e, this_complex_name),
                                 kcat=kcat,
                                 kdeg=kdeg_enz)
