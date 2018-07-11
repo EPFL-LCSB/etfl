@@ -9,7 +9,7 @@ ec_cobra = cobra.io.load_json_model('iJO1366_with_xrefs.json')
 # ec_cobra.reactions.ATPM.lower_bound = 0
 growth_reaction_id = 'BIOMASS_Ec_iJO1366_WT_53p95M'
 
-ecoli = load_json_model('models/iJO1366_t_489_256_bins_2018031.json')
+ecoli = load_json_model('models/RelaxedModel iJO1366_T1E1N1_346_enz_256_bins__20180710_071309.json')
 
 uptake_range = pd.Series(list(range(100)))
 
@@ -25,14 +25,8 @@ def simulate(uptake, model):
     return pd.Series([sol.f, model.reactions.EX_glc__D_e.flux*-1])
 
 try:
-    me_data = pd.read_csv('outputs/benchmark_t489_256_bins.csv')
+    me_data = pd.read_csv('outputs/benchmark_T1E1N1.csv')
 except FileNotFoundError:
-    import json
-
-    with open('iJO1366_128_bins_20180312.json', 'r') as fid:
-        md = json.load(fid)
-        fid.close()
-
     me_data = uptake_range.apply(simulate, args=[ecoli])
     me_data.columns = ['mu','uptake']
 
@@ -92,5 +86,5 @@ p1.line(x=uptake_range,y=[me_data['mu'].iloc[-1]]*len(uptake_range),#fit_pl (upt
 
 p1.legend.location = 'bottom_right'
 
-bp.output_file("outputs/iJO1366_growth_regions.html")
+bp.output_file("plots/iJO1366_growth_regions.html")
 bp.show(p1)

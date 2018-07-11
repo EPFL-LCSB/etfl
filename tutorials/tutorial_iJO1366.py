@@ -471,7 +471,7 @@ for x in nt_sequences.index:
     if np.isnan(this_kdeg_mrna):
         this_kdeg_mrna = kdeg_mrna # Average value of 5 mins
 
-    new_mrna = mRNA(x,
+    new_mrna = mRNA(x,`
                     kdeg = this_kdeg_mrna,
                     gene_id = the_gene.id)
     mrna_dict[x] = new_mrna
@@ -509,19 +509,19 @@ ecoli.add_mrnas(mrna_dict.values())
 # b3855: K01985 5S ribosomal RNA | (RefSeq) rrfA; 5S ribosomal RNA of rrnA operon
 # rPeptides:
 # See file ribosomal_proteins_ecoli.tsv
-ecoli.build_expression( aa_dict = aa_dict,
-                        nt_dict = rna_nucleotides,
-                        atp='atp_c',
-                        amp='amp_c',
-                        gtp='gtp_c',
-                        gdp='gdp_c',
-                        ppi='ppi_c',
-                        h2o='h2o_c',
-                        h='h_c',
-                        rnap_genes = ['b3295','b3649','b3987','b3988'],
-                        rrna_genes = ['b3851','b3854','b3855'],
-                        rprot_genes= rpeptide_genes
-                        )
+ecoli.build_expression(aa_dict = aa_dict,
+                       rna_nucleotides= rna_nucleotides,
+                       atp='atp_c',
+                       amp='amp_c',
+                       gtp='gtp_c',
+                       gdp='gdp_c',
+                       ppi='ppi_c',
+                       h2o='h2o_c',
+                       h='h_c',
+                       rnap_genes = ['b3295','b3649','b3987','b3988'],
+                       rrna_genes = ['b3851','b3854','b3855'],
+                       rprot_genes= rpeptide_genes
+                       )
 ecoli.add_enzymatic_coupling(coupling_dict)
 ecoli.populate_expression()
 ecoli.add_degradation()

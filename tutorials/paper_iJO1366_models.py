@@ -6,7 +6,6 @@
 # Values reported are roughly estimated for debugging the model. These are not
 # actual reviewed values.
 
-import cobra
 
 import logging
 
@@ -21,13 +20,14 @@ from therme.core import Enzyme, Ribosome, RNAPolymerase, ThermoMEModel, MEModel
 from therme.io.json import save_json_model
 from pytfa.utils.logger import get_timestr
 
-from etfl_data import   get_model, get_thermo_data, get_coupling_dict, \
+from therme.data.ecoli import   get_model, get_thermo_data, get_coupling_dict, \
                         get_mrna_dict, get_rib, get_rnap, get_monomers_dict, \
                         get_nt_sequences, get_ratios, get_neidhardt_data, \
                         get_mrna_metrics, get_enz_metrics, \
                         remove_from_biomass_equation, get_ecoli_gen_stats
 
-from pytfa.thermo import ThermoModel
+from optlang.exceptions import SolverError
+
 
 data_dir = '../organism_data/info_ecoli'
 
@@ -42,7 +42,8 @@ observed_growth = 0.61 - 0.02
 growth_reaction_id = 'BIOMASS_Ec_iJO1366_WT_53p95M'
 
 
-def create_model(has_thermo, has_expression, has_neidhardt):
+def create_model(has_thermo, has_expression, has_neidhardt,
+                 prot_scaling = 1e6, mrna_scaling=1e6):
     #------------------------------------------------------------
     # Initialisation
     #------------------------------------------------------------
@@ -52,7 +53,7 @@ def create_model(has_thermo, has_expression, has_neidhardt):
     # this hack works because we are using the solver switch to update the var
     # names in the solver but really we should not do this
     # TODO: clean up model.sanitize_varnames
-    vanilla_model = get_model('optlang_glpk')
+    vanilla_model = get_model('optlang-glpk')
     vanilla_model.reactions.EX_glc__D_e.lower_bound = -1 * glc_uptake - glc_uptake_std
     vanilla_model.reactions.EX_glc__D_e.upper_bound = -1 * glc_uptake + glc_uptake_std
 
@@ -70,37 +71,48 @@ def create_model(has_thermo, has_expression, has_neidhardt):
     # Initialize the model
 
     name = 'iJO1366_T{:1}E{:1}N{:1}_{}_enz_{}_bins_{}.json'.format(
-                                                            has_thermo,
-                                                            has_expression,
-                                                            has_neidhardt,
-                                                            len(coupling_dict),
-                                                            n_mu_bins,
-                                                            time_str)
+        has_thermo,
+        has_expression,
+        has_neidhardt,
+        len(coupling_dict),
+        n_mu_bins,
+        time_str)
 
     if has_thermo:
 
         thermo_data, lexicon, compartment_data = get_thermo_data()
 
         ecoli = ThermoMEModel(thermo_data,model = vanilla_model,
-                        growth_reaction = growth_reaction_id,
-                        mu_range = mu_range,
-                        n_mu_bins = n_mu_bins,
-                        max_enzyme_concentration = 1000,
-                        scaling = 1e3,
-                        name = name,
-                        )
+                              growth_reaction = growth_reaction_id,
+                              mu_range = mu_range,
+                              n_mu_bins = n_mu_bins,
+                              max_enzyme_concentration = 1000,
+                              prot_scaling = prot_scaling,
+                              mrna_scaling = mrna_scaling,
+                              name = name,
+                              )
     else:
         ecoli = MEModel(model = vanilla_model,
                         growth_reaction = growth_reaction_id,
                         mu_range = mu_range,
                         n_mu_bins = n_mu_bins,
                         max_enzyme_concentration = 1000,
-                        scaling = 1e3,
+                        prot_scaling = prot_scaling,
+                        mrna_scaling = mrna_scaling,
                         name = name,
                         )
 
     ecoli.name = name
     ecoli.logger.setLevel(logging.WARNING)
+
+
+    # Solver settings
+    ecoli.solver = solver
+    ecoli.solver.configuration.verbosity = 1
+    ecoli.solver.configuration.tolerances.feasibility = 1e-9
+    if solver == 'optlang-gurobi':
+        ecoli.solver.problem.Params.NumericFocus = 3
+    ecoli.solver.configuration.presolve = True
 
 
 
@@ -111,6 +123,9 @@ def create_model(has_thermo, has_expression, has_neidhardt):
 
         # TFA conversion
         ecoli.prepare()
+
+        ecoli.reactions.GLUDy.thermo['computed'] = False
+
         ecoli.convert()#add_displacement = True)
 
 
@@ -126,7 +141,11 @@ def create_model(has_thermo, has_expression, has_neidhardt):
                                  nt_dict = rna_nucleotides,
                                  aa_dict = aa_dict,
                                  atp_id='atp_c',
-                                 adp_id='adp_c')
+                                 adp_id='adp_c',
+                                 pi_id='pi_c',
+                                 h2o_id='h2o_c',
+                                 h_id='h_c',
+                                 )
 
     ##########################
     ##    MODEL CREATION    ##
@@ -183,13 +202,16 @@ def create_model(has_thermo, has_expression, has_neidhardt):
 
     need_relax = False
 
+    ecoli.repair()
+
     try:
         ecoli.optimize()
-    except AttributeError:
+    except (AttributeError, SolverError):
         need_relax = True
 
+    # from ipdb import set_trace; set_trace()
+
     if has_thermo and need_relax:
-        from ipdb import set_trace; set_trace()
         final_model, slack_model, relax_table = relax_dgo(ecoli)
     else:
         final_model = ecoli
@@ -197,16 +219,19 @@ def create_model(has_thermo, has_expression, has_neidhardt):
 
     final_model.growth_reaction.lower_bound = 0
     solution = final_model.optimize()
-    print('Growth               : {}'.format(final_model.solution.f))
+    print('Objective            : {}'.format(final_model.solution.f))
+    print(' - Growth            : {}'.format(final_model.solution.x_dict[growth_reaction_id]))
     print(' - Ribosomes produced: {}'.format(final_model.solution.x_dict.EZ_rib))
     print(' - RNAP produced: {}'.format(final_model.solution.x_dict.EZ_rnap))
 
-    filepath = 'models/{}'.format(ecoli.name)
+    filepath = 'models/{}'.format(final_model.name)
     save_json_model(final_model, filepath)
+
+    return final_model
 
 
 def make_fba_model():
-    ecoli = get_model('optlang_glpk')
+    ecoli = get_model(solver)
     ecoli.reactions.EX_glc__D_e.lower_bound = -1 * glc_uptake - glc_uptake_std
     ecoli.reactions.EX_glc__D_e.upper_bound = -1 * glc_uptake + glc_uptake_std
 
@@ -215,11 +240,11 @@ def make_fba_model():
 
     from cobra.io.json import save_json_model
 
-    save_json_model(ecoli, 'models/iJO1366_T0E0N0_{}'.format(get_timestr()))
+    save_json_model(ecoli, 'models/iJO1366_T0E0N0_{}.json'.format(get_timestr()))
 
 
 def make_thermo_model():
-    vanilla_model = get_model('optlang_glpk')
+    vanilla_model = get_model(solver)
 
     name = 'iJO1366_T1E0N0_{}'.format(get_timestr())
 
@@ -252,19 +277,21 @@ def make_thermo_model():
 
 if __name__ == '__main__':
 
+    models = dict()
+
     # Models defined by Thermo - Expression - Neidhardt
     model_calls = [
-                        # (False,  True,   False),
-                        # (True,   True,   False),
-                        # (False,  True,   True),
+                        (False,  True,   False),
+                        (True,   True,   False),
+                        (False,  True,   True),
                         (True,   True,   True),
                         ]
 
     for mc in model_calls:
-        create_model(*mc)
+        models[mc] = create_model(*mc)
 
     # Make thermo model
-    make_thermo_model()
+    # make_thermo_model()
 
     # Save FBA model
-    make_fba_model()
+    # make_fba_model()
