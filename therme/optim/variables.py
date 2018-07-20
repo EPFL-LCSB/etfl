@@ -116,6 +116,13 @@ class mRNAVariable(GeneVariable):
 
     prefix = 'MR_'
 
+class tRNAVariable(ModelVariable):
+    """
+    Class to represent a tRNA concentration
+    """
+
+    prefix = 'TR_'
+
 class ForwardEnzyme(EnzymeVariable):
     """
     Represents assignment of an enzyme the a forward reaction flux

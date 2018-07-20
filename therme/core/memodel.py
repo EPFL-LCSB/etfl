@@ -25,6 +25,7 @@ from ..utils.utils import replace_by_enzymatic_reaction, replace_by_me_gene
 from .genes import ExpressedGene
 from .dna import DNA
 from .mrna  import mRNA
+from .trna import tRNA
 from .enzyme import Enzyme, Peptide
 from .reactions import EnzymaticReaction, ProteinComplexation, \
     TranslationReaction, TranscriptionReaction, DegradationReaction
@@ -32,7 +33,8 @@ from .expression import build_trna_charging, \
     make_stoich_from_aa_sequence, make_stoich_from_nt_sequence, \
     degrade_peptide, degrade_mrna
 from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,\
-    BackwardCatalyticConstraint, EnzymeMassBalance, mRNAMassBalance, DNAMassBalance, \
+    BackwardCatalyticConstraint, \
+    EnzymeMassBalance, mRNAMassBalance, tRNAMassBalance, DNAMassBalance, \
     GrowthCoupling, TotalCapacity, ExpressionCoupling, RibosomeRatio, \
     GrowthChoice, EnzymeDegradation, mRNADegradation,\
     LinearizationConstraint, SynthesisConstraint, SOS1Constraint,\
@@ -118,6 +120,7 @@ class MEModel(LCSBModel, Model):
         self.trna_dict = dict()
         self.enzymes = DictList()
         self.mrnas = DictList()
+        self.trnas = DictList()
         self.peptides = DictList()
         self.transcription_reactions = DictList()
         self.translation_reactions = DictList()
@@ -264,7 +267,8 @@ class MEModel(LCSBModel, Model):
                     gtp='gtp_c',
                     gdp='gdp_c',
                     h2o='h2o_c',
-                    h='h_c'):
+                    h='h_c',
+                    ppi='ppi_c'):
         """
 
         create dummies to enforce mrna and peptide production even in the
@@ -308,6 +312,7 @@ class MEModel(LCSBModel, Model):
                                                     name = 'Dummy Transcription',
                                                     gene_id=dummy_gene.id,
                                                     enzymes=self.rnap)
+        self.add_reactions([dummy_transcription])
 
         # Use the input ratios to make the stoichiometry
         transcription_mets = {
@@ -315,11 +320,24 @@ class MEModel(LCSBModel, Model):
                     -1 * v * mrna_length / self._mrna_scaling
                 for k,v in nt_ratios.items()
                 }
+        transcription_mets[ppi] = mrna_length/self._mrna_scaling
 
         dummy_transcription.add_metabolites(transcription_mets)
-        self.add_reactions([dummy_transcription])
 
         self.add_mass_balance_constraint(dummy_transcription, dummy_mrna)
+
+        # Add the degradation
+        mrna_deg_stoich = {
+                self.metabolites.get_by_id(self.rna_nucleotides_mp[k]):
+                    -1 * v * mrna_length / self._mrna_scaling
+                for k,v in nt_ratios.items()
+                }
+        mrna_deg_stoich[h2o] = -1 * mrna_length/self._mrna_scaling
+        mrna_deg_stoich[h] = 1 * mrna_length/self._mrna_scaling
+
+        self._make_degradation_reaction(deg_stoich=mrna_deg_stoich,
+                                        macromolecule=dummy_mrna,
+                                        kind=mRNADegradation)
 
 
         # Create a dummy peptide
@@ -342,7 +360,7 @@ class MEModel(LCSBModel, Model):
 
         for k,v in aa_ratios.items():
             the_met_id = self.aa_dict[k]
-            the_charged_trna, the_uncharged_trna = self.trna_dict[the_met_id]
+            the_charged_trna, the_uncharged_trna, _ = self.trna_dict[the_met_id]
             translation_mets[the_charged_trna  ] = -1*v*peptide_length\
                                                    /self._prot_scaling
             translation_mets[the_uncharged_trna] =  1*v*peptide_length\
@@ -358,6 +376,10 @@ class MEModel(LCSBModel, Model):
         translation_mets[self.metabolites.get_by_id( h )] =  2*peptide_length \
                                                              / self._prot_scaling
         translation_mets[dummy_peptide] = 1
+
+        # Do not forget to extract the tRNAs from the stoichiometry, since they
+        # get diluted
+        self._extract_trna_from_reaction(translation_mets, dummy_translation)
 
         dummy_translation.add_metabolites(translation_mets)
 
@@ -376,6 +398,21 @@ class MEModel(LCSBModel, Model):
         self.add_enzymes([dummy_protein])
 
         self.add_mass_balance_constraint(dummy_complexation, dummy_protein)
+
+        # Finally add the degradation flux
+
+        prot_deg_stoich = dict()
+
+        for k, v in aa_ratios.items():
+            the_met_id = self.aa_dict[k]
+            prot_deg_stoich[the_met_id] = v * peptide_length \
+                                                 / self._prot_scaling
+        prot_deg_stoich[h2o] = -1*peptide_length/self._prot_scaling
+
+        self._make_degradation_reaction(deg_stoich=prot_deg_stoich,
+                                        macromolecule=dummy_protein,
+                                        kind=EnzymeDegradation)
+
 
 
     def add_interpolation_variables(self):
@@ -672,6 +709,7 @@ class MEModel(LCSBModel, Model):
                          amp='amp_c',
                          gtp='gtp_c',
                          gdp='gdp_c',
+                         pi='pi_c',
                          ppi='ppi_c',
                          h2o='h2o_c',
                          h='h_c',
@@ -716,6 +754,8 @@ class MEModel(LCSBModel, Model):
         self.rprot_genes = rprot_genes
 
         self.trna_dict = build_trna_charging(self,aa_dict,atp,amp,ppi,h2o,h)
+        self.add_trnas([item for sublist in self.trna_dict.values()
+                        for item in sublist if isinstance(item, tRNA)])
 
         # Check that the ribosomes have been added
         if self.ribosome is None:
@@ -734,10 +774,9 @@ class MEModel(LCSBModel, Model):
             # Build the transcription
             self._add_gene_transcription_reaction(gene,ppi)
             # Build the translation
-            self._add_gene_translation_reaction(gene,gtp,gdp,h2o,h)
+            self._add_gene_translation_reaction(gene,gtp,gdp,pi,h2o,h)
 
-
-    def _add_gene_translation_reaction(self, gene,gtp,gdp,h2o,h):
+    def _add_gene_translation_reaction(self, gene,gtp,gdp,pi,h2o,h):
         """
 
         :param gene: A gene of the model that has sequence data
@@ -757,6 +796,7 @@ class MEModel(LCSBModel, Model):
                                                         self.trna_dict,
                                                         gtp,
                                                         gdp,
+                                                        pi,
                                                         h2o,
                                                         h
                                                         )
@@ -764,6 +804,8 @@ class MEModel(LCSBModel, Model):
         # Scale the stoichiometry
         aa_stoichiometry_scaled = {k: v / self._prot_scaling \
                                    for k, v in aa_stoichiometry.items()}
+
+        self._extract_trna_from_reaction(aa_stoichiometry_scaled, rxn)
 
         rxn.add_metabolites(aa_stoichiometry_scaled)
 
@@ -780,7 +822,13 @@ class MEModel(LCSBModel, Model):
         self.translation_reactions += [rxn]
         self.peptides += [free_peptide]
 
-        
+    def _extract_trna_from_reaction(self, aa_stoichiometry_scaled, rxn):
+        # Extract the tRNAs, since they will be used for a different mass balance
+        # in self.add_trna_mass_balances
+        for met, stoich in list(aa_stoichiometry_scaled.items()):
+            if isinstance(met, tRNA):
+                rxn.trna_stoich[met.id] = aa_stoichiometry_scaled.pop(met)
+
     def _add_gene_transcription_reaction(self, gene, ppi):
         """
 
@@ -812,6 +860,38 @@ class MEModel(LCSBModel, Model):
 
         self.transcription_reactions += [rxn]
 
+    def add_trna_mass_balances(self):
+        """
+        Once the tRNAs, transcription and translation reactions have been added,
+        we need to add the constraints:
+        d/dt [charged_tRNA]   =  v_charging - sum(nu_trans*v_trans) - mu*[charged_tRNA]
+        d/dt [uncharged_tRNA] = -v_charging + sum(nu_trans*v_trans) - mu*[uncharged_tRNA]
+        :return:
+        """
+
+        translation_fluxes = self.translation_reactions.list_attr('forward_variable')
+
+        for _, (charged_trna, uncharged_trna, charging_rxn) in self.trna_dict.items():
+
+            # Charged tRNAs are generated with the charging reaction, consumed
+            # by translation
+            charged_stoichs = [translation.trna_stoich[charged_trna.id] for
+                                    translation in self.translation_reactions]
+
+            charged_expr = charging_rxn.forward_variable \
+                           + symbol_sum([x*y for x,y in zip(charged_stoichs,translation_fluxes)])
+            self.add_mass_balance_constraint(synthesis_flux=charged_expr,
+                                             macromolecule=charged_trna)
+
+            # Uncharged tRNAs are generated whenever translation happens,
+            # consumed by charging
+            uncharged_stoichs = [translation.trna_stoich[uncharged_trna.id] for
+                                    translation in self.translation_reactions]
+
+            uncharged_expr = -1 * charging_rxn.forward_variable + \
+                             symbol_sum([x*y for x,y in zip(uncharged_stoichs,translation_fluxes)])
+            self.add_mass_balance_constraint(synthesis_flux=uncharged_expr,
+                                             macromolecule=uncharged_trna)
 
     def add_enzymatic_coupling(self, coupling_dict):
         """
@@ -910,32 +990,41 @@ class MEModel(LCSBModel, Model):
     def add_mass_balance_constraint(self, synthesis_flux, macromolecule):
         """
         Adds a mass balance constraint of the type
-        d[E]/dt = 0 <=> v_complexation - k_deg*[M] - μ*[M] = 0
+        d[E]/dt = 0 <=> v_synthesis - k_deg*[M] - μ*[M] = 0
         for a macromolecule (mRNA or enzyme)
         :param synthesis_flux:
         :param macromolecule:
         :return:
         """
+
         # Add the mass_balance constraint
-        v_complexation = synthesis_flux.forward_variable \
-                         - synthesis_flux.reverse_variable
+        if isinstance(synthesis_flux, Reaction):
+            # It is not a sympy expression, so we make it from the reaction
+            # variables
+            v_synthesis = synthesis_flux.forward_variable \
+                          - synthesis_flux.reverse_variable
+        elif isinstance(synthesis_flux, sympy.Expr) \
+                or isinstance(synthesis_flux, optlang.interface.Variable)\
+                or isinstance(synthesis_flux, int):
+            # We already have a sympy expression
+            v_synthesis = synthesis_flux
 
         # This is different if mu is a variable: we need to take care of the
         # bilinear constraint
-        if isinstance(self.mu, optlang.Variable) \
+        if isinstance(self.mu, optlang.interface.Variable) \
                 or isinstance(self.mu, GenericVariable):
             # replace μ*E by z = sum(ga_i*μ_i*E), with ga_i binary variables
             # choosing between the mu_i
             z = self.linearize_me(macromolecule)
-            mass_balance_expr = v_complexation \
+            mass_balance_expr = v_synthesis \
                                 - macromolecule.kdeg * macromolecule.variable \
-                                    -   z
+                                -   z
 
         else:
             # μ is fixed
-            mass_balance_expr = v_complexation \
+            mass_balance_expr = v_synthesis \
                                 - macromolecule.kdeg * macromolecule.variable \
-                                    - self.mu * macromolecule.variable
+                                - self.mu * macromolecule.variable
 
         kwargs = dict()
         if isinstance(macromolecule, Enzyme):
@@ -947,6 +1036,10 @@ class MEModel(LCSBModel, Model):
         elif isinstance(macromolecule, DNA):
             kind = DNAMassBalance
             kwargs['id_'] = 'dna'
+            hook = self
+        elif isinstance(macromolecule, tRNA):
+            kind = tRNAMassBalance
+            kwargs['id_'] = macromolecule.id
             hook = self
         else:
             raise Exception('Macro-molecule type not recognized: {}'
@@ -988,7 +1081,7 @@ class MEModel(LCSBModel, Model):
 
     def linearize_me(self, enzyme):
         """
-        Performs Petersen linearization on μ*E to stay an MILP problem
+        Performs Petersen linearization on μ*E to keep a MILP problem
 
         :return:
         """
@@ -1185,7 +1278,7 @@ class MEModel(LCSBModel, Model):
         """
         Adds a mRNA object, or iterable of mRNA objects, to the model
         :param mrna_list:
-        :type enzyme_list:Iterable(mRNA) or mRNA
+        :type mrna_list:Iterable(mRNA) or mRNA
         :return:
         """
         if not hasattr(mrna_list, '__iter__'):
@@ -1193,7 +1286,7 @@ class MEModel(LCSBModel, Model):
         if len(mrna_list) == 0:
             return None
 
-        # First check whether the enzymes exist in the model
+        # First check whether the mRNAs exist in the model
             mrna_list = [x for x in mrna_list if x.id not in self.mrnas]
 
         for mrna in mrna_list:
@@ -1205,6 +1298,30 @@ class MEModel(LCSBModel, Model):
 
         self.mrnas += mrna_list
 
+    def add_trnas(self, trna_list):
+        """
+        Adds a tRNA object, or iterable of tRNA objects, to the model
+        :param trna_list:
+        :type trna_list:Iterable(tRNA) or tRNA
+        :return:
+        """
+        if not hasattr(trna_list, '__iter__'):
+            trna_list = [trna_list]
+        if len(trna_list) == 0:
+            return None
+
+
+        # First check whether the tRNAs exist in the model
+            trna_list = [x for x in trna_list if x.id not in self.trnas]
+
+        for trna in trna_list:
+            trna._model = self
+            trna.init_variable()
+
+        for trna in trna_list:
+            trna.variable.ub = self.max_enzyme_concentration
+
+        self.trnas += trna_list
 
     def add_dna(self, dna):
         """
@@ -1265,21 +1382,21 @@ class MEModel(LCSBModel, Model):
         return new_enzymes
 
 
-    def add_degradation(self, rna_nucleotides_mp):
+    def add_degradation(self, rna_nucleotides_mp, h2o='h2o_c', h='h_c'):
         for enzyme in self.enzymes:
-            self._add_enzyme_degradation(enzyme)
+            self._add_enzyme_degradation(enzyme, h2o)
 
         self.rna_nucleotides_mp = rna_nucleotides_mp
 
         for mRNA in self.mrnas:
-            self._add_mrna_degradation(mRNA)
+            self._add_mrna_degradation(mRNA, h2o, h)
 
 
         self._update()
         self.regenerate_variables()
         self.regenerate_constraints()
 
-    def _add_enzyme_degradation(self, enzyme):
+    def _add_enzyme_degradation(self, enzyme, h2o):
 
         if enzyme.kdeg is None or np.isnan(enzyme.kdeg):
             return None
@@ -1288,56 +1405,42 @@ class MEModel(LCSBModel, Model):
         deg_stoich = defaultdict(int)
         for peptide, stoich in complex_dict.items():
             degradation_mets = degrade_peptide(peptide,
-                                               self.aa_dict)
+                                               self.aa_dict,
+                                               h2o)
             for k,v in degradation_mets.items():
                 deg_stoich[k]+=-1*v*stoich/self._prot_scaling # v is negative
 
-        reaction = DegradationReaction(id='{}_degradation'.format(enzyme.id))
-
-        # Assignment to model must be done before since met dict kas string keys
-        self.add_reactions([reaction])
-        self.degradation_reactions+=[reaction]
-
-        reaction.add_metabolites(deg_stoich)
-
-        # Couple with the expression constraint v_deg = k_deg [E]
-        vnet = reaction.forward_variable - reaction.reverse_variable
-        expr = vnet - enzyme.kdeg * enzyme.variable
-
-        self.add_constraint(kind=EnzymeDegradation,
-                            hook=enzyme,
-                            expr=expr,
-                            lb=0,
-                            ub=0,
-                            queue=True)
+        self._make_degradation_reaction(deg_stoich, enzyme, EnzymeDegradation, queue=True)
+        self._update()
 
 
-    def _add_mrna_degradation(self, mrna):
+    def _add_mrna_degradation(self, mrna, h2o, h):
 
         if mrna.kdeg is None or np.isnan(mrna.kdeg):
             return None
 
-        degradation_mets = degrade_mrna(mrna, self.rna_nucleotides_mp)
+        degradation_mets = degrade_mrna(mrna, self.rna_nucleotides_mp, h2o, h)
         deg_stoich = {k:v/self._mrna_scaling for k,v in degradation_mets.items()}
 
+        self._make_degradation_reaction(deg_stoich,mrna,mRNADegradation)
 
-        reaction = DegradationReaction(id='{}_degradation'.format(mrna.id))
 
+    def _make_degradation_reaction(self, deg_stoich, macromolecule, kind, queue=False):
+        reaction = DegradationReaction(id='{}_degradation'.format(macromolecule.id))
         # Assignment to model must be done before since met dict kas string keys
         self.add_reactions([reaction])
-        self.degradation_reactions+=[reaction]
-
+        self.degradation_reactions += [reaction]
         reaction.add_metabolites(deg_stoich)
         # Couple with the expression constraint v_deg = k_deg [E]
         vnet = reaction.forward_variable - reaction.reverse_variable
-        expr = vnet - mrna.kdeg * mrna.variable
-
-        self.add_constraint(kind=mRNADegradation,
-                            hook=mrna,
+        expr = vnet - macromolecule.kdeg * macromolecule.variable
+        self.add_constraint(kind=kind,
+                            hook=macromolecule,
                             expr=expr,
                             lb=0,
                             ub=0,
-                            queue=True)
+                            queue=queue)
+
 
 
     def populate_expression(self):

@@ -11,6 +11,7 @@ ME-related Reaction subclasses and methods definition
 
 """
 from cobra import Reaction, DictList
+from _collections import defaultdict
 
 
 class ExpressionReaction(Reaction):
@@ -77,7 +78,7 @@ class EnzymaticReaction(ExpressionReaction):
 
 
     def add_enzymes(self, enzymes):
-        """
+        """`
         Method to add the enzymes to the reaction.
         :param enzymes: iterable of or single Enzyme object
         :return:
@@ -139,6 +140,7 @@ class TranslationReaction(EnzymaticReaction):
                                    enzymes=enzymes,
                                    **kwargs)
         self._gene_id = gene_id
+        self.trna_stoich = defaultdict(int)
 
     @property
     def gene(self):

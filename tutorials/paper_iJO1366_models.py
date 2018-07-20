@@ -125,6 +125,8 @@ def create_model(has_thermo, has_expression, has_neidhardt,
         ecoli.prepare()
 
         ecoli.reactions.GLUDy.thermo['computed'] = False
+        # ecoli.reactions.DHAtpp.thermo['computed'] = False
+        ecoli.reactions.MLTP2.thermo['computed'] = False
 
         ecoli.convert()#add_displacement = True)
 
@@ -162,6 +164,7 @@ def create_model(has_thermo, has_expression, has_neidhardt,
                            amp='amp_c',
                            gtp='gtp_c',
                            gdp='gdp_c',
+                           pi='pi_c',
                            ppi='ppi_c',
                            h2o='h2o_c',
                            h='h_c',
@@ -171,7 +174,9 @@ def create_model(has_thermo, has_expression, has_neidhardt,
                            )
     ecoli.add_enzymatic_coupling(coupling_dict)
     ecoli.populate_expression()
-    ecoli.add_degradation(rna_nucleotides_mp = rna_nucleotides_mp)
+    ecoli.add_degradation(rna_nucleotides_mp = rna_nucleotides_mp,
+                          h2o='h2o_c',
+                          h='h_c')
 
     if has_neidhardt:
 
@@ -187,7 +192,12 @@ def create_model(has_thermo, has_expression, has_neidhardt,
                           mrna_length=mrna_length_avg,
                           aa_ratios=aa_ratios,
                           enzyme_kdeg=kdeg_enz,
-                          peptide_length=peptide_length_avg)
+                          peptide_length=peptide_length_avg,
+                          gtp='gtp_c',
+                          gdp='gdp_c',
+                          h2o='h2o_c',
+                          h='h_c',
+                          ppi='ppi_c')
         ecoli.add_protein_mass_requirement(neidhardt_mu, neidhardt_prel)
         ecoli.add_rna_mass_requirement(neidhardt_mu, neidhardt_rrel)
         ecoli.add_dna_mass_requirement(mu_values=neidhardt_mu,
@@ -195,6 +205,9 @@ def create_model(has_thermo, has_expression, has_neidhardt,
                                        gc_ratio=gc_ratio,
                                        chromosome_len=chromosome_len,
                                        dna_dict=dna_nucleotides)
+
+    # Need to be put after, because dummy has to be taken into account if used.
+    ecoli.add_trna_mass_balances()
 
 
     ecoli.print_info()
@@ -282,9 +295,9 @@ if __name__ == '__main__':
     # Models defined by Thermo - Expression - Neidhardt
     model_calls = [
                         (False,  True,   False),
-                        (True,   True,   False),
                         (False,  True,   True),
-                        (True,   True,   True),
+                        # (True,   True,   False),
+                        # (True,   True,   True),
                         ]
 
     for mc in model_calls:
