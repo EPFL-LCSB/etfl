@@ -4,7 +4,7 @@
    :platform: Unix, Windows
    :synopsis: Thermodynamics-based Flux Analysis
 
-.. moduleauthor:: pyTFA team
+.. moduleauthor:: ETFL team
 
 ME-related Enzyme subclasses and methods definition
 
@@ -12,15 +12,15 @@ ME-related Enzyme subclasses and methods definition
 """
 
 from ..optim.variables import EnzymeVariable, ForwardEnzyme, BackwardEnzyme
-from ..optim.constraints import TotalEnzyme
 from cobra import Species, Metabolite, DictList
 from Bio.SeqUtils import molecular_weight
+from .macromolecule import Macromolecule
 
 
-class Enzyme(Species):
+class Enzyme(Macromolecule):
     def __init__(self, id=None, kcat=None, kcat_fwd=None, kcat_bwd=None,
                  kdeg=None, *args, **kwargs):
-        Species.__init__(self, id = id, *args, **kwargs)
+        Macromolecule.__init__(self, id = id, kdeg=kdeg, *args, **kwargs)
 
         if kcat is not None:
             self.kcat_fwd = kcat
@@ -32,10 +32,8 @@ class Enzyme(Species):
             self.kcat_fwd = kcat_fwd
             self.kcat_bwd = kcat_bwd
 
-        self.kdeg = kdeg
         self.composition = None
         self.complexation = None
-
 
     def init_variable(self, queue=False):
         """
@@ -44,33 +42,15 @@ class Enzyme(Species):
 
         :return:
         """
-        self._enzyme_variable = self.model.add_variable(EnzymeVariable,
+        self._internal_variable = self.model.add_variable(EnzymeVariable,
                                                         self,
-                                                        queue=False)
-
-    @property
-    def variable(self):
-        """
-        For convenience in the equations of the constraints
-
-        :return:
-        """
-        try:
-            return self._enzyme_variable.variable
-        except AttributeError:
-            self.throw_nomodel_error()
+                                                        queue=queue)
 
     @property
     def molecular_weight(self):
         # /!\ stoichiometric coefficient is negative
         return sum(-1*v*p.molecular_weight
                 for p,v in self.complexation.metabolites.items())
-
-
-    def throw_nomodel_error(self):
-        self.model.logger.warning('''{} has no model attached - variable attribute
-         is not available'''.format(self.id))
-
 
 
 

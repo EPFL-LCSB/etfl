@@ -4,7 +4,7 @@
    :platform: Unix, Windows
    :synopsis: Thermodynamics-based Flux Analysis
 
-.. moduleauthor:: pyTFA team
+.. moduleauthor:: ETFL team
 
 ME-related Enzyme subclasses and methods definition
 
@@ -12,16 +12,15 @@ ME-related Enzyme subclasses and methods definition
 """
 
 from ..optim.variables import mRNAVariable
-from cobra import Species, Metabolite, DictList
 from Bio.SeqUtils import molecular_weight
+from .macromolecule import Macromolecule
 
 
 
-class mRNA(Species):
+class mRNA(Macromolecule):
     def __init__(self, id=None, kdeg=None, gene_id=None, *args, **kwargs):
-        Species.__init__(self, id = id, *args, **kwargs)
+        Macromolecule.__init__(self, id = id, kdeg=kdeg, *args, **kwargs)
 
-        self.kdeg = kdeg
         self._gene_id = gene_id
         self._molecular_weight_override = 0
 
@@ -45,7 +44,7 @@ class mRNA(Species):
 
         :return:
         """
-        self._mrna_variable = self.model.add_variable(mRNAVariable,
+        self._internal_variable = self.model.add_variable(mRNAVariable,
                                                         self,
                                                         queue=queue)
 
@@ -59,16 +58,3 @@ class mRNA(Species):
     @molecular_weight.setter
     def molecular_weight(self, value):
         self._molecular_weight_override = value
-
-    @property
-    def variable(self):
-        """
-        For convenience in the equations of the constraints
-
-        :return:
-        """
-        try:
-            return self._mrna_variable.variable
-        except AttributeError:
-            self.model.logger.warning('''{} has no model attached - variable attribute
-             is not available'''.format(self.id))
