@@ -24,8 +24,7 @@ from ..utils.parsing import parse_gpr
 from ..utils.utils import replace_by_enzymatic_reaction, replace_by_me_gene
 from .genes import ExpressedGene
 from .dna import DNA
-from .mrna  import mRNA
-from .trna import tRNA
+from .rna  import mRNA,rRNA, tRNA
 from .enzyme import Enzyme, Peptide
 from .reactions import EnzymaticReaction, ProteinComplexation, \
     TranslationReaction, TranscriptionReaction, DegradationReaction
@@ -33,8 +32,8 @@ from .expression import build_trna_charging, \
     make_stoich_from_aa_sequence, make_stoich_from_nt_sequence, \
     degrade_peptide, degrade_mrna
 from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,\
-    BackwardCatalyticConstraint, \
-    EnzymeMassBalance, mRNAMassBalance, tRNAMassBalance, DNAMassBalance, \
+    BackwardCatalyticConstraint, EnzymeMassBalance, \
+    rRNAMassBalance, mRNAMassBalance, tRNAMassBalance, DNAMassBalance, \
     GrowthCoupling, TotalCapacity, ExpressionCoupling, RibosomeRatio, \
     GrowthChoice, EnzymeDegradation, mRNADegradation,\
     LinearizationConstraint, SynthesisConstraint, SOS1Constraint,\
@@ -120,6 +119,7 @@ class MEModel(LCSBModel, Model):
         self.trna_dict = dict()
         self.enzymes = DictList()
         self.mrnas = DictList()
+        self.rrnas = DictList()
         self.trnas = DictList()
         self.peptides = DictList()
         self.transcription_reactions = DictList()
@@ -302,10 +302,10 @@ class MEModel(LCSBModel, Model):
         dummy_mrna = mRNA(id='dummy_gene',
                           name='dummy mRNA',
                           kdeg=mrna_kdeg)
-        
+
         nt_weights = [v*molecular_weight(k, 'RNA') for k,v in nt_ratios.items()]
         dummy_mrna.molecular_weight = mrna_length*sum(nt_weights)/ 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
-        
+
         self.add_mrnas([dummy_mrna])
 
         dummy_transcription = TranscriptionReaction(id='dummy_transcription',
@@ -344,7 +344,7 @@ class MEModel(LCSBModel, Model):
         dummy_peptide = Peptide(id='dummy_peptide',
                                 name='Dummy peptide',
                                 gene_id=dummy_gene.id)
-        
+
         aa_weights = [v*molecular_weight(k, 'protein') for k,v in aa_ratios.items()]
 
         dummy_peptide.molecular_weight = peptide_length*sum(aa_weights)/ 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
@@ -776,6 +776,7 @@ class MEModel(LCSBModel, Model):
             # Build the translation
             self._add_gene_translation_reaction(gene,gtp,gdp,pi,h2o,h)
 
+
     def _add_gene_translation_reaction(self, gene,gtp,gdp,pi,h2o,h):
         """
 
@@ -788,7 +789,8 @@ class MEModel(LCSBModel, Model):
             id='{}_translation'.format(gene.id),
             name='Translation, {}'.format(gene.id),
             gene_id= gene.id,
-            enzymes=self.ribosome)
+            enzymes=self.ribosome,
+            upper_bound = self.max_enzyme_concentration)
         self.add_reactions([rxn])
 
         aa_stoichiometry = make_stoich_from_aa_sequence(gene.peptide,
@@ -837,10 +839,11 @@ class MEModel(LCSBModel, Model):
         :return:
         """
         rxn = TranscriptionReaction(
-            id='{}_transcription'.format(gene.id),
+            id=self._get_transcription_name(gene.id),
             name='Transcription, {}'.format(gene.id),
             gene_id= gene.id,
-            enzymes=self.rnap)
+            enzymes=self.rnap,
+            upper_bound=self.max_enzyme_concentration)
         self.add_reactions([rxn])
 
         nt_stoichiometry = make_stoich_from_nt_sequence(gene.rna,
@@ -987,6 +990,30 @@ class MEModel(LCSBModel, Model):
                             expr=enz_constraint_expr_bwd, ub=0)
 
 
+
+    def _update_rrna_mass_balance(self, mass_balance_expr):
+        """
+        We need not forget the mRNAs that are part of the ribosome complex
+        However since they are not ordinary metabolites, we have to add directly
+        the term -v*complexation to the mass balance constraint
+
+        :return:
+        """
+
+        # d[rRNA]/dt = v_transcription - v_complexation
+        # σ_m * d[rRNA]/dt = σ_m * v_transcription \
+        #                   - σ_m/σ_p * σ_p * v_complexation
+        # d[rRNA]_hat/dt = v_transcription_hat - σ_m/σ_p * v_complexation_hat
+
+        scaling_factor = self._mrna_scaling / self._prot_scaling
+
+        vrib = self.ribosome.complexation.forward_variable - \
+               self.ribosome.complexation.reverse_variable
+
+        mass_balance_expr += -1 * scaling_factor * vrib
+
+        return mass_balance_expr
+
     def add_mass_balance_constraint(self, synthesis_flux, macromolecule):
         """
         Adds a mass balance constraint of the type
@@ -997,34 +1024,7 @@ class MEModel(LCSBModel, Model):
         :return:
         """
 
-        # Add the mass_balance constraint
-        if isinstance(synthesis_flux, Reaction):
-            # It is not a sympy expression, so we make it from the reaction
-            # variables
-            v_synthesis = synthesis_flux.forward_variable \
-                          - synthesis_flux.reverse_variable
-        elif isinstance(synthesis_flux, sympy.Expr) \
-                or isinstance(synthesis_flux, optlang.interface.Variable)\
-                or isinstance(synthesis_flux, int):
-            # We already have a sympy expression
-            v_synthesis = synthesis_flux
-
-        # This is different if mu is a variable: we need to take care of the
-        # bilinear constraint
-        if isinstance(self.mu, optlang.interface.Variable) \
-                or isinstance(self.mu, GenericVariable):
-            # replace μ*E by z = sum(ga_i*μ_i*E), with ga_i binary variables
-            # choosing between the mu_i
-            z = self.linearize_me(macromolecule)
-            mass_balance_expr = v_synthesis \
-                                - macromolecule.kdeg * macromolecule.variable \
-                                -   z
-
-        else:
-            # μ is fixed
-            mass_balance_expr = v_synthesis \
-                                - macromolecule.kdeg * macromolecule.variable \
-                                - self.mu * macromolecule.variable
+        mass_balance_expr = self._make_mass_balance_expr(macromolecule, synthesis_flux)
 
         kwargs = dict()
         if isinstance(macromolecule, Enzyme):
@@ -1033,6 +1033,10 @@ class MEModel(LCSBModel, Model):
         elif isinstance(macromolecule, mRNA):
             kind = mRNAMassBalance
             hook = macromolecule
+        elif isinstance(macromolecule, rRNA):
+            kind = rRNAMassBalance
+            hook = macromolecule
+            mass_balance_expr = self._update_rrna_mass_balance(mass_balance_expr)
         elif isinstance(macromolecule, DNA):
             kind = DNAMassBalance
             kwargs['id_'] = 'dna'
@@ -1051,6 +1055,37 @@ class MEModel(LCSBModel, Model):
                             lb=0, ub=0,
                             **kwargs)
 
+
+
+    def _make_mass_balance_expr(self, macromolecule, synthesis_flux):
+        # Add the mass_balance constraint
+        if isinstance(synthesis_flux, Reaction):
+            # It is not a sympy expression, so we make it from the reaction
+            # variables
+            v_synthesis = synthesis_flux.forward_variable \
+                          - synthesis_flux.reverse_variable
+        elif isinstance(synthesis_flux, sympy.Expr) \
+                or isinstance(synthesis_flux, optlang.interface.Variable) \
+                or isinstance(synthesis_flux, int):
+            # We already have a sympy expression
+            v_synthesis = synthesis_flux
+        # This is different if mu is a variable: we need to take care of the
+        # bilinear constraint
+        if isinstance(self.mu, optlang.interface.Variable) \
+                or isinstance(self.mu, GenericVariable):
+            # replace μ*E by z = sum(ga_i*μ_i*E), with ga_i binary variables
+            # choosing between the mu_i
+            z = self.linearize_me(macromolecule)
+            mass_balance_expr = v_synthesis \
+                                - macromolecule.kdeg * macromolecule.variable \
+                                - z
+
+        else:
+            # μ is fixed
+            mass_balance_expr = v_synthesis \
+                                - macromolecule.kdeg * macromolecule.variable \
+                                - self.mu * macromolecule.variable
+        return mass_balance_expr
 
     def is_me_compatible(self, reaction):
         # Test if the GPR is a proper one:
@@ -1298,6 +1333,30 @@ class MEModel(LCSBModel, Model):
 
         self.mrnas += mrna_list
 
+    def add_rrnas(self):
+
+        rrnas = []
+
+        for the_rrna_id in self.rrna_genes:
+            the_rrna = rRNA(id = the_rrna_id,
+                            kdeg = 0, # They get complexed right away ?
+                            name = 'rRNA {}'.format(the_rrna_id),
+                            gene_id=the_rrna_id)
+
+            the_rrna._model = self
+            the_rrna.init_variable()
+            the_rrna.variable.ub = self.max_enzyme_concentration
+
+            rrnas.append(the_rrna)
+
+            synthesis = self.transcription_reactions.get_by_id(
+                self._get_transcription_name(the_rrna_id))
+            self.add_mass_balance_constraint(synthesis, the_rrna)
+
+        self.rrnas += rrnas
+
+
+
     def add_trnas(self, trna_list):
         """
         Adds a tRNA object, or iterable of tRNA objects, to the model
@@ -1442,7 +1501,6 @@ class MEModel(LCSBModel, Model):
                             queue=queue)
 
 
-
     def populate_expression(self):
         """
         Add the coupling between mRNA availability and ribosome charging
@@ -1466,17 +1524,19 @@ class MEModel(LCSBModel, Model):
         self._populate_rnap()
         self._populate_ribosomes()
 
+        # Now that the ribosome has a complexation reaction, we can add the
+        # ribosomal RNAs, and their consumption
+        self.add_rrnas()
+
         ribo_footprint_size = 60 # see docstring
 
         self._update()
 
-
         for the_mrna in self.mrnas:
 
             # Get the synthesis_flux
-            syn_id = '{}_transcription'.format(the_mrna.id)
+            syn_id = self._get_transcription_name(the_mrna.id)
             syn = self.transcription_reactions.get_by_id(syn_id)
-
             # Add the mass balance constraint for the mrna
             self.add_mass_balance_constraint(syn, the_mrna)
 
@@ -1512,6 +1572,9 @@ class MEModel(LCSBModel, Model):
         self._update()
         self.regenerate_variables()
         self.regenerate_constraints()
+
+    def _get_transcription_name(self, the_mrna_id):
+        return '{}_transcription'.format(the_mrna_id)
 
     def add_rnap(self, rnap):
         """
@@ -1656,7 +1719,7 @@ class MEModel(LCSBModel, Model):
     @property
     def Rt(self):
         return self.ribosome.variable
-
+        return self.ribosome.variable
 
     def _populate_ribosomes(self):
         """
@@ -1673,17 +1736,6 @@ class MEModel(LCSBModel, Model):
         # /!\ rRNA has mRNA scaling, while peptides have protein scaling
 
         # σ_m is mRNA scaling factor, σ_p is protein scaling factor
-        # d[rRNA]/dt = v_transcription - v_complexation
-        # σ_m * d[rRNA]/dt = σ_m * v_transcription \
-        #                   - σ_m/σ_p * σ_p * v_complexation
-        # d[rRNA]_hat/dt = v_transcription_hat - σ_m/σ_p * v_complexation_hat
-
-        scaling_factor = self._mrna_scaling/self._prot_scaling
-
-        rrna_stoich = defaultdict(int)
-        for rrna_id in self.rrna_genes:
-            rrna_stoich[self.mrnas.get_by_id(rrna_id)] -= 1*scaling_factor
-
 
         # d[rProt]/dt = v_translation - v_complexation
         # σ_p * d[rProt]/dt = σ_p * v_translation - σ_p * v_complexation
@@ -1693,13 +1745,12 @@ class MEModel(LCSBModel, Model):
         for rprot_id in self.rprot_genes:
             rprot_stoich[self.peptides.get_by_id(rprot_id)] -= 1
 
-        rib_stoich = rrna_stoich.copy()
-        rib_stoich.update(rprot_stoich)
 
         complexation = ProteinComplexation(id='rib_complex', name='Ribosome complexation')
-        complexation.add_metabolites(rib_stoich)
+        complexation.add_metabolites(rprot_stoich)
 
         self.add_reactions([complexation])
+
         # Add it to a specific index
         self.complexation_reactions += [complexation]
         self.ribosome.complexation = complexation

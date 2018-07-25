@@ -111,6 +111,13 @@ class mRNAMassBalance(GeneConstraint):
 
     prefix = 'MB_'
 
+class rRNAMassBalance(GeneConstraint):
+    """
+    Class to represent a mRNA mass balance constraint
+    """
+
+    prefix = 'RB_'
+
 class tRNAMassBalance(ModelConstraint):
     """
     Class to represent a tRNA mass balance constraint

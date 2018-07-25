@@ -11,7 +11,7 @@ ME-related Reaction subclasses and methods definition
 
 """
 from cobra import Reaction, Metabolite
-from .trna import tRNA
+from .rna import tRNA
 
 from collections import defaultdict
 

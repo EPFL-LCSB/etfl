@@ -116,6 +116,13 @@ class mRNAVariable(GeneVariable):
 
     prefix = 'MR_'
 
+class rRNAVariable(GeneVariable):
+    """
+    Class to represent a mRNA concentration
+    """
+
+    prefix = 'RR_'
+
 class tRNAVariable(ModelVariable):
     """
     Class to represent a tRNA concentration

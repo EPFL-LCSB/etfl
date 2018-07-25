@@ -10,8 +10,8 @@ from pytfa.io import load_thermoDB,                    \
                             read_lexicon, annotate_from_lexicon,            \
                             read_compartment_data, apply_compartment_data
 
-from therme.core import Enzyme, Ribosome, RNAPolymerase, ThermoMEModel, MEModel
-from therme.core.mrna import mRNA
+from ..core import Enzyme, Ribosome, RNAPolymerase, ThermoMEModel, MEModel
+from ..core.rna import mRNA
 
 from collections import defaultdict
 

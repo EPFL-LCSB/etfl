@@ -18,7 +18,7 @@ from pytfa.thermo.tmodel import ThermoModel
 
 from ..core.enzyme import Enzyme, Ribosome, Peptide, RNAPolymerase
 from ..core.memodel import MEModel
-from ..core.mrna import mRNA
+from ..core.rna import mRNA
 from ..core.reactions import TranslationReaction, TranscriptionReaction, \
     EnzymaticReaction, ProteinComplexation, DegradationReaction
 from ..core.thermomemodel import ThermoMEModel
@@ -44,6 +44,7 @@ def enzyme_to_dict(enzyme):
     obj['kcat_bwd'] = enzyme.kcat_bwd
     obj['kdeg'] = enzyme.kdeg
     obj['varname'] = enzyme.variable.name
+    obj['complexation'] = enzyme.complexation.id
     return obj
 
 
@@ -454,6 +455,7 @@ def init_me_model_from_dict(new, obj):
     find_translation_reactions_from_dict(new, obj)
     find_transcription_reactions_from_dict(new, obj)
     find_complexation_reactions_from_dict(new, obj)
+    link_enzyme_complexation(new, obj)
     find_degradation_reactions_from_dict(new, obj)
 
     # Populate Peptides
@@ -589,6 +591,11 @@ def find_complexation_reactions_from_dict(new, obj):
                                                    reaction_id=rxn_dict['id'])
             new_rxns.append(new_rxn)
     new.complexation_reactions += new_rxns
+
+def link_enzyme_complexation(new, obj):
+    for enz_obj in obj['enzymes']:
+        the_enz = new.enzymes.get_by_id(enz_obj['id'])
+        the_enz.complexation = new.reactions.get_by_id(enz_obj['complexation'])
 
 def find_degradation_reactions_from_dict(new, obj):
     new_rxns = list()
