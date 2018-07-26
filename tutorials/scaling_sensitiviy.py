@@ -64,7 +64,8 @@ for k in scales:
     for l in range(k, max(scales)+1):
         mrna_scale = 10**l
 
-        model[k, l] = create_etfl_model(False, False,
+        model[k, l] = create_etfl_model(has_thermo=True,
+                                        has_neidhardt=False,
                                         mrna_scaling = mrna_scale,
                                         prot_scaling = prot_scale)
         this_model = model[k, l]

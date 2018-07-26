@@ -6,6 +6,8 @@ from therme.io.json import load_json_model
 
 from time import time
 
+solver = 'optlang-gurobi'
+
 DefaultSol = namedtuple('DefaultSol', field_names='f')
 
 def get_active_growth_bounds(model):
@@ -114,17 +116,21 @@ if __name__ == '__main__':
                  ]
 
 
-    uptake_range = pd.Series(np.arange(-1,-60, -1))
+    uptake_range = pd.Series(np.arange(-1,-40, -1))
 
     models = {
-        'T0E1N0':load_json_model('models/iJO1366_T0E1N0_346_enz_256_bins__20180720_101357.json'),
-        'T1E1N0':load_json_model('models/RelaxedModel iJO1366_T1E1N0_346_enz_256_bins__20180720_071424.json'),
-        'T0E1N1':load_json_model('models/iJO1366_T0E1N1_346_enz_256_bins__20180720_102508.json'),
-        'T1E1N1':load_json_model('models/RelaxedModel iJO1366_T1E1N1_346_enz_256_bins__20180720_081506.json'),
+        'T0E1N0':load_json_model('models/iJO1366_T0E1N0_350_enz_256_bins__20180726_051201.json',
+                                 solver = solver),
+        'T1E1N0':load_json_model('models/RelaxedModel iJO1366_T1E1N0_350_enz_256_bins__20180726_053834.json',
+                                 solver = solver),
+        'T0E1N1':load_json_model('models/iJO1366_T0E1N1_350_enz_256_bins__20180726_052307.json',
+                                 solver = solver),
+        'T1E1N1':load_json_model('models/RelaxedModel iJO1366_T1E1N1_350_enz_256_bins__20180726_061207.json',
+                                 solver = solver),
               }
     data = {}
     for name,model in models.items():
-        model.solver = 'optlang-gurobi'
+        # model.solver = solver
         # model.solver.configuration.verbosity = 1
         model.solver.configuration.tolerances.feasibility = 1e-9
         model.solver.problem.Params.NumericFocus = 3

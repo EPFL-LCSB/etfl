@@ -1,12 +1,14 @@
 from therme.io.json import load_json_model
 
-from therme.optim.variables import mRNAVariable
+from therme.optim.variables import mRNAVariable, EnzymeVariable
 from therme.optim.utils import fix_integers
+
 from pytfa.analysis import  variability_analysis,           \
                             apply_reaction_variability,     \
-                            apply_generic_variability,       \
+                            apply_generic_variability,      \
                             apply_directionality
 
+from therme.analysis.utils import enzymes_to_peptides_conc
 
 
 ecoli = load_json_model('models/RelaxedModel iJO1366_T1E1N1_346_enz_256_bins__20180710_071309.json')
@@ -78,13 +80,16 @@ for glc_uptake in [uptake_high,uptake_low]:
     print(
         ' - RNAP produced: {}'.format(continuous_model.solution.x_dict.EZ_rnap))
 
-    variables = mRNAVariable
+    variables = EnzymeVariable
 
-    eva = variability_analysis(continuous_model, variables)
-    eva.to_csv('outputs/iJO_T1E1N1_low_hi_{}.csv'.format(glc_uptake))
+    # eva = variability_analysis(continuous_model, variables)
+    # peptides_conc_min = pd.Series(enzymes_to_peptides_conc(continuous_model, eva['minimum']))
+    # peptides_conc_max = pd.Series(enzymes_to_peptides_conc(continuous_model, eva['maximum']))
+    # peptides_conc = pd.concat([peptides_conc_min,peptides_conc_max], axis=1)
+    # peptides_conc.to_csv('outputs/iJO_T1E1N1_low_hi_{}_pep.csv'.format(glc_uptake))
 
-    # rva = variability_analysis(continuous_model, 'reactions')
-    # rva.to_csv('outputs/iJO_T1E1N1_low_hi_{}_rxns.csv'.format(glc_uptake))
+    mva = variability_analysis(continuous_model, mRNAVariable)
+    mva.to_csv('outputs/iJO_T1E1N1_low_hi_{}_mrna.csv'.format(glc_uptake))
 
 
 

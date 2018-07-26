@@ -13,10 +13,10 @@ solver = 'optlang-gurobi'
 
 ecoli_fba = cobra.io.json.load_json_model('models/iJO1366_T0E0N0__20180606_121758.json')
 ecoli_fba.solver = solver
-# ecoli_tfa = pytfa.io.json.load_json_model('models/iJO1366_T1E0N0__20180606_121751.json')
-# ecoli_tfa.solver  ='optlang-gurobi'
+ecoli_tfa = pytfa.io.json.load_json_model('models/iJO1366_T1E0N0__20180606_121751.json')
+ecoli_tfa.solver = solver
 
-ecoli = load_json_model('models/RelaxedModel iJO1366_T1E1N1_346_enz_256_bins__20180607_135322.json')
+ecoli = load_json_model('models/iJO1366_T0E1N1_346_enz_256_bins__20180710_095025.json')
 ecoli.solver = solver
 ecoli.solver.configuration.verbosity = 1
 ecoli.solver.configuration.tolerances.feasibility = 1e-9
@@ -76,8 +76,9 @@ def timeit(method):
 
 @timeit
 def ko_etfl(model):
+    growth = dict()
     for g in model.genes:
-        ko_gene(model, g.id)
+        growth[g.id] = ko_gene(model, g.id)
 
 @timeit
 def ko_fba(model):
@@ -90,6 +91,6 @@ def ko_tfa(model):
 
 log_data = dict()
 
-ko_fba(ecoli_fba, log_data = log_data)
+# ko_fba(ecoli_fba, log_data = log_data)
 # ko_tfa(ecoli_tfa, log_data = log_data)
 ko_etfl(ecoli, log_data = log_data)

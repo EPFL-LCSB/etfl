@@ -8,6 +8,8 @@ from bokeh.palettes import Category10
 
 from os.path import join as pjoin
 
+bp.curdoc().clear()
+
 data_dir = '../organism_data/info_ecoli'
 
 def make_polygon(x, ymin, ymax):
@@ -69,7 +71,7 @@ def plot_prop_vs_growth(fig, df, prop, legend_text, color, plot_lines = True):
 # Neidhardt data
 neidhardt_data = pd.read_excel(pjoin(data_dir,'neidhardt_tab2.xlsx'),
                                skiprows=range(0,6),
-                               skip_footer=22)
+                               skipfooter=22)
 mu_cols = ['mu=0.6','mu=1.0','mu=1.5','mu=2.0','mu=2.5']
 neidhardt_data.columns = ['parameter','symbol','units',*mu_cols,
                           'observed_parameters','footnote']

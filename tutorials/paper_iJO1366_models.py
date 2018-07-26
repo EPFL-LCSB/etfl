@@ -43,7 +43,7 @@ growth_reaction_id = 'BIOMASS_Ec_iJO1366_WT_53p95M'
 
 
 def create_model(has_thermo, has_expression, has_neidhardt,
-                 prot_scaling = 1e6, mrna_scaling=1e6):
+                 prot_scaling = 1e6, mrna_scaling=1e6, n_mu_bins = 256):
     #------------------------------------------------------------
     # Initialisation
     #------------------------------------------------------------
@@ -61,7 +61,7 @@ def create_model(has_thermo, has_expression, has_neidhardt,
     fba_sol = vanilla_model.slim_optimize()
     mu_0 = fba_sol
     mu_range = [0, 4]
-    n_mu_bins = 256
+    n_mu_bins = n_mu_bins
 
     time_str = get_timestr()
 
@@ -86,7 +86,7 @@ def create_model(has_thermo, has_expression, has_neidhardt,
                               growth_reaction = growth_reaction_id,
                               mu_range = mu_range,
                               n_mu_bins = n_mu_bins,
-                              max_enzyme_concentration = 1000,
+                              max_enzyme_concentration = 10000,
                               prot_scaling = prot_scaling,
                               mrna_scaling = mrna_scaling,
                               name = name,
@@ -96,7 +96,7 @@ def create_model(has_thermo, has_expression, has_neidhardt,
                         growth_reaction = growth_reaction_id,
                         mu_range = mu_range,
                         n_mu_bins = n_mu_bins,
-                        max_enzyme_concentration = 1000,
+                        max_enzyme_concentration = 10000,
                         prot_scaling = prot_scaling,
                         mrna_scaling = mrna_scaling,
                         name = name,
@@ -127,6 +127,7 @@ def create_model(has_thermo, has_expression, has_neidhardt,
         ecoli.reactions.GLUDy.thermo['computed'] = False
         # ecoli.reactions.DHAtpp.thermo['computed'] = False
         ecoli.reactions.MLTP2.thermo['computed'] = False
+        ecoli.reactions.G3PD2.thermo['computed'] = False
 
         ecoli.convert()#add_displacement = True)
 
@@ -294,11 +295,12 @@ if __name__ == '__main__':
 
     # Models defined by Thermo - Expression - Neidhardt
     model_calls = [
-                        (False,  True,   False),
-                        (False,  True,   True),
-                        # (True,   True,   False),
-                        # (True,   True,   True),
-                        ]
+
+        (False, True, False),
+        (False, True, True),
+        (True,   True,   False),
+        (True,   True,   True),
+        ]
 
     for mc in model_calls:
         models[mc] = create_model(*mc)

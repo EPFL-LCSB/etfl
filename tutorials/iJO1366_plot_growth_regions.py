@@ -5,6 +5,8 @@ from bokeh.models import Whisker, ColumnDataSource
 from therme.io.json import load_json_model
 import cobra
 
+bp.curdoc().clear()
+
 ec_cobra = cobra.io.load_json_model('iJO1366_with_xrefs.json')
 # ec_cobra.reactions.ATPM.lower_bound = 0
 growth_reaction_id = 'BIOMASS_Ec_iJO1366_WT_53p95M'
@@ -59,18 +61,18 @@ p1.circle(x=fba_data['uptake'], y=fba_data['mu'], color = 'crimson', legend='FBA
 
 # tME Mu
 p1.square(x=me_data['uptake'], y=me_data['mu'], legend='tME growth')
-p1.add_layout(
-    Whisker(source = me_source,
-            base = 'uptake',
-            lower = 'mu_lb',
-            upper = 'mu_ub',
-            )
-)
+# p1.add_layout(
+#     Whisker(source = me_source,
+#             base = 'uptake',
+#             lower = 'mu_lb',
+#             upper = 'mu_ub',
+#             )
+# )
 
 ## Systematic analysis
 
 mu_max = max(me_data['mu'].dropna())
-mask_snl = me_data['mu'] < mu_max*0.33
+mask_snl = me_data['mu'] < mu_max*0.5
 mask_pl  = me_data['mu'] > mu_max*0.99
 
 fit1d = lambda x,y: np.poly1d(np.polyfit(x,y,1))
