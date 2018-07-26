@@ -97,7 +97,7 @@ def get_neidhardt_data():
 
     neidhardt_data = pd.read_excel(pjoin(data_dir,'neidhardt_tab2.xlsx'),
                                    skiprows=range(0,6),
-                                   skip_footer=22)
+                                   skipfooter=22)
     mu_cols = ['mu=0.6','mu=1.0','mu=1.5','mu=2.0','mu=2.5']
     neidhardt_data.columns = ['parameter','symbol','units',*mu_cols,
                               'observed_parameters','footnote']
@@ -149,6 +149,20 @@ reaction2complexes_info_obrien = pd.read_excel(
     pjoin(data_dir, 'obrien2013_SI_tab10.xlsx'), index_col=0, usecols=[0, 1])
 complexes2peptides_info_obrien = pd.read_excel(
     pjoin(data_dir, 'obrien2013_SI_tab1.xlsx'), index_col=0, usecols=[0, 1])
+
+reaction2complexes_info_lloyd = pd.read_csv(
+    pjoin(data_dir, 'lloyd_2018_enzyme_reaction_association.txt'),
+    delimiter = '\t',
+    index_col = 0,
+    header=None)
+reaction2complexes_info_lloyd.columns = ['Enzymes']
+complexes2peptides_info_lloyd = pd.read_csv(
+    pjoin(data_dir, 'lloyd_2018_protein_complexes.txt'),
+    delimiter = '\t',
+    index_col = 0,
+    usecols=[0,2],
+    header = None)
+complexes2peptides_info_lloyd.columns = ['Gene composition']
 
 gene_names = pd.read_csv(pjoin(data_dir,'gene2bname.txt'), delimiter='\t',
                          index_col=0)
@@ -451,7 +465,11 @@ def complex2composition(complex_name):
     if '_mod_' in complex_name:
         complex_name = complex_name[0:complex_name.index('_mod_')]
 
-    composition_string = complexes2peptides_info_obrien.loc[complex_name,'Gene composition']
+    try:
+        composition_string = complexes2peptides_info_lloyd.loc[complex_name,'Gene composition']
+    except KeyError:
+        composition_string = complexes2peptides_info_obrien.loc[complex_name,'Gene composition']
+
     composition_dict = {}
     groups = comp_regex.findall(composition_string)
     for peptide, stoich in groups:
@@ -469,11 +487,22 @@ def ec2kcat(ec_number):
     except KeyError:
         return None
 
+def check_id_in_reaction_list(the_id, df):
+    if the_id in df.index:
+        return the_id
+    elif the_id[0] == '_' and the_id[1:] in df.index:
+        return the_id[1:]
+    elif the_id + '1' in df.index:
+        return the_id + '1'
+    else:
+        return ''
+
 
 def get_aggregated_coupling_dict(model, coupling_dict = dict()):
     aggregated_coupling_dict = defaultdict(list)
 
     for x in model.reactions:
+        # reactions starting with a number have been sanitized to start with '_'
         if x.id in coupling_dict:
             # We already have info
             continue
@@ -484,9 +513,16 @@ def get_aggregated_coupling_dict(model, coupling_dict = dict()):
 
         reaction_ecs = x.notes['ec_numbers']
 
-        try:
-            complex_names = reaction2complexes_info_obrien.loc[x.id,'Enzymes'].split(' OR ')
-        except KeyError:
+        lloyd_id = check_id_in_reaction_list(x.id, reaction2complexes_info_lloyd)
+        obrien_id = check_id_in_reaction_list(x.id, reaction2complexes_info_obrien)
+
+        if lloyd_id:
+            complex_names = reaction2complexes_info_lloyd.loc[lloyd_id,'Enzymes']\
+                .split(' OR ')
+        elif obrien_id:
+            complex_names = reaction2complexes_info_obrien.loc[obrien_id,'Enzymes']\
+                .split(' OR ')
+        else:
             continue
 
         for e,this_complex_name in enumerate(complex_names):
