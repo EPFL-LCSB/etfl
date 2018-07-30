@@ -4,7 +4,7 @@
    :platform: Unix, Windows
    :synopsis: Thermodynamics-based Flux Analysis
 
-.. moduleauthor:: pyTFA team
+.. moduleauthor:: ETFL team
 
 Constraints declarations
 
