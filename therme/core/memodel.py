@@ -869,8 +869,24 @@ class MEModel(LCSBModel, Model):
         we need to add the constraints:
         d/dt [charged_tRNA]   =  v_charging - sum(nu_trans*v_trans) - mu*[charged_tRNA]
         d/dt [uncharged_tRNA] = -v_charging + sum(nu_trans*v_trans) - mu*[uncharged_tRNA]
+
+        The stoichiometries are set from the reaction dict in _extract_trna_from_reaction
+
+        We also need to scale this into mRNA space (translation is in protein scale):
+
+        d/dt σ_m*[*charged_tRNA] =  +- σ_m*v_charging
+                                    -+ σ_m/σ_p*sum(nu_tsl*σ_p*v_tr)
+                                    -  mu*σ_m*[*charged_tRNA]
+
+        d/dt [*charged_tRNA]_hat =  +- σ_m*v_charging
+                                    -+ σ_m/σ_p*sum(nu_tsl*v_tr_hat)
+                                    -  mu*[*charged_tRNA]_hat
+
         :return:
         """
+
+        sigma_m = self._mrna_scaling
+        scaling_factor = self._mrna_scaling/self._prot_scaling
 
         translation_fluxes = self.translation_reactions.list_attr('forward_variable')
 
@@ -881,8 +897,10 @@ class MEModel(LCSBModel, Model):
             charged_stoichs = [translation.trna_stoich[charged_trna.id] for
                                     translation in self.translation_reactions]
 
-            charged_expr = charging_rxn.forward_variable \
-                           + symbol_sum([x*y for x,y in zip(charged_stoichs,translation_fluxes)])
+            v_tsl_c = symbol_sum([x*y for x,y in zip(charged_stoichs,translation_fluxes)])
+
+            charged_expr = sigma_m * charging_rxn.forward_variable \
+                           + scaling_factor * v_tsl_c
             self.add_mass_balance_constraint(synthesis_flux=charged_expr,
                                              macromolecule=charged_trna)
 
@@ -891,8 +909,10 @@ class MEModel(LCSBModel, Model):
             uncharged_stoichs = [translation.trna_stoich[uncharged_trna.id] for
                                     translation in self.translation_reactions]
 
-            uncharged_expr = -1 * charging_rxn.forward_variable + \
-                             symbol_sum([x*y for x,y in zip(uncharged_stoichs,translation_fluxes)])
+            v_tsl_u = symbol_sum([x*y for x,y in zip(uncharged_stoichs,translation_fluxes)])
+
+            uncharged_expr = -1 * sigma_m * charging_rxn.forward_variable \
+                             + scaling_factor * v_tsl_u
             self.add_mass_balance_constraint(synthesis_flux=uncharged_expr,
                                              macromolecule=uncharged_trna)
 
