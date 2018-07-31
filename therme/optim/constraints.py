@@ -231,3 +231,33 @@ class InterpolationConstraint(ModelConstraint):
     """
 
     prefix = "IC_"
+
+
+class EnzymeDeltaPos(EnzymeConstraint):
+    """
+    Represents a positive enzyme concentration variation for dETFL
+    """
+
+    prefix = 'dEP_'
+
+class EnzymeDeltaNeg(EnzymeConstraint):
+    """
+    Represents a negative enzyme concentration variation for dETFL
+    """
+
+    prefix = 'dEN_'
+
+
+class mRNADeltaPos(GeneConstraint):
+    """
+    Represents a positive mRNA concentration variation for dETFL
+    """
+
+    prefix = 'dMP_'
+
+class mRNADeltaNeg(GeneConstraint):
+    """
+    Represents a negative mRNA concentration variation for dETFL
+    """
+
+    prefix = 'dMN_'

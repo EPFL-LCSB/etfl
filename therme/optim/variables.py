@@ -212,3 +212,17 @@ class InterpolationVariable(ModelVariable):
     Represents a variable that is interpolated
     """
     prefix = 'IV_'
+
+class EnzymeRef(EnzymeVariable):
+    """
+    Represents a reference enzyme concentration - for example in dETFL
+    """
+
+    prefix = 'EZ0_'
+
+class mRNARef(mRNAVariable):
+    """
+    Represents a reference enzyme concentration - for example in dETFL
+    """
+
+    prefix = 'MR0_'
