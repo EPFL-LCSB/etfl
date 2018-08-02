@@ -889,7 +889,6 @@ class MEModel(LCSBModel, Model):
         sigma_m = self._mrna_scaling
         scaling_factor = self._mrna_scaling/self._prot_scaling
 
-
         translation_fluxes = self.translation_reactions.list_attr('forward_variable')
 
         for _, (charged_trna, uncharged_trna, charging_rxn) in self.trna_dict.items():
