@@ -19,13 +19,15 @@ import re
 
 def clean_string(s):
 
-   # Remove invalid characters
-   s = re.sub('[^0-9a-zA-Z]', '', s)
+    s = s.replace('-','_')
 
-   # Remove leading characters until we find a letter or underscore
-   s = re.sub('^[^a-zA-Z]+', '', s)
+    # Remove invalid characters
+    s = re.sub('[^0-9a-zA-Z_]', '', s)
 
-   return s
+    # Remove leading characters until we find a letter or underscore
+    s = re.sub('^[^a-zA-Z_]+', '', s)
+
+    return s
 
 
 data_dir = '../organism_data/info_ecoli'
@@ -549,6 +551,74 @@ def get_aggregated_coupling_dict(model, coupling_dict = dict()):
             new_enzyme.composition = composition
 
             new_enzyme.notes['EC'] = this_ec
+
+            aggregated_coupling_dict[x.id].append(new_enzyme)
+
+    return aggregated_coupling_dict
+
+
+def get_lloyd_keffs():
+    import json
+    with open(pjoin(data_dir, 'lloyd_2018_keffs.json'), 'r') as fid:
+        keffs = json.load(fid)
+
+    for key in keffs.keys():
+        new_key = key.replace('keff_','')
+        new_key = new_key.replace('_DASH_','_')
+        keffs[new_key] = keffs.pop(key)* 3600  # s/h
+
+    return keffs
+
+def get_keffs_from_complex_name(keffs, name):
+    try:
+        kcat_fwd = keffs[name + '_forward_priming_keff']
+        kcat_bwd = keffs[name + '_reverse_priming_keff']
+
+        return kcat_bwd, kcat_fwd
+    except KeyError:
+        return None, None
+
+def get_lloyd_coupling_dict(model):
+    aggregated_coupling_dict = defaultdict(list)
+    keffs = get_lloyd_keffs()
+
+    for x in model.reactions:
+        lloyd_id = check_id_in_reaction_list(x.id, reaction2complexes_info_lloyd)
+        obrien_id = check_id_in_reaction_list(x.id, reaction2complexes_info_obrien)
+
+        if lloyd_id:
+            complex_names = reaction2complexes_info_lloyd.loc[lloyd_id,'Enzymes']\
+                .split(' OR ')
+        elif obrien_id:
+            complex_names = reaction2complexes_info_obrien.loc[obrien_id,'Enzymes']\
+                .split(' OR ')
+        else:
+            continue
+
+        for e,this_complex_name in enumerate(complex_names):
+
+            # Start with this:
+            composition = complex2composition(this_complex_name)
+            if not composition:
+                # Skip this one
+                continue
+
+            cleaned_cplx_name = clean_string(this_complex_name)
+            enz_name = '{}_{}'.format(x.id,cleaned_cplx_name)
+            kcat_fwd, kcat_bwd = get_keffs_from_complex_name(keffs, enz_name)
+
+            if kcat_fwd is None or kcat_bwd is None:
+                continue
+
+
+            new_enzyme = Enzyme(enz_name,
+                                name='{}_{}: {}'.format(x.id, e, this_complex_name),
+                                kcat_fwd=kcat_fwd,
+                                kcat_bwd=kcat_bwd,
+                                kdeg=kdeg_enz)
+
+            new_enzyme.composition = composition
+
 
             aggregated_coupling_dict[x.id].append(new_enzyme)
 
