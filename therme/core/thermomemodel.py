@@ -1,5 +1,5 @@
 """
-.. module:: thermome
+.. module:: ETFL
    :platform: Unix, Windows
    :synopsis: Thermodynamics-based Flux Analysis
 
@@ -38,16 +38,16 @@ class ThermoMEModel(MEModel, ThermoModel):
                  growth_reaction='',
                  mu = None, mu_error = 0,
                  mu_range = None, n_mu_bins = 1,
-                 max_enzyme_concentration = 1000,
+                 max_macromolecule_concentration = 1,
                  big_M = 1000,
                  temperature=std.TEMPERATURE_0,
                  min_ph=std.MIN_PH,
                  max_ph=std.MAX_PH,
                  prot_scaling = 1000,
-                 mrna_scaling = None,):
+                 mrna_scaling = None, ):
 
         if name is None:
-            name = 'ThermoME2-' + model.id if model.id else 'tME2 model'
+            name = 'ETFL_' + name if name else 'ETFL model'
 
         LCSBModel.__init__(self, model, name)
 
@@ -60,8 +60,8 @@ class ThermoMEModel(MEModel, ThermoModel):
         if model is not None:
             self.sanitize_varnames()
 
-        self.init_etfl(big_M, growth_reaction, max_enzyme_concentration, mrna_scaling, mu_range,
-                       n_mu_bins, name, prot_scaling)
+        self.init_etfl(big_M, growth_reaction, max_macromolecule_concentration,
+                       mrna_scaling, mu_range, n_mu_bins, name, prot_scaling)
 
         ###############
         # Thermo part #

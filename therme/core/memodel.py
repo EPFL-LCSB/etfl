@@ -52,10 +52,10 @@ from pytfa.optim.utils import copy_solver_configuration
 
 
 class MEModel(LCSBModel, Model):
-    def __init__(self, model=Model(), growth_reaction='',
-
+    def __init__(self, model=Model(), name = None,
+                 growth_reaction='',
                  mu_range = None, n_mu_bins = 1,
-                 max_enzyme_concentration = 1000,
+                 max_macromolecule_concentration = 1,
                  big_M = 1000,
                  prot_scaling = 1000,
                  mrna_scaling = None,
@@ -78,7 +78,7 @@ class MEModel(LCSBModel, Model):
 
         """
 
-        name = 'ETFL' + model.id if model.id else 'ETFL_model'
+        name = 'ETFL_' + name if name is not None else 'ETFL_model'
 
         LCSBModel.__init__(self, model, name)
 
@@ -87,13 +87,14 @@ class MEModel(LCSBModel, Model):
         if model is not None:
             self.sanitize_varnames()
 
-        self.init_etfl(big_M, growth_reaction, max_enzyme_concentration, mrna_scaling, mu_range,
+        self.init_etfl(big_M, growth_reaction, max_macromolecule_concentration, mrna_scaling, mu_range,
                        n_mu_bins, name, prot_scaling)
 
-    def init_etfl(self, big_M, growth_reaction, max_enzyme_concentration, mrna_scaling, mu_range,
-                  n_mu_bins, name, prot_scaling):
-        self.max_enzyme_concentration = max_enzyme_concentration
+    def init_etfl(self, big_M, growth_reaction, max_macromolecule_concentration,
+                  mrna_scaling, mu_range, n_mu_bins, name, prot_scaling):
+
         self.big_M = big_M
+        self.max_macromolecule_concentration = max_macromolecule_concentration
         self._var_dict = dict()
         self._cons_dict = dict()
         self.logger.info('# ETFL Model {} initialized'.format(name))
@@ -136,6 +137,10 @@ class MEModel(LCSBModel, Model):
         else:
             self._mrna_scaling = mrna_scaling
 
+        self.max_enzyme_concentration = self.max_macromolecule_concentration \
+                                        * self._prot_scaling
+        self.max_mrna_concentration =   self.max_macromolecule_concentration \
+                                        * self._mrna_scaling
 
     @property
     def mu(self):
@@ -211,6 +216,11 @@ class MEModel(LCSBModel, Model):
                             expr=growth_coupling_expr,
                             ub=bin_half_width,
                             lb=-1 * bin_half_width)
+
+
+        # So that the solver spends less time looking for an ub on the objective
+        # when optimizing for growth
+        self.growth_reaction.upper_bound = self.mu.variable.ub + self.mu_approx_resolution
 
         # Update the variable indices
         self.regenerate_variables()
@@ -317,25 +327,25 @@ class MEModel(LCSBModel, Model):
         # Use the input ratios to make the stoichiometry
         transcription_mets = {
                 self.metabolites.get_by_id(self.rna_nucleotides[k]):
-                    -1 * v * mrna_length / self._mrna_scaling
+                    -1 * v * mrna_length
                 for k,v in nt_ratios.items()
                 }
-        transcription_mets[ppi] = mrna_length/self._mrna_scaling
+        transcription_mets[ppi] = mrna_length
 
-        dummy_transcription.add_metabolites(transcription_mets)
+        dummy_transcription.add_metabolites(self.scale_to_rna(transcription_mets))
 
         self.add_mass_balance_constraint(dummy_transcription, dummy_mrna)
 
         # Add the degradation
         mrna_deg_stoich = {
                 self.metabolites.get_by_id(self.rna_nucleotides_mp[k]):
-                    -1 * v * mrna_length / self._mrna_scaling
+                    -1 * v * mrna_length
                 for k,v in nt_ratios.items()
                 }
-        mrna_deg_stoich[h2o] = -1 * mrna_length/self._mrna_scaling
-        mrna_deg_stoich[h] = 1 * mrna_length/self._mrna_scaling
+        mrna_deg_stoich[h2o] = -1 * mrna_length
+        mrna_deg_stoich[h] = 1 * mrna_length
 
-        self._make_degradation_reaction(deg_stoich=mrna_deg_stoich,
+        self._make_degradation_reaction(deg_stoich=self.scale_to_rna(mrna_deg_stoich),
                                         macromolecule=dummy_mrna,
                                         kind=mRNADegradation)
 
@@ -356,32 +366,27 @@ class MEModel(LCSBModel, Model):
         # Use the input ratios to make the stoichiometry
         translation_mets = {}
 
-
-
         for k,v in aa_ratios.items():
             the_met_id = self.aa_dict[k]
             the_charged_trna, the_uncharged_trna, _ = self.trna_dict[the_met_id]
-            translation_mets[the_charged_trna  ] = -1*v*peptide_length\
-                                                   /self._prot_scaling
-            translation_mets[the_uncharged_trna] =  1*v*peptide_length\
-                                                    /self._prot_scaling
+            translation_mets[the_charged_trna  ] = -1*v*peptide_length
+            translation_mets[the_uncharged_trna] =  1*v*peptide_length
 
 
-        translation_mets[self.metabolites.get_by_id(gtp)] = -2*peptide_length \
-                                                            / self._prot_scaling
-        translation_mets[self.metabolites.get_by_id(h2o)] = -2*peptide_length \
-                                                            / self._prot_scaling
-        translation_mets[self.metabolites.get_by_id(gdp)] =  2*peptide_length \
-                                                             / self._prot_scaling
-        translation_mets[self.metabolites.get_by_id( h )] =  2*peptide_length \
-                                                             / self._prot_scaling
+        translation_mets[self.metabolites.get_by_id(gtp)] = -2*peptide_length
+        translation_mets[self.metabolites.get_by_id(h2o)] = -2*peptide_length
+        translation_mets[self.metabolites.get_by_id(gdp)] =  2*peptide_length
+        translation_mets[self.metabolites.get_by_id( h )] =  2*peptide_length
         translation_mets[dummy_peptide] = 1
+
+        scaled_translation_mets = self.scale_to_prot(translation_mets,
+                                                    exclude=[dummy_peptide.id])
 
         # Do not forget to extract the tRNAs from the stoichiometry, since they
         # get diluted
-        self._extract_trna_from_reaction(translation_mets, dummy_translation)
+        self._extract_trna_from_reaction(scaled_translation_mets, dummy_translation)
 
-        dummy_translation.add_metabolites(translation_mets)
+        dummy_translation.add_metabolites(scaled_translation_mets)
 
         dummy_complexation = ProteinComplexation(id='dummy_complexation',
                                                  name='Dummy Complexation')
@@ -405,11 +410,10 @@ class MEModel(LCSBModel, Model):
 
         for k, v in aa_ratios.items():
             the_met_id = self.aa_dict[k]
-            prot_deg_stoich[the_met_id] = v * peptide_length \
-                                                 / self._prot_scaling
-        prot_deg_stoich[h2o] = -1*peptide_length/self._prot_scaling
+            prot_deg_stoich[the_met_id] = v * peptide_length
+        prot_deg_stoich[h2o] = -1*peptide_length
 
-        self._make_degradation_reaction(deg_stoich=prot_deg_stoich,
+        self._make_degradation_reaction(deg_stoich=self.scale_to_prot(prot_deg_stoich),
                                         macromolecule=dummy_protein,
                                         kind=EnzymeDegradation)
 
@@ -632,13 +636,12 @@ class MEModel(LCSBModel, Model):
         # In this formulation, we make 1 unit of the whole chromosome with NTPs
         g = gc_ratio
         mets = {v: -1 * chromosome_len * (g if k.lower() in 'gc' else 1 - g)
-                   / self._mrna_scaling
                 for k, v in self.dna_nucleotides.items()}
         # Don't forget to release ppi (2 ppi per bp)
-        mets[ppi] = 2 * chromosome_len / self._mrna_scaling
+        mets[ppi] = 2 * chromosome_len
 
 
-        dna_formation.add_metabolites(mets)
+        dna_formation.add_metabolites(self.scale_to_rna(mets))
 
         # Add DNA variable:
 
@@ -806,9 +809,7 @@ class MEModel(LCSBModel, Model):
         self._extract_trna_from_reaction(aa_stoichiometry, rxn)
 
         # Scale the stoichiometry
-        aa_stoichiometry_scaled = {k: v / self._prot_scaling \
-                                   for k, v in aa_stoichiometry.items()}
-
+        aa_stoichiometry_scaled = self.scale_to_prot(aa_stoichiometry)
 
         rxn.add_metabolites(aa_stoichiometry_scaled)
 
@@ -844,7 +845,7 @@ class MEModel(LCSBModel, Model):
             name='Transcription, {}'.format(gene.id),
             gene_id= gene.id,
             enzymes=self.rnap,
-            upper_bound=self.max_enzyme_concentration)
+            upper_bound=self.max_mrna_concentration)
         self.add_reactions([rxn])
 
         nt_stoichiometry = make_stoich_from_nt_sequence(gene.rna,
@@ -853,8 +854,7 @@ class MEModel(LCSBModel, Model):
                                                         )
 
         # Scale the stoichiometry
-        nt_stoichiometry_scaled = {k: v / self._mrna_scaling \
-                                   for k, v in nt_stoichiometry.items()}
+        nt_stoichiometry_scaled = self.scale_to_rna(nt_stoichiometry)
 
         rxn.add_metabolites(nt_stoichiometry_scaled)
 
@@ -868,26 +868,28 @@ class MEModel(LCSBModel, Model):
         """
         Once the tRNAs, transcription and translation reactions have been added,
         we need to add the constraints:
+
         d/dt [charged_tRNA]   =  v_charging - sum(nu_trans*v_trans) - mu*[charged_tRNA]
         d/dt [uncharged_tRNA] = -v_charging + sum(nu_trans*v_trans) - mu*[uncharged_tRNA]
 
         The stoichiometries are set from the reaction dict in _extract_trna_from_reaction
 
-        We also need to scale this into mRNA space (translation is in protein scale):
+        We also need to scale the tRNAs in mRNA space and unscale the translation:
 
-        d/dt σ_m*[*charged_tRNA] =  +- σ_m*v_charging
-                                    -+ σ_m/σ_p*sum(nu_tsl*σ_p*v_tr)
-                                    -  mu*σ_m*[*charged_tRNA]
+        d/dt σ_m * [*charged_tRNA] =    +- σ_m * v_charging
+                                        -+ σ_m/σ_p*sum(nu_tsl*σ_p*v_tr)
+                                        -  σ_m * mu*[*charged_tRNA]
 
-        d/dt [*charged_tRNA]_hat =  +- σ_m*v_charging
-                                    -+ σ_m/σ_p*sum(nu_tsl*v_tr_hat)
-                                    -  mu*[*charged_tRNA]_hat
+        d/dt [*charged_tRNA]_hat =      +- σ_m * v_charging
+                                        -+ σ_m/σ_p * sum( nu_tsl * v_tr_hat)
+                                        -  mu*[*charged_tRNA]_hat
 
         :return:
         """
 
-        sigma_m = self._mrna_scaling
-        scaling_factor = self._mrna_scaling/self._prot_scaling
+        sigma_m = 1#self._mrna_scaling
+        sigma_p = self._prot_scaling
+        # scaling_factor = self._mrna_scaling/self._prot_scaling
 
         translation_fluxes = self.translation_reactions.list_attr('forward_variable')
 
@@ -899,11 +901,11 @@ class MEModel(LCSBModel, Model):
                                     translation in self.translation_reactions]
 
             v_tsl_c = symbol_sum(
-                [x * y for x, y in zip(charged_stoichs, translation_fluxes)])
+                [x * y
+                 for x, y in zip(charged_stoichs, translation_fluxes)])
 
             charged_expr = sigma_m * charging_rxn.forward_variable \
-                           + scaling_factor * v_tsl_c
-
+                           + sigma_m/sigma_p *  v_tsl_c
             self.add_mass_balance_constraint(synthesis_flux=charged_expr,
                                              macromolecule=charged_trna)
 
@@ -913,10 +915,11 @@ class MEModel(LCSBModel, Model):
                                     translation in self.translation_reactions]
 
             v_tsl_u = symbol_sum(
-                [x * y for x, y in zip(uncharged_stoichs, translation_fluxes)])
+                [x * y
+                 for x, y in zip(uncharged_stoichs, translation_fluxes)])
 
             uncharged_expr = -1 * sigma_m * charging_rxn.forward_variable \
-                             + scaling_factor * v_tsl_u
+                             + sigma_m/sigma_p * v_tsl_u
 
             self.add_mass_balance_constraint(synthesis_flux=uncharged_expr,
                                              macromolecule=uncharged_trna)
@@ -947,8 +950,8 @@ class MEModel(LCSBModel, Model):
             r = self.reactions.get_by_id(rid)
 
             # If the reaction is not compatible we do not try to apply constraints
-            if not self.is_me_compatible(r):
-                continue
+            # if not self.is_me_compatible(r):
+            #     continue
 
             if isinstance(r, EnzymaticReaction) and r.id in coupling_dict:
                 # This is a proper enzymatic reaction and we can directly apply
@@ -1139,14 +1142,21 @@ class MEModel(LCSBModel, Model):
 
         return ret
 
-    def linearize_me(self, enzyme):
+    def linearize_me(self, macromolecule):
         """
         Performs Petersen linearization on μ*E to keep a MILP problem
 
         :return:
         """
 
-        E = enzyme.variable
+        E = macromolecule.variable
+        if isinstance(macromolecule, Enzyme):
+            ub = self.max_enzyme_concentration
+        elif isinstance(macromolecule, mRNA) \
+                or isinstance(macromolecule, rRNA) \
+                or isinstance(macromolecule, DNA) \
+                or isinstance(macromolecule, tRNA):
+            ub = self.max_mrna_concentration
 
         # ga_i is a binary variable for the binary expansion f the fraction on N
         # of the max growth rate
@@ -1167,7 +1177,7 @@ class MEModel(LCSBModel, Model):
                                           hook=self,
                                           id_=z_name,
                                           lb=0,
-                                          ub=self.max_enzyme_concentration)
+                                          ub=ub)
 
             # z_i, cons = glovers_linearization(b = ga_i, fy=E, L=E.lb, U=E.ub, z=model_z_i)
             z_i, new_constraints = petersen_linearization(b=ga_i, x=E, M=E.ub,
@@ -1354,7 +1364,7 @@ class MEModel(LCSBModel, Model):
             mrna.init_variable()
 
         for mrna in mrna_list:
-            mrna.variable.ub = self.max_enzyme_concentration
+            mrna.variable.ub = self.max_mrna_concentration
 
         self.mrnas += mrna_list
 
@@ -1370,12 +1380,15 @@ class MEModel(LCSBModel, Model):
 
             the_rrna._model = self
             the_rrna.init_variable()
-            the_rrna.variable.ub = self.max_enzyme_concentration
+            the_rrna.variable.ub = self.max_mrna_concentration
 
             rrnas.append(the_rrna)
 
             synthesis = self.transcription_reactions.get_by_id(
                 self._get_transcription_name(the_rrna_id))
+
+
+
             self.add_mass_balance_constraint(synthesis, the_rrna)
 
         self.rrnas += rrnas
@@ -1403,7 +1416,7 @@ class MEModel(LCSBModel, Model):
             trna.init_variable()
 
         for trna in trna_list:
-            trna.variable.ub = self.max_enzyme_concentration
+            trna.variable.ub = self.max_mrna_concentration
 
         self.trnas += trna_list
 
@@ -1476,7 +1489,7 @@ class MEModel(LCSBModel, Model):
             self._add_mrna_degradation(mRNA, h2o, h)
 
 
-        self._update()
+        self._push_queue()
         self.regenerate_variables()
         self.regenerate_constraints()
 
@@ -1492,10 +1505,13 @@ class MEModel(LCSBModel, Model):
                                                self.aa_dict,
                                                h2o)
             for k,v in degradation_mets.items():
-                deg_stoich[k]+=-1*v*stoich/self._prot_scaling # v is negative
+                deg_stoich[k]+=-1*v*stoich # stoich is negative
 
-        self._make_degradation_reaction(deg_stoich, enzyme, EnzymeDegradation, queue=True)
-        self._update()
+        self._make_degradation_reaction(self.scale_to_prot(deg_stoich),
+                                        enzyme,
+                                        EnzymeDegradation,
+                                        queue=True)
+        self._push_queue()
 
 
     def _add_mrna_degradation(self, mrna, h2o, h):
@@ -1504,7 +1520,7 @@ class MEModel(LCSBModel, Model):
             return None
 
         degradation_mets = degrade_mrna(mrna, self.rna_nucleotides_mp, h2o, h)
-        deg_stoich = {k:v/self._mrna_scaling for k,v in degradation_mets.items()}
+        deg_stoich = self.scale_to_rna(degradation_mets)
 
         self._make_degradation_reaction(deg_stoich,mrna,mRNADegradation)
 
@@ -1536,7 +1552,7 @@ class MEModel(LCSBModel, Model):
 
         loadmax is : len(peptide_chain)/occupation(ribo)
         "Their distance from one another along the mRNA is at least the size
-        of the physical footprint of a ribosome (≈20 nm, BNID 102320, 105000)
+        of the physical footprint of a ribosome (≈20 nm, BNID 102320, 100121)
         which is the length of about 60 base pairs (length of
         nucleotide ≈0.3 nm, BNID 103777), equivalent to ≈20 aa."
         "http://book.bionumbers.org/how-many-proteins-are-made-per-mrna-molecule/"
@@ -1555,7 +1571,7 @@ class MEModel(LCSBModel, Model):
 
         ribo_footprint_size = 60 # see docstring
 
-        self._update()
+        self._push_queue()
 
         for the_mrna in self.mrnas:
 
@@ -1594,7 +1610,7 @@ class MEModel(LCSBModel, Model):
                                 queue = True,
                                 ub = 0)
 
-        self._update()
+        self._push_queue()
         self.regenerate_variables()
         self.regenerate_constraints()
 
@@ -1871,6 +1887,45 @@ class MEModel(LCSBModel, Model):
         else:
             genes._model = self
             self.genes += [genes]
+
+
+    def _scale_to(self, met_dict, scaling, exclude=None):
+        """
+        Scale a dictionnary of metabolites before adding them to an equation.
+        Divides all the stoichiometries by self._mrna_scaling  except those in
+        the exclude list
+
+        :param met_dict: dict
+        :param exclude: list
+        :return:
+        """
+        new = dict()
+        if exclude is None:
+            exclusion_list = []
+        else:
+            exclusion_list = exclude
+
+        for k,v in met_dict.items():
+            if not isinstance(k,str):
+                key = k.id
+            else:
+                key = k
+
+            if key in exclusion_list:
+                continue
+            else:
+                new[k] = v/scaling
+
+        return new
+
+
+    def scale_to_rna(self,met_dict, exclude=None):
+        return self._scale_to(met_dict, self._mrna_scaling, exclude=exclude)
+
+    def scale_to_prot(self,met_dict, exclude=None):
+        return self._scale_to(met_dict, self._prot_scaling, exclude=exclude)
+
+
     #-------------------------------------------------------------------------#
 
     def sanitize_varnames(self):
