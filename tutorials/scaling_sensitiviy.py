@@ -6,8 +6,8 @@ from cobra.util.solver import OptimizationError
 
 from math import log
 
-# scales = range(6)
-scales = range(10)
+scales = range(6)
+# scales = range(10)
 
 # mu   = pd.DataFrame(index = scales, columns=scales)
 # rib  = pd.DataFrame(index = scales, columns=scales)

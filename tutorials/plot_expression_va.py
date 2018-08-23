@@ -13,8 +13,9 @@ plots_folder = './plots/'
 
 verbose_kinds = {
     'mrna':'mRNA',
-    'rxns':'Reactions',
-    'enz': 'Enzymes',
+    'rxns':'Reaction',
+    'enz': 'Enzyme',
+    'pep': 'Peptide',
 }
 
 VA_REGEX = re.compile(r'iJO_(T[01]E[01]N[01])_low?_hi_\-?\d+\.?\d*_({})'
@@ -42,6 +43,8 @@ def plot_va(filename, tag, kind):
     if not data.columns[0] in ['minimum','maximum']:
         data.columns = ['minimum','maximum']
 
+    data +=1
+
     data['score'] = data.mean(axis=1)
     data.sort_values(by='score', ascending = False, inplace = True)
     data['y'] = range(len(data))
@@ -55,16 +58,21 @@ def plot_va(filename, tag, kind):
     _tools_to_show = 'box_zoom,pan,save,hover,reset,tap,wheel_zoom'
 
     p1 = bp.figure( title=title, x_range=xdr, y_range=ydr,
+                    x_axis_type = 'log',
                     plot_width=600,
                     plot_height=1000,
                     tools=_tools_to_show,
                     # h_symmetry=False, v_symmetry=False,
                     min_border=0)
 
-    glyph = HBar(y="y", right="maximum", left="minimum", height=1,
-                     fill_color="#b3de69", fill_alpha=1, line_color = None)
+    glyph = HBar(y="y", right="maximum", left="minimum", height=0.9,
+                 fill_color="#b3de69", fill_alpha=1,
+                 line_color = None)
 
     p1.add_glyph(source, glyph)
+
+    p1.circle(x='score', y='y', fill_color='white', line_color= "#b3de69",
+              source=source)
 
     # Fix ticks
     label_dict = {}
@@ -78,11 +86,13 @@ def plot_va(filename, tag, kind):
     # p1.yaxis.ticker = [x for x in range(len(data))]
 
     hover = p1.select(dict(type=HoverTool))
-    hover.tooltips = [("mRNA", "@name"),
+    hover.tooltips = [(verbose_kinds[kind], "@name"),
                       ("min", "@minimum"),
                       ("max", "@maximum"),
                       ]
     hover.mode = 'mouse'
+
+    p1.xaxis.axis_label = '1+[{}]'.format(verbose_kinds[kind])
 
     bp.output_file(os.path.join(plots_folder, 'va_'+filename+'.html'))
     bp.show(p1)

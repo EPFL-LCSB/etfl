@@ -50,7 +50,7 @@ WHERE
 # df = pd.read_sql_query(sql_query.format(ec_number='1.2.4.4'), con = engine)
 # grouped = df.groupby('publication_id')
 
-ecoli_with_ec = cobra.io.load_json_model('iJO1366_with_xrefs.json')
+ecoli_with_ec = cobra.io.load_json_model('../models/iJO1366_with_xrefs.json')
 
 reaction_ecs = dict()
 

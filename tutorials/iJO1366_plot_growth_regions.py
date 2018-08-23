@@ -11,7 +11,7 @@ ec_cobra = cobra.io.load_json_model('iJO1366_with_xrefs.json')
 # ec_cobra.reactions.ATPM.lower_bound = 0
 growth_reaction_id = 'BIOMASS_Ec_iJO1366_WT_53p95M'
 
-ecoli = load_json_model('models/RelaxedModel iJO1366_T1E1N1_346_enz_256_bins__20180710_071309.json')
+ecoli = load_json_model('models/SlackModel iJO1366_T1E1N1_350_enz_256_bins__20180731_061446.json')
 
 uptake_range = pd.Series(list(range(100)))
 

@@ -24,9 +24,14 @@ from therme.data.ecoli import   get_model, get_thermo_data, get_coupling_dict, \
                         get_mrna_dict, get_rib, get_rnap, get_monomers_dict, \
                         get_nt_sequences, get_ratios, get_neidhardt_data, \
                         get_mrna_metrics, get_enz_metrics, \
-                        remove_from_biomass_equation, get_ecoli_gen_stats
+                        remove_from_biomass_equation, get_ecoli_gen_stats, \
+                        get_lloyd_coupling_dict
+
+from therme.optim.config import standard_solver_config
 
 from optlang.exceptions import SolverError
+
+from multiprocessing import Pool
 
 
 data_dir = '../organism_data/info_ecoli'
@@ -37,13 +42,14 @@ solver = 'optlang-gurobi'
 # McCloskey2014 values
 glc_uptake = 7.54
 glc_uptake_std = 0.56
-observed_growth = 0.61 - 0.02
+observed_growth_std = 0.02
+observed_growth = 0.61
 
 growth_reaction_id = 'BIOMASS_Ec_iJO1366_WT_53p95M'
 
 
 def create_model(has_thermo, has_expression, has_neidhardt,
-                 prot_scaling = 1e6, mrna_scaling=1e6, n_mu_bins = 256):
+                 prot_scaling = 1e5, mrna_scaling=1e5, n_mu_bins = 256):
     #------------------------------------------------------------
     # Initialisation
     #------------------------------------------------------------
@@ -60,12 +66,13 @@ def create_model(has_thermo, has_expression, has_neidhardt,
     vanilla_model.objective = growth_reaction_id
     fba_sol = vanilla_model.slim_optimize()
     mu_0 = fba_sol
-    mu_range = [0, 4]
+    mu_range = [0, 3.5]
     n_mu_bins = n_mu_bins
 
     time_str = get_timestr()
 
-    coupling_dict = get_coupling_dict(vanilla_model)
+    # coupling_dict = get_coupling_dict(vanilla_model)
+    coupling_dict = get_lloyd_coupling_dict(vanilla_model)
     aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides = get_monomers_dict()
 
     # Initialize the model
@@ -86,7 +93,7 @@ def create_model(has_thermo, has_expression, has_neidhardt,
                               growth_reaction = growth_reaction_id,
                               mu_range = mu_range,
                               n_mu_bins = n_mu_bins,
-                              max_enzyme_concentration = 10000,
+                              max_macromolecule_concentration = 1,
                               prot_scaling = prot_scaling,
                               mrna_scaling = mrna_scaling,
                               name = name,
@@ -96,7 +103,7 @@ def create_model(has_thermo, has_expression, has_neidhardt,
                         growth_reaction = growth_reaction_id,
                         mu_range = mu_range,
                         n_mu_bins = n_mu_bins,
-                        max_enzyme_concentration = 10000,
+                        max_macromolecule_concentration = 1,
                         prot_scaling = prot_scaling,
                         mrna_scaling = mrna_scaling,
                         name = name,
@@ -105,16 +112,8 @@ def create_model(has_thermo, has_expression, has_neidhardt,
     ecoli.name = name
     ecoli.logger.setLevel(logging.WARNING)
 
-
-    # Solver settings
     ecoli.solver = solver
-    ecoli.solver.configuration.verbosity = 1
-    ecoli.solver.configuration.tolerances.feasibility = 1e-9
-    if solver == 'optlang-gurobi':
-        ecoli.solver.problem.Params.NumericFocus = 3
-    ecoli.solver.configuration.presolve = True
-
-
+    # standard_solver_config(ecoli)
 
     if has_thermo:
         # Annotate the cobra_model
@@ -124,10 +123,11 @@ def create_model(has_thermo, has_expression, has_neidhardt,
         # TFA conversion
         ecoli.prepare()
 
-        ecoli.reactions.GLUDy.thermo['computed'] = False
+        # ecoli.reactions.GLUDy.thermo['computed'] = False
         # ecoli.reactions.DHAtpp.thermo['computed'] = False
-        ecoli.reactions.MLTP2.thermo['computed'] = False
-        ecoli.reactions.G3PD2.thermo['computed'] = False
+        # ecoli.reactions.MLTP2.thermo['computed'] = False
+        # ecoli.reactions.G3PD2.thermo['computed'] = False
+        ecoli.reactions.MECDPS.thermo['computed'] = False
 
         ecoli.convert()#add_displacement = True)
 
@@ -212,7 +212,7 @@ def create_model(has_thermo, has_expression, has_neidhardt,
 
 
     ecoli.print_info()
-    ecoli.growth_reaction.lower_bound = observed_growth
+    ecoli.growth_reaction.lower_bound = observed_growth - 3*observed_growth_std
 
     need_relax = False
 
@@ -237,9 +237,15 @@ def create_model(has_thermo, has_expression, has_neidhardt,
     print(' - Growth            : {}'.format(final_model.solution.x_dict[growth_reaction_id]))
     print(' - Ribosomes produced: {}'.format(final_model.solution.x_dict.EZ_rib))
     print(' - RNAP produced: {}'.format(final_model.solution.x_dict.EZ_rnap))
+    try:
+        print(' - DNA produced: {}'.format(final_model.solution.x_dict.DN_DNA))
+    except AttributeError:
+        pass
 
     filepath = 'models/{}'.format(final_model.name)
     save_json_model(final_model, filepath)
+
+    final_model.logger.info('Build complete for model {}'.format(final_model.name))
 
     return final_model
 
@@ -295,15 +301,28 @@ if __name__ == '__main__':
 
     # Models defined by Thermo - Expression - Neidhardt
     model_calls = [
-
-        (False, True, False),
-        (False, True, True),
-        (True,   True,   False),
-        (True,   True,   True),
+        # (False, True, True),
+        # (False, True, False),
+        (True, True, False),
+        (True, True, True),
         ]
 
     for mc in model_calls:
         models[mc] = create_model(*mc)
+
+    #
+    # pool = Pool()
+    #
+    # for mc in model_calls:
+    #     def this_callback(result, mc=mc):
+    #         models[mc] = result
+    #     pool.apply_async(create_model, args=mc, callback=this_callback)
+    #
+    # pool.close()
+    # pool.join()
+
+    print('Completed')
+
 
     # Make thermo model
     # make_thermo_model()

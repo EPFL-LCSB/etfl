@@ -3,6 +3,8 @@ import pandas as pd
 import numpy  as np
 
 from therme.io.json import load_json_model
+from therme.optim.config import standard_solver_config
+
 
 from time import time
 
@@ -116,25 +118,23 @@ if __name__ == '__main__':
                  ]
 
 
-    uptake_range = pd.Series(np.arange(-1,-40, -1))
+    # uptake_range = pd.Series(np.arange(-1,-40, -1))
+    uptake_range = pd.Series(np.arange(-6,-20, -1))
 
     models = {
-        'T0E1N0':load_json_model('models/iJO1366_T0E1N0_350_enz_256_bins__20180726_051201.json',
+        'T0E1N0':load_json_model('models/iJO1366_T0E1N0_473_enz_256_bins__20180822_054103.json',
                                  solver = solver),
-        'T1E1N0':load_json_model('models/RelaxedModel iJO1366_T1E1N0_350_enz_256_bins__20180726_053834.json',
+        # 'T1E1N0':load_json_model('models/RelaxedModel iJO1366_T1E1N0_350_enz_256_bins__20180808_144419.json',
+        #                          solver = solver),
+        'T0E1N1':load_json_model('models/iJO1366_T0E1N1_473_enz_256_bins__20180822_051256.json',
                                  solver = solver),
-        'T0E1N1':load_json_model('models/iJO1366_T0E1N1_350_enz_256_bins__20180726_052307.json',
-                                 solver = solver),
-        'T1E1N1':load_json_model('models/RelaxedModel iJO1366_T1E1N1_350_enz_256_bins__20180726_061207.json',
-                                 solver = solver),
+        # 'T1E1N1':load_json_model('models/RelaxedModel iJO1366_T1E1N1_350_enz_256_bins__20180810_051017.json',
+        #                          solver = solver),
               }
     data = {}
     for name,model in models.items():
-        # model.solver = solver
-        # model.solver.configuration.verbosity = 1
-        model.solver.configuration.tolerances.feasibility = 1e-9
-        model.solver.problem.Params.NumericFocus = 3
-        model.solver.configuration.presolve = True
+
+        standard_solver_config(model)
 
         model.logger.info('Simulating ...')
         start = time()

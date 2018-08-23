@@ -10,8 +10,10 @@ from pytfa.analysis import  variability_analysis,           \
 
 from therme.analysis.utils import enzymes_to_peptides_conc
 
+import pandas as pd
 
-ecoli = load_json_model('models/RelaxedModel iJO1366_T1E1N1_346_enz_256_bins__20180710_071309.json')
+
+ecoli = load_json_model('models/iJO1366_T0E1N1_350_enz_256_bins__20180810_051017.json')
 ecoli.optimize()
 
 print('Growth               : {}'.format(ecoli.solution.f))
@@ -82,14 +84,14 @@ for glc_uptake in [uptake_high,uptake_low]:
 
     variables = EnzymeVariable
 
-    # eva = variability_analysis(continuous_model, variables)
-    # peptides_conc_min = pd.Series(enzymes_to_peptides_conc(continuous_model, eva['minimum']))
-    # peptides_conc_max = pd.Series(enzymes_to_peptides_conc(continuous_model, eva['maximum']))
-    # peptides_conc = pd.concat([peptides_conc_min,peptides_conc_max], axis=1)
-    # peptides_conc.to_csv('outputs/iJO_T1E1N1_low_hi_{}_pep.csv'.format(glc_uptake))
+    eva = variability_analysis(continuous_model, variables)
+    peptides_conc_min = pd.Series(enzymes_to_peptides_conc(continuous_model, eva['minimum']))
+    peptides_conc_max = pd.Series(enzymes_to_peptides_conc(continuous_model, eva['maximum']))
+    peptides_conc = pd.concat([peptides_conc_min,peptides_conc_max], axis=1)
+    peptides_conc.to_csv('outputs/iJO_T1E1N1_low_hi_{}_pep.csv'.format(glc_uptake))
 
-    mva = variability_analysis(continuous_model, mRNAVariable)
-    mva.to_csv('outputs/iJO_T1E1N1_low_hi_{}_mrna.csv'.format(glc_uptake))
+    # mva = variability_analysis(continuous_model, mRNAVariable)
+    # mva.to_csv('outputs/iJO_T1E1N1_low_hi_{}_mrna.csv'.format(glc_uptake))
 
 
 
