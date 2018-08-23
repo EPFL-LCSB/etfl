@@ -1,6 +1,6 @@
 """ Thermodynamics-based Flux Analysis
 
-.. moduleauthor:: pyTFA team
+.. moduleauthor:: ETFL team
 
 
 """

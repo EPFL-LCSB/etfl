@@ -1,5 +1,5 @@
 """
-.. module:: thermome
+.. module:: ETFL
    :platform: Unix, Windows
    :synopsis: Thermodynamics-based Flux Analysis
 
@@ -17,6 +17,8 @@ from pytfa.io import        load_thermoDB,                    \
                             read_compartment_data, apply_compartment_data
 from ..core.memodel import MEModel
 from ..core.thermomemodel import ThermoMEModel
+from ..optim.config import standard_solver_config
+
 
 from ..data.ecoli import   get_model, get_thermo_data, get_coupling_dict, \
                         get_mrna_dict, get_rib, get_rnap, get_monomers_dict, \
@@ -108,7 +110,7 @@ def add_e_metabolites(model):
             model.add_reactions([ex_rxn])
 
             ex_rxn.add_metabolites({the_met:-1})
-            ex_rxn.lower_bound = -0.1
+            ex_rxn.lower_bound = -1
 
 
 def create_etfl_model(has_thermo, has_neidhardt,
@@ -152,11 +154,11 @@ def create_etfl_model(has_thermo, has_neidhardt,
 
         thermo_data, lexicon, compartment_data = get_thermo_data()
 
-        ecoli = ThermoMEModel(thermo_data,model = vanilla_model,
+        ecoli = ThermoMEModel(thermo_data, model = vanilla_model,
                               growth_reaction = growth_reaction_id,
                               mu_range = mu_range,
                               n_mu_bins = n_mu_bins,
-                              max_enzyme_concentration = 1000,
+                              max_macromolecule_concentration= 1000,
                               prot_scaling = prot_scaling,
                               mrna_scaling = mrna_scaling,
                               name = name,
@@ -166,7 +168,7 @@ def create_etfl_model(has_thermo, has_neidhardt,
                         growth_reaction = growth_reaction_id,
                         mu_range = mu_range,
                         n_mu_bins = n_mu_bins,
-                        max_enzyme_concentration = 1000,
+                        max_macromolecule_concentration= 1000,
                         prot_scaling = prot_scaling,
                         mrna_scaling = mrna_scaling,
                         name = name,
@@ -178,13 +180,7 @@ def create_etfl_model(has_thermo, has_neidhardt,
 
     # Solver settings
     ecoli.solver = solver
-    ecoli.solver.configuration.verbosity = 1
-    ecoli.solver.configuration.tolerances.feasibility = 1e-9
-    if solver == 'optlang-gurobi':
-        ecoli.solver.problem.Params.NumericFocus = 3
-    ecoli.solver.configuration.presolve = True
-
-
+    standard_solver_config(ecoli)
 
     if has_thermo:
         # Annotate the cobra_model

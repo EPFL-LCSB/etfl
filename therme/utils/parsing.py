@@ -1,5 +1,5 @@
 """
-.. module:: thermome
+.. module:: ETFL
    :platform: Unix, Windows
    :synopsis: Thermodynamics-based Flux Analysis
 

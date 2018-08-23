@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-.. module:: thermome
+.. module:: ETFL
    :platform: Unix, Windows
    :synopsis: Thermodynamics-based Flux Analysis
 
@@ -49,17 +49,18 @@ def build_trna_charging(model, aa_dict,
         # Trick in case two amino acids are linked to the same reaction. Example:
         # Cysteine and selenocysteine
         the_rxn = model.reactions.get_by_id(rxn_id)
+        mets = {
+                aa:-1,
+                # uncharged_trna:-1,
+                atp:-1,
+                h2o:-2,
+                # charged_trna:1,
+                amp:1,
+                ppi:1,
+                h:2,
+                }
 
-        the_rxn.add_metabolites({
-            aa:-1,
-            # uncharged_trna:-1,
-            atp:-1,
-            h2o:-2,
-            # charged_trna:1,
-            amp:1,
-            ppi:1,
-            h:2,
-        })
+        the_rxn.add_metabolites(mets)
 
         trna_dict[aa_id] = (charged_trna,uncharged_trna, charging_rxn)
     return trna_dict
