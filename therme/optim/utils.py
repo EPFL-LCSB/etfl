@@ -109,7 +109,7 @@ def _generic_fix_integers(model):
         the_generic_var = continuous_model._var_dict[this_var.name]
         continuous_model.remove_variable(the_generic_var)
 
-    continuous_model._update()
+    continuous_model._push_queue()
     continuous_model.solver.update()
     # This will update the values =
     print('Is the cobra_model still integer ? {}'     \
