@@ -25,7 +25,8 @@ from therme.data.ecoli import   get_model, get_thermo_data, get_coupling_dict, \
                         get_nt_sequences, get_ratios, get_neidhardt_data, \
                         get_mrna_metrics, get_enz_metrics, \
                         remove_from_biomass_equation, get_ecoli_gen_stats, \
-                        get_lloyd_coupling_dict
+                        get_lloyd_coupling_dict, \
+                        get_essentials
 
 from therme.optim.config import standard_solver_config
 
@@ -48,8 +49,7 @@ observed_growth = 0.61
 growth_reaction_id = 'BIOMASS_Ec_iJO1366_WT_53p95M'
 
 
-def create_model(has_thermo, has_expression, has_neidhardt,
-                 prot_scaling = 1e5, mrna_scaling=1e5, n_mu_bins = 256):
+def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 256):
     #------------------------------------------------------------
     # Initialisation
     #------------------------------------------------------------
@@ -71,9 +71,10 @@ def create_model(has_thermo, has_expression, has_neidhardt,
 
     time_str = get_timestr()
 
-    # coupling_dict = get_coupling_dict(vanilla_model)
-    coupling_dict = get_lloyd_coupling_dict(vanilla_model)
+    coupling_dict = get_coupling_dict(vanilla_model)
+    # coupling_dict = get_lloyd_coupling_dict(vanilla_model)
     aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides = get_monomers_dict()
+    essentials = get_essentials()
 
     # Initialize the model
 
@@ -93,9 +94,6 @@ def create_model(has_thermo, has_expression, has_neidhardt,
                               growth_reaction = growth_reaction_id,
                               mu_range = mu_range,
                               n_mu_bins = n_mu_bins,
-                              max_macromolecule_concentration = 1,
-                              prot_scaling = prot_scaling,
-                              mrna_scaling = mrna_scaling,
                               name = name,
                               )
     else:
@@ -103,9 +101,6 @@ def create_model(has_thermo, has_expression, has_neidhardt,
                         growth_reaction = growth_reaction_id,
                         mu_range = mu_range,
                         n_mu_bins = n_mu_bins,
-                        max_macromolecule_concentration = 1,
-                        prot_scaling = prot_scaling,
-                        mrna_scaling = mrna_scaling,
                         name = name,
                         )
 
@@ -113,7 +108,7 @@ def create_model(has_thermo, has_expression, has_neidhardt,
     ecoli.logger.setLevel(logging.WARNING)
 
     ecoli.solver = solver
-    # standard_solver_config(ecoli)
+    standard_solver_config(ecoli)
 
     if has_thermo:
         # Annotate the cobra_model
@@ -127,15 +122,15 @@ def create_model(has_thermo, has_expression, has_neidhardt,
         # ecoli.reactions.DHAtpp.thermo['computed'] = False
         # ecoli.reactions.MLTP2.thermo['computed'] = False
         # ecoli.reactions.G3PD2.thermo['computed'] = False
-        ecoli.reactions.MECDPS.thermo['computed'] = False
+        # ecoli.reactions.MECDPS.thermo['computed'] = False
 
         ecoli.convert()#add_displacement = True)
 
 
     mrna_dict = get_mrna_dict(ecoli)
     nt_sequences = get_nt_sequences()
-    rib, rrna_genes, rprot_genes = get_rib()
-    rnap, rnap_genes = get_rnap()
+    rnap = get_rnap()
+    rib = get_rib()
 
     # Remove nucleotides and amino acids from biomass reaction as they will be
     # taken into account by the expression
@@ -143,41 +138,30 @@ def create_model(has_thermo, has_expression, has_neidhardt,
     remove_from_biomass_equation(model = ecoli,
                                  nt_dict = rna_nucleotides,
                                  aa_dict = aa_dict,
-                                 atp_id='atp_c',
-                                 adp_id='adp_c',
-                                 pi_id='pi_c',
-                                 h2o_id='h2o_c',
-                                 h_id='h_c',
+                                 atp_id=essentials['atp'],
+                                 adp_id=essentials['adp'],
+                                 pi_id=essentials['pi'],
+                                 h2o_id=essentials['h2o'],
+                                 h_id=essentials['h'],
                                  )
 
     ##########################
     ##    MODEL CREATION    ##
     ##########################
 
-    ecoli.add_rnap(rnap)
-    ecoli.add_ribosome(rib, free_ratio=0.2)
     ecoli.add_nucleotide_sequences(nt_sequences)
-    ecoli.add_mrnas(mrna_dict.values())
-
-    ecoli.build_expression(aa_dict = aa_dict,
-                           rna_nucleotides= rna_nucleotides,
-                           atp='atp_c',
-                           amp='amp_c',
-                           gtp='gtp_c',
-                           gdp='gdp_c',
-                           pi='pi_c',
-                           ppi='ppi_c',
-                           h2o='h2o_c',
-                           h='h_c',
-                           rnap_genes = rnap_genes,
-                           rrna_genes = rrna_genes,
-                           rprot_genes= rprot_genes
+    ecoli.add_essentials(  essentials=essentials,
+                           aa_dict=aa_dict,
+                           rna_nucleotides=rna_nucleotides,
+                           rna_nucleotides_mp = rna_nucleotides_mp
                            )
+    ecoli.add_mrnas(mrna_dict.values())
+    ecoli.add_ribosome(rib,free_ratio=0.2)
+    ecoli.add_rnap(rnap)
+
+    ecoli.build_expression()
     ecoli.add_enzymatic_coupling(coupling_dict)
     ecoli.populate_expression()
-    ecoli.add_degradation(rna_nucleotides_mp = rna_nucleotides_mp,
-                          h2o='h2o_c',
-                          h='h_c')
 
     if has_neidhardt:
 
@@ -193,12 +177,7 @@ def create_model(has_thermo, has_expression, has_neidhardt,
                           mrna_length=mrna_length_avg,
                           aa_ratios=aa_ratios,
                           enzyme_kdeg=kdeg_enz,
-                          peptide_length=peptide_length_avg,
-                          gtp='gtp_c',
-                          gdp='gdp_c',
-                          h2o='h2o_c',
-                          h='h_c',
-                          ppi='ppi_c')
+                          peptide_length=peptide_length_avg)
         ecoli.add_protein_mass_requirement(neidhardt_mu, neidhardt_prel)
         ecoli.add_rna_mass_requirement(neidhardt_mu, neidhardt_rrel)
         ecoli.add_dna_mass_requirement(mu_values=neidhardt_mu,
@@ -206,8 +185,7 @@ def create_model(has_thermo, has_expression, has_neidhardt,
                                        gc_ratio=gc_ratio,
                                        chromosome_len=chromosome_len,
                                        dna_dict=dna_nucleotides)
-
-    # Need to be put after, because dummy has to be taken into account if used.
+    # Need to put after, because dummy has to be taken into account if used.
     ecoli.add_trna_mass_balances()
 
 
@@ -234,16 +212,17 @@ def create_model(has_thermo, has_expression, has_neidhardt,
     final_model.growth_reaction.lower_bound = 0
     solution = final_model.optimize()
     print('Objective            : {}'.format(final_model.solution.f))
-    print(' - Growth            : {}'.format(final_model.solution.x_dict[growth_reaction_id]))
-    print(' - Ribosomes produced: {}'.format(final_model.solution.x_dict.EZ_rib))
-    print(' - RNAP produced: {}'.format(final_model.solution.x_dict.EZ_rnap))
+    print(' - Glucose uptake    : {}'.format(final_model.reactions.EX_glc__D_e.flux))
+    print(' - Growth            : {}'.format(final_model.growth_reaction.flux))
+    print(' - Ribosomes produced: {}'.format(final_model.ribosome.X))
+    print(' - RNAP produced: {}'.format(final_model.rnap.X))
     try:
         print(' - DNA produced: {}'.format(final_model.solution.x_dict.DN_DNA))
     except AttributeError:
         pass
 
     filepath = 'models/{}'.format(final_model.name)
-    save_json_model(final_model, filepath)
+    # save_json_model(final_model, filepath)
 
     final_model.logger.info('Build complete for model {}'.format(final_model.name))
 
@@ -304,7 +283,7 @@ if __name__ == '__main__':
         # (False, True, True),
         # (False, True, False),
         (True, True, False),
-        (True, True, True),
+        # (True, True, True),
         ]
 
     for mc in model_calls:

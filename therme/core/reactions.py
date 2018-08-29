@@ -15,8 +15,12 @@ from _collections import defaultdict
 
 
 class ExpressionReaction(Reaction):
+    def __init__(self, scaled, **kwargs):
+        Reaction.__init__(self, **kwargs)
+        self._scaled = scaled
+
     @classmethod
-    def from_reaction(cls,reaction):
+    def from_reaction(cls,reaction, scaled = False, **kwargs):
         """
         This method clones a cobra.Reaction object into a expression-related
         type of reaction
@@ -28,24 +32,59 @@ class ExpressionReaction(Reaction):
                     name= reaction.name,
                     subsystem= reaction.subsystem,
                     lower_bound= reaction.lower_bound,
-                    upper_bound= reaction.upper_bound)
+                    upper_bound= reaction.upper_bound,
+                    scaled = scaled,
+                    **kwargs)
 
         new.add_metabolites(reaction.metabolites)
         new.gene_reaction_rule = reaction.gene_reaction_rule
         return new
 
+    def add_metabolites(self, metabolites, rescale = True):
+        """
+        We need to override this method if the reaction is scaled
+
+        v_hat = v/vmax
+
+        dM/dt = n1*v1 + ...
+
+        dM/dt = n1*vmax1 * v1_hat + ...
+
+        :param metabolites:
+        :return:
+        """
+
+        if not hasattr(self, '_scaled') or not rescale or not self._scaled:
+            Reaction.add_metabolites(self, metabolites)
+        else:
+            Reaction.add_metabolites(self, {k:v*self.scaling_factor
+                                        for k,v in metabolites.items()})
+
+    @property
+    def scaling_factor(self):
+        return 1
+
+    @property
+    def net(self):
+        return self.scaling_factor * self.scaled_net
+
+    @property
+    def scaled_net(self):
+        return self.forward_variable - self.reverse_variable
+
 class EnzymaticReaction(ExpressionReaction):
     """
     Subclass to describe reactions that are catalyzed by an enzyme.
     """
-    def __init__(self, enzymes = None, *args, **kwargs):
-        Reaction.__init__(self, *args, **kwargs)
+    def __init__(self, enzymes = None, scaled = False, *args, **kwargs):
+        ExpressionReaction.__init__(self, scaled, *args, **kwargs)
         self.enzymes = DictList()
         if enzymes:
             self.add_enzymes(enzymes)
 
+
     @classmethod
-    def from_reaction(cls,reaction, gene_id = None, enzymes = None):
+    def from_reaction(cls,reaction, gene_id = None, enzymes = None, scaled=False):
         """
         This method clones a cobra.Reaction object into a transcription reaction,
         and attaches enzymes to it
@@ -63,16 +102,18 @@ class EnzymaticReaction(ExpressionReaction):
                         subsystem= reaction.subsystem,
                         lower_bound= reaction.lower_bound,
                         upper_bound= reaction.upper_bound,
-                        enzymes= enzymes)
+                        enzymes= enzymes,
+                        scaled=scaled)
         else:
             new =  cls( id = reaction.id,
                         name= reaction.name,
                         subsystem= reaction.subsystem,
                         lower_bound= reaction.lower_bound,
                         upper_bound= reaction.upper_bound,
-                        enzymes= enzymes)
+                        enzymes= enzymes,
+                        scaled=scaled)
 
-        new.add_metabolites(reaction.metabolites)
+        new.add_metabolites(reaction.metabolites, rescale = False)
         new.gene_reaction_rule = reaction.gene_reaction_rule
         return new
 
@@ -93,6 +134,10 @@ class EnzymaticReaction(ExpressionReaction):
                 self.enzymes._replace_on_id(e)
             else:
                 self.enzymes += [e]
+
+    @property
+    def scaling_factor(self):
+        return self.enzyme.kcat_max * self.enzyme.scaling_factor
 
 
 class TranscriptionReaction(EnzymaticReaction):
@@ -128,6 +173,11 @@ class TranscriptionReaction(EnzymaticReaction):
         """
         self.enzymes = rnap
 
+    @property
+    def scaling_factor(self):
+        return self.enzymes[0].kcat_fwd * self.enzymes[0].scaling_factor \
+                / self.nucleotide_length
+
 class TranslationReaction(EnzymaticReaction):
     """
     Class describing translation - Assembly of amino acids into peptides
@@ -151,6 +201,20 @@ class TranslationReaction(EnzymaticReaction):
     def aminoacid_length(self):
         return len(self.gene.peptide)
 
+    def add_peptide(self, peptide):
+        """
+        According to the scaling rules, the coefficient of the scaled translation
+        reaction for the peptide balance is 1:
+
+        dPep/dt = v_tsl     - sum(ηj * vj_asm) = 0
+                  v_tsl_hat - sum(ηj * L_aa/(krib * R_max) * kdegj * Ej_max * vj_asm_max)
+
+        :param peptide:
+        :return:
+        """
+
+        self.add_metabolites({peptide:1}, rescale=False)
+
 
     def add_ribosome(self, ribosome):
         """
@@ -162,19 +226,79 @@ class TranslationReaction(EnzymaticReaction):
         self.enzymes = ribosome
 
 
+
+    @property
+    def scaling_factor(self):
+        # return self.enzymes[0].kcat_fwd * self.enzymes[0].scaling_factor \
+        return self.enzymes[0].kcat_fwd * self.enzymes[0].scaling_factor \
+                / self.aminoacid_length
+
+
 class ProteinComplexation(ExpressionReaction):
     """
     Describes the assembly of peptides into an enzyme
     """
-    def __init__(self, *args, **kwargs):
-        Reaction.__init__(self, *args, **kwargs)
+    def __init__(self, target, *args, **kwargs):
+        ExpressionReaction.__init__(self, *args, **kwargs)
         self.enzymes = None
+        self.target = target
+        self.target.complexation = self
+
+    @property
+    def scaling_factor(self):
+        # return self.model.mu_max * self.target.scaling_factor
+        return self.target.kdeg * self.target.scaling_factor
+
+    def add_peptides(self, peptides):
+        """
+        /!\ Reaction must belong to a model
+
+        According to the scaling rules, the coefficient of the scaled complexation
+        reaction for the peptide balance is L_aa/(krib * R_max):
+
+        dPep/dt = v_tsl     - sum(ηj * vj_asm) = 0
+                  v_tsl_hat - sum(ηj * L_aa/(krib * R_max) * kdegj * Ej_max * vj_asm_max)
+
+
+        :param peptides: dict(Peptide: int)
+        :return:
+        """
+
+        if not hasattr(self, 'model'):
+            raise Exception('This reaction must belong to a model in order to '
+                            'add peptides')
+
+        f = {
+            p.id : len(p.peptide)
+                   / (self.model.ribosome.kribo * self.model.ribosome.scaling_factor)
+            for p in peptides
+        }
+        self.add_metabolites({p:f[p.id]*s for p,s in peptides.items()}, rescale=True)
 
 
 class DegradationReaction(ExpressionReaction):
     """
     Describes the degradation of macromolecules
     """
-    def __init__(self, *args, **kwargs):
-        Reaction.__init__(self, *args, **kwargs)
+    def __init__(self, macromolecule, *args, **kwargs):
+        ExpressionReaction.__init__(self, *args, **kwargs)
         self.enzymes = None
+        self.macromolecule = macromolecule
+        self.macromolecule.degradation = self
+
+    @property
+    def scaling_factor(self):
+        # return self.model.mu_max * self.macromolecule.scaling_factor
+        return self.macromolecule.kdeg * self.macromolecule.scaling_factor
+
+class DNAFormation(ExpressionReaction):
+    """
+    Describes the assembly of NTPs into DNA
+    """
+    def __init__(self, dna, *args, **kwargs):
+        ExpressionReaction.__init__(self, *args, **kwargs)
+        self.dna = dna
+
+    @property
+    def scaling_factor(self):
+        return self.model._mu_range[-1] * self.dna.scaling_factor

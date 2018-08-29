@@ -12,7 +12,7 @@ ME-related macromolecule subclasses and methods definition
 """
 
 from cobra import Species, Metabolite, DictList
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 
 
 class Macromolecule(Species, ABC):
@@ -20,6 +20,7 @@ class Macromolecule(Species, ABC):
         Species.__init__(self, id = id, *args, **kwargs)
 
         self.kdeg = kdeg
+        self.degradation = None
 
     @abstractmethod
     def init_variable(self, queue=False):
@@ -30,6 +31,24 @@ class Macromolecule(Species, ABC):
         :return:
         """
 
+
+    @property
+    def concentration(self):
+        return self.scaling_factor * self.scaled_concentration
+
+
+    @property
+    def scaled_concentration(self):
+        return self.variable
+
+    @property
+    def X(self):
+        return self.scaling_factor * self.scaled_X
+
+
+    @property
+    def scaled_X(self):
+        return self.variable.primal
 
     @property
     def variable(self):
@@ -46,3 +65,16 @@ class Macromolecule(Species, ABC):
     def throw_nomodel_error(self):
         self.model.logger.warning('''{} has no model attached - variable attribute
          is not available'''.format(self.id))
+
+    @abstractproperty
+    def molecular_weight(self):
+        """
+        Necessary for scaling
+        Use Biopython for this
+
+        :return:
+        """
+
+    @property
+    def scaling_factor(self):
+        return 1/self.molecular_weight

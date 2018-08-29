@@ -19,7 +19,7 @@ from .macromolecule import Macromolecule
 
 class Enzyme(Macromolecule):
     def __init__(self, id=None, kcat=None, kcat_fwd=None, kcat_bwd=None,
-                 kdeg=None, *args, **kwargs):
+                 kdeg=None, composition = None, *args, **kwargs):
         Macromolecule.__init__(self, id = id, kdeg=kdeg, *args, **kwargs)
 
         if kcat is not None:
@@ -32,7 +32,13 @@ class Enzyme(Macromolecule):
             self.kcat_fwd = kcat_fwd
             self.kcat_bwd = kcat_bwd
 
-        self.composition = None
+        if isinstance(composition, dict):
+            self.composition = composition
+        elif hasattr(composition, '__iter__'):
+            self.composition = {k:1 for k in composition}
+        else:
+            raise TypeError('Composition should be of type dict() or iterable')
+
         self.complexation = None
 
     def init_variable(self, queue=False):
@@ -42,16 +48,19 @@ class Enzyme(Macromolecule):
 
         :return:
         """
-        self._internal_variable = self.model.add_variable(EnzymeVariable,
-                                                        self,
-                                                        queue=queue)
+        self._internal_variable = \
+            self.model.add_variable(EnzymeVariable,
+                                    self,
+                                    scaling_factor=self.scaling_factor,
+                                    lb = 0,
+                                    ub = 1,
+                                    queue=queue)
 
     @property
     def molecular_weight(self):
         # /!\ stoichiometric coefficient is negative
-        return sum(-1*v*p.molecular_weight
-                for p,v in self.complexation.metabolites.items())
-
+        return sum(v*self.model.peptides.get_by_id(p).molecular_weight
+            for p,v in self.composition.items())
 
 
 class Peptide(Metabolite):
@@ -95,21 +104,39 @@ class Peptide(Metabolite):
         new = Peptide(id=met.id,
                       name = met.name,
                       gene_id=gene_id)
+        new._model = met.model
         return new
 
 
 class Ribosome(Enzyme):
-    def __init__(self, id=None, kribo=None, kdeg=None, *args, **kwargs):
-        Enzyme.__init__(self, id = id, kdeg=kdeg, kcat = kribo, *args, **kwargs)
+    def __init__(self, id=None, kribo=None, kdeg=None, composition=None, rrna=None,
+                 *args, **kwargs):
+        Enzyme.__init__(self, id = id, kdeg=kdeg, kcat = kribo, composition=composition,
+                        *args, **kwargs)
+
+        self.rrna_composition = {k: 1 for k in rrna}
 
     @property
     def kribo(self):
         return self.kcat_fwd
 
+    @property
+    def molecular_weight(self):
+        # /!\ stoichiometric coefficient is negative
+        prot_w = sum(v * self.model.peptides.get_by_id(p).molecular_weight
+                     for p, v in self.composition.items())
+
+        rrna_w = sum(v * self.model.mrnas.get_by_id(p).molecular_weight
+                     for p, v in self.rrna_composition.items())
+
+        return prot_w + rrna_w
+
 
 class RNAPolymerase(Enzyme):
-    def __init__(self, id=None, ktrans=None, kdeg=None, *args, **kwargs):
-        Enzyme.__init__(self, id = id, kdeg=kdeg, kcat = ktrans, *args, **kwargs)
+    def __init__(self, id=None, ktrans=None, kdeg=None, composition=None,
+                 *args, **kwargs):
+        Enzyme.__init__(self, id = id, kdeg=kdeg, kcat = ktrans,
+                        composition=composition, *args, **kwargs)
 
     @property
     def ktrans(self):

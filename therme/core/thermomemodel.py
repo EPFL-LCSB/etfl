@@ -38,7 +38,6 @@ class ThermoMEModel(MEModel, ThermoModel):
                  growth_reaction='',
                  mu = None, mu_error = 0,
                  mu_range = None, n_mu_bins = 1,
-                 max_macromolecule_concentration = 1,
                  big_M = 1000,
                  temperature=std.TEMPERATURE_0,
                  min_ph=std.MIN_PH,
@@ -60,8 +59,7 @@ class ThermoMEModel(MEModel, ThermoModel):
         if model is not None:
             self.sanitize_varnames()
 
-        self.init_etfl(big_M, growth_reaction, max_macromolecule_concentration,
-                       mrna_scaling, mu_range, n_mu_bins, name, prot_scaling)
+        self.init_etfl(big_M, growth_reaction, mu_range, n_mu_bins, name)
 
         ###############
         # Thermo part #

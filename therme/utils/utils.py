@@ -25,9 +25,9 @@ def replace_by_transcription_reaction(model, reaction_id, gene_id, enzymes):
     _replace_by_me_reaction(model, rxn, enz_rxn)
     return enz_rxn
 
-def replace_by_reaction_subclass(model, kind, reaction_id):
+def replace_by_reaction_subclass(model, kind, reaction_id, **kwargs):
     rxn  = model.reactions.get_by_id(reaction_id)
-    new_rxn = kind.from_reaction(reaction=rxn)
+    new_rxn = kind.from_reaction(reaction=rxn, **kwargs)
     _replace_by_me_reaction(model, rxn, new_rxn)
     return new_rxn
 

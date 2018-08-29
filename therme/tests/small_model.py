@@ -24,7 +24,8 @@ from ..data.ecoli import   get_model, get_thermo_data, get_coupling_dict, \
                         get_mrna_dict, get_rib, get_rnap, get_monomers_dict, \
                         get_nt_sequences, get_ratios, get_neidhardt_data, \
                         get_mrna_metrics, get_enz_metrics, \
-                        remove_from_biomass_equation, get_ecoli_gen_stats
+                        remove_from_biomass_equation, get_ecoli_gen_stats, \
+                        get_essentials
 
 from optlang.exceptions import SolverError
 
@@ -37,7 +38,7 @@ GLPK = 'optlang-glpk'
 
 solver = GUROBI
 aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides = get_monomers_dict()
-
+essentials = get_essentials()
 
 def create_fba_model(solver = GLPK):
 
@@ -78,6 +79,10 @@ def create_fba_model(solver = GLPK):
     the_model.add_reactions([ppi_hydrolysis,gdp_ex])
 
     add_e_metabolites(the_model)
+
+    for met in ['dttp', 'dctp', 'datp', 'dgtp']:
+        the_ex = the_model.reactions.get_by_id('EX_'+met+'_c')
+        the_ex.lower_bound = -1
     # add_growth(the_model)
 
     the_model.solver = solver
@@ -110,7 +115,7 @@ def add_e_metabolites(model):
             model.add_reactions([ex_rxn])
 
             ex_rxn.add_metabolites({the_met:-1})
-            ex_rxn.lower_bound = -1
+            ex_rxn.lower_bound = -20
 
 
 def create_etfl_model(has_thermo, has_neidhardt,
@@ -158,7 +163,6 @@ def create_etfl_model(has_thermo, has_neidhardt,
                               growth_reaction = growth_reaction_id,
                               mu_range = mu_range,
                               n_mu_bins = n_mu_bins,
-                              max_macromolecule_concentration= 1000,
                               prot_scaling = prot_scaling,
                               mrna_scaling = mrna_scaling,
                               name = name,
@@ -168,7 +172,6 @@ def create_etfl_model(has_thermo, has_neidhardt,
                         growth_reaction = growth_reaction_id,
                         mu_range = mu_range,
                         n_mu_bins = n_mu_bins,
-                        max_macromolecule_concentration= 1000,
                         prot_scaling = prot_scaling,
                         mrna_scaling = mrna_scaling,
                         name = name,
@@ -194,12 +197,13 @@ def create_etfl_model(has_thermo, has_neidhardt,
 
     nt_sequences = get_nt_sequences()
     mrna_dict = get_mrna_dict(ecoli)
-    rnap, rnap_genes = get_rnap()
-    rib, rrna_genes, rprot_genes = get_rib()
+    rnap = get_rnap()
+    rib = get_rib()
 
     prune_to_genes = lambda the_dict:{k:v for k,v in the_dict.items() \
                     if k in vanilla_model.genes or \
-                     k in rrna_genes or k in rprot_genes.values or k in rnap_genes}
+                     k in rib.rrna_composition or k in rib.composition
+                                      or k in rnap.composition}
 
     nt_sequences = prune_to_genes(nt_sequences)
     mrna_dict = prune_to_genes(mrna_dict)
@@ -210,41 +214,30 @@ def create_etfl_model(has_thermo, has_neidhardt,
     remove_from_biomass_equation(model = ecoli,
                                  nt_dict = rna_nucleotides,
                                  aa_dict = aa_dict,
-                                 atp_id='atp_c',
-                                 adp_id='adp_c',
-                                 pi_id='pi_c',
-                                 h2o_id='h2o_c',
-                                 h_id='h_c',
+                                 atp_id=essentials['atp'],
+                                 adp_id=essentials['adp'],
+                                 pi_id=essentials['pi'],
+                                 h2o_id=essentials['h2o'],
+                                 h_id=essentials['h'],
                                  )
 
     ##########################
     ##    MODEL CREATION    ##
     ##########################
 
-    ecoli.add_rnap(rnap)
-    ecoli.add_ribosome(rib, free_ratio=0.2)
     ecoli.add_nucleotide_sequences(nt_sequences)
-    ecoli.add_mrnas(mrna_dict.values())
-
-    ecoli.build_expression(aa_dict = aa_dict,
-                           rna_nucleotides= rna_nucleotides,
-                           atp='atp_c',
-                           amp='amp_c',
-                           gtp='gtp_c',
-                           gdp='gdp_c',
-                           pi='pi_c',
-                           ppi='ppi_c',
-                           h2o='h2o_c',
-                           h='h_c',
-                           rnap_genes = rnap_genes,
-                           rrna_genes = rrna_genes,
-                           rprot_genes= rprot_genes
+    ecoli.add_essentials(  essentials=essentials,
+                           aa_dict=aa_dict,
+                           rna_nucleotides=rna_nucleotides,
+                           rna_nucleotides_mp = rna_nucleotides_mp
                            )
+    ecoli.add_mrnas(mrna_dict.values())
+    ecoli.add_ribosome(rib,free_ratio=0.2)
+    ecoli.add_rnap(rnap)
+
+    ecoli.build_expression()
     ecoli.add_enzymatic_coupling(coupling_dict)
     ecoli.populate_expression()
-    ecoli.add_degradation(rna_nucleotides_mp = rna_nucleotides_mp,
-                          h2o='h2o_c',
-                          h='h_c')
 
     if has_neidhardt:
 
@@ -260,12 +253,7 @@ def create_etfl_model(has_thermo, has_neidhardt,
                           mrna_length=mrna_length_avg,
                           aa_ratios=aa_ratios,
                           enzyme_kdeg=kdeg_enz,
-                          peptide_length=peptide_length_avg,
-                          gtp='gtp_c',
-                          gdp='gdp_c',
-                          h2o='h2o_c',
-                          h='h_c',
-                          ppi='ppi_c')
+                          peptide_length=peptide_length_avg)
         ecoli.add_protein_mass_requirement(neidhardt_mu, neidhardt_prel)
         ecoli.add_rna_mass_requirement(neidhardt_mu, neidhardt_rrel)
         ecoli.add_dna_mass_requirement(mu_values=neidhardt_mu,
@@ -286,9 +274,11 @@ def create_etfl_model(has_thermo, has_neidhardt,
     try:
         ecoli.optimize()
 
-        print('Growth               : {}'.format(ecoli.solution.f))
-        print(' - Ribosomes produced: {}'.format(ecoli.solution.x_dict.EZ_rib))
-        print(' - RNAP produced: {}'.format(ecoli.solution.x_dict.EZ_rnap))
+        print('Objective            : {}'.format(ecoli.solution.f))
+        print(' - Glucose uptake    : {}'.format(ecoli.reactions.EX_glc__D_e.flux))
+        print(' - Growth            : {}'.format(ecoli.growth_reaction.flux))
+        print(' - Ribosomes produced: {}'.format(ecoli.ribosome.X))
+        print(' - RNAP produced: {}'.format(ecoli.rnap.X))
 
     except (AttributeError, SolverError):
         pass

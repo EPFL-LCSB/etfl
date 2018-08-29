@@ -93,6 +93,18 @@ def get_thermo_data():
 # Data
 #------------------------7.54--------------------------------
 
+# Essentials
+def get_essentials():
+    return dict(atp='atp_c',
+                adp='adp_c',
+                amp='amp_c',
+                gtp='gtp_c',
+                gdp='gdp_c',
+                pi='pi_c',
+                ppi='ppi_c',
+                h2o='h2o_c',
+                h='h_c')
+
 # Growth-related abundances
 
 def get_neidhardt_data():
@@ -400,9 +412,8 @@ def get_homomer_coupling_dict(model):
         new_enzyme = Enzyme(x.id,
                             kcat_fwd=kcat_fwd,
                             kcat_bwd=kcat_bwd,
-                            kdeg=kdeg_enz)
-
-        new_enzyme.composition = composition
+                            kdeg=kdeg_enz,
+                            composition = composition)
 
         coupling_dict[x.id] = [new_enzyme]
 
@@ -546,9 +557,8 @@ def get_aggregated_coupling_dict(model, coupling_dict = dict()):
             new_enzyme = Enzyme('{}_{}'.format(x.id,cleaned_cplx_name),
                                 name='{}_{}: {}'.format(x.id, e, this_complex_name),
                                 kcat=kcat,
-                                kdeg=kdeg_enz)
-
-            new_enzyme.composition = composition
+                                kdeg=kdeg_enz,
+                                composition = composition)
 
             new_enzyme.notes['EC'] = this_ec
 
@@ -615,10 +625,8 @@ def get_lloyd_coupling_dict(model):
                                 name='{}_{}: {}'.format(x.id, e, this_complex_name),
                                 kcat_fwd=kcat_fwd,
                                 kcat_bwd=kcat_bwd,
-                                kdeg=kdeg_enz)
-
-            new_enzyme.composition = composition
-
+                                kdeg=kdeg_enz,
+                                composition=composition)
 
             aggregated_coupling_dict[x.id].append(new_enzyme)
 
@@ -649,8 +657,8 @@ def get_mrna_dict(model):
             t_half = bernstein_ecoli_deg_rates.loc[x.upper()]['medium, min.1'] #M9 medium
             # Mean half life of mrna is 5 minutes in ecoli
             # tau = t_0.5 /ln(2)
-            # kdeg = 1-exp(1hr/tau)
-            this_kdeg_mrna = 1 - np.exp(-60 * np.log(2) / t_half)
+            # kdeg = 1/tau [min.1] * [min/h]
+            this_kdeg_mrna = (60 * np.log(2) / t_half)
         except KeyError:
             this_kdeg_mrna = kdeg_mrna # Average value of 5 mins
 
@@ -685,9 +693,9 @@ def get_rib():
 
     rrna_genes = ['b3851', 'b3854', 'b3855']
 
-    rib = Ribosome(id='rib', name='Ribosome', kribo=12 * 3600, kdeg=0.001)
-
-    return rib, rrna_genes, rpeptide_genes
+    rib = Ribosome(id='rib', name='Ribosome', kribo=12 * 3600, kdeg=0.001,
+                   composition = rpeptide_genes, rrna=rrna_genes)
+    return rib
 
 # http://bionumbers.hms.harvard.edu/bionumber.aspx?&id=100060&ver=32
 # Bionumber ID  100060
@@ -709,11 +717,12 @@ def get_rnap():
     :return:
     """
 
+    rnap_genes = ['b3295','b3649','b3987','b3988']
     rnap = RNAPolymerase(id='rnap',
                          name='RNA Polymerase',
                          ktrans = ktrans*3600,
-                         kdeg = 0.2)
+                         kdeg = 0.2,
+                         composition = rnap_genes)
 
-    rnap_genes = ['b3295','b3649','b3987','b3988']
 
-    return rnap, rnap_genes
+    return rnap

@@ -10,11 +10,14 @@ ME-related Enzyme subclasses and methods definition
 
 
 """
+from cobra import Metabolite
 from .macromolecule import Macromolecule
 from ..optim.variables import mRNAVariable, tRNAVariable
 from Bio.SeqUtils import molecular_weight
 from .macromolecule import Macromolecule
 
+from warnings import warn
+from warnings import warn
 
 class RNA(Macromolecule):
     def __init__(self, id=None, kdeg=None, gene_id=None, *args, **kwargs):
@@ -39,9 +42,13 @@ class RNA(Macromolecule):
 
         :return:
         """
-        self._internal_variable = self.model.add_variable(mRNAVariable,
-                                                        self,
-                                                        queue=queue)
+        self._internal_variable = \
+            self.model.add_variable(mRNAVariable,
+                                    self,
+                                    scaling_factor=self.scaling_factor,
+                                    lb = 0,
+                                    ub=1,
+                                    queue=queue)
 
     @property
     def molecular_weight(self):
@@ -61,10 +68,17 @@ class mRNA(RNA):
         return self.gene.peptide
 
 
-class rRNA(RNA):
-    pass
+class rRNA(Metabolite):
     # def __init__(self, id=None, gene_id=None, *args, **kwargs):
     #     RNA.__init__(self, id=id, kdeg=0, *args, **kwargs)
+
+    @staticmethod
+    def from_metabolite(met):
+
+        new = rRNA(id=met.id,
+                   name = met.name)
+        new._model = met.model
+        return new
 
 
 class tRNA(Macromolecule):
@@ -86,11 +100,20 @@ class tRNA(Macromolecule):
 
         :return:
         """
-        self._internal_variable = self.model.add_variable(tRNAVariable,
-                                                      hook = self.model,
-                                                      id_=self.id,
-                                                      queue=queue)
+        self._internal_variable = \
+            self.model.add_variable(tRNAVariable,
+                                    hook = self.model,
+                                    id_=self.id,
+                                    scaling_factor=self.scaling_factor,
+                                    lb = 0,
+                                    ub=1,
+                                    queue=queue)
 
     @property
     def aminoacid(self):
         return self.model.metabolites.get_by_id(self._aminoacid_id)
+
+    @property
+    def molecular_weight(self):
+        warn('Implement tRNA MW')
+        return 25
