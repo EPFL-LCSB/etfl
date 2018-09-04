@@ -138,6 +138,7 @@ class EnzymaticReaction(ExpressionReaction):
     @property
     def scaling_factor(self):
         return self.enzyme.kcat_max * self.enzyme.scaling_factor
+        # return 1
 
 
 class TranscriptionReaction(EnzymaticReaction):
@@ -177,6 +178,7 @@ class TranscriptionReaction(EnzymaticReaction):
     def scaling_factor(self):
         return self.enzymes[0].kcat_fwd * self.enzymes[0].scaling_factor \
                 / self.nucleotide_length
+        # return 1
 
 class TranslationReaction(EnzymaticReaction):
     """
@@ -213,7 +215,7 @@ class TranslationReaction(EnzymaticReaction):
         :return:
         """
 
-        self.add_metabolites({peptide:1}, rescale=False)
+        self.add_metabolites({peptide:1}, rescale=True)
 
 
     def add_ribosome(self, ribosome):
@@ -229,9 +231,9 @@ class TranslationReaction(EnzymaticReaction):
 
     @property
     def scaling_factor(self):
-        # return self.enzymes[0].kcat_fwd * self.enzymes[0].scaling_factor \
         return self.enzymes[0].kcat_fwd * self.enzymes[0].scaling_factor \
                 / self.aminoacid_length
+        # return 1
 
 
 class ProteinComplexation(ExpressionReaction):
@@ -247,7 +249,8 @@ class ProteinComplexation(ExpressionReaction):
     @property
     def scaling_factor(self):
         # return self.model.mu_max * self.target.scaling_factor
-        return self.target.kdeg * self.target.scaling_factor
+        # return self.target.kdeg * self.target.scaling_factor
+        return 1
 
     def add_peptides(self, peptides):
         """
@@ -264,16 +267,7 @@ class ProteinComplexation(ExpressionReaction):
         :return:
         """
 
-        if not hasattr(self, 'model'):
-            raise Exception('This reaction must belong to a model in order to '
-                            'add peptides')
-
-        f = {
-            p.id : len(p.peptide)
-                   / (self.model.ribosome.kribo * self.model.ribosome.scaling_factor)
-            for p in peptides
-        }
-        self.add_metabolites({p:f[p.id]*s for p,s in peptides.items()}, rescale=True)
+        self.add_metabolites({p:s for p,s in peptides.items()}, rescale=True)
 
 
 class DegradationReaction(ExpressionReaction):
@@ -286,10 +280,12 @@ class DegradationReaction(ExpressionReaction):
         self.macromolecule = macromolecule
         self.macromolecule.degradation = self
 
+
     @property
     def scaling_factor(self):
         # return self.model.mu_max * self.macromolecule.scaling_factor
         return self.macromolecule.kdeg * self.macromolecule.scaling_factor
+        # return 1
 
 class DNAFormation(ExpressionReaction):
     """

@@ -13,7 +13,7 @@ Solver configuration helpers
 def standard_solver_config(model, verbose = True):
     # Solver settings
     model.solver.configuration.verbosity = int(verbose)
-    model.solver.configuration.tolerances.feasibility = 1e-9
+    # model.solver.configuration.tolerances.feasibility = 1e-9
     # model.solver.configuration.presolve = True
     # model.solver.configuration.lp_method = 'dual'
     # model.solver.configuration.lp_method = 'barrier'

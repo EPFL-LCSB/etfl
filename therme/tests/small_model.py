@@ -25,7 +25,7 @@ from ..data.ecoli import   get_model, get_thermo_data, get_coupling_dict, \
                         get_nt_sequences, get_ratios, get_neidhardt_data, \
                         get_mrna_metrics, get_enz_metrics, \
                         remove_from_biomass_equation, get_ecoli_gen_stats, \
-                        get_essentials
+                        get_essentials, get_lloyd_coupling_dict
 
 from optlang.exceptions import SolverError
 
@@ -115,12 +115,11 @@ def add_e_metabolites(model):
             model.add_reactions([ex_rxn])
 
             ex_rxn.add_metabolites({the_met:-1})
-            ex_rxn.lower_bound = -20
+            ex_rxn.lower_bound = -1
+            ex_rxn.upper_bound = 10
 
 
 def create_etfl_model(has_thermo, has_neidhardt,
-                      prot_scaling=1e3,
-                      mrna_scaling=1e3,
                       n_mu_bins = 64,
                       mu_max = 3,
                       ):
@@ -142,7 +141,8 @@ def create_etfl_model(has_thermo, has_neidhardt,
     mu_range = [0, mu_max]
     n_mu_bins = n_mu_bins
 
-    coupling_dict = get_coupling_dict(vanilla_model)
+    coupling_dict = get_coupling_dict(vanilla_model, mode = 'kmax', atps_name = 'ATPS4r')
+    # coupling_dict = get_lloyd_coupling_dict(vanilla_model)
 
 
     # Initialize the model
@@ -154,6 +154,10 @@ def create_etfl_model(has_thermo, has_neidhardt,
         len(coupling_dict),
         n_mu_bins)
 
+    # for k,v in coupling_dict.items():
+    #     for enz in v:
+    #         enz.kcat_fwd = enz.kcat_bwd = 1e9
+
 
     if has_thermo:
 
@@ -163,8 +167,6 @@ def create_etfl_model(has_thermo, has_neidhardt,
                               growth_reaction = growth_reaction_id,
                               mu_range = mu_range,
                               n_mu_bins = n_mu_bins,
-                              prot_scaling = prot_scaling,
-                              mrna_scaling = mrna_scaling,
                               name = name,
                               )
     else:
@@ -172,8 +174,6 @@ def create_etfl_model(has_thermo, has_neidhardt,
                         growth_reaction = growth_reaction_id,
                         mu_range = mu_range,
                         n_mu_bins = n_mu_bins,
-                        prot_scaling = prot_scaling,
-                        mrna_scaling = mrna_scaling,
                         name = name,
                         )
 
@@ -232,8 +232,17 @@ def create_etfl_model(has_thermo, has_neidhardt,
                            rna_nucleotides_mp = rna_nucleotides_mp
                            )
     ecoli.add_mrnas(mrna_dict.values())
+
     ecoli.add_ribosome(rib,free_ratio=0.2)
-    ecoli.add_rnap(rnap)
+    # http://bionumbers.hms.harvard.edu/bionumber.aspx?id=102348&ver=1&trm=rna%20polymerase%20half%20life&org=
+    # Name          Fraction of active RNA Polymerase
+    # Bionumber ID  102348
+    # Value 	    0.17-0.3 unitless
+    # Source        Bremer, H., Dennis, P. P. (1996) Modulation of chemical composition and other parameters of the cell by growth rate.
+    #               Neidhardt, et al. eds. Escherichia coli and Salmonella typhimurium: Cellular
+    #                       and Molecular Biology, 2nd ed. chapter 97 Table 1
+
+    ecoli.add_rnap(rnap, free_ratio=0.75)
 
     ecoli.build_expression()
     ecoli.add_enzymatic_coupling(coupling_dict)

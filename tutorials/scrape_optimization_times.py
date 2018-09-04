@@ -12,6 +12,11 @@ from bokeh.models import ColumnDataSource, FixedTicker, PrintfTickFormatter, \
 
 from scipy.stats.kde import gaussian_kde
 
+import datetime as dt
+
+now = dt.datetime.now()
+ago = now-dt.timedelta(days=5)
+
 cmap = Category10[10]
 
 log_folder = './logs/'
@@ -139,8 +144,12 @@ if __name__ == '__main__':
 
     for filename in os.listdir(log_folder):
         if filename.endswith(".log"):
+            path = os.path.join(log_folder, filename)
+            st = os.stat(path)
+            mtime = dt.datetime.fromtimestamp(st.st_mtime)
+            if mtime > ago:
 
-            times[filename] = get_file_optim_times(filename)
+                times[filename] = get_file_optim_times(filename)
 
         else:
             continue

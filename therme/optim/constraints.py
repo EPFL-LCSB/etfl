@@ -171,13 +171,21 @@ class ExpressionCoupling(GeneConstraint):
     prefix = 'EX_'
 
 
-class RibosomeRatio(ModelConstraint):
+class EnzymeRatio(ModelConstraint):
     """
-    Represents the availability of free ribosomes (non bound)
+    Represents the availability of free enzymes, e.g ribosomes (non bound)
     R_free = 0.2*R_total
     """
 
-    prefix = 'RR_'
+    prefix = 'ER_'
+
+class RibosomeRatio(EnzymeRatio):
+    """
+    (Legacy) represents the availability of free ribosomes, e.g ribosomes (non bound)
+    R_free = 0.2*R_total
+    """
+
+    prefix = 'ER_'
 
 class EnzymeDegradation(EnzymeConstraint):
     """

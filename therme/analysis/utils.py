@@ -28,6 +28,6 @@ def enzymes_to_peptides_conc(model, enzyme_conc):
         complex_dict = the_enzyme.complexation.metabolites
 
         for pep, stoich in complex_dict.items():
-            peptide_conc[pep.id] += abs(stoich) * conc
+            peptide_conc[pep.id] += abs(stoich) * conc * the_enzyme.scaling_factor
 
     return peptide_conc

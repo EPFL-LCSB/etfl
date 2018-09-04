@@ -35,7 +35,7 @@ from .expression import build_trna_charging, \
 from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,\
     BackwardCatalyticConstraint, EnzymeMassBalance, \
     rRNAMassBalance, mRNAMassBalance, tRNAMassBalance, DNAMassBalance, \
-    GrowthCoupling, TotalCapacity, ExpressionCoupling, RibosomeRatio, \
+    GrowthCoupling, TotalCapacity, ExpressionCoupling, EnzymeRatio, \
     GrowthChoice, EnzymeDegradation, mRNADegradation,\
     LinearizationConstraint, SynthesisConstraint, SOS1Constraint,\
     InterpolationConstraint
@@ -328,7 +328,7 @@ class MEModel(LCSBModel, Model):
         }
         transcription_mets[ppi] = mrna_length
 
-        dummy_transcription.add_metabolites(transcription_mets)
+        dummy_transcription.add_metabolites(transcription_mets, rescale = True)
 
 
         # Add the degradation
@@ -401,7 +401,7 @@ class MEModel(LCSBModel, Model):
         # get diluted
         self._extract_trna_from_reaction(translation_mets, dummy_translation)
 
-        dummy_translation.add_metabolites(translation_mets)
+        dummy_translation.add_metabolites(translation_mets, rescale=True)
         dummy_translation.add_peptide(dummy_peptide)
 
         dummy_complexation.add_peptides({dummy_peptide:-1})
@@ -834,7 +834,7 @@ class MEModel(LCSBModel, Model):
 
         self._extract_trna_from_reaction(aa_stoichiometry, rxn)
 
-        rxn.add_metabolites(aa_stoichiometry)
+        rxn.add_metabolites(aa_stoichiometry, rescale=True)
 
         free_peptide = self.peptides.get_by_id(gene.id)
 
@@ -985,7 +985,7 @@ class MEModel(LCSBModel, Model):
                                   format(rid))
                 #TODO : Add enzymatic_reaction dictlist ??
                 enzymes = coupling_dict[r.id]
-                enz_r = replace_by_enzymatic_reaction(self, r.id, enzymes)
+                enz_r = replace_by_enzymatic_reaction(self, r.id, enzymes, scaled=False)
                 self.apply_gpr_catalytic_constraint(enz_r)
             else:
                 self.logger.error('Could not find reaction {} in the coupling dictionnary'.format(r.id))
@@ -1030,11 +1030,10 @@ class MEModel(LCSBModel, Model):
             comp.enzyme = enz
             enz.complexation = comp
 
-        # D_f = sum(sigma_fwd.values())
-        # D_b = sum(sigma_bwd.values())
-
         k_f = max([x.kcat_fwd for x in protein2isozyme_dict])
         k_b = max([x.kcat_bwd for x in protein2isozyme_dict])
+        # k_f = np.median([x.kcat_fwd for x in self.enzymes])
+        # k_b = np.median([x.kcat_bwd for x in self.enzymes])
         E_m = max([x.scaling_factor for x in protein2isozyme_dict])
 
         # v_fwd <= sum(kcat_i*E_i)
@@ -1069,18 +1068,33 @@ class MEModel(LCSBModel, Model):
         if isinstance(macromolecule, Enzyme):
             kind = EnzymeMassBalance
             hook = macromolecule
-            expr = synthesis_flux.scaled_net \
-                   - macromolecule.degradation.scaled_net \
-                   - 1/macromolecule.kdeg * z
+            # expr = synthesis_flux.scaled_net \
+            #        - macromolecule.degradation.scaled_net \
+            #        - 1/macromolecule.kdeg * z
                    # - 1/self.mu_max * z
+            expr = synthesis_flux.net \
+                   - macromolecule.degradation.net \
+                   - macromolecule.scaling_factor * z
+            # expr = 1/macromolecule.degradation.scaling_factor * \
+            #        ( synthesis_flux.net \
+            #        - macromolecule.degradation.net \
+            #        - macromolecule.scaling_factor * z)
         elif isinstance(macromolecule, mRNA):
             kind = mRNAMassBalance
             hook = macromolecule
-            sigma = 1/macromolecule.degradation.scaling_factor
-            expr = sigma * synthesis_flux.net \
-                   - macromolecule.degradation.scaled_net \
-                   - 1/macromolecule.kdeg * z
+            # sigma = 1/macromolecule.degradation.scaling_factor
+            # expr = sigma * synthesis_flux.net \
+            #        - macromolecule.degradation.scaled_net \
+            #        - 1/macromolecule.kdeg * z
                    # - 1/self.mu_max * z
+            expr = synthesis_flux.net \
+                   - macromolecule.degradation.net \
+                   - macromolecule.scaling_factor * z
+
+            # expr = 1/macromolecule.degradation.scaling_factor * \
+            #        ( synthesis_flux.net \
+            #        - macromolecule.degradation.net \
+            #        - macromolecule.scaling_factor * z)
         elif isinstance(macromolecule, tRNA):
             kind = tRNAMassBalance
             kwargs['id_'] = macromolecule.id
@@ -1088,13 +1102,15 @@ class MEModel(LCSBModel, Model):
             mu_ub = self.mu_max
             sigma = mu_ub * macromolecule.scaling_factor
             # The synthesis flux comes unscaled [flux units]
-            expr = 1/sigma * synthesis_flux - 1/mu_ub * z
+            # expr = 1/sigma * synthesis_flux - 1/mu_ub * z
+            expr = synthesis_flux - macromolecule.scaling_factor * z
         elif isinstance(macromolecule, DNA):
             kind = DNAMassBalance
             kwargs['id_'] = 'dna'
             hook = self
             mu_ub = self.mu_max
-            expr = synthesis_flux.scaled_net - 1/mu_ub *z
+            # expr = synthesis_flux.scaled_net - 1/mu_ub *z
+            expr = synthesis_flux.net - macromolecule.scaling_factor * z
         else:
             raise Exception('Macromolecule type not recognized: {}'
                             .format(macromolecule))
@@ -1187,7 +1203,7 @@ class MEModel(LCSBModel, Model):
                                     lb=cons.lb,
                                     queue=queue)
 
-            out_expr += (2 ** i) * model_z_i * self.mu_approx_resolution
+            out_expr += (2 ** i) * self.mu_approx_resolution * model_z_i
 
         return out_expr
 
@@ -1427,15 +1443,19 @@ class MEModel(LCSBModel, Model):
                                        macromolecule=macromolecule,
                                        scaled=scaled)
 
+        if scaled:
+            reaction.upper_bound = 1
+
         # Assignment to model must be done before since met dict kas string keys
         self.add_reactions([reaction])
         self.degradation_reactions += [reaction]
-        reaction.add_metabolites(deg_stoich)
+        reaction.add_metabolites(deg_stoich, rescale = True)
         # Couple with the expression constraint v_deg = k_deg [E]
         # Scaled into v_deg_hat = E_hat
         # expr = reaction.scaled_net \
         #        - (macromolecule.kdeg / self.mu_max) * macromolecule.scaled_concentration
-        expr = reaction.scaled_net - macromolecule.scaled_concentration
+        # expr = reaction.scaled_net - macromolecule.scaled_concentration
+        expr = reaction.net - macromolecule.kdeg * macromolecule.concentration
         self.add_constraint(kind=kind,
                             hook=macromolecule,
                             expr=expr,
@@ -1497,8 +1517,9 @@ class MEModel(LCSBModel, Model):
 
             # nondimensionalized:
             scaling_factor = the_mrna.scaling_factor / RPi_hat.scaling_factor
-            expression_coupling = RPi_hat \
-                                  - polysome_size * scaling_factor * mrna_hat
+            # expression_coupling = RPi_hat \
+            #                       - polysome_size * scaling_factor * mrna_hat
+            expression_coupling = RPi_hat - polysome_size * mrna_hat
 
 
             # Add expression coupling
@@ -1524,7 +1545,7 @@ class MEModel(LCSBModel, Model):
     def get_transcription(self, the_peptide_id):
         return self.reactions.get_by_id(self._get_transcription_name(the_peptide_id))
 
-    def add_rnap(self, rnap):
+    def add_rnap(self, rnap, free_ratio = 0.8):
         """
         Adds the RNA Polymerase used by the model.
 
@@ -1555,6 +1576,8 @@ class MEModel(LCSBModel, Model):
 
         # Let us not forget the degradation
         self._add_enzyme_degradation(rnap, scaled=True)
+        self.init_rnap_variables(free_ratio=free_ratio)
+
 
     def _populate_rnap(self):
         """
@@ -1584,7 +1607,9 @@ class MEModel(LCSBModel, Model):
 
         # For nondimensionalization, we divide by the sum of D upperbounds
         D = self.rnap.scaling_factor
-        usage = (sum_RMs- self.rnap.concentration) / D
+        # usage = (sum_RMs- self.rnap.concentration) / D
+        usage = (sum_RMs + self.RNAPf.unscaled - self.rnap.concentration) / \
+                self.rnap.scaling_factor
 
         # Create the capacity constraint
         self.add_constraint(kind=TotalCapacity,
@@ -1633,13 +1658,44 @@ class MEModel(LCSBModel, Model):
         #         * (self._mrna_scaling/self._prot_scaling) \
         #         * RMi
         # rnap_constraint_expr = fwd_variable - bwd_variable - v_max
+        k = self.rnap.ktrans / reaction.nucleotide_length
 
         # Scaled version:
-        rnap_constraint_expr = reaction.scaled_net - RMi # scaled
+        # rnap_constraint_expr = reaction.scaled_net - RMi # scaled
+        rnap_constraint_expr = reaction.net - k * RMi.unscaled
 
 
         self.add_constraint(kind=SynthesisConstraint, hook=reaction,
                             expr=rnap_constraint_expr, ub=0)
+
+
+
+    def init_rnap_variables(self, free_ratio):
+        """
+        Adds Free and Total ribosome variables to the models
+        :return:
+        """
+
+        # Free ribosomes
+        self._rnapf = self.add_variable(FreeRibosomes,
+                                    self.rnap,
+                                    lb=0,
+                                    ub=1,
+                                    scaling_factor = self.rnap.scaling_factor)
+
+        # Add constraint on availability of free ribosomes
+        # Rf and Rt are both concentrations
+        expr = self.RNAPf - free_ratio * self.rnap.variable #scaled
+        self.add_constraint(EnzymeRatio,
+                            hook=self,
+                            expr=expr,
+                            id_='rnap',
+                            lb=0,
+                            ub=0)
+
+    @property
+    def RNAPf(self):
+        return self._rnapf
 
 
     def add_ribosome(self, ribosome, free_ratio = 0.2):
@@ -1709,10 +1765,12 @@ class MEModel(LCSBModel, Model):
             # The first coefficient is apparent stoichiometry, the second is
             # scaled automatically in the transcription reaction when rescale=True
             synthesis.add_metabolites({the_rrna:1}, rescale = True)
+            # synthesis.add_metabolites({the_rrna:1}, rescale = False)
 
 
         self.ribosome.complexation.add_metabolites(
-            {x:-1*f for x in rrnas}, rescale=False)
+            {x:-1 for x in rrnas}, rescale=True)
+            # {x:-1*f for x in rrnas}, rescale=False)
         self.rrnas += rrnas
 
 
@@ -1732,7 +1790,7 @@ class MEModel(LCSBModel, Model):
         # Add constraint on availability of free ribosomes
         # Rf and Rt are both concentrations
         expr = self.Rf - free_ratio * self.Rt #scaled
-        self.add_constraint(RibosomeRatio,
+        self.add_constraint(EnzymeRatio,
                             hook=self,
                             expr=expr,
                             id_='rib',
@@ -1830,8 +1888,11 @@ class MEModel(LCSBModel, Model):
         #         * RPi
         # ribo_constraint_expr = fwd_variable - bwd_variable - v_max
 
+        k = self.ribosome.kribo / reaction.aminoacid_length
+
         # Scaled version
-        ribo_constraint_expr = reaction.scaled_net - RPi
+        # ribo_constraint_expr = reaction.scaled_net - RPi
+        ribo_constraint_expr = reaction.net - k * RPi.unscaled
 
 
         self.add_constraint(kind=SynthesisConstraint, hook=reaction,

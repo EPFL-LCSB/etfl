@@ -43,9 +43,10 @@ def plot_va(filename, tag, kind):
     if not data.columns[0] in ['minimum','maximum']:
         data.columns = ['minimum','maximum']
 
-    data +=1
-
-    data['score'] = data.mean(axis=1)
+    data += 1e-9 # Resolution of the solver
+    f = lambda x: np.sqrt(x[0]*x[1])
+    # data['score'] = data.mean(axis=1)
+    data['score'] = data.apply(f, axis=1)
     data.sort_values(by='score', ascending = False, inplace = True)
     data['y'] = range(len(data))
     data['name'] = data.index
@@ -92,7 +93,7 @@ def plot_va(filename, tag, kind):
                       ]
     hover.mode = 'mouse'
 
-    p1.xaxis.axis_label = '1+[{}]'.format(verbose_kinds[kind])
+    p1.xaxis.axis_label = '[{}]'.format(verbose_kinds[kind])
 
     bp.output_file(os.path.join(plots_folder, 'va_'+filename+'.html'))
     bp.show(p1)

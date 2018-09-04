@@ -11,7 +11,7 @@ ec_cobra = cobra.io.load_json_model('iJO1366_with_xrefs.json')
 # ec_cobra.reactions.ATPM.lower_bound = 0
 growth_reaction_id = 'BIOMASS_Ec_iJO1366_WT_53p95M'
 
-ecoli = load_json_model('models/SlackModel iJO1366_T1E1N1_350_enz_256_bins__20180731_061446.json')
+ecoli = load_json_model('models/RelaxedModel iJO1366_T1E1N1_350_enz_256_bins__20180830_121200.json')
 
 uptake_range = pd.Series(list(range(100)))
 
@@ -53,8 +53,8 @@ me_source = ColumnDataSource(data=aggregated_me_data)
 #---- Re-make ME-model figure with SNL v batch etc
 p1 = bp.figure()
 
-p1.xaxis.axis_label = 'glucose uptake (mmol.gDw/h)'
-p1.yaxis.axis_label = 'growth rate (/h)'
+p1.xaxis.axis_label = 'glucose uptake [mmol/(gDw.h)]'
+p1.yaxis.axis_label = 'growth rate [1/h]'
 
 # FBA Mu
 p1.circle(x=fba_data['uptake'], y=fba_data['mu'], color = 'crimson', legend='FBA growth')
@@ -72,8 +72,8 @@ p1.square(x=me_data['uptake'], y=me_data['mu'], legend='tME growth')
 ## Systematic analysis
 
 mu_max = max(me_data['mu'].dropna())
-mask_snl = me_data['mu'] < mu_max*0.5
-mask_pl  = me_data['mu'] > mu_max*0.99
+mask_snl = me_data['mu'] < mu_max*0.85
+mask_pl  = me_data['mu'] > mu_max*0.90
 
 fit1d = lambda x,y: np.poly1d(np.polyfit(x,y,1))
 
@@ -85,6 +85,19 @@ p1.line(x=uptake_range,y=fit_snl(uptake_range),
         color = 'black', line_dash = 'dashed', legend = 'SNL fit')
 p1.line(x=uptake_range,y=[me_data['mu'].iloc[-1]]*len(uptake_range),#fit_pl (uptake_range),
         color = 'black',line_dash = 'dotted', legend = 'Proteome Limited fit')
+
+# McCloskey data
+glc_up, glc_std = 7.54, 0.56
+mu_up ,  mu_std = 0.61, 0.02
+p1.quad(right = glc_up - glc_std,
+        left  = glc_up + glc_std,
+        top   = mu_up  +  mu_std,
+        bottom= mu_up  -  mu_std,
+        line_color = 'red',
+        fill_color = 'red',
+        fill_alpha = 0.5,
+        legend = 'McCloskey et al. measurement'
+        )
 
 p1.legend.location = 'bottom_right'
 

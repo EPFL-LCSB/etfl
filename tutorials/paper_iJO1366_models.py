@@ -71,7 +71,10 @@ def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 256):
 
     time_str = get_timestr()
 
-    coupling_dict = get_coupling_dict(vanilla_model)
+    coupling_dict = get_coupling_dict(vanilla_model,
+                                      mode = 'kmax',
+                                      # mode = 'kcat',
+                                      atps_name = 'ATPS4rpp')
     # coupling_dict = get_lloyd_coupling_dict(vanilla_model)
     aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides = get_monomers_dict()
     essentials = get_essentials()
@@ -122,7 +125,10 @@ def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 256):
         # ecoli.reactions.DHAtpp.thermo['computed'] = False
         # ecoli.reactions.MLTP2.thermo['computed'] = False
         # ecoli.reactions.G3PD2.thermo['computed'] = False
-        # ecoli.reactions.MECDPS.thermo['computed'] = False
+        ecoli.reactions.MECDPS.thermo['computed'] = False
+        ecoli.reactions.NDPK4.thermo['computed'] = False
+        ecoli.reactions.TMDPP.thermo['computed'] = False
+        ecoli.reactions.ARGAGMt7pp.thermo['computed'] = False
 
         ecoli.convert()#add_displacement = True)
 
@@ -157,7 +163,14 @@ def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 256):
                            )
     ecoli.add_mrnas(mrna_dict.values())
     ecoli.add_ribosome(rib,free_ratio=0.2)
-    ecoli.add_rnap(rnap)
+    # http://bionumbers.hms.harvard.edu/bionumber.aspx?id=102348&ver=1&trm=rna%20polymerase%20half%20life&org=
+    # Name          Fraction of active RNA Polymerase
+    # Bionumber ID  102348
+    # Value 	    0.17-0.3 unitless
+    # Source        Bremer, H., Dennis, P. P. (1996) Modulation of chemical composition and other parameters of the cell by growth rate.
+    #               Neidhardt, et al. eds. Escherichia coli and Salmonella typhimurium: Cellular
+    #                       and Molecular Biology, 2nd ed. chapter 97 Table 1
+    ecoli.add_rnap(rnap, free_ratio=0.75)
 
     ecoli.build_expression()
     ecoli.add_enzymatic_coupling(coupling_dict)
@@ -217,12 +230,12 @@ def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 256):
     print(' - Ribosomes produced: {}'.format(final_model.ribosome.X))
     print(' - RNAP produced: {}'.format(final_model.rnap.X))
     try:
-        print(' - DNA produced: {}'.format(final_model.solution.x_dict.DN_DNA))
+        print(' - DNA produced: {}'.format(final_model.solution.raw.DN_DNA))
     except AttributeError:
         pass
 
     filepath = 'models/{}'.format(final_model.name)
-    # save_json_model(final_model, filepath)
+    save_json_model(final_model, filepath)
 
     final_model.logger.info('Build complete for model {}'.format(final_model.name))
 
@@ -280,9 +293,9 @@ if __name__ == '__main__':
 
     # Models defined by Thermo - Expression - Neidhardt
     model_calls = [
-        # (False, True, True),
+        (False, True, True),
         # (False, True, False),
-        (True, True, False),
+        # (True, True, False),
         # (True, True, True),
         ]
 

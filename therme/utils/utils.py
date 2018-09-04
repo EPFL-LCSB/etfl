@@ -1,27 +1,30 @@
 from ..core.reactions import EnzymaticReaction, TranslationReaction, TranscriptionReaction
 from ..core.genes import ExpressedGene
 
-def replace_by_enzymatic_reaction(model, reaction_id, enzymes):
+def replace_by_enzymatic_reaction(model, reaction_id, enzymes, scaled):
     rxn = model.reactions.get_by_id(reaction_id)
     enz_rxn = EnzymaticReaction.from_reaction(reaction=rxn,
-                                              enzymes=enzymes)
+                                              enzymes=enzymes,
+                                              scaled=scaled)
     _replace_by_me_reaction(model, rxn, enz_rxn)
     return enz_rxn
 
 
-def replace_by_translation_reaction(model, reaction_id, gene_id, enzymes):
+def replace_by_translation_reaction(model, reaction_id, gene_id, enzymes, scaled):
     rxn  = model.reactions.get_by_id(reaction_id)
     enz_rxn = TranslationReaction.from_reaction(reaction=rxn,
                                                 gene_id=gene_id,
-                                                enzymes=enzymes)
+                                                enzymes=enzymes,
+                                                scaled=scaled)
     _replace_by_me_reaction(model, rxn, enz_rxn)
     return enz_rxn
 
-def replace_by_transcription_reaction(model, reaction_id, gene_id, enzymes):
+def replace_by_transcription_reaction(model, reaction_id, gene_id, enzymes, scaled):
     rxn  = model.reactions.get_by_id(reaction_id)
     enz_rxn = TranscriptionReaction.from_reaction(reaction=rxn,
                                                   gene_id=gene_id,
-                                                  enzymes=enzymes)
+                                                  enzymes=enzymes,
+                                                  scaled=scaled)
     _replace_by_me_reaction(model, rxn, enz_rxn)
     return enz_rxn
 

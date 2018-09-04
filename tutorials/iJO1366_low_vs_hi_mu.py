@@ -13,12 +13,19 @@ from therme.analysis.utils import enzymes_to_peptides_conc
 import pandas as pd
 
 
-ecoli = load_json_model('models/iJO1366_T0E1N1_350_enz_256_bins__20180810_051017.json')
+ecoli = load_json_model('models/RelaxedModel iJO1366_T1E1N1_350_enz_256_bins__20180830_121200.json')
 ecoli.optimize()
 
-print('Growth               : {}'.format(ecoli.solution.f))
-print(' - Ribosomes produced: {}'.format(ecoli.solution.x_dict.EZ_rib))
-print(' - RNAP produced: {}'.format(ecoli.solution.x_dict.EZ_rnap))
+def print_sol(model):
+    print('Objective            : {}'.format(model.solution.f))
+    print(' - Glucose uptake    : {}'.format(model.solution.x_dict.EX_glc__D_e))
+    print(' - Growth            : {}'.format(model.solution.x_dict[model.growth_reaction.id]))
+    print(' - Ribosomes produced: {}'.format(model.solution.raw.EZ_rib))
+    print(' - RNAP produced: {}'.format(model.solution.raw.EZ_rnap))
+    try:
+        print(' - DNA produced: {}'.format(model.solution.raw.DN_DNA))
+    except AttributeError:
+        pass
 
 # ID	    109686
 # Property	Glucose uptake rate of strain C-3000 in minimal M9 media
@@ -76,22 +83,18 @@ for glc_uptake in [uptake_high,uptake_low]:
     continuous_model.growth_reaction.upper_bound = mu_hi
     continuous_model.growth_reaction.lower_bound = mu_lo
 
-    print('Growth               : {}'.format(continuous_model.solution.f))
-    print(' - Ribosomes produced: {}'.format(
-        continuous_model.solution.x_dict.EZ_rib))
-    print(
-        ' - RNAP produced: {}'.format(continuous_model.solution.x_dict.EZ_rnap))
+    print_sol(continuous_model)
 
     variables = EnzymeVariable
 
-    eva = variability_analysis(continuous_model, variables)
-    peptides_conc_min = pd.Series(enzymes_to_peptides_conc(continuous_model, eva['minimum']))
-    peptides_conc_max = pd.Series(enzymes_to_peptides_conc(continuous_model, eva['maximum']))
-    peptides_conc = pd.concat([peptides_conc_min,peptides_conc_max], axis=1)
-    peptides_conc.to_csv('outputs/iJO_T1E1N1_low_hi_{}_pep.csv'.format(glc_uptake))
+    # eva = variability_analysis(continuous_model, variables)
+    # peptides_conc_min = pd.Series(enzymes_to_peptides_conc(continuous_model, eva['minimum']))
+    # peptides_conc_max = pd.Series(enzymes_to_peptides_conc(continuous_model, eva['maximum']))
+    # peptides_conc = pd.concat([peptides_conc_min,peptides_conc_max], axis=1)
+    # peptides_conc.to_csv('outputs/iJO_T1E1N1_low_hi_{}_pep.csv'.format(glc_uptake))
 
-    # mva = variability_analysis(continuous_model, mRNAVariable)
-    # mva.to_csv('outputs/iJO_T1E1N1_low_hi_{}_mrna.csv'.format(glc_uptake))
+    mva = variability_analysis(continuous_model, mRNAVariable)
+    mva.to_csv('outputs/iJO_T1E1N1_low_hi_{}_mrna.csv'.format(glc_uptake))
 
 
 

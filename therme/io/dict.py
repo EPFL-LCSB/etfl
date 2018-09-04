@@ -22,7 +22,7 @@ from ..core.enzyme import Enzyme, Ribosome, Peptide, RNAPolymerase
 from ..core.memodel import MEModel
 from ..core.rna import mRNA, rRNA
 from ..core.reactions import TranslationReaction, TranscriptionReaction, \
-    EnzymaticReaction, ProteinComplexation, DegradationReaction
+    EnzymaticReaction, ProteinComplexation, DegradationReaction, ExpressionReaction
 from ..core.thermomemodel import ThermoMEModel
 from ..optim.utils import rebuild_constraint, rebuild_variable
 from ..utils.utils import replace_by_enzymatic_reaction, \
@@ -275,6 +275,9 @@ def model_to_dict(model):
     return obj
 
 def _add_me_reaction_info(rxn, rxn_dict):
+
+    if isinstance(rxn, ExpressionReaction):
+        rxn_dict['scaled'] = rxn._scaled
     # We start with translation reactions because they are also
     # enzymatic reactions
     # Translation Reactions
@@ -441,8 +444,14 @@ def init_me_model_from_dict(new, obj):
     # Finally, add degradations
     find_degradation_reactions_from_dict(new, obj)
 
-    new.rnap.init_variable()
-    new.ribosome.init_variable()
+    # new.rnap.init_variable()
+    # new.ribosome.init_variable()
+    for enz in new.enzymes:
+        enz.init_variable()
+    for mrna in new.mrnas:
+        mrna.init_variable()
+    for trna in new.trnas:
+        trna.init_variable()
     # new.init_ribosome_variables()
 
     return new
@@ -537,18 +546,29 @@ def rnap_from_dict(obj):
 def find_enzymatic_reactions_from_dict(new, obj):
     for rxn_dict in obj['reactions']:
         if rxn_dict['kind'] == 'EnzymaticReaction':
+            if 'scaled' in rxn_dict:
+                scaled = rxn_dict['scaled']
+            else:
+                scaled = False
             enzymes = [new.enzymes.get_by_id(x) for x in rxn_dict['enzymes']]
-            replace_by_enzymatic_reaction(new, rxn_dict['id'], enzymes)
+            replace_by_enzymatic_reaction(new, rxn_dict['id'],
+                                          enzymes,
+                                          scaled=scaled)
 
 
 def find_translation_reactions_from_dict(new, obj):
     new_transl_rxns = list()
     for rxn_dict in obj['reactions']:
         if rxn_dict['kind'] == 'TranslationReaction':
+            if 'scaled' in rxn_dict:
+                scaled = rxn_dict['scaled']
+            else:
+                scaled = False
             enzymes = new.ribosome
             enz_rxn = replace_by_translation_reaction(new,
                                                       reaction_id=rxn_dict['id'],
                                                       gene_id=rxn_dict['gene_id'],
+                                                      scaled=scaled,
                                                       enzymes=enzymes)
             new_transl_rxns.append(enz_rxn)
     new.translation_reactions += new_transl_rxns
@@ -558,10 +578,15 @@ def find_transcription_reactions_from_dict(new, obj):
     new_transc_rxns = list()
     for rxn_dict in obj['reactions']:
         if rxn_dict['kind'] == 'TranscriptionReaction':
+            if 'scaled' in rxn_dict:
+                scaled = rxn_dict['scaled']
+            else:
+                scaled = False
             enzymes = new.rnap
             enz_rxn = replace_by_transcription_reaction(new,
                                                         reaction_id=rxn_dict['id'],
                                                         gene_id=rxn_dict['gene_id'],
+                                                        scaled=scaled,
                                                         enzymes=enzymes)
             new_transc_rxns.append(enz_rxn)
     new.transcription_reactions += new_transc_rxns
@@ -572,9 +597,14 @@ def find_complexation_reactions_from_dict(new, obj):
     for rxn_dict in obj['reactions']:
         if rxn_dict['kind'] == 'ProteinComplexation':
             target = new.enzymes.get_by_id(rxn_dict['target'])
+            if 'scaled' in rxn_dict:
+                scaled = rxn_dict['scaled']
+            else:
+                scaled = False
             new_rxn = replace_by_reaction_subclass(new,
                                                    kind = ProteinComplexation,
                                                    reaction_id=rxn_dict['id'],
+                                                   scaled=scaled,
                                                    target=target)
             new_rxns.append(new_rxn)
     new.complexation_reactions += new_rxns
@@ -597,9 +627,14 @@ def find_degradation_reactions_from_dict(new, obj):
             else:
                 raise(TypeError('Macromolecule type not recognized: {}'
                       .format(rxn_dict['macromolecule_kind'])))
+            if 'scaled' in rxn_dict:
+                scaled = rxn_dict['scaled']
+            else:
+                scaled = False
             new_rxn = replace_by_reaction_subclass(new,
                                                    kind = DegradationReaction,
                                                    reaction_id=rxn_dict['id'],
+                                                   scaled=scaled,
                                                    macromolecule=macromol)
             new_rxns.append(new_rxn)
     new.degradation_reactions += new_rxns

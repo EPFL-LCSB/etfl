@@ -13,7 +13,7 @@ ME-related Reaction subclasses and methods definition
 
 from cobra import Gene
 from Bio.Seq import Seq
-from Bio.Alphabet import DNAAlphabet
+from Bio.Alphabet import DNAAlphabet, ProteinAlphabet
 
 class ExpressedGene(Gene):
     """
@@ -35,7 +35,10 @@ class ExpressedGene(Gene):
     @property
     def peptide(self):
         if not self._peptide:
-            self._peptide = self.rna.translate(to_stop = True)
+            # Translation table 11 is for bacteria
+            the_pep = self.rna.translate(to_stop = False, table = 11)
+            the_pep = str(the_pep).replace('*','')
+            self._peptide = Seq(the_pep, ProteinAlphabet())
 
         return self._peptide
 

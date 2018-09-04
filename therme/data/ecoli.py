@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from os.path import join as pjoin
 
 import cobra
@@ -151,6 +153,10 @@ def get_nt_sequences():
 # Proceedings of the National Academy of Sciences 113.12 (2016): 3401-3406.
 kcat_info_milo = pd.read_excel('../organism_data/info_ecoli/pnas.1514240113.sd01.xlsx',
                                sheet_name='kcat 1s',
+                               header=1,
+                               )
+kmax_info_milo = pd.read_excel('../organism_data/info_ecoli/pnas.1514240113.sd01.xlsx',
+                               sheet_name='kmax 1s',
                                header=1,
                                )
 kcat_info_aggregated    = pd.read_csv(pjoin(data_dir,'aggregated_kcats.csv'),
@@ -370,11 +376,22 @@ def is_gpr(s):
 # Milo kcats
 #############
 
-def get_homomer_coupling_dict(model):
+def get_homomer_coupling_dict(model, mode = 'kcat'):
+
+    if mode == 'kcat':
+        k_info = kcat_info_milo
+        column = 'kcat per active site [1/s]'
+    elif mode == 'kmax':
+        k_info = kmax_info_milo
+        column = 'kmax per polypeptide chain [s-1]'
+    else:
+        raise Exception("Mode {} not understood. Should be 'kcat' or 'kmax'")
 
     coupling_dict = dict()
 
     for x in model.reactions:
+        k_data = k_info[k_info['reaction (model name)'] == x.id]
+        k_data_reverse = k_info[k_info['reaction (model name)'] == x.id + '_reverse']
         data = kcat_info_milo[kcat_info_milo['reaction (model name)'] == x.id]
         data_reverse = kcat_info_milo[kcat_info_milo['reaction (model name)'] == x.id + '_reverse']
 
@@ -382,20 +399,30 @@ def get_homomer_coupling_dict(model):
         kcat_bwd = 0
         composition = {}
 
-        if len(data)>0:
-            candidate_complexes = data.iloc[0]
-            kcat_fwd = candidate_complexes['kcat per active site [1/s]'] \
-                       * candidate_complexes['catalytic sites per complex'] \
-                       * 3600 # s/h
-            composition = {candidate_complexes['bnumber']:candidate_complexes['polypeptides per complex']}
+        if len(k_data)>0:
+            candidate_k = k_data[column].iloc[0]
+            n_peptides = data['polypeptides per complex'].iloc[0] \
+                        if len(data) > 0 else 1
+            n_sites = data['catalytic sites per complex'].iloc[0] \
+                        if len(data) > 0 else 1
 
-        if len(data_reverse)>0:
-            this_data_reverse = data_reverse.iloc[0]
-            kcat_bwd = this_data_reverse['kcat per active site [1/s]'] \
-                    * this_data_reverse['catalytic sites per complex'] \
+            kcat_fwd = candidate_k \
+                       * n_sites \
+                       * 3600 # s/h
+            composition = {k_data['bnumber'].iloc[0]:n_peptides}
+
+        if len(k_data_reverse)>0:
+            candidate_k = k_data_reverse[column].iloc[0]
+            n_peptides = data_reverse['polypeptides per complex'].iloc[0] \
+                        if len(data_reverse) > 0 else 1
+            n_sites = data_reverse['catalytic sites per complex'].iloc[0] \
+                        if len(data_reverse) > 0 else 1
+
+            kcat_bwd = candidate_k \
+                    * n_sites \
                     * 3600 # s/h
             composition = {
-                this_data_reverse['bnumber']:this_data_reverse['polypeptides per complex']} \
+                k_data_reverse['bnumber'].iloc[0]:n_peptides} \
                     if not composition else composition
 
         if kcat_fwd == 0 and kcat_bwd == 0:
@@ -572,12 +599,14 @@ def get_lloyd_keffs():
     with open(pjoin(data_dir, 'lloyd_2018_keffs.json'), 'r') as fid:
         keffs = json.load(fid)
 
+    new_keffs = dict()
+
     for key in keffs.keys():
         new_key = key.replace('keff_','')
         new_key = new_key.replace('_DASH_','_')
-        keffs[new_key] = keffs.pop(key)* 3600  # s/h
+        new_keffs[new_key] = keffs[key]* 3600  # s/h
 
-    return keffs
+    return new_keffs
 
 def get_keffs_from_complex_name(keffs, name):
     try:
@@ -633,12 +662,51 @@ def get_lloyd_coupling_dict(model):
     return aggregated_coupling_dict
 
 
-def get_coupling_dict(model):
-    coupling_dict = get_homomer_coupling_dict(model)
+def get_coupling_dict(model, mode, atps_name = None):
+    coupling_dict = get_homomer_coupling_dict(model, mode=mode)
     aggregated_coupling_dict = get_aggregated_coupling_dict(model, coupling_dict)
     coupling_dict.update(aggregated_coupling_dict)
+    if atps_name is not None:
+        atps = get_atp_synthase_coupling(atps_name)
+        coupling_dict.update(atps)
     return coupling_dict
 
+def get_atp_synthase_coupling(atps_name):
+    """
+    ATP synthesis rate of F1F0 ATP synthase
+    Range 	at room temperature ∼0.060-0.10 μmol/min/mg of membrane protein : at 37°C 0.20 μmol/min/mg of membrane protein
+    Organism 	Bacteria Escherichia coli
+    Reference 	Tomashek JJ, Glagoleva OB, Brusilow WS. The Escherichia coli F1F0 ATP synthase displays biphasic synthesis kinetics. J Biol Chem. 2004 Feb 6 279(6):4465-70 DOI: 10.1074/jbc.M310826200 p.4467 right column bottom paragraphPubMed ID14602713
+    Primary Source 	[18] Etzold C, Deckers-Hebestreit G, Altendorf K. Turnover number of Escherichia coli F0F1 ATP synthase for ATP synthesis in membrane vesicles. Eur J Biochem. 1997 Jan 15 243(1-2):336-43.PubMed ID9030757
+    Method 	Luciferase assay
+    Comments 	P.4467 right column bottom paragraph: "Previously, Etzold et al. (primary source) used the luciferase assay to measure the turnover number of the ATP synthase during synthesis by membrane vesicles of E. coli. They measured ATP synthesis rates of ∼0.060-0.10 μmol/min/mg of membrane protein at room temperature and 0.20 μmol/min/mg of membrane protein at 37 °C."
+    Entered by 	Uri M
+    ID 	115175
+    :return:
+    """
+
+    #      umol/(mg.min)  *  min/h  * mmol/umol * mg/g
+    # kcat = 0.08           *  60     * 1
+    kcat = 232           *  3600     * 1
+    composition = {
+        'b3733':1,
+        'b3738':1,
+        'b3732':3,
+        'b3736':2,
+        'b3731':1,
+        'b3735':1,
+        'b3737':10,
+        'b3734':3,
+        }
+
+    atp_synthase = Enzyme(atps_name,
+                        name='ATP Synthase',
+                        kcat_fwd=kcat,
+                        kcat_bwd=kcat,
+                        kdeg=kdeg_enz,
+                        composition=composition)
+
+    return {atps_name:[atp_synthase]}
 
 def get_mrna_dict(model):
     mrna_dict = dict()
@@ -657,7 +725,7 @@ def get_mrna_dict(model):
             t_half = bernstein_ecoli_deg_rates.loc[x.upper()]['medium, min.1'] #M9 medium
             # Mean half life of mrna is 5 minutes in ecoli
             # tau = t_0.5 /ln(2)
-            # kdeg = 1/tau [min.1] * [min/h]
+            # kdeg = 1/tau [min^-1] * [min/h]
             this_kdeg_mrna = (60 * np.log(2) / t_half)
         except KeyError:
             this_kdeg_mrna = kdeg_mrna # Average value of 5 mins
@@ -672,6 +740,8 @@ def get_mrna_dict(model):
     return mrna_dict
 
 
+# Half life of a ribosome is 5 days
+kdeg_rib = 0.0023
 def get_rib():
     """
     # Ribosome
@@ -693,7 +763,7 @@ def get_rib():
 
     rrna_genes = ['b3851', 'b3854', 'b3855']
 
-    rib = Ribosome(id='rib', name='Ribosome', kribo=12 * 3600, kdeg=0.001,
+    rib = Ribosome(id='rib', name='Ribosome', kribo=12 * 3600, kdeg=kdeg_rib,
                    composition = rpeptide_genes, rrna=rrna_genes)
     return rib
 
@@ -721,7 +791,8 @@ def get_rnap():
     rnap = RNAPolymerase(id='rnap',
                          name='RNA Polymerase',
                          ktrans = ktrans*3600,
-                         kdeg = 0.2,
+                         # kdeg = 0.2,
+                         kdeg = kdeg_enz,
                          composition = rnap_genes)
 
 
