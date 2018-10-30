@@ -5,6 +5,8 @@ from bokeh.models import Whisker, ColumnDataSource
 from therme.io.json import load_json_model
 import cobra
 
+from bokeh.io import export_svgs
+
 bp.curdoc().clear()
 
 ec_cobra = cobra.io.load_json_model('iJO1366_with_xrefs.json')
@@ -101,5 +103,9 @@ p1.quad(right = glc_up - glc_std,
 
 p1.legend.location = 'bottom_right'
 
-bp.output_file("plots/iJO1366_growth_regions.html")
+filename = "plots/iJO1366_growth_regions"
+
+bp.output_file(filename + ".html")
 bp.show(p1)
+export_svgs(p1, filename=filename + '.svg')
+

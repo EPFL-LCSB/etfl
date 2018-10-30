@@ -15,7 +15,7 @@ from scipy.stats.kde import gaussian_kde
 import datetime as dt
 
 now = dt.datetime.now()
-ago = now-dt.timedelta(days=5)
+ago = now-dt.timedelta(days=10)
 
 cmap = Category10[10]
 
@@ -110,6 +110,7 @@ def plot_hist(measured):
         p1.legend.location = "center_right"
         p1.xaxis.axis_label = 'seconds'
         p1.yaxis.axis_label = 'counts'
+        p1.output_backend = 'svg'
 
         p.append(p1)
 
@@ -131,6 +132,7 @@ def plot_ridge(measured):
         y = logx_kde(x,these_times) + 1
         source.add(y, model_type)
         p.patch('x', model_type, color=cmap[i], alpha=0.6, line_color="black", source=source)
+        # p.output_backend = 'svg'
 
 
     p.y_range.range_padding = 0.12
@@ -170,9 +172,12 @@ if __name__ == '__main__':
     p1 = plot_hist(measured)
     # p2 = plot_ridge(measured)
 
-    bp.output_file('./plots/timing_hist.html')
+    filename = "./plots/timing_hist"
+
+    bp.output_file(filename = filename + '.html')
     bp.show(p1)
     # bp.show(p2)
 
-
+    from bokeh.io import export_svgs
+    export_svgs(p1, filename=filename + '.svg')
 

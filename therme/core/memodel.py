@@ -313,12 +313,13 @@ class MEModel(LCSBModel, Model):
 
         self.add_mrnas([dummy_mrna], add_degradation = False)
 
-        dummy_transcription = TranscriptionReaction(id='dummy_transcription',
+        dummy_transcription = TranscriptionReaction(id=self._get_transcription_name(dummy_mrna.id),
                                                     name = 'Dummy Transcription',
                                                     gene_id=dummy_gene.id,
                                                     enzymes=self.rnap,
                                                     scaled=True)
         self.add_reactions([dummy_transcription])
+        self.transcription_reactions += [dummy_transcription]
 
         # Use the input ratios to make the stoichiometry
         transcription_mets = {
@@ -371,7 +372,7 @@ class MEModel(LCSBModel, Model):
         # Making the reactions and adding them to the model so that they can
         # reference genes
 
-        dummy_translation = TranslationReaction(id='dummy_translation',
+        dummy_translation = TranslationReaction(id=self._get_translation_name(dummy_peptide),
                                                 name='Dummy Translation',
                                                 gene_id=dummy_gene.id,
                                                 enzymes=self.ribosome,
@@ -381,6 +382,8 @@ class MEModel(LCSBModel, Model):
                                                  target=dummy_protein,
                                                  scaled=True)
         self.add_reactions([dummy_translation, dummy_complexation])
+        self.translation_reactions += [dummy_translation]
+        self.complexation_reactions += [dummy_complexation]
 
         # Use the input ratios to make the stoichiometry
         translation_mets = {}

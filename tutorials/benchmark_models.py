@@ -122,16 +122,25 @@ if __name__ == '__main__':
     uptake_range = pd.Series(np.arange(-1,-40, -1))
 
     models = {
-#        'T0E1N0':load_json_model('models/iJO1366_T0E1N0_430_enz_256_bins__20180903_130235.json',
-#                                 solver = solver),
-#        'T1E1N0':load_json_model('models/RelaxedModel '
-#                                 'iJO1366_T1E1N0_430_enz_256_bins__20180903_131226.json',
-#                                 solver = solver),
-        'T0E1N1':load_json_model('models/iJO1366_T0E1N1_431_enz_256_bins__20180903_152226.json',
-                                  solver = solver),
-#        'T1E1N1':load_json_model('models/RelaxedModel '
-#                                 'iJO1366_T1E1N1_430_enz_256_bins__20180903_141648.json',
-#                                 solver = solver),
+        'T1E1N0': load_json_model('models/RelaxedModel iJO1366_T1E1N0_431_enz_128_bins__20180926_140929.json',
+                                  solver=solver),
+        'T1E1N1': load_json_model('models/RelaxedModel iJO1366_T1E1N1_431_enz_128_bins__20180926_124941.json',
+                                  solver=solver),
+        'T0E1N0':load_json_model('models/iJO1366_T0E1N0_431_enz_128_bins__20180926_144307.json',
+                                 solver = solver),
+        'T0E1N1': load_json_model('models/iJO1366_T0E1N1_431_enz_128_bins__20180926_135704.json',
+                                   solver = solver),
+
+       # 'T0E1N0':load_json_model('models/iJO1366_T0E1N0_430_enz_256_bins__20180903_130235.json',
+       #                          solver = solver),
+       # 'T1E1N0':load_json_model('models/RelaxedModel '
+       #                          'iJO1366_T1E1N0_430_enz_256_bins__20180903_131226.json',
+       #                          solver = solver),
+       #  # 'T0E1N1':load_json_model('models/iJO1366_T0E1N1_431_enz_256_bins__20180903_152226.json',
+       #  #                           solver = solver),
+       # 'T1E1N1':load_json_model('models/RelaxedModel '
+       #                          'iJO1366_T1E1N1_430_enz_256_bins__20180903_141648.json',
+       #                          solver = solver),
         # 'T0E1N0':load_json_model('models/iJO1366_T0E1N0_350_enz_256_bins__20180830_112731.json',
         #                          solver = solver),
         # 'T1E1N0':load_json_model('models/RelaxedModel '

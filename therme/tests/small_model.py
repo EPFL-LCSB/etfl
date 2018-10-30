@@ -246,7 +246,6 @@ def create_etfl_model(has_thermo, has_neidhardt,
 
     ecoli.build_expression()
     ecoli.add_enzymatic_coupling(coupling_dict)
-    ecoli.populate_expression()
 
     if has_neidhardt:
 
@@ -270,7 +269,9 @@ def create_etfl_model(has_thermo, has_neidhardt,
                                        gc_ratio=gc_ratio,
                                        chromosome_len=chromosome_len,
                                        dna_dict=dna_nucleotides)
+
     # Need to put after, because dummy has to be taken into account if used.
+    ecoli.populate_expression()
     ecoli.add_trna_mass_balances()
 
 

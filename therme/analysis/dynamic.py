@@ -12,6 +12,9 @@ ME-related Reaction subclasses and methods definition
 """
 
 import pandas as pd
+import numpy as np
+from tqdm import tqdm
+
 from ..optim.variables import EnzymeRef, mRNARef
 from ..optim.constraints import EnzymeDeltaPos, EnzymeDeltaNeg, \
     mRNADeltaPos, mRNADeltaNeg
@@ -57,30 +60,16 @@ def add_enzyme_delta_constraint(dmodel, timestep):
     enzyme_ref_variables = dmodel.get_variables_of_type(EnzymeRef)
 
     for enz in dmodel.enzymes:
-        E = enz.variable
-        E_ref = enzyme_ref_variables.get_by_id(enz.id)
+
+        if 'dummy' in enz.id:
+            continue
+
+        E = enz.concentration
+        E_ref = enzyme_ref_variables.get_by_id(enz.id) * enz.scaling_factor
 
         v_loss = (enz.complexation.forward_variable \
-                    - enz.complexation.reverse_variable)
-
-        # Find length(pep)*stoichiometry for all peptides
-
-        peptides = enz.complexation.metabolites
-        pep_weighted_len =  {
-            pep:len(dmodel.peptides.get_by_id(pep.id).peptide)*(-1)*stoich
-            for pep,stoich in peptides.items()
-        }
-
-        maxpep, coeff = max(pep_weighted_len.items(), key=operator.itemgetter(1))
-        rib_usage = dmodel.ribosome_usage.get_by_id(maxpep.id)
-
-        # v_asm = dmodel.ribosome.kribo \
-        #         * 1/coeff \
-        #         * rib_usage
-
-        v_asm = dmodel.ribosome.kribo \
-                * 1/sum(pep_weighted_len.values()) \
-                * (dmodel.Rt - dmodel.Rf)
+                    - enz.complexation.reverse_variable) \
+                 * enz.complexation.scaling_factor
 
         # expr_pos = (E - E_ref) - timestep*v_asm
         expr_pos = (E - E_ref) - timestep*v_loss
@@ -124,19 +113,19 @@ def add_mRNA_delta_constraint(dmodel, timestep):
     mrna_ref_variables = dmodel.get_variables_of_type(mRNARef)
 
     for mrna in dmodel.mrnas:
-        F = mrna.variable
-        F_ref = mrna_ref_variables.get_by_id(mrna.id)
+
+        if 'dummy' in mrna.id:
+            continue
+
+        F = mrna.concentration
+        F_ref = mrna_ref_variables.get_by_id(mrna.id) * mrna.scaling_factor
         trans_id = dmodel._get_transcription_name(mrna.id)
-        if trans_id == 'dummy_gene_transcription':
-            trans_id = 'dummy_transcription'
+
         trans = dmodel.transcription_reactions.get_by_id(trans_id)
-        v_loss = (trans.forward_variable - trans.reverse_variable)
+        v_loss = (trans.forward_variable - trans.reverse_variable) \
+                 * trans.scaling_factor
 
-        mrna_length = len(mrna.rna)
-        v_syn = dmodel.rnap.ktrans*dmodel.rnap.variable/mrna_length \
-                                      *dmodel._mrna_scaling/dmodel._prot_scaling
 
-        # expr_pos = (F - F_ref)- timestep*v_syn
         expr_pos = (F - F_ref)- timestep*v_loss
 
         dmodel.add_constraint(kind = mRNADeltaPos,
@@ -195,9 +184,31 @@ def apply_ref_state(dmodel, solution):
             the_ref.variable.lb = max(0,solution[mrna.variable.name] - epsilon)
             the_ref.variable.ub = max(0,solution[mrna.variable.name] + epsilon)
 
+def update_sol(t, X, S, dmodel, obs_values, colname):
+    obs_values.loc['t',colname] = t
+    obs_values.loc['X',colname] = X
+    obs_values.loc['mu',colname] = dmodel.growth_reaction.flux
+
+    obs_values.loc['X', colname] = X
+    for uptake_flux, value in S.items():
+        the_rxn = dmodel.reactions.get_by_id(uptake_flux)
+        obs_values.loc['S_'+uptake_flux, colname] = value
+        obs_values.loc['ub_'+uptake_flux, colname] = -1*the_rxn.lower_bound
+        obs_values.loc['act_'+uptake_flux, colname] = -1*the_rxn.flux
+
+def update_medium(t, Xi, Si, dmodel, medium_fun, timestep):
+    mu = dmodel.growth_reaction.flux
+    X = Xi + mu * Xi * timestep
+    S = dict()
+    for uptake_flux, medium_change in medium_fun.items():
+        sol_flux = dmodel.reactions.get_by_id(uptake_flux).flux
+        S[uptake_flux] = Si[uptake_flux] + sol_flux * Xi * timestep
+        S[uptake_flux] = medium_change(t, S[uptake_flux])
+
+    return X,S
 
 def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
-                     S0, X0, inplace=False):
+                     S0, X0, inplace=False, initial_solution = None):
     """
 
     :param model:
@@ -212,83 +223,51 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
     else:
         dmodel = model
 
+    dmodel.optimize()
+
     add_dynamic_variables_constraints(dmodel, timestep)
-
-    # add_dynamic_boundaries(dmodel)
-
-    t = 0.0
-
-    S = S0
-    X = X0
-
-    St = defaultdict(list)
-    upt_lim = defaultdict(list)
-    upt = defaultdict(list)
-    Xt = []
-    tt = []
-    mut = []
-
 
     for uptake_flux, kinfun in uptake_fun.items():
         the_rxn = dmodel.reactions.get_by_id(uptake_flux)
         the_rxn.upper_bound = 0
         the_rxn.lower_bound = -1 * kinfun(S0[uptake_flux])
 
+    if initial_solution is None:
+        current_solution = dmodel.solution
+    else:
+        current_solution = initial_solution
 
-    # dmodel.reactions.EX_o2_e.lower_bound = -15 # Mahadevan et al. 2002
-    dmodel.optimize()
+    var_solutions = pd.DataFrame()
+    obs_values = pd.DataFrame()
 
-    time_solution = pd.DataFrame()
+    times = np.arange(0,tfinal,timestep)
+    S = S0
+    X = X0
 
-    k = 0
-    while t<tfinal:
-        apply_ref_state(dmodel, dmodel.solution.x_dict)
+    for  k, t in tqdm(enumerate(times)):
+
+        apply_ref_state(dmodel, current_solution.raw)
 
         for uptake_flux, kinfun in uptake_fun.items():
             dmodel.reactions.get_by_id(uptake_flux).lower_bound = \
-                                        -1 * kinfun(S[uptake_flux])
+                -1 * kinfun(S[uptake_flux])
 
         try:
-            dmodel.optimize()
+            the_solution = dmodel.optimize()
         except AttributeError:
-            # raise(AttributeError)
-            time_solution = wrap_time_sol(time_solution, tt, Xt, St, mut, upt, upt_lim)
-            return time_solution
+            return wrap_time_sol(var_solutions, obs_values)
 
-        mu = dmodel.growth_reaction.flux
+        colname = 't_{}'.format(k)
 
-        time_solution['t_{}'.format(k)] = dmodel.solution.x_dict
+        var_solutions[colname] = the_solution.raw.copy()
+        update_sol(t,X,S,dmodel,obs_values, colname)
+        X,S= update_medium(t,X,S,model,medium_fun,timestep)
 
-        t += timestep
-        Xt.append(X)
-        tt.append(t)
-        mut.append(mu)
-        X += mu * X * timestep
+        current_solution = the_solution
 
-        for uptake_flux, medium_change in medium_fun.items():
-            sol_flux = dmodel.reactions.get_by_id(uptake_flux).flux
-            St[uptake_flux].append(S[uptake_flux])
-            upt_lim[uptake_flux].append(uptake_fun[uptake_flux](S[uptake_flux]))
-            upt[uptake_flux].append(-1*sol_flux)
-            S[uptake_flux] += sol_flux * X * timestep
-            S[uptake_flux] = medium_change(t,S[uptake_flux])
+    return wrap_time_sol(var_solutions, obs_values)
 
-        k+=1
-
-    time_solution = wrap_time_sol(time_solution, tt, Xt, St, mut, upt, upt_lim)
-    return time_solution
-
-
-def wrap_time_sol(time_solution, tt, Xt, St, mut, upt, upt_lim):
-
-    for uptake_flux, values in St.items():
-        time_solution.loc['S_'+uptake_flux] = values
-        time_solution.loc['ub_'+uptake_flux] = upt[uptake_flux]
-        time_solution.loc['act_'+uptake_flux] = upt_lim[uptake_flux]
-    time_solution.loc['X'] = Xt
-    time_solution.loc['t'] = tt
-    time_solution.loc['mu'] = mut
-
-    return time_solution
+def wrap_time_sol(var_solutions, obs_values):
+    return pd.concat([var_solutions,obs_values], axis=0)
 
 

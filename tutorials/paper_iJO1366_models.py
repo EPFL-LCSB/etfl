@@ -49,7 +49,7 @@ observed_growth = 0.61
 growth_reaction_id = 'BIOMASS_Ec_iJO1366_WT_53p95M'
 
 
-def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 256):
+def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 128):
     #------------------------------------------------------------
     # Initialisation
     #------------------------------------------------------------
@@ -174,7 +174,6 @@ def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 256):
 
     ecoli.build_expression()
     ecoli.add_enzymatic_coupling(coupling_dict)
-    ecoli.populate_expression()
 
     if has_neidhardt:
 
@@ -198,7 +197,9 @@ def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 256):
                                        gc_ratio=gc_ratio,
                                        chromosome_len=chromosome_len,
                                        dna_dict=dna_nucleotides)
+
     # Need to put after, because dummy has to be taken into account if used.
+    ecoli.populate_expression()
     ecoli.add_trna_mass_balances()
 
 
@@ -218,6 +219,7 @@ def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 256):
 
     if has_thermo and need_relax:
         final_model, slack_model, relax_table = relax_dgo(ecoli)
+        # final_model, slack_model, relax_table = relax_dgo(ecoli, in_place = True)
     else:
         final_model = ecoli
 
@@ -294,9 +296,9 @@ if __name__ == '__main__':
     # Models defined by Thermo - Expression - Neidhardt
     model_calls = [
         (False, True, True),
-        # (False, True, False),
-        # (True, True, False),
+        (True, True, False),
         # (True, True, True),
+        (False, True, False),
         ]
 
     for mc in model_calls:

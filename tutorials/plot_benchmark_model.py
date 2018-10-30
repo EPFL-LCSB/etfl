@@ -7,12 +7,16 @@ from  bokeh.plotting import figure, show, output_file, curdoc
 from collections import OrderedDict
 
 from bokeh.palettes import Category10
+from bokeh.io import export_svgs
 
 from os.path import join as pjoin
 
 bp.curdoc().clear()
 
 data_dir = '../organism_data/info_ecoli'
+
+from therme.io.json import load_json_model
+scaling_model = load_json_model('models/RelaxedModel iJO1366_T1E1N1_431_enz_128_bins__20180926_124941.json')
 
 def make_polygon(x, ymin, ymax):
     lx = x.tolist()
@@ -41,14 +45,14 @@ def plot_growth_vs_uptake(fig, df, legend_text, color ='forestgreen'):
     fig.circle(df['uptake'], df['mu'], color=color, legend=legend_text)
     fig.line  (df['uptake'], df['mu'], color=color, legend=legend_text)
 
-    plot_var_vs_uptake(fig, df, 'mu', legend_text, color)
+    plot_var_vs_uptake(fig, df, 'mu', 1, legend_text, color)
 
-def plot_var_vs_uptake(fig, df, var, legend_text, color, alpha = 0.5):
+def plot_var_vs_uptake(fig, df, var, sigma, legend_text, color, alpha = 0.5):
 
     # xs, ys = make_polygon(df['uptake'], df[var+'_lb'], df[var+'_ub'])
     # fig.patch(xs, ys, color=color, alpha=alpha, legend = legend_text)
 
-    top, bottom, left, right = make_bars(df['uptake'], df[var+'_lb'], df[var+'_ub'], width = 0.5)
+    top, bottom, left, right = make_bars(df['uptake'], df[var+'_lb']*sigma, df[var+'_ub']*sigma, width = 0.5)
     fig.quad(top=top,
              bottom=bottom,
              left=left,
@@ -114,8 +118,12 @@ if __name__ == '__main__':
     mu_figure.xaxis.axis_label = 'glucose uptake [mmol/(gDw.h)]'
     mu_figure.yaxis.axis_label = 'Growth rate [1/h]'
 
-    output_file('plots/benchmark_growth.html')
+    filename  = 'plots/benchmark_growth'
+    output_file(filename + '.html')
     show(mu_figure)
+    mu_figure.output_backend = 'svg'
+    export_svgs(mu_figure, filename=filename + '.svg')
+
     curdoc().clear()
 
     # Plot variability
@@ -133,15 +141,27 @@ if __name__ == '__main__':
             fig = figure()
 
         for e, (model_name, df) in enumerate(model_data.items()):
+
+            if var.startswith('EZ_'):
+                #it's an enzyme
+                sigma = scaling_model.enzymes.get_by_id(var[3:]).scaling_factor
+            elif var.startswith('MR_'):
+                #it's an mRNA
+                sigma = scaling_model.mrnas.get_by_id(var[3:]).scaling_factor
+            else:
+                sigma = 1
+
             plot_var_vs_uptake( fig,
                                 df,
                                 var,
+                                sigma,
                                 model_name,
                                 cmap[e],
                                 alpha=0.8
                                 )
 
-        output_file('plots/benchmark_{}.html'.format(var))
+        filename = 'plots/benchmark_{}'.format(var)
+        output_file(filename + '.html')
 
         if var in ['EZ_dummy_enzyme']:
             fig.legend.location = 'top_right'
@@ -157,6 +177,8 @@ if __name__ == '__main__':
 
 
         show(fig)
+        fig.output_backend = 'svg'
+        export_svgs(fig, filename=filename + '.svg')
         curdoc().clear()
         figures[model_name] = fig
 
@@ -174,8 +196,11 @@ if __name__ == '__main__':
         if 'mrna' in ratio:
             fig.legend.location = 'bottom_right'
 
-        output_file('plots/benchmark_{}.html'.format(ratio))
+        filename = 'plots/benchmark_{}'.format(ratio)
+        output_file(filename + '.html')
         show(fig)
+        fig.output_backend = 'svg'
+        export_svgs(fig, filename=filename + '.svg')
         curdoc().clear()
 
         figures[ratio] = fig
@@ -208,8 +233,12 @@ if __name__ == '__main__':
                        line_width = 2,
                        legend='Neidhardt et al. measurements')
 
-        output_file('plots/benchmark_{}_vs_mu.html'.format(ratio))
+        filename = 'plots/benchmark_{}_vs_mu'.format(ratio)
+        output_file(filename + '.html'.format(ratio))
+
         show(fig)
+        fig.output_backend = 'svg'
+        export_svgs(fig, filename=filename + '.svg')
         curdoc().clear()
 
         figures[ratio] = fig

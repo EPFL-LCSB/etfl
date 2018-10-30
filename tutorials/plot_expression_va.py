@@ -3,13 +3,13 @@ import pandas as pd
 import re
 import numpy as np
 import bokeh.plotting as bp
-from bokeh.models.glyphs import HBar
+from bokeh.models.glyphs import HBar, VBar
 from bokeh.models import ColumnDataSource, DataRange1d, LinearAxis, \
     Grid,CategoricalTicker, FuncTickFormatter, HoverTool
+from bokeh.io import export_svgs
 
 outputs_folder = './outputs/'
 plots_folder = './plots/'
-
 
 verbose_kinds = {
     'mrna':'mRNA',
@@ -27,13 +27,13 @@ def get_va_files():
 
     for filename in os.listdir(outputs_folder):
         re_search = VA_REGEX.search(filename)
-        if re_search:
+        if re_search and filename.endswith('.csv'):
             tag, kind = re_search.groups(1)
             files[filename] = (tag, kind)
 
     return files
 
-def plot_va(filename, tag, kind):
+def plot_va(filename, tag, kind, color = "#b3de69", orient = 'horizontal'):
     bp.curdoc().clear()
 
     title = verbose_kinds[kind] + ' variability analysis for {} iJO1366 model'\
@@ -58,31 +58,54 @@ def plot_va(filename, tag, kind):
 
     _tools_to_show = 'box_zoom,pan,save,hover,reset,tap,wheel_zoom'
 
-    p1 = bp.figure( title=title, x_range=xdr, y_range=ydr,
-                    x_axis_type = 'log',
-                    plot_width=600,
-                    plot_height=1000,
-                    tools=_tools_to_show,
-                    # h_symmetry=False, v_symmetry=False,
-                    min_border=0)
 
-    glyph = HBar(y="y", right="maximum", left="minimum", height=0.9,
-                 fill_color="#b3de69", fill_alpha=1,
-                 line_color = None)
+    if orient == 'vertical':
+        p1 = bp.figure( title=title, x_range=xdr, y_range=ydr,
+                        x_axis_type = 'log',
+                        plot_width=600,
+                        plot_height=1000,
+                        tools=_tools_to_show,
+                        # h_symmetry=False, v_symmetry=False,
+                        min_border=0)
+        glyph = HBar(y="y", right="maximum", left="minimum", height=0.9,
+                     fill_color=color, fill_alpha=1,
+                     line_color = None)
+        p1.add_glyph(source, glyph)
 
-    p1.add_glyph(source, glyph)
+        p1.circle(x='score', y='y', fill_color='white', line_color=color,
+                  source=source)
+        axis1 = p1.xaxis
+        axis2 = p1.yaxis
+    elif orient == 'horizontal':
+        p1 = bp.figure(title=title, x_range=ydr, y_range=xdr,
+                       y_axis_type='log',
+                       plot_width=1000,
+                       plot_height=600,
+                       tools=_tools_to_show,
+                       # h_symmetry=False, v_symmetry=False,
+                       min_border=0)
 
-    p1.circle(x='score', y='y', fill_color='white', line_color= "#b3de69",
-              source=source)
+        glyph = VBar(x="y", top="maximum", bottom="minimum", width=0.9,
+                     fill_color=color, fill_alpha=1,
+                     line_color=None)
+        p1.add_glyph(source, glyph)
+
+        p1.circle(y='score', x='y', fill_color='white', line_color=color,
+                  source=source)
+        axis1 = p1.yaxis
+        axis2 = p1.xaxis
+    else:
+        raise ValueError("orient should be 'vertical' or 'horizontal'")
 
     # Fix ticks
     label_dict = {}
     for i, s in enumerate(data.index):
         label_dict[i] = s
-    p1.yaxis.formatter = FuncTickFormatter(code="""
+    axis2.formatter = FuncTickFormatter(code="""
                                             var labels = %s;
                                             return labels[tick];
                                         """ % label_dict)
+    axis1.axis_label = '[{}]'.format(verbose_kinds[kind])
 
     # p1.yaxis.ticker = [x for x in range(len(data))]
 
@@ -93,10 +116,13 @@ def plot_va(filename, tag, kind):
                       ]
     hover.mode = 'mouse'
 
-    p1.xaxis.axis_label = '[{}]'.format(verbose_kinds[kind])
 
-    bp.output_file(os.path.join(plots_folder, 'va_'+filename+'.html'))
+    path = os.path.join(plots_folder, 'va_' + filename)
+    bp.output_file(path + '.html')
     bp.show(p1)
+    p1.output_backend='svg'
+    export_svgs(p1, filename=path+'.svg')
+    bp.curdoc().clear()
 
     return data
 

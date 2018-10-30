@@ -14,6 +14,10 @@ COPY requirements.txt .
 # Install python packages
 RUN pip install -r requirements.txt
 
+# For SVG export
+COPY utils/setup_svg_export.sh .
+RUN chmod +x setup_svg_export.sh && ./setup_svg_export.sh
+
 # Make the /src/therme folder that will link the sources
 RUN mkdir /src/therme
 
