@@ -1,0 +1,1322 @@
+YmfC_mono	16S RNA U516 pseudouridine synthase (EC:4.2.1.70)	b1135(1)	2011_Updated_E_recon
+CARNRACE-MONOMER	default_name	b0036(1)	M_protein_recon
+CPLX0-1601	default_name	b1587(1) AND b1590(1) AND b1588(1) AND b1589(1)	M_protein_recon
+CPLX0-1762	default_name	b1388() AND b1389() AND b1392() AND b1390()	M_protein_recon
+NANE-MONOMER	default_name	b3223(1)	M_protein_recon
+DTDPGLUCDEHYDRAT2-MONOMER	default_name	b3788(1)	M_protein_recon
+NARU-MONOMER	default_name	b1469(1)	M_protein_recon
+YDGEF-CPLX	default_name	b1599() AND b1600()	M_protein_recon
+PHOSMANMUT-MONOMER	default_name	b2048(1)	M_protein_recon
+CPLX0-3929	default_name	b2708(4)	M_protein_recon
+#RimO_mono	ribosomal protein S12 D88 methylthiotransferase	b0835()	2011_Updated_E_recon
+CPLX0-7652	default_name	b3903(4)	M_protein_recon
+ANSB-CPLX	default_name	b2957(4)	M_protein_recon
+EG11983-MONOMER	default_name	b2034(1)	M_protein_recon
+NARW-MONOMER	default_name	b1466(1)	M_protein_recon
+#CPLX0-7805	default_name	b0286(1) AND b0284(1) AND b0285(1)	M_protein_recon
+EG11009-MONOMER	default_name	b3035(1)	M_protein_recon
+GABATRANSAM-CPLX	default_name	b2662(2)	M_protein_recon
+DIHYDROOROTOX-MONOMER	default_name	b0945(1)	M_protein_recon
+NAPD-MONOMER	default_name	b2207(1)	M_protein_recon
+DSBD-MONOMER	default_name	b4136(1)	M_protein_recon
+NITRATREDUCTZ-CPLX	default_name	b1468(1) AND b1465(1) AND b1467(1)	M_protein_recon
+YGFO-MONOMER	default_name	b2882(1)	M_protein_recon
+ALTRO-OXIDOREDUCT-MONOMER	default_name	b1521(1)	M_protein_recon
+EG10739-MONOMER	default_name	b3825(1)	M_protein_recon
+DCUA-MONOMER	default_name	b4138(1)	M_protein_recon
+ALPHA-AMYL-PERI-MONOMER	default_name	b3571(1)	M_protein_recon
+KUP-MONOMER	default_name	b3747(1)	M_protein_recon
+PYRUVFORMLY-MONOMER_EG11784-MONOMER	default_name	b2579(1) AND b0903(1)	M_protein_recon
+PHOSNACMURPENTATRANS-MONOMER	default_name	b0087(1)	M_protein_recon
+ISOCIT-LYASE	default_name	b4015(4)	M_protein_recon
+RplY_mono	50S ribosomal subunit protein L25	b2185(1)	2011_Updated_E_recon
+CPLX0-1262	default_name	b3197(4)	M_protein_recon
+YJGT-MONOMER	default_name	b4265(1)	M_protein_recon
+CPLX0-303	default_name	b3925(2)	M_protein_recon
+G6425-MONOMER	default_name	b0822(1)	M_protein_recon
+RumA_mono	23S rRNA m(5)U1939 methyltransferase, SAM-dependent (EC:2.1.1.-)	b2785(1)	2011_Updated_E_recon
+DIOHBUTANONEPSYN-CPLX	default_name	b3041(2)	M_protein_recon
+CPLX0-1541	default_name	b0159(2)	M_protein_recon
+DCUB-MONOMER	default_name	b4123(1)	M_protein_recon
+G6406-MONOMER	default_name	b0789(1)	M_protein_recon
+G7533-MONOMER	default_name	b2963(1)	M_protein_recon
+CPLX0-7794	default_name	b3882(4)	M_protein_recon
+FPPSYN-MONOMER	default_name	b0421(1)	M_protein_recon
+G6580-MONOMER	default_name	b1134(1)	M_protein_recon
+PABASYN-COMPI-MONOMER	default_name	b1812(1)	M_protein_recon
+CPLX0-243	default_name	b4226(6)	M_protein_recon
+KDPGALDOL-4OH2OXOGLUTARALDOL-CPLX	default_name	b1850(3)	M_protein_recon
+UPPSYN-CPLX	default_name	b0174(2)	M_protein_recon
+G495-MONOMER	default_name	b2901(1)	M_protein_recon
+AROG-CPLX	default_name	b0754(4)	M_protein_recon
+PSERPHOSPHA-MONOMER	default_name	b4388(1)	M_protein_recon
+DAPASYN-CPLX	default_name	b0774(2)	M_protein_recon
+CPLX0-3841	default_name	b1208(2)	M_protein_recon
+RlmG_mono	23S rRNA m2G1835 methyltransferase	b3084()	2011_Updated_E_recon
+CPLX0-7458	default_name	b4467() AND b4468() AND b2979()	M_protein_recon
+YDEA-MONOMER	default_name	b1528(1)	M_protein_recon
+EG11486-MONOMER	default_name	b3792(1)	M_protein_recon
+FADA-CPLX	default_name	b3845(2)	M_protein_recon
+UDK-MONOMER	default_name	b2066(1)	M_protein_recon
+G6718-MONOMER	default_name	b1397(1)	M_protein_recon
+RpmB_mono	50S ribosomal subunit protein L28	b3637(1)	2011_Updated_E_recon
+Rnb_mono	ribonuclease II (EC:3.1.13.1)	b1286(1)	2011_Updated_E_recon
+EG10202-MONOMER	default_name	b3182(1)	M_protein_recon
+4OHBENZOATE-OCTAPRENYLTRANSFER-MONOMER	default_name	b4040(1)	M_protein_recon
+Ser_RS_dim	seryl-tRNA synthetase, also charges selenocysteinyl-tRNA with serine	b0893(2)	2011_Updated_E_recon
+G6275-MONOMER	default_name	b0505(1)	M_protein_recon
+ABC-3-CPLX	default_name	b2308(1) AND b2310(1) AND b2307(1) AND b2306(2)	M_protein_recon
+EG11956-MONOMER	default_name	b4084(1)	M_protein_recon
+B0511-MONOMER	default_name	b0511(1)	M_protein_recon
+IscA_tetra	FeS cluster assembly protein iscA	b2528(4)	2011_Updated_E_recon
+RED-THIOREDOXIN2-MONOMER	default_name	b2582(1)	M_protein_recon
+CYT-O-UBIOX-CPLX	default_name	b0429(1) AND b0431(1) AND b0430(1) AND b0432(1)	M_protein_recon
+DETHIOBIOTIN-SYN-CPLX	default_name	b0778(2)	M_protein_recon
+TNAB-MONOMER	default_name	b3709(1)	M_protein_recon
+EG10950-MONOMER	default_name	b4392(1)	M_protein_recon
+RsmI_mono	16S rRNA 2'-O-ribose C1402 methyltransferase	b3146()	2011_Updated_E_recon
+CPLX0-241	default_name	b2095(1) AND b2096(1)	M_protein_recon
+2-OCTAPRENYLPHENOL-HYDROX-MONOMER	default_name	b3835(1)	M_protein_recon
+GLUCONOKINII-CPLX	default_name	b3437(3)	M_protein_recon
+HOLO-ACP-SYNTH-CPLX	default_name	b2563(2)	M_protein_recon
+RpsP_mono	30S ribosomal subunit protein S16	b2609(1)	2011_Updated_E_recon
+G7419-MONOMER	default_name	b2738(1)	M_protein_recon
+ARAE-MONOMER	default_name	b2841(1)	M_protein_recon
+L-ASPARTATE-OXID-MONOMER	default_name	b2574(1)	M_protein_recon
+PHOSGLUCOSAMINEMUT-MONOMER	default_name	b3176(1)	M_protein_recon
+DGTPTRIPHYDRO-CPLX	default_name	b0160(4)	M_protein_recon
+EG10381-MONOMER	default_name	b3431(1)	M_protein_recon
+CPLX0-7659	default_name	b0414(2)	M_protein_recon
+AICARTRANSIMPCYCLO-CPLX	default_name	b4006(1)	M_protein_recon
+EG11910-MONOMER_dimer	default_name	b3951(2)	M_protein_recon
+FRUCBISALD-CLASSI	default_name	b2097(10)	M_protein_recon
+TYRP-MONOMER	default_name	b1907(1)	M_protein_recon
+CPLX-167	default_name	b2415(1) AND b2416(2) AND b0679(2)	M_protein_recon
+CPLX0-782	default_name	b0628(2)	M_protein_recon
+ERYTH4PDEHYDROG-CPLX	default_name	b2927(4)	M_protein_recon
+MTR-MONOMER	default_name	b3161(1)	M_protein_recon
+ABC-70-CPLX	default_name	b3917(1) AND b2422(2) AND b2423(1) AND b2424(1)	M_protein_recon
+OCTAPRENYL-METHOXYPHENOL-OH-MONOMER	default_name	b2907(1)	M_protein_recon
+CPLX0-3181	default_name	b0166(2)	M_protein_recon
+LTARTDEHYDRA-CPLX	default_name	b3062(2) AND b3061(2)	M_protein_recon
+YJDL-MONOMER	default_name	b4130(1)	M_protein_recon
+DusA_mono	tRNA-dihydrouridine synthase A	b4049(1)	2011_Updated_E_recon
+RpsF_mono	30S ribosomal subunit protein S6	b4200(1)	2011_Updated_E_recon
+CPLX0-7688	default_name	b2661(4)	M_protein_recon
+EG11829-MONOMER_EG11828-MONOMER	default_name	b3856() AND b3857()	M_protein_recon
+EG11288-MONOMER	default_name	b0394(1)	M_protein_recon
+HOMOCYSMET-MONOMER	default_name	b3829(1)	M_protein_recon
+QueG_mono	QueG_mono	b4166(1)	2011_Updated_E_recon
+CPLX0-234	default_name	b2747(2)	M_protein_recon
+GKI-MONOMER	default_name	b3124(1)	M_protein_recon
+CPLX0-7654	default_name	b3927(4)	M_protein_recon
+ARGSUCCTRAN-MONOMER	default_name	b1747(1)	M_protein_recon
+EXUT-MONOMER	default_name	b3093(1)	M_protein_recon
+GLUCARDEHYDRA-MONOMER	default_name	b2787(1)	M_protein_recon
+ABC-51-CPLX	default_name	b1443(1) AND b1442(1) AND b1440(1) AND b1441(2)	M_protein_recon
+CPLX0-7826	default_name	b2954(2)	M_protein_recon
+CPLX0-7808	default_name	b2436(2)	M_protein_recon
+EG10780-MONOMER	default_name	b1308(1)	M_protein_recon
+TRANSALDOLB-CPLX	default_name	b0008(2)	M_protein_recon
+G6437-MONOMER	default_name	b0837(1)	M_protein_recon
+F16B-CPLX	default_name	b4232(4)	M_protein_recon
+GLYCOGENSYN-MONOMER	default_name	b3429(1)	M_protein_recon
+PANTOATE-BETA-ALANINE-LIG-CPLX	default_name	b0133(2)	M_protein_recon
+ACNEULY-CPLX	default_name	b3225(4)	M_protein_recon
+CDPDIGLYSYN-MONOMER	default_name	b0175(1)	M_protein_recon
+CPLX0-3861	default_name	b4474(8)	M_protein_recon
+G7732-MONOMER	default_name	b3380(1)	M_protein_recon
+RpoH_mono	RNA polymerase, sigma 32 (sigma H) factor	b3461(1)	2011_Updated_E_recon
+GPT-CPLX	default_name	b0238(4)	M_protein_recon
+TadA_dim	tRNA-specific adenosine deaminase (EC:3.5.4.-)	b2559(2)	2011_Updated_E_recon
+BRNQ-MONOMER	default_name	b0401(1)	M_protein_recon
+ASNSYNA-CPLX	default_name	b3744(2)	M_protein_recon
+XYLISOM-CPLX	default_name	b3565(4)	M_protein_recon
+G7322-MONOMER_G6561-MONOMER	default_name	b2519() AND b1069()	M_protein_recon
+GLUTAMIDOTRANS-CPLX	default_name	b2025(1) AND b2023(1)	M_protein_recon
+ABC-7-CPLX	default_name	b2422(2) AND b2423(1) AND b2424(1) AND b2425(1)	M_protein_recon
+PNUC-MONOMER	default_name	b0751(1)	M_protein_recon
+TREHALAPERI-MONOMER	default_name	b1197(1)	M_protein_recon
+EG11911-MONOMER	default_name	b3952(1)	M_protein_recon
+RNase_T_dim	ribonuclease T (RNase T)	b1652(2)	2011_Updated_E_recon
+G7166-MONOMER	default_name	b2253(1)	M_protein_recon
+PrfB_mono	peptide chain release factor RF-2	b2891(1)	2011_Updated_E_recon
+UDPMANNACADEHYDROG-MONOMER	default_name	b3787(1)	M_protein_recon
+UDP-NACMUR-ALA-LIG-MONOMER	default_name	b0091(1)	M_protein_recon
+ANTHRANSYNCOMPII-MONOMER	default_name	b1263(1)	M_protein_recon
+CPLX0-7625	default_name	b2291(2)	M_protein_recon
+CPLX0-7614	default_name	b2019(2)	M_protein_recon
+B2789-MONOMER	default_name	b2789(1)	M_protein_recon
+EG11353-MONOMER	default_name	b3626(1)	M_protein_recon
+MENE-CPLX	default_name	b2260(4)	M_protein_recon
+PYRUVATEDEH-CPLX	default_name	b0114(24) AND b0115(24) AND b0116(12)	M_protein_recon
+KEFB-MONOMER	default_name	b3350(1)	M_protein_recon
+YHHO-MONOMER	default_name	b3469(1)	M_protein_recon
+G6862-MONOMER	default_name	b1606(1)	M_protein_recon
+CPLX0-1941	default_name	b1252() AND b3005() AND b0584() AND b3006()	M_protein_recon
+ANTHRANSYN-CPLX	default_name	b1263(2) AND b1264(2)	M_protein_recon
+HYDROG3-CPLX	default_name	b2724() AND b2722() AND b2719() AND b2720() AND b2723() AND b2721()	M_protein_recon
+GALACTONATE-DEHYDRATASE-MONOMER	default_name	b4478(1)	M_protein_recon
+XAPB-MONOMER	default_name	b2406(1)	M_protein_recon
+PGLUCONDEHYDRAT-MONOMER	default_name	b1851(1)	M_protein_recon
+G6712-MONOMER	default_name	b1391(1)	M_protein_recon
+ACYLCOASYN-CPLX	default_name	b1805(2)	M_protein_recon
+CPLX0-235	default_name	b3553(2)	M_protein_recon
+OHMETHYLBILANESYN-MONOMER	default_name	b3805(1)	M_protein_recon
+SUCC-DEHASE	default_name	b0721(1) AND b0723(1) AND b0722(1) AND b0724(1)	M_protein_recon
+ADENODEAMIN-MONOMER	default_name	b1623(1)	M_protein_recon
+PROPKIN-MONOMER	default_name	b3115(1)	M_protein_recon
+CPLX0-3061	default_name	b4260(6)	M_protein_recon
+GARTRANSFORMYL2-MONOMER	default_name	b1849(1)	M_protein_recon
+CPLX0-7719	default_name	b0750(2)	M_protein_recon
+NusA_mono	transcription termination/antitermination L factor nusA	b3169(1)	2011_Updated_E_recon
+NusB_mono	transcription antitermination protein (nusB)	b0416(1)	2011_Updated_E_recon
+EG11437-MONOMER	default_name	b1090(1)	M_protein_recon
+AAS-MONOMER	default_name	b2836(1)	M_protein_recon
+EG12455-MONOMER	default_name	b2835(1)	M_protein_recon
+CADB-MONOMER	default_name	b4132(1)	M_protein_recon
+CPLX0-7534	default_name	b0929(3)	M_protein_recon
+EG12221-MONOMER	default_name	b3475(1)	M_protein_recon
+InfA_mono	translation initiation factor IF-1	b0884(1)	2011_Updated_E_recon
+EG11082-MONOMER	default_name	b0030(1)	M_protein_recon
+CPLX-64	default_name	b0512(4)	M_protein_recon
+TRKA-MONOMER_SAPD-MONOMER_TRKG-MONOMER	default_name	b1363() AND b1291() AND b3290()	M_protein_recon
+FADB-CPLX	default_name	b3846(2)	M_protein_recon
+MELB-MONOMER	default_name	b4120(1)	M_protein_recon
+NADH-DHI-CPLX	default_name	b2288(1) AND b2283() AND b2284() AND b2277() AND b2280() AND b2285() AND b2279() AND b2281() AND b2286() AND b2278() AND b2282() AND b2276() AND b2287()	M_protein_recon
+CPLX-63	default_name	b1872(1) AND b1873(1)	M_protein_recon
+ARGDECARBOXBIO-CPLX	default_name	b2938(4)	M_protein_recon
+GLYCEROL-KIN-CPLX	default_name	b3926(4)	M_protein_recon
+DIACYLGLYKIN-CPLX	default_name	b4042(3)	M_protein_recon
+RluC_mono	23S rRNA pseudouridylate synthase (EC:4.2.1.70)	b1086(1)	2011_Updated_E_recon
+THREDEHYDSYN-CPLX	default_name	b3772(4)	M_protein_recon
+SULFITE-REDUCT-CPLX	default_name	b2764(8) AND b2763(4)	M_protein_recon
+BETAGALACTOSID-CPLX	default_name	b0344(4)	M_protein_recon
+EG11425-MONOMER	default_name	b3625(1)	M_protein_recon
+DIHYDRODIPICSYN-CPLX	default_name	b2478(4)	M_protein_recon
+DUTP-PYROP-CPLX	default_name	b3640(3)	M_protein_recon
+EG10280-MONOMER	default_name	b2344(1)	M_protein_recon
+EIISGA	default_name	b2415(1) AND b2416(2) AND b4193(2) AND b4194(1) AND b4195(1)	M_protein_recon
+HCAT-MONOMER	default_name	b2536(1)	M_protein_recon
+PHOSACETYLTRANS-CPLX	default_name	b2297(6)	M_protein_recon
+RsmD_mono	16S rRNA m2G966 methyltransferase	b3465()	2011_Updated_E_recon
+G6714-MONOMER	default_name	b1393(1)	M_protein_recon
+RpsI_mono	30S ribosomal subunit protein S9	b3230(1)	2011_Updated_E_recon
+EG11095-MONOMER	default_name	b0404(1)	M_protein_recon
+PKI-COMPLEX	default_name	b1676(4)	M_protein_recon
+EG11158-MONOMER	default_name	b2912(1)	M_protein_recon
+3-OXOACYL-ACP-SYNTHII-CPLX	default_name	b1095(2)	M_protein_recon
+EG11511-MONOMER	default_name	b0009(1)	M_protein_recon
+TREHALACYTO-MONOMER	default_name	b3519(1)	M_protein_recon
+ACETYL-COA-CARBOXYLMULTI-CPLX	default_name	b3255(2) AND b2316(2) AND b0185(2) AND b3256(2)	M_protein_recon
+Era_dim	membrane-associated, 16S rRNA-binding GTPase	b2566(2)	2011_Updated_E_recon
+TRE6PHYDRO-MONOMER	default_name	b4239(1)	M_protein_recon
+GSP-CPLX	default_name	b2988(2)	M_protein_recon
+TrmH_dim	tRNA mG18-2'-O-methyltransferase, SAM-dependen	b3651(2)	2011_Updated_E_recon
+EG10119-MONOMER	default_name	b0777(1)	M_protein_recon
+CARBODEHYDRAT-CPLX	default_name	b0339(2)	M_protein_recon
+YheL_mono	predicted intracellular sulfur oxidation protein	b3343(1)	2011_Updated_E_recon
+O-SUCCINYLBENZOATE-COA-SYN-MONOMER	default_name	b2261(1)	M_protein_recon
+RrmJ_mono	23S rRNA methyltransferase (EC:2.1.1.-)	b3179(1)	2011_Updated_E_recon
+SARCOX-MONOMER	default_name	b1059(1)	M_protein_recon
+CPLX0-7465	default_name	b1190(2)	M_protein_recon
+CysS_mono	cysteinyl-tRNA synthetase (EC:6.1.1.16)	b0526(1)	2011_Updated_E_recon
+ORNCARBAMTRANSFERF-CPLX	default_name	b0273(3)	M_protein_recon
+UDPGLUCEPIM-CPLX	default_name	b0759(2)	M_protein_recon
+DusC_mono	tRNA-dihydrouridine synthase C	b2140(1)	2011_Updated_E_recon
+PD04413	default_name	b4390(1)	M_protein_recon
+FLAVONADPREDUCT-MONOMER	default_name	b3924(1)	M_protein_recon
+ADHC-CPLX	default_name	b0356(2)	M_protein_recon
+USHA-MONOMER	default_name	b0480(1)	M_protein_recon
+BRANCHED-CHAINAMINOTRANSFER-CPLX	default_name	b3770(6)	M_protein_recon
+GLU6PDEHYDROG-MONOMER	default_name	b1852(1)	M_protein_recon
+G6176-MONOMER_G6177-MONOMER_G6178-MONOMER	default_name	b0307() AND b0306() AND b0308()	M_protein_recon
+FORMHYDROG2-CPLX	default_name	b2994() AND b2995() AND b2996() AND b2997()	M_protein_recon
+N-ACETYLGLUTPREDUCT-MONOMER	default_name	b3958(1)	M_protein_recon
+DALADEHYDROGA-MONOMER	default_name	b1189(1)	M_protein_recon
+PDXK-CPLX	default_name	b2418(4)	M_protein_recon
+DHHB-METHYLTRANSFER-CPLX	default_name	b2232(2)	M_protein_recon
+CORA-MONOMER	default_name	b3816(1)	M_protein_recon
+ASPCARBTRANS-CPLX	default_name	b4245(6) AND b4244(6)	M_protein_recon
+GRXC-MONOMER	default_name	b3610(1)	M_protein_recon
+GLUTDECARBOXB-CPLX	default_name	b1493(6)	M_protein_recon
+Trp_RS_dim	tryptophanyl-tRNA synthetase (EC:6.1.1.2)	b3384(2)	2011_Updated_E_recon
+OROPRIBTRANS-CPLX	default_name	b3642(2)	M_protein_recon
+PUTA-CPLX	default_name	b1014(2)	M_protein_recon
+FORMYLTHFDEFORMYL-CPLX	default_name	b1232(6)	M_protein_recon
+EG11665-MONOMER	default_name	b3057(1)	M_protein_recon
+EG11423-MONOMER	default_name	b3623(1)	M_protein_recon
+RIB5PISOMB-CPLX	default_name	b4090(2)	M_protein_recon
+CPLX0-7838	default_name	b2810(2)	M_protein_recon
+SUPEROX-DISMUTFE-CPLX	default_name	b1656(2)	M_protein_recon
+NAG6PDEACET-CPLX	default_name	b0677(4)	M_protein_recon
+G6260-MONOMER	default_name	b0484(1)	M_protein_recon
+EG12713-MONOMER	default_name	b1473(1)	M_protein_recon
+CPLX0-321	default_name	b2564(8)	M_protein_recon
+PHENDEHYD-CPLX	default_name	b1385(2)	M_protein_recon
+CPLX0-3932	default_name	b0463() AND b2470() AND b3035()	M_protein_recon
+2OXOGLUTARATEDEH-CPLX	default_name	b0726(12) AND b0116(2) AND b0727(24)	M_protein_recon
+TRYPSYN	default_name	b1260(2) AND b1261(2)	M_protein_recon
+CYNX-MONOMER	default_name	b0341(1)	M_protein_recon
+KDOTRANS-MONOMER	default_name	b3633(1)	M_protein_recon
+AGMATIN-CPLX	default_name	b2937(2)	M_protein_recon
+CHD-MONOMER	default_name	b0311(1)	M_protein_recon
+AROP-MONOMER	default_name	b0112(1)	M_protein_recon
+G6661-MONOMER	default_name	b1325(1)	M_protein_recon
+G7596-MONOMER	default_name	b3073(1)	M_protein_recon
+VALINE-PYRUVATE-AMINOTRANSFER-MONOMER	default_name	b3572(1)	M_protein_recon
+TRKA-MONOMER_SAPD-MONOMER_TRKH-MONOMER	default_name	b3849() AND b1291() AND b3290()	M_protein_recon
+YJCG-MONOMER	default_name	b4067(1)	M_protein_recon
+RimL_mono	ribosomal-protein-L7/L12-serine acetyltransferase (EC:2.3.1.-)	b1427(1)	2011_Updated_E_recon
+EG12069-MONOMER	default_name	b2210(1)	M_protein_recon
+DEOXYRIBOSE-P-ALD-MONOMER	default_name	b4381(1)	M_protein_recon
+MGTA-MONOMER	default_name	b4242(1)	M_protein_recon
+GLYCEROL-3-P-ACYLTRANSFER-MONOMER	default_name	b4041(1)	M_protein_recon
+TrmD_dim	tRNA m(1)G37 methyltransferase, SAM-dependent (EC:2.1.1.31)	b2607(2)	2011_Updated_E_recon
+RELA-MONOMER	default_name	b2784(1)	M_protein_recon
+UXAC-MONOMER	default_name	b3092(1)	M_protein_recon
+CPLX0-7685	default_name	b0125(4)	M_protein_recon
+CTPSYN-CPLX	default_name	b2780(4)	M_protein_recon
+H2PTEROATESYNTH-CPLX	default_name	b3177(2)	M_protein_recon
+6PGLUCONOLACT-MONOMER	default_name	b0767(1)	M_protein_recon
+PrfC_mono	peptide chain release factor RF-3	b4375(1)	2011_Updated_E_recon
+EG11340-MONOMER	default_name	b3630(1)	M_protein_recon
+TruD_mono	tRNA(Glu) U13 pseudouridine synthase (EC:4.2.1.70)	b2745(1)	2011_Updated_E_recon
+MONOMER0-149	default_name	b0207(1)	M_protein_recon
+GLYOXI-CPLX	default_name	b1651(2)	M_protein_recon
+KGTP-MONOMER	default_name	b2587(1)	M_protein_recon
+RED-THIOREDOXIN-MONOMER	default_name	b3781(1)	M_protein_recon
+YecO_mono	tRNA cmo(5)U34 methyltransferase, SAM-dependent	b1870(1)	2011_Updated_E_recon
+IMIDHISTID-CPLX	default_name	b2022(2)	M_protein_recon
+DTMPKI-MONOMER	default_name	b1098(1)	M_protein_recon
+DLACTDEHYDROGNAD-MONOMER	default_name	b1380(1)	M_protein_recon
+FOLC-MONOMER	default_name	b2315(1)	M_protein_recon
+SUCCCOASYN	default_name	b0728(2) AND b0729(2)	M_protein_recon
+GALACTURIDYLYLTRANS-CPLX	default_name	b0758(2)	M_protein_recon
+HEMEOSYN-MONOMER	default_name	b0428(1)	M_protein_recon
+DCUC-MONOMER	default_name	b0621(1)	M_protein_recon
+EG12285-MONOMER	default_name	b3581(1)	M_protein_recon
+YHIP-MONOMER	default_name	b3496(1)	M_protein_recon
+RplQ_mono	50S ribosomal subunit protein L17	b3294(1)	2011_Updated_E_recon
+LYXK-CPLX	default_name	b3580(2)	M_protein_recon
+CPLX0-7760	default_name	b1276(2)	M_protein_recon
+B1634-MONOMER	default_name	b1634(1)	M_protein_recon
+RpsJ_mono	30S ribosomal subunit protein S10	b3321(1)	2011_Updated_E_recon
+RpsD_mono	30S ribosomal subunit protein S4	b3296(1)	2011_Updated_E_recon
+EG11373-MONOMER	default_name	b2558(1)	M_protein_recon
+YdaO_mono	predicted C32 tRNA thiolase	b1344(1)	2011_Updated_E_recon
+NANK-MONOMER	default_name	b3222(1)	M_protein_recon
+PEPCARBOX-CPLX	default_name	b3956(4)	M_protein_recon
+SUCCGLUDESUCC-MONOMER	default_name	b1744(1)	M_protein_recon
+GroL_14	GroL_14	b4143(14)	2011_Updated_E_recon
+PHOSPHOGLUCMUT-MONOMER	default_name	b0688(1)	M_protein_recon
+G7096-MONOMER	default_name	b2045(1)	M_protein_recon
+CPLX0-7687	default_name	b1525(2)	M_protein_recon
+3-METHYL-2-OXOBUT-OHCH3XFER-CPLX	default_name	b0134(10)	M_protein_recon
+G6339-MONOMER	default_name	b0613(1)	M_protein_recon
+LysI_RS_dim	lysine tRNA synthetase, constitutive (EC:6.1.1.6)	b2890(2)	2011_Updated_E_recon
+RplS_mono	50S ribosomal subunit protein L19	b2606(1)	2011_Updated_E_recon
+3-ISOPROPYLMALISOM-CPLX	default_name	b0071(1) AND b0072(1)	M_protein_recon
+G6662-MONOMER	default_name	b1326(1)	M_protein_recon
+GLUTDECARBOXA-CPLX	default_name	b3517(6)	M_protein_recon
+DMBPPRIBOSYLTRANS-CPLX	default_name	b1991(2)	M_protein_recon
+MALIC-NADP-CPLX	default_name	b2463(6)	M_protein_recon
+Ala_RS_tetra	alanyl-tRNA synthetase (EC:6.1.1.7)	b2697(4)	2011_Updated_E_recon
+MONOMER0-1842	default_name	b0131(1)	M_protein_recon
+G6539-MONOMER	default_name	b1033(1)	M_protein_recon
+CPLX0-7912	default_name	b2458(2)	M_protein_recon
+DTDPDEHYDRHAMEPIM-MONOMER	default_name	b2038(1)	M_protein_recon
+CPLX-722	default_name	b0980(2)	M_protein_recon
+AKBLIG-CPLX	default_name	b3617(2)	M_protein_recon
+MnmC_mono	fused 5-methylaminomethyl-2-thiouridine-forming enzyme	b2324(1)	2011_Updated_E_recon
+THIKIN-MONOMER	default_name	b1106(1)	M_protein_recon
+G7558-MONOMER	default_name	b3001(1)	M_protein_recon
+YBDA-MONOMER	default_name	b0591(1)	M_protein_recon
+APP-UBIOX-CPLX	default_name	b0978(1) AND b0979(1)	M_protein_recon
+RNase_III_dim	RNase III (EC:3.1.26.3)	b2567(2)	2011_Updated_E_recon
+AERGLYC3PDEHYDROG-CPLX	default_name	b3426(2)	M_protein_recon
+RpmJ_mono	50S ribosomal subunit protein L36	b3299(1)	2011_Updated_E_recon
+#PrmA_mono	methylase for 50S ribosomal subunit protein L11 (EC:2.1.1.-)	b3259(1)	2011_Updated_E_recon
+GLUC1PURIDYLTRANS-MONOMER	default_name	b1236(1)	M_protein_recon
+RpsN_mono	30S ribosomal subunit protein S14	b3307(1)	2011_Updated_E_recon
+YFEP-MONOMER	default_name	b2392(1)	M_protein_recon
+PGAM2-MONOMER	default_name	b4395(1)	M_protein_recon
+CPLX0-7426	default_name	b3187(2)	M_protein_recon
+SORB6PDEHYDROG-CPLX	default_name	b2705(4)	M_protein_recon
+NARJ-MONOMER	default_name	b1226(1)	M_protein_recon
+LUMAZINESYN-CPLX	default_name	b0415(60)	M_protein_recon
+G6245-MONOMER	default_name	b0444(1)	M_protein_recon
+NUPG-MONOMER	default_name	b2964(1)	M_protein_recon
+TRYPTOPHAN-CPLX	default_name	b3708(4)	M_protein_recon
+G6199-MONOMER	default_name	b0334(1)	M_protein_recon
+CYT-D-UBIOX-CPLX	default_name	b0733(1) AND b0734(1)	M_protein_recon
+CPLX0-7709	default_name	b1297(12)	M_protein_recon
+UDPNACETYLGLUCOSAMENOLPYRTRANS-MONOMER	default_name	b3189(1)	M_protein_recon
+TufA_mono	protein chain elongation factor EF-Tu (duplicate of TufB)	b3339(1)	2011_Updated_E_recon
+CPLX0-242	default_name	b3425(2)	M_protein_recon
+YGJU-MONOMER	default_name	b3089(1)	M_protein_recon
+CPM-KDOSYNTH-MONOMER	default_name	b0918(1)	M_protein_recon
+RHTB-MONOMER	default_name	b3824(1)	M_protein_recon
+GLY3KIN-MONOMER	default_name	b0514(1)	M_protein_recon
+ARABISOM-CPLX	default_name	b0062(6)	M_protein_recon
+OCTAPRENYL-METHYL-METHOXY-BENZOQ-OH-MON	default_name	b0662(1)	M_protein_recon
+Gly_RS_tetra	glycine tRNA synthetase, beta subunit (EC:6.1.1.14)	b3559(2) AND b3560(2)	2011_Updated_E_recon
+Tyr_RS_dim	tyrosyl-tRNA synthetase (EC:6.1.1.1)	b1637(2)	2011_Updated_E_recon
+G6719-MONOMER	default_name	b1398(1)	M_protein_recon
+L-GLN-FRUCT-6-P-AMINOTRANS-CPLX	default_name	b3729(2)	M_protein_recon
+G7726-MONOMER	default_name	b3374(1)	M_protein_recon
+CPLX0-7633	default_name	b2800(4)	M_protein_recon
+GLYCDEH-CPLX	default_name	b3945(8)	M_protein_recon
+GART-MONOMER	default_name	b2500(1)	M_protein_recon
+Pnp_trim	polynucleotide phosphorylase/polyadenylase (EC:2.7.7.8)	b3164(3)	2011_Updated_E_recon
+MnmE_dim	GTPase	b3706(2)	2011_Updated_E_recon
+RpsK_mono	30S ribosomal subunit protein S11	b3297(1)	2011_Updated_E_recon
+G6523-MONOMER_G6518-MONOMER	default_name	b1007() AND b1012()	M_protein_recon
+GLTP-MONOMER	default_name	b4077(1)	M_protein_recon
+AROK-MONOMER	default_name	b3390(1)	M_protein_recon
+YheM_mono	predicted intraceullular sulfur oxidation protein	b3344(1)	2011_Updated_E_recon
+PFLACTENZ-MONOMER	default_name	b0902(1)	M_protein_recon
+LAUROYLACYLTRAN-MONOMER	default_name	b1054(1)	M_protein_recon
+SUPEROX-DISMUTMN-CPLX	default_name	b3908(2)	M_protein_recon
+CPLX0-7428	default_name	b2751(4) AND b2752(4)	M_protein_recon
+ORNDECARBOXDEG-CPLX	default_name	b0693(2)	M_protein_recon
+LysII_RS_dim	lysine tRNA synthetase, inducible (EC:6.1.1.6)	b4129(2)	2011_Updated_E_recon
+DTDPGLUCDEHYDRAT-CPLX	default_name	b2041(2)	M_protein_recon
+YjbC_mono	23S rRNA U2604 pseudouridine synthase (EC:4.2.1.70)	b4022(1)	2011_Updated_E_recon
+AROH-CPLX	default_name	b1704(2)	M_protein_recon
+PGPPHOSPHAA-MONOMER	default_name	b0418(1)	M_protein_recon
+EG11167-MONOMER	default_name	b3040(1)	M_protein_recon
+CPLX0-7647	default_name	b3752(2)	M_protein_recon
+RplT_mono	50S ribosomal subunit protein L20	b1716(1)	2011_Updated_E_recon
+DTDPGLUCOSEPP-MONOMER	default_name	b2039(1)	M_protein_recon
+GNTU-MONOMER	default_name	b4476(1)	M_protein_recon
+UROGENIIISYN-MONOMER	default_name	b3804(1)	M_protein_recon
+GLUCOSAMINE-6-P-DEAMIN-CPLX	default_name	b0678(6)	M_protein_recon
+HEMN-MONOMER	default_name	b3867(1)	M_protein_recon
+EG12013-MONOMER	default_name	b2132(1)	M_protein_recon
+RlmI_dim	23S rRNA m5C1962 methyltransferase	b0967(2)	2011_Updated_E_recon
+G6286-MONOMER	default_name	b0517(1)	M_protein_recon
+B0752-MONOMER	default_name	b0752(1)	M_protein_recon
+MALATE-SYNTHASE	default_name	b4014(1)	M_protein_recon
+EG10124-MONOMER	default_name	b3551(1)	M_protein_recon
+B1006-MONOMER	default_name	b1006(1)	M_protein_recon
+CPLX0-682	default_name	b2615(6)	M_protein_recon
+YecP_mono	tRNA mo(5)U34 methyltransferase, SAM-dependent	b1871(1)	2011_Updated_E_recon
+THREODEHYD-CPLX	default_name	b3616(4)	M_protein_recon
+AROB-MONOMER	default_name	b3389(1)	M_protein_recon
+GLYOHMETRANS-CPLX	default_name	b2551(2)	M_protein_recon
+MiaB_mono	isopentenyl-adenosine A37 tRNA methylthiolase	b0661(1)	2011_Updated_E_recon
+URPHOS-CPLX	default_name	b3831(6)	M_protein_recon
+G6357-MONOMER	default_name	b0650(1)	M_protein_recon
+RIBONUCLEOSIDE-TRIP-REDUCT-CPLX	default_name	b4238(2)	M_protein_recon
+PPPGPPHYDRO-CPLX	default_name	b3779(2)	M_protein_recon
+EG11424-MONOMER	default_name	b3622(1)	M_protein_recon
+PABASYN-CPLX	default_name	b3360(1) AND b1812(1)	M_protein_recon
+GLUC1PADENYLTRANS-CPLX	default_name	b3430(4)	M_protein_recon
+G6358-MONOMER	default_name	b0651(1)	M_protein_recon
+Mfd_mono	transcription-repair coupling factor  mfd / nucleotide excision repair	b1114(1)	2011_Updated_E_recon
+ABC-28-CPLX_EG10817-MONOMER	default_name	b3751() AND b3750() AND b3748() AND b3749()	M_protein_recon
+DIHYDROXYACIDDEHYDRAT-CPLX	default_name	b3771(2)	M_protein_recon
+CPLX0-7848	default_name	b4192(6)	M_protein_recon
+SPED-MONOMER	default_name	b0120(1)	M_protein_recon
+PDXH-CPLX	default_name	b1638(2)	M_protein_recon
+FORMATEDEHYDROGO-CPLX	default_name	b3892(1) AND b3893(1) AND b3894(1)	M_protein_recon
+ABC-18-CPLX	default_name	b2150(1) AND b2148(2) AND b2149(2)	M_protein_recon
+CITC-MONOMER	default_name	b0618(1)	M_protein_recon
+EG11426-MONOMER	default_name	b3624(1)	M_protein_recon
+NITRATREDUCTA-CPLX	default_name	b1227(1) AND b1225(1) AND b1224(1)	M_protein_recon
+G7496-MONOMER	default_name	b2877(1)	M_protein_recon
+CPLX0-7631	default_name	b2802(6)	M_protein_recon
+EG12712-MONOMER	default_name	b2687(1)	M_protein_recon
+FHLMULTI-CPLX	default_name	b2719() AND b2722() AND b2720() AND b4079(1) AND b2724() AND b2723() AND b2721()	M_protein_recon
+CPLX0-1666	default_name	b2341()	M_protein_recon
+ATPSYN-CPLX_EG10106-MONOMER	default_name	b3736() AND b3731() AND b3735() AND b3739() AND b3734() AND b3733() AND b3738() AND b3737() AND b3732()	M_protein_recon
+Def_mono	peptide deformylase (EC:3.5.1.88)	b3287(1)	2011_Updated_E_recon
+DMK-MONOMER	default_name	b3930(1)	M_protein_recon
+NRFMULTI-CPLX	default_name	b4071(1) AND b4070(1) AND b4073(1) AND b4072(1)	M_protein_recon
+CPLX0-254	default_name	b2919(6)	M_protein_recon
+EG11957-MONOMER	default_name	b4085(1)	M_protein_recon
+G6439-MONOMER	default_name	b0841(1)	M_protein_recon
+GltX_mono	glutamyl-tRNA synthetase (EC:6.1.1.17)	b2400(1)	2011_Updated_E_recon
+CPLX0-7415	default_name	b0182(2)	M_protein_recon
+YhhP_mono	conserved protein required for cell growth	b3470(1)	2011_Updated_E_recon
+OROTPDECARB-CPLX	default_name	b1281(2)	M_protein_recon
+HISTPHOSTRANS-CPLX	default_name	b2021(2)	M_protein_recon
+GreA_mono	transcription elongation factor greA	b3181(1)	2011_Updated_E_recon
+EG12666-MONOMER	default_name	b0524(1)	M_protein_recon
+SIROHEMESYN-CPLX	default_name	b3368(2)	M_protein_recon
+URACIL-PRIBOSYLTRANS-CPLX	default_name	b2498(3)	M_protein_recon
+GRXB-MONOMER	default_name	b1064(1)	M_protein_recon
+ENTE-CPLX	default_name	b0594(2)	M_protein_recon
+FABA-CPLX	default_name	b0954(2)	M_protein_recon
+RpsL_mono	30S ribosomal subunit protein S12	b3342(1)	2011_Updated_E_recon
+RsmG_mono	16S rRNA m7G527 methyltransferase	b3740()	2011_Updated_E_recon
+B0612-MONOMER	default_name	b0612(1)	M_protein_recon
+PHENPRODIOLDEHYDROG-MONOMER	default_name	b2541(1)	M_protein_recon
+1-ACYLGLYCEROL-3-P-ACYLTRANSFER-MONOMER	default_name	b3018(1)	M_protein_recon
+NACGLCTRANS-MONOMER	default_name	b0090(1)	M_protein_recon
+1-PFK	default_name	b2168(2)	M_protein_recon
+GTP-CYCLOHYDRO-II-CPLX	default_name	b1277(2)	M_protein_recon
+BETT-MONOMER	default_name	b0314(1)	M_protein_recon
+CPLX0-7674	default_name	b1250(4)	M_protein_recon
+ABC-49-CPLX	default_name	b0831(1) AND b0830(1) AND b0829(2) AND b0832(1)	M_protein_recon
+ABC-15-CPLX	default_name	b3460(1) AND b3456(1) AND b3457(1) AND b3454(1) AND b3455(1)	M_protein_recon
+NUCLEOSIDE-DIP-KIN-CPLX	default_name	b2518(4)	M_protein_recon
+UHPT-MONOMER	default_name	b3666(1)	M_protein_recon
+EG12384-MONOMER	default_name	b0521(1)	M_protein_recon
+FABZ-CPLX	default_name	b0180()	M_protein_recon
+CPLX0-7906	default_name	b0040(3)	M_protein_recon
+RpsR_mono	30S ribosomal subunit protein S18	b4202(1)	2011_Updated_E_recon
+DXPREDISOM-CPLX	default_name	b0173(2)	M_protein_recon
+PITA-MONOMER	default_name	b3493(1)	M_protein_recon
+RsmB_mono	16S rRNA m(5)C967 methyltransferase,	b3289(1)	2011_Updated_E_recon
+RpmD_mono	50S ribosomal subunit protein L30	b3302(1)	2011_Updated_E_recon
+DSBBPROT-MONOMER	default_name	b1185(1)	M_protein_recon
+CPLX0-3976_edit	default_name	b3785() AND b3793()	M_protein_recon
+RIBULP3EPIM-MONOMER	default_name	b3386(1)	M_protein_recon
+FGAMSYN-MONOMER	default_name	b2557(1)	M_protein_recon
+TSA-REDUCT-MONOMER	default_name	b3125(1)	M_protein_recon
+GCVMULTI-CPLX	default_name	b2904(1) AND b0116(2) AND b2905(1) AND b2903(2)	M_protein_recon
+CPLX0-3948	default_name	b4394(2)	M_protein_recon
+RpoZ_mono	RNA polymerase, omega subunit (EC:2.7.7.6)	b3649(1)	2011_Updated_E_recon
+MHPF-MONOMER	default_name	b0351(1)	M_protein_recon
+DIHYDROFOLATEREDUCT-MONOMER	default_name	b0048(1)	M_protein_recon
+RplI_mono	50S ribosomal subunit protein L9	b4203(1)	2011_Updated_E_recon
+CPLX0-3201	default_name	b2328(2)	M_protein_recon
+RNase_G_dim	ribonuclease G (EC:3.1.4.-)	b3247(2)	2011_Updated_E_recon
+YRBG-MONOMER	default_name	b3196(1)	M_protein_recon
+METHYLENETHFREDUCT-CPLX	default_name	b3941(4)	M_protein_recon
+B0260-MONOMER	default_name	b0260(1)	M_protein_recon
+EG10153-MONOMER	default_name	b0827(1)	M_protein_recon
+CPLX0-7	default_name	b2415() AND b2429() AND b2417() AND b2416()	M_protein_recon
+CPLX-169	default_name	b2415() AND b2704() AND b2416() AND b2703() AND b2702()	M_protein_recon
+IscU	scaffold protein iscU	b2529(2)	2011_Updated_E_recon
+RluB_mono	23S rRNA pseudouridylate synthase (EC:4.2.1.70)	b1269(1)	2011_Updated_E_recon
+FORMHYDROGI-CPLX	default_name	b0974() AND b0972() AND b0973()	M_protein_recon
+MYRISTOYLACYLTRAN-MONOMER	default_name	b1855(1)	M_protein_recon
+PHOSPHAGLYPSYN-MONOMER	default_name	b1912(1)	M_protein_recon
+RumB_mono	23S rRNA m(5)U747 methyltransferase (EC:2.1.1.-)	b0859(1)	2011_Updated_E_recon
+ABC-24-CPLX	default_name	b1124(1) AND b1125(1) AND b1126(2) AND b1123(1)	M_protein_recon
+XYLE-MONOMER	default_name	b4031(1)	M_protein_recon
+GLUTAMATESYN-CPLX	default_name	b3213(4) AND b3212(4)	M_protein_recon
+THIH-MONOMER_THIF-MONOMER_THII-MONOMER_THIS-MONOMER	default_name	b3990() AND b4407() AND b0423() AND b3992()	M_protein_recon
+ADCLY-CPLX	default_name	b1096(2)	M_protein_recon
+TrmU_mono	tRNA (5-methylaminomethyl-2-thiouridylate)-methyltransferase	b1133(1)	2011_Updated_E_recon
+PGK-CPLX	default_name	b2926(1)	M_protein_recon
+NANT-MONOMER	default_name	b3224(1)	M_protein_recon
+EG11639-MONOMER	default_name	b1533(1)	M_protein_recon
+CPLX0-7838_CPLX0-7839	default_name	b2810(2) AND b2811(2)	M_protein_recon
+GLYCPDIESTER-CYTO-MONOMER	default_name	b3449(1)	M_protein_recon
+GreB_mono	transcription elongation factor greB	b3406(1)	2011_Updated_E_recon
+RlmL_dim	23S rRNA m2G2445 methyltransferase	b0948(2)	2011_Updated_E_recon
+CPLX0-1622	default_name	b1489(2)	M_protein_recon
+G7914-MONOMER	default_name	b4301(1)	M_protein_recon
+DSBG-CPLX	default_name	b0604(2)	M_protein_recon
+CPLX0-7525	default_name	b2264(2)	M_protein_recon
+SHIA-MONOMER	default_name	b1981(1)	M_protein_recon
+CPLX0-7824	default_name	b1684(2)	M_protein_recon
+PYRUVOXID-CPLX	default_name	b0871(4)	M_protein_recon
+MALSYNG-MONOMER	default_name	b2976(1)	M_protein_recon
+LACTALDREDUCT-CPLX	default_name	b2799(2)	M_protein_recon
+ABC-42-CPLX	default_name	b4088(1) AND b4087(2) AND b4086(2)	M_protein_recon
+ACETOLACTSYNI-CPLX	default_name	b3671(2) AND b3670(2)	M_protein_recon
+#YcaO_mono	protein involved in β-methylthiolation of ribosomal protein S12	b0905()	2011_Updated_E_recon
+EG10108-MONOMER	default_name	b2480(1)	M_protein_recon
+CPLX0-7720	default_name	b2258() AND b4544()	M_protein_recon
+BADH-CPLX	default_name	b0312(4)	M_protein_recon
+LYSP-MONOMER	default_name	b2156(1)	M_protein_recon
+G7860-MONOMER	default_name	b4198(1)	M_protein_recon
+EG11591-MONOMER	default_name	b0630(1)	M_protein_recon
+ALTRODEHYDRAT-MONOMER	default_name	b3091(1)	M_protein_recon
+FUMARASE-A	default_name	b1612(2)	M_protein_recon
+RpsS_mono	30S ribosomal subunit protein S19	b3316(1)	2011_Updated_E_recon
+ABC-2-CPLX	default_name	b1900(2) AND b1901(1) AND b4460(2)	M_protein_recon
+YAAJ-MONOMER	default_name	b0007(1)	M_protein_recon
+CPLX0-7616	default_name	b0509(4)	M_protein_recon
+CPLX0-231	default_name	b2415(1) AND b2416(2) AND b2093(1) AND b2092(2) AND b2094(1)	M_protein_recon
+ABC-20-CPLX	default_name	b3476(1) AND b3477(1) AND b3478(1) AND b3479(1) AND b3480(1)	M_protein_recon
+Thr_RS_dim	threonyl-tRNA synthetase (EC:6.1.1.3)	b1719(2)	2011_Updated_E_recon
+CPLX0-3141	default_name	b3029(2)	M_protein_recon
+NIRC-MONOMER	default_name	b3367(1)	M_protein_recon
+CPLX0-7811	default_name	b3850(4)	M_protein_recon
+EG11822-MONOMER	default_name	b1301(1)	M_protein_recon
+CPLX0-1942	default_name	b1252() AND b0150() AND b3005() AND b3006()	M_protein_recon
+ADENYLATECYC-MONOMER	default_name	b3806(1)	M_protein_recon
+GLPT-MONOMER	default_name	b2240(1)	M_protein_recon
+GALACTITOLPDEHYD-MONOMER	default_name	b2091(1)	M_protein_recon
+PDXY-MONOMER	default_name	b1636(1)	M_protein_recon
+RimM_mono	16S rRNA processing protein, rimM	b2608(1)	2011_Updated_E_recon
+RpsB_mono	30S ribosomal subunit protein S2	b0169(1)	2011_Updated_E_recon
+CPLX0-7744	default_name	b4196(2)	M_protein_recon
+MANNPISOM-MONOMER	default_name	b1613(1)	M_protein_recon
+ACSERLYB-CPLX	default_name	b2421(2)	M_protein_recon
+ARGSUCCINLYA-MONOMER	default_name	b3960(1)	M_protein_recon
+Tgt_hexa	tRNA-guanine transglycosylase (EC:2.4.2.29)	b0406(6)	2011_Updated_E_recon
+CPLX0-240	default_name	b3137(1) AND b3132(1)	M_protein_recon
+CPLX0-7535	default_name	b4115(2)	M_protein_recon
+G6782-MONOMER	default_name	b1488(1)	M_protein_recon
+DEOA-CPLX	default_name	b4382(2)	M_protein_recon
+ETHAMLY-CPLX	default_name	b2441(6) AND b2440(6)	M_protein_recon
+GLUCONOKINI-MONOMER	default_name	b4268(1)	M_protein_recon
+RHAMNULPALDOL-CPLX	default_name	b3902(4)	M_protein_recon
+PHEP-MONOMER	default_name	b0576(1)	M_protein_recon
+HEMX-MONOMER	default_name	b3803(1)	M_protein_recon
+CHAA-MONOMER	default_name	b1216(1)	M_protein_recon
+CPLX0-3001	default_name	b0237(2)	M_protein_recon
+InfB_mono	fused protein chain initiation factor 2, IF2: membrane	b3168(1)	2011_Updated_E_recon
+RIBONUCLEOSIDE-DIP-REDUCTII-CPLX	default_name	b2676(2) AND b2675(2)	M_protein_recon
+EG11984-MONOMER	default_name	b2033(1)	M_protein_recon
+ABC-12-CPLX	default_name	b0809(2) AND b0811(1) AND b0810(2)	M_protein_recon
+EG11189-MONOMER	default_name	b3621(1)	M_protein_recon
+APHA-CPLX	default_name	b4055(4)	M_protein_recon
+PGMI-MONOMER	default_name	b3612(1)	M_protein_recon
+ACETOACETYL-COA-TRANSFER-CPLX	default_name	b2222(2) AND b2221(2)	M_protein_recon
+CPLX0-7643	default_name	b3774(4)	M_protein_recon
+EG11470-MONOMER	default_name	b3826(1)	M_protein_recon
+ADHP-MONOMER	default_name	b1478(1)	M_protein_recon
+ASL-MONOMER	default_name	b1131(1)	M_protein_recon
+CPLX0-3741	default_name	b1210(2)	M_protein_recon
+PANTOTHENATE-KIN-CPLX	default_name	b3974(2)	M_protein_recon
+CPLX0-7776	default_name	b2930(2)	M_protein_recon
+APO-ENTB	default_name	b0595(5)	M_protein_recon
+FOLXTET-CPLX	default_name	b2303(8)	M_protein_recon
+RpmE_mono	50S ribosomal subunit protein L31	b3936(1)	2011_Updated_E_recon
+CPLX0-7653	default_name	b0875(4)	M_protein_recon
+RpsO_mono	30S ribosomal subunit protein S15	b3165(1)	2011_Updated_E_recon
+B0070-MONOMER	default_name	b0070(1)	M_protein_recon
+G7410-MONOMER	default_name	b2701(1)	M_protein_recon
+UDPNACETYLMURAMATEDEHYDROG-MONOMER	default_name	b3972(1)	M_protein_recon
+G7167-MONOMER	default_name	b2254(1)	M_protein_recon
+MALDEXPHOSPHORYL-CPLX	default_name	b3417(2)	M_protein_recon
+GABP-MONOMER	default_name	b2663(1)	M_protein_recon
+CPLX0-1721	default_name	b0572(3) AND b0573(1) AND b0574(1) AND b0575(3)	M_protein_recon
+Fmt_mono	10-formyltetrahydrofolate:L-methionyl-tRNA(fMet) N-formyltransferase	b3288(1)	2011_Updated_E_recon
+CPLX0-250_FORMATEDEHYDROGH-MONOMER	default_name	b2487() AND b2484() AND b2488() AND b2481() AND b2486() AND b2485() AND b2482() AND b2489() AND b4079() AND b2490() AND b2483()	M_protein_recon
+RHAT-MONOMER	default_name	b3907(1)	M_protein_recon
+G7431-MONOMER	default_name	b2765(1)	M_protein_recon
+LYSDECARBOX-CPLX	default_name	b4131(10)	M_protein_recon
+DHPDIOXYGEN-CPLX	default_name	b0348(4)	M_protein_recon
+ADHE-CPLX	default_name	b1241(40)	M_protein_recon
+NHAB-MONOMER	default_name	b1186(1)	M_protein_recon
+RlmH_dim	23S rRNA m3Ψ1915 methyltransferase	b0636(2)	2011_Updated_E_recon
+RIBONUCLEOSIDE-DIP-REDUCTI-CPLX	default_name	b2234(2) AND b2235(2)	M_protein_recon
+CARNDEHYDRA-CPLX	default_name	b0038(2)	M_protein_recon
+RpmH_mono	50S ribosomal subunit protein L34	b3703(1)	2011_Updated_E_recon
+CPLX0-7520	default_name	b0340(10)	M_protein_recon
+CPLX0-252	default_name	b1091(2)	M_protein_recon
+FRUCBISALD-CLASSII	default_name	b2925(2)	M_protein_recon
+B2170-MONOMER	default_name	b2170(1)	M_protein_recon
+EG11597-MONOMER	default_name	b0784(1)	M_protein_recon
+THIOREDOXIN-REDUCT-NADPH-CPLX	default_name	b0888()	M_protein_recon
+RHTC-MONOMER	default_name	b3823(1)	M_protein_recon
+ATPASE-1-CPLX_no_MONOMER0-12	default_name	b0698() AND b0697() AND b0696()	M_protein_recon
+RlmF_mono	23S rRNA m6A1618 methyltransferase	b0807()	2011_Updated_E_recon
+ABC-11-CPLX	default_name	b0152(1) AND b0151(2) AND b0153(2)	M_protein_recon
+ABC-14-CPLX	default_name	b2309(1) AND b2308(1) AND b2307(1) AND b2306(2)	M_protein_recon
+Rho_hexa	transcription termination factor Rho	b3783(6)	2011_Updated_E_recon
+EG10983-MONOMER	default_name	b2533(1)	M_protein_recon
+Tig_mono	peptidyl-prolyl cis/trans isomerase (trigger factor)	b0436(1)	2011_Updated_E_recon
+CPLX0-251	default_name	b0333(2)	M_protein_recon
+CPLX0-7819	default_name	b0047(2)	M_protein_recon
+EG10626-MONOMER	default_name	b0099(1)	M_protein_recon
+Asp_RS_dim	aspartyl-tRNA synthetase (EC:6.1.1.12)	b1866(2)	2011_Updated_E_recon
+CPLX0-3721	default_name	b3034(2)	M_protein_recon
+RNase_E_tetra	ribonucleaseE	b1084(4)	2011_Updated_E_recon
+AIRS-CPLX	default_name	b2499(2)	M_protein_recon
+EG10299-MONOMER	default_name	b0585(1)	M_protein_recon
+YCHM-MONOMER	default_name	b1206(1)	M_protein_recon
+RpmG_mono	50S ribosomal subunit protein L33	b3636(1)	2011_Updated_E_recon
+ABC-27-CPLX	default_name	b3725(2) AND b3728(1) AND b3726(1) AND b3727(1)	M_protein_recon
+CPLX0-7717	default_name	b3396(2)	M_protein_recon
+CPLX0-1923_EG10306-MONOMER	default_name	b1102() AND b3005() AND b1252() AND b3006()	M_protein_recon
+THYMIDYLATESYN-CPLX	default_name	b2827(2)	M_protein_recon
+B1296-MONOMER	default_name	b1296(1)	M_protein_recon
+EG12312-MONOMER	default_name	b0103(1)	M_protein_recon
+ABC-56-CPLX	default_name	b0934(2) AND b0933(2) AND b0936()	M_protein_recon
+RFBX-MONOMER	default_name	b2037(1)	M_protein_recon
+B0709-MONOMER	default_name	b0709(1)	M_protein_recon
+THIG-MONOMER	default_name	b3991(1)	M_protein_recon
+G7493-MONOMER	default_name	b2874(1)	M_protein_recon
+SPOT-MONOMER	default_name	b3650(1)	M_protein_recon
+NAG1P-URIDYLTRANS-CPLX	default_name	b3730(3)	M_protein_recon
+MALONYL-COA-ACP-TRANSACYL-MONOMER	default_name	b1092()	M_protein_recon
+ASPKINIII-CPLX	default_name	b4024(2)	M_protein_recon
+CPLX0-1581	default_name	b0622(2)	M_protein_recon
+MALIC-NAD-CPLX	default_name	b1479(4)	M_protein_recon
+GMP-SYN-CPLX	default_name	b2507(2)	M_protein_recon
+GLUCDEHYDROG-MONOMER	default_name	b0124(1)	M_protein_recon
+CPLX0-1669	default_name	b1701(2)	M_protein_recon
+EG11339-MONOMER	default_name	b3631(1)	M_protein_recon
+GLYCOPHOSPHORYL-CPLX	default_name	b3428(2)	M_protein_recon
+GLUTSEMIALDEHYDROG-CPLX	default_name	b0243(4)	M_protein_recon
+6PFK-2-CPX	default_name	b1723(2)	M_protein_recon
+HCAMULTI-CPLX	default_name	b2542(1) AND b2540(1) AND b2538(1) AND b2539(1)	M_protein_recon
+CPLX0-2081	default_name	b1199(1) AND b1198(2) AND b1200(2)	M_protein_recon
+LSERINEDEAM2-MONOMER	default_name	b2797(1)	M_protein_recon
+GNTT-MONOMER	default_name	b3415(1)	M_protein_recon
+MONOMER0-341	default_name	b3821(1)	M_protein_recon
+IscS	cysteine desulfurase (tRNA sulfurtransferase), PLP-dependent, iscS	b2530(2)	2011_Updated_E_recon
+HYDROPEROXIDI-CPLX	default_name	b3942(4)	M_protein_recon
+CPLX0-7717_G6561-MONOMER	default_name	b1069() AND b3396(2)	M_protein_recon
+EG12438-MONOMER	default_name	b2263(1)	M_protein_recon
+QueA_mono	S-adenosylmethionine:tRNA ribosyltransferase-isomerase (EC:5.-.-.-)	b0405(1)	2011_Updated_E_recon
+DCTA-MONOMER	default_name	b3528(1)	M_protein_recon
+ADENYLYLSULFKIN-CPLX	default_name	b2750(2)	M_protein_recon
+CPLX0-7847	default_name	b0052(2)	M_protein_recon
+MALTODEXGLUCOSID-MONOMER	default_name	b0403(1)	M_protein_recon
+Rrf_mono	ribosome recycling factor	b0172(1)	2011_Updated_E_recon
+CPLX-157	default_name	b2415(1) AND b2417(1) AND b1101(2) AND b2416(2)	M_protein_recon
+3-OXOACYL-ACP-REDUCT-MONOMER	default_name	b1093(1)	M_protein_recon
+CPLX0-253	default_name	b3028(2)	M_protein_recon
+NICOTINATEPRIBOSYLTRANS-MONOMER	default_name	b0931(1)	M_protein_recon
+GLUTAREDOXIN-MONOMER	default_name	b0849(1)	M_protein_recon
+CPLX-163	default_name	b2415(1) AND b0731(2) AND b2416(2)	M_protein_recon
+CPLX0-1221	default_name	b3397(2)	M_protein_recon
+CPLX0-7878	default_name	b2373(4)	M_protein_recon
+GALP-MONOMER	default_name	b2943(1)	M_protein_recon
+G7859-MONOMER	default_name	b4197(1)	M_protein_recon
+UDPGLCNACEPIM-MONOMER	default_name	b3786(1)	M_protein_recon
+CPLX0-236	default_name	b1463(2)	M_protein_recon
+ALDOSE1EPIM-MONOMER	default_name	b0756(1)	M_protein_recon
+AMINEOXID-CPLX	default_name	b1386(2)	M_protein_recon
+YggJ_dim	16S rRNA m(3)U1498 methyltransferase, SAM-dependent	b2946(2)	2011_Updated_E_recon
+G6519-MONOMER	default_name	b1008(1)	M_protein_recon
+RplE_mono	50S ribosomal subunit protein L5	b3308(1)	2011_Updated_E_recon
+CPLX0-7843	default_name	b0904(5)	M_protein_recon
+Eno_dim	enolase (EC:4.2.1.11), eno	b2779(2)	2011_Updated_E_recon
+CPLX0-7882	default_name	b2262(6)	M_protein_recon
+GLUCONREDUCT-MONOMER	default_name	b4266(1)	M_protein_recon
+CPLX-168	default_name	b2415(1) AND b2417(1) AND b2416(2) AND b4240(2)	M_protein_recon
+ASP-SEMIALDEHYDE-DEHYDROGENASE-CPLX	default_name	b3433(2)	M_protein_recon
+#G7866-MONOMER	default_name	b4209(1)	M_protein_recon
+EG12130-MONOMER_EG12131-MONOMER	default_name	b2527() AND b2526()	M_protein_recon
+FusA_mono	protein chain elongation factor EF-G, GTP-binding	b3340(1)	2011_Updated_E_recon
+CPLX0-7761	default_name	b0118(2)	M_protein_recon
+CYSTATHIONINE-BETA-LYASE-CPLX	default_name	b3008(4)	M_protein_recon
+GLUTAMINESYN-OLIGOMER	default_name	b3870(12)	M_protein_recon
+RpsT_mono	30S ribosomal subunit protein S20	b0023(1)	2011_Updated_E_recon
+EG10606-MONOMER	default_name	b0635(1)	M_protein_recon
+MHPHYDROXY-MONOMER	default_name	b0347(1)	M_protein_recon
+#RimI_mono	acetylase for 30S ribosomal subunit protein S18 (EC:2.3.1.128)	b4373(1)	2011_Updated_E_recon
+CPLX0-246_CPLX0-1342	default_name	b1679(2) AND b1680(2)	M_protein_recon
+CPLX0-201	default_name	b0825(12)	M_protein_recon
+L-LACTDEHYDROGFMN-MONOMER	default_name	b3605(1)	M_protein_recon
+CPLX0-3161	default_name	b2472(4)	M_protein_recon
+ABC-34-CPLX	default_name	b3452(1) AND b3453(1) AND b3451(1) AND b3450(2)	M_protein_recon
+AMYLOMALT-MONOMER	default_name	b3416(1)	M_protein_recon
+TDK-MONOMER	default_name	b1238(1)	M_protein_recon
+2-OCTAPRENYL-METHOXY-BENZOQ-METH-MONOMER	default_name	b3833(1)	M_protein_recon
+PURK-CPLX	default_name	b0522(2)	M_protein_recon
+CPLX0-3971	default_name	b2467(3)	M_protein_recon
+RpsU_mono	30S ribosomal subunit protein S21	b3065(1)	2011_Updated_E_recon
+Pro_RS_dim	prolyl-tRNA synthetase (EC:6.1.1.15)	b0194(2)	2011_Updated_E_recon
+YccK_mono	predicted sulfite reductase subunit	b0969(1)	2011_Updated_E_recon
+CPLX0-1683	default_name	b3665(2)	M_protein_recon
+EG11110-MONOMER	default_name	b0736(1)	M_protein_recon
+AMP-NUCLEOSID-CPLX	default_name	b1982(6)	M_protein_recon
+RplB_mono	50S ribosomal subunit protein L2	b3317(1)	2011_Updated_E_recon
+RsmF_mono	16S rRNA m5C1407 methyltransferase	b1835()	2011_Updated_E_recon
+G6567-MONOMER	default_name	b1107(1)	M_protein_recon
+TRANS-CPLX-203	default_name	b3577() AND b3579() AND b3578()	M_protein_recon
+G6716-MONOMER	default_name	b1395(1)	M_protein_recon
+RplW_mono	50S ribosomal subunit protein L23	b3318(1)	2011_Updated_E_recon
+NUPC-MONOMER	default_name	b2393(1)	M_protein_recon
+ABC-26-CPLX	default_name	b2678(2) AND b2677(2) AND b2679(1)	M_protein_recon
+G6622-MONOMER	default_name	b1193(1)	M_protein_recon
+DSBC-CPLX	default_name	b2893(2)	M_protein_recon
+6PGLUCONDEHYDROG-CPLX	default_name	b2029(2)	M_protein_recon
+CAIC-MONOMER	default_name	b0037(1)	M_protein_recon
+CPLX0-227	default_name	b0368(2)	M_protein_recon
+PYRNUTRANSHYDROGEN-CPLX	default_name	b1602(2) AND b1603(2)	M_protein_recon
+CITRATE-SI-SYNTHASE	default_name	b0720(6)	M_protein_recon
+YEAV-MONOMER	default_name	b1801(1)	M_protein_recon
+ACETYLORNDEACET-CPLX	default_name	b3957(2)	M_protein_recon
+DTDPDEHYRHAMREDUCT-MONOMER	default_name	b2040(1)	M_protein_recon
+EG11702-MONOMER	default_name	b3996(1)	M_protein_recon
+EG12407-MONOMER	default_name	b0828(1)	M_protein_recon
+CPLX0-301	default_name	b3843(6)	M_protein_recon
+UROGENDECARBOX-MONOMER	default_name	b3997(1)	M_protein_recon
+RlmM_mono	23S rRNA 2'-O-ribose C2498 methyltransferase	b2806()	2011_Updated_E_recon
+CPLX0-7732	default_name	b2428(2)	M_protein_recon
+YheN_mono	predicted intracellular sulfur oxidation protein	b3345(1)	2011_Updated_E_recon
+THREDEHYDCAT-CPLX	default_name	b3117(4)	M_protein_recon
+HOMOCYSMETB12-MONOMER	default_name	b4019(1)	M_protein_recon
+GLYOXII-MONOMER	default_name	b0212(1)	M_protein_recon
+ThiI_mono	sulfurtransferase required for thiamine and 4-thiouridine<br	b0423(1)	2011_Updated_E_recon
+ABC-25-CPLX	default_name	b0857(1) AND b0856(1) AND b0854(1) AND b0855(2)	M_protein_recon
+ABC-33-CPLX	default_name	b3566(1) AND b3567(2) AND b3568(2)	M_protein_recon
+GrpE_dim	molecular chaperone GrpE	b2614(2)	2011_Updated_E_recon
+G7841-MONOMER	default_name	b4161(1)	M_protein_recon
+AROA-MONOMER	default_name	b0908(1)	M_protein_recon
+transGroES_hepta	transGroES_hepta	b4142(7)	2011_Updated_E_recon
+DCTP-DEAM-CPLX	default_name	b2065(3)	M_protein_recon
+RpoS_mono	RNA polymerase, sigma S (sigma 38) factor	b2741(1)	2011_Updated_E_recon
+EG10048-MONOMER	default_name	b0049(1)	M_protein_recon
+FUMARATE-REDUCTASE	default_name	b4154(1) AND b4152(1) AND b4153(1) AND b4151(1)	M_protein_recon
+ENTA-CPLX	default_name	b0596(8)	M_protein_recon
+FUCULOKIN-MONOMER	default_name	b2803(1)	M_protein_recon
+DLACTDEHYDROGFAD-MONOMER	default_name	b2133(1)	M_protein_recon
+POTE-MONOMER	default_name	b0692(1)	M_protein_recon
+RplR_mono	50S ribosomal subunit protein L18	b3304(1)	2011_Updated_E_recon
+ALARACEBIOSYN-MONOMER	default_name	b4053(1)	M_protein_recon
+LCTP-MONOMER	default_name	b3603(1)	M_protein_recon
+G6522-MONOMER	default_name	b1011(1)	M_protein_recon
+7KAPSYN-CPLX	default_name	b0776(2)	M_protein_recon
+3-ISOPROPYLMALDEHYDROG-CPLX	default_name	b0073(2)	M_protein_recon
+HISTDEHYD-CPLX	default_name	b2020(2)	M_protein_recon
+G6521-MONOMER	default_name	b1010(1)	M_protein_recon
+RbfA_mono	30S ribosome binding factor, rbfA	b3167(1)	2011_Updated_E_recon
+METHGLYSYN-CPLX	default_name	b0963(6)	M_protein_recon
+EG11653-MONOMER	default_name	b3807(1)	M_protein_recon
+ANSA-CPLX	default_name	b1767(2)	M_protein_recon
+EG11817-MONOMER	default_name	b2744(1)	M_protein_recon
+EG11829-MONOMER	default_name	b3857(1)	M_protein_recon
+ADENPRIBOSYLTRAN-CPLX	default_name	b0469(2)	M_protein_recon
+MHPELY-MONOMER	default_name	b0352(1)	M_protein_recon
+GDPMANDEHYDRA-CPLX	default_name	b2053(2)	M_protein_recon
+EG10534-MONOMER	default_name	b2411(1)	M_protein_recon
+EG10564-MONOMER	default_name	b1622(1)	M_protein_recon
+G6886-MONOMER	default_name	b1646(1)	M_protein_recon
+CPLX0-7466	default_name	b3564(2)	M_protein_recon
+MANNPGUANYLTRANGDP-MONOMER	default_name	b2049(1)	M_protein_recon
+CPLX0-238	default_name	b3172(4)	M_protein_recon
+CPLX0-7877	default_name	b4025(2)	M_protein_recon
+TRANSALDOLA-MONOMER	default_name	b2464(1)	M_protein_recon
+CPLX0-7462	default_name	b1692(2)	M_protein_recon
+ADENYLOSUCCINATE-SYN-DIMER	default_name	b4177(2)	M_protein_recon
+GUANYL-KIN-CPLX	default_name	b3648(2)	M_protein_recon
+CMR-MONOMER	default_name	b0842(1)	M_protein_recon
+EG50003-MONOMER	default_name	b1094(1)	M_protein_recon
+ALPHA-AMYL-CYTO-MONOMER	default_name	b1927(1)	M_protein_recon
+MANNONDEHYDRAT-MONOMER	default_name	b4322(1)	M_protein_recon
+CPLX0-7887	default_name	b2379(2)	M_protein_recon
+CPLX-164	default_name	b2415(1) AND b2417(1) AND b2416(2) AND b1621(2)	M_protein_recon
+DALADALALIGA-MONOMER	default_name	b0381(1)	M_protein_recon
+PGPPHOSPHAB-MONOMER	default_name	b1278(1)	M_protein_recon
+NAP-CPLX	default_name	b2202() AND b2203() AND b2204() AND b2205() AND b2206()	M_protein_recon
+ABC-5-CPLX	default_name	b1709(2) AND b0158(1) AND b1711(2)	M_protein_recon
+GLYCPDIESTER-PERI-CPLX	default_name	b2239(2)	M_protein_recon
+GALACTOKIN-MONOMER	default_name	b0757(1)	M_protein_recon
+EG10723-MONOMER	default_name	b4094(1)	M_protein_recon
+THIE-MONOMER	default_name	b3993(1)	M_protein_recon
+UDPACYLGLCNACDEACETYL-MONOMER	default_name	b0096(1)	M_protein_recon
+CPLX0-2061	default_name	b3575(2)	M_protein_recon
+H2NEOPTERINP3PYROPHOSPHOHYDRO-MONOMER	default_name	b1865(1)	M_protein_recon
+SPERMIDINESYN-CPLX	default_name	b0121(2)	M_protein_recon
+MANNPDEHYDROG-MONOMER	default_name	b3600(1)	M_protein_recon
+GAPDH-A-CPLX	default_name	b1779(4)	M_protein_recon
+TRANSKETOI-CPLX	default_name	b2935(2)	M_protein_recon
+KsgA_mono	S-adenosylmethionine-6-N',N'-adenosyl (rRNA) dimethyltransferase	b0051(1)	2011_Updated_E_recon
+GLTS-MONOMER	default_name	b3653(1)	M_protein_recon
+Asn_RS_dim	asparaginyl tRNA synthetase (EC:6.1.1.22)	b0930(2)	2011_Updated_E_recon
+G6646-MONOMER	default_name	b1302(1)	M_protein_recon
+Map_mono	methionine aminopeptidase (EC:3.4.11.18)	b0168(1)	2011_Updated_E_recon
+HMP-P-KIN-CPLX	default_name	b2103(4)	M_protein_recon
+CPLX0-7660	default_name	b0222(4)	M_protein_recon
+EG12015-MONOMER	default_name	b2134(1)	M_protein_recon
+EG11600-MONOMER	default_name	b2521(1)	M_protein_recon
+G7446-MONOMER	default_name	b2788(1)	M_protein_recon
+EG12318-MONOMER	default_name	b0123(1)	M_protein_recon
+RHAMNULOKIN-MONOMER	default_name	b3904(1)	M_protein_recon
+PHOSGLYCMUTASE	default_name	b0755(2)	M_protein_recon
+ERYTHRON4PDEHYDROG-MONOMER	default_name	b2320(1)	M_protein_recon
+CPLX0-322	default_name	b0477(2)	M_protein_recon
+CPLX0-341	default_name	b3639(12)	M_protein_recon
+ABC-304-CPLX	default_name	b3458(1) AND b3456(1) AND b3457(1) AND b3454(1) AND b3455(1)	M_protein_recon
+IMP-DEHYDROG-CPLX	default_name	b2508(4)	M_protein_recon
+ENTC-MONOMER	default_name	b0593(1)	M_protein_recon
+G6960-MONOMER	default_name	b1773(1)	M_protein_recon
+RhlB_dim	ATP-dependent RNA helicase, rhlB	b3780(2)	2011_Updated_E_recon
+DusB_mono	tRNA-dihydrouridine synthase B	b3260(1)	2011_Updated_E_recon
+EG12445-MONOMER	default_name	b2578(1)	M_protein_recon
+CPLX0-7629	default_name	b0019(2)	M_protein_recon
+Orn_dim	oligoribonuclease (EC:3.1.-.-), orn	b4162(2)	2011_Updated_E_recon
+CPLX-158	default_name	b2415(1) AND b2416(2) AND b2167(2) AND b2169(1)	M_protein_recon
+GLYC3PDEHYDROGBIOSYN-CPLX	default_name	b3608(2)	M_protein_recon
+EG11796-MONOMER	default_name	b4386(1)	M_protein_recon
+GLYCOGEN-BRANCH-MONOMER	default_name	b3432(1)	M_protein_recon
+CPLX0-3954	default_name	b2154(4)	M_protein_recon
+CPLX0-2141	default_name	b3265() AND b3035() AND b3266()	M_protein_recon
+DALADALALIGB-CPLX	default_name	b0092(2)	M_protein_recon
+G7949-MONOMER	default_name	b4367(1)	M_protein_recon
+TDPFUCACTRANS-MONOMER	default_name	b3790(1)	M_protein_recon
+ACETYL-COA-ACETYLTRANSFER-CPLX	default_name	b2224(4)	M_protein_recon
+ABC-63-CPLX	default_name	b1859(2) AND b1858(2) AND b1857(1)	M_protein_recon
+EG12210-MONOMER	default_name	b3620(1)	M_protein_recon
+G6208-MONOMER	default_name	b0355(1)	M_protein_recon
+ASPARTASE-CPLX	default_name	b4139(4)	M_protein_recon
+CPLX0-7817	default_name	b1654(2)	M_protein_recon
+UMPKI-CPLX	default_name	b0171(6)	M_protein_recon
+AROD-CPLX	default_name	b1693(2)	M_protein_recon
+O-SUCCHOMOSERLYASE-CPLX	default_name	b3939(4)	M_protein_recon
+CPLX0-7788	default_name	b2146(2) AND b2147(2)	M_protein_recon
+CPLX0-225	default_name	b0935(4)	M_protein_recon
+EG11035-MONOMER	default_name	b0411(1)	M_protein_recon
+DCYSDESULF-CPLX	default_name	b1919(2)	M_protein_recon
+CPDB-MONOMER	default_name	b4213(1)	M_protein_recon
+PSERTRANSAM-CPLX	default_name	b0907(2)	M_protein_recon
+G7408-MONOMER	default_name	b2690(1)	M_protein_recon
+QUINOPRIBOTRANS-CPLX	default_name	b0109(2)	M_protein_recon
+PEPSYNTH-CPLX	default_name	b1702(2)	M_protein_recon
+PROTOHEME-FERROCHELAT-MONOMER	default_name	b0475(1)	M_protein_recon
+CARBPSYN-CPLX	default_name	b0032(2) AND b0033(2)	M_protein_recon
+FUMARASE-B	default_name	b4122(2)	M_protein_recon
+MALATE-DEHASE	default_name	b3236(2)	M_protein_recon
+THI-P-KIN-MONOMER	default_name	b0417(1)	M_protein_recon
+G7458-MONOMER	default_name	b2817(1)	M_protein_recon
+CPLX-165	default_name	b2415(1) AND b1818(2) AND b2416(2) AND b1817(1) AND b1819(1)	M_protein_recon
+GRXB-MONOMER_EG12237-MONOMER	default_name	b1064() AND b3503()	M_protein_recon
+ABC-35-CPLX	default_name	b2200(1) AND b2201(2) AND b2197(1) AND b2198(1) AND b2199(1)	M_protein_recon
+Phe_RS_tetra	phenylalanine tRNA synthetase, beta subunit (EC:6.1.1.20)	b1713(2) AND b1714(2)	2011_Updated_E_recon
+ENOYL-ACP-REDUCT-NADH-MONOMER	default_name	b1288(1)	M_protein_recon
+PrfA_mono	peptide chain release factor RF-1	b1211(1)	2011_Updated_E_recon
+THRESYN-MONOMER	default_name	b0004(1)	M_protein_recon
+PYRROLINECARBREDUCT-CPLX	default_name	b0386(10)	M_protein_recon
+PSD-MONOMER	default_name	b4160(1)	M_protein_recon
+RlmB_dim	23S rRNA (Gm2251)-methyltransferase (EC:2.1.1.-)	b4180(2)	2011_Updated_E_recon
+THIOESTERII-CPLX	default_name	b0452(4)	M_protein_recon
+FUMARASE-C	default_name	b1611(4)	M_protein_recon
+RpoE_mono	RNA polymerase, sigma 24 (sigma E) factor	b2573(1)	2011_Updated_E_recon
+CPLX0-3951	default_name	b0149(2)	M_protein_recon
+EG10168-MONOMER	default_name	b0657(1)	M_protein_recon
+CPLX0-3482	default_name	b3588(4)	M_protein_recon
+CODB-MONOMER	default_name	b0336(1)	M_protein_recon
+TmcA_mono	tRNAMet cytidine acetyltransferase	b2474()	2011_Updated_E_recon
+DIAMINOPIMDECARB-CPLX	default_name	b2838(4)	M_protein_recon
+EG10669-MONOMER	default_name	b0957(1)	M_protein_recon
+ASNSYNB-CPLX	default_name	b0674(2)	M_protein_recon
+PPX-CPLX	default_name	b2502(2)	M_protein_recon
+ALKAPHOSPHA-CPLX	default_name	b0383(2)	M_protein_recon
+ASPAMINOTRANS-DIMER	default_name	b0928(2)	M_protein_recon
+THZ-KIN-MONOMER	default_name	b2104(1)	M_protein_recon
+CPLX-7524	default_name	b0516(2)	M_protein_recon
+ATPASE-1-CPLX	default_name	b0698() AND b4513() AND b0697() AND b0696()	M_protein_recon
+LSERINEDEAM1-MONOMER	default_name	b1814(1)	M_protein_recon
+CPLX0-7692	default_name	b2781(2)	M_protein_recon
+NICOTINAMID-MONOMER	default_name	b1768(1)	M_protein_recon
+MiaA_dim	delta(2)-isopentenylpyrophosphate tRNA-adenosine transferase	b4171(2)	2011_Updated_E_recon
+MANNONOXIDOREDUCT-MONOMER	default_name	b4323(1)	M_protein_recon
+YNFJ-MONOMER	default_name	b1592(1)	M_protein_recon
+EG11598-MONOMER	default_name	b0785(1)	M_protein_recon
+RpsG_mono	30S ribosomal subunit protein S7	b3341(1)	2011_Updated_E_recon
+CPLX0-3681	default_name	b3619(5)	M_protein_recon
+FOLD-CPLX	default_name	b0529(2)	M_protein_recon
+ABC-4-CPLX	default_name	b0864(2) AND b0862(1) AND b0863(1) AND b0860(1) AND b0861(1)	M_protein_recon
+RplX_mono	50S ribosomal subunit protein L24	b3309(1)	2011_Updated_E_recon
+Rph_mono	RNase PH	b3643(1)	2011_Updated_E_recon
+DSERDEAM-MONOMER	default_name	b2366(1)	M_protein_recon
+CDPDIGLYPYPHOSPHA-MONOMER	default_name	b3918(1)	M_protein_recon
+SelA_deca	selenocysteine synthase (EC:2.9.1.1)	b3591(10)	2011_Updated_E_recon
+RrmA_dim	23S rRNA m(1)G745 methyltransferase (EC:2.1.1.51)	b1822(2)	2011_Updated_E_recon
+#YbbB_dim	tRNA 2-selenouridine synthase, selenophosphate-dependent	b0503(2)	2011_Updated_E_recon
+UDPNACETYLGLUCOSAMACYLTRANS-CPLX	default_name	b0181(3)	M_protein_recon
+CPLX0-7704	default_name	b0914(2)	M_protein_recon
+NAPAB-CPLX_NAPC-MONOMER	default_name	b2202() AND b2203() AND b2206()	M_protein_recon
+ABC-13-CPLX	default_name	b0655() AND b0654() AND b0653() AND b0652()	M_protein_recon
+ACS-MONOMER	default_name	b4069(1)	M_protein_recon
+CPLX0-821	default_name	b3371(12)	M_protein_recon
+Rnd_mono	ribonuclease D	b1804(1)	2011_Updated_E_recon
+#PrmB_mono	N5-glutamine methyltransferase (EC:2.1.1.-)	b2330(1)	2011_Updated_E_recon
+BIOTIN-SYN-CPLX	default_name	b0775(2)	M_protein_recon
+TREHALOSEPHOSPHASYN-MONOMER	default_name	b1897(1)	M_protein_recon
+EG10201-MONOMER	default_name	b0632(1)	M_protein_recon
+SUCCGLUALDDEHYD-MONOMER	default_name	b1746(1)	M_protein_recon
+DEOXYGLUCONOKIN-MONOMER	default_name	b3526(1)	M_protein_recon
+Met_RS_dim	methionyl-tRNA synthetase (EC:6.1.1.10)	b2114(2)	2011_Updated_E_recon
+G6986-MONOMER	default_name	b1800(1)	M_protein_recon
+TPI-CPLX	default_name	b3919(2)	M_protein_recon
+CPLX-153	default_name	b2415(1) AND b2715(2) AND b2416(2)	M_protein_recon
+RpsA_mono	30S ribosomal subunit protein S1	b0911(1)	2011_Updated_E_recon
+DIHYDROPTERIREDUCT-CPLX	default_name	b0578(2)	M_protein_recon
+EG12115-MONOMER	default_name	b4374(1)	M_protein_recon
+PEPCARBOXYKIN-MONOMER	default_name	b3403(1)	M_protein_recon
+AROF-CPLX	default_name	b2601(2)	M_protein_recon
+EG10041-MONOMER	default_name	b0110(1)	M_protein_recon
+ABC-8-CPLX	default_name	b3540(1) AND b3541(1) AND b3542(1) AND b3543(1) AND b3544(1)	M_protein_recon
+PRAI-IGPS	default_name	b1262(1)	M_protein_recon
+G7146-MONOMER	default_name	b2174(1)	M_protein_recon
+FOLE-CPLX	default_name	b2153(10)	M_protein_recon
+CPLX0-1401	default_name	b2871(2)	M_protein_recon
+RplA_mono	50S ribosomal subunit protein L1	b3984(1)	2011_Updated_E_recon
+CPLX0-7615	default_name	b3126(6)	M_protein_recon
+NADH-DHII-MONOMER	default_name	b1109(1)	M_protein_recon
+PRIBFAICARPISOM-MONOMER	default_name	b2024(1)	M_protein_recon
+EG12195-MONOMER	default_name	b0998(1)	M_protein_recon
+URAA-MONOMER	default_name	b2497(1)	M_protein_recon
+ABC-40-CPLX	default_name	b2128(1) AND b2130(1) AND b2131(1) AND b2129(2)	M_protein_recon
+RplK_mono	50S ribosomal subunit protein L11	b3983(1)	2011_Updated_E_recon
+YHAU-MONOMER	default_name	b3127(1)	M_protein_recon
+FABB-CPLX	default_name	b2323(2)	M_protein_recon
+RplO_mono	50S ribosomal subunit protein L15	b3301(1)	2011_Updated_E_recon
+ABC-22-CPLX	default_name	b1245(1) AND b1244(1) AND b1247(1) AND b1246(1) AND b1243(1)	M_protein_recon
+RlmN_mono	23S rRNA m2A2503 methyltransferase	b2517()	2011_Updated_E_recon
+EG10154-MONOMER	default_name	b0826(1)	M_protein_recon
+NAD-SYNTH-CPLX	default_name	b1740(2)	M_protein_recon
+ENTD-MONOMER	default_name	b0583(1)	M_protein_recon
+ARCD-MONOMER	default_name	b1605(1)	M_protein_recon
+CPLX0-7622	default_name	b4471(2)	M_protein_recon
+FliA_mono	RNA polymerase, sigma 28 (sigma F) factor	b1922(1)	2011_Updated_E_recon
+AROE-MONOMER	default_name	b3281(1)	M_protein_recon
+PPENTOMUT-MONOMER	default_name	b4383(1)	M_protein_recon
+TruB_mono	tRNA U55 pseudouridine synthase (EC:4.2.1.70)	b3166(1)	2011_Updated_E_recon
+RIBULPEPIM-CPLX	default_name	b0061(4)	M_protein_recon
+PRPPSYN-MONOMER	default_name	b1207(1)	M_protein_recon
+RplC_mono	50S ribosomal subunit protein L3	b3320(1)	2011_Updated_E_recon
+IDONDEHYD-MONOMER	default_name	b4267(1)	M_protein_recon
+ABC-32-CPLX	default_name	b0067(2) AND b0066(2) AND b0068(1)	M_protein_recon
+HYDROPEROXIDII-CPLX	default_name	b1732(6)	M_protein_recon
+CPLX0-3970	default_name	b1245(1) AND b1244(1) AND b1247(1) AND b1246(1) AND b1329(1)	M_protein_recon
+RIB5PISOMA-CPLX	default_name	b2914(2)	M_protein_recon
+6PFK-1-CPX	default_name	b3916(4)	M_protein_recon
+EG11724-MONOMER	default_name	b3714(1)	M_protein_recon
+TRANS-CPLX-201	default_name	b0462() AND b0463() AND b3035()	M_protein_recon
+RsmH_mono	16S rRNA m4C1402 methyltransferase	b0082()	2011_Updated_E_recon
+EG11905-MONOMER	default_name	b3946(1)	M_protein_recon
+EG11433-MONOMER	default_name	b4219(1)	M_protein_recon
+CYTDEAM-MONOMER	default_name	b0337(1)	M_protein_recon
+CPLX0-3881	default_name	b2052(2)	M_protein_recon
+MHPT-MONOMER	default_name	b0353(1)	M_protein_recon
+RpsH_mono	30S ribosomal subunit protein S8	b3306(1)	2011_Updated_E_recon
+PITB-MONOMER	default_name	b2987(1)	M_protein_recon
+CPLX0-7694	default_name	b0485(4)	M_protein_recon
+RluD_mono	23S rRNA pseudouridine synthase (EC:4.2.1.70)	b2594(1)	2011_Updated_E_recon
+CPLX0-7564	default_name	b0029(2)	M_protein_recon
+SelB_mono	selenocysteinyl-tRNA-specific translation factor	b3590(1)	2011_Updated_E_recon
+TDCC-MONOMER	default_name	b3116(1)	M_protein_recon
+G6188-MONOMER	default_name	b0323(1)	M_protein_recon
+CHORPYRLY-MONOMER	default_name	b4039(1)	M_protein_recon
+RpmA_mono	50S ribosomal subunit protein L27	b3185(1)	2011_Updated_E_recon
+DEOD-CPLX	default_name	b4384(6)	M_protein_recon
+RplM_mono	50S ribosomal subunit protein L13	b3231(1)	2011_Updated_E_recon
+CPLX0-7904	default_name	b2162(4)	M_protein_recon
+PURE-CPLX	default_name	b0523(8)	M_protein_recon
+TrmA_mono	tRNA m(5)U54 methyltransferase, SAM-dependen (EC:2.1.1.35)	b3965(1)	2011_Updated_E_recon
+COBS-MONOMER	default_name	b1992(1)	M_protein_recon
+KDGT-MONOMER	default_name	b3909(1)	M_protein_recon
+G7170-MONOMER	default_name	b2257(1)	M_protein_recon
+PHOSPHASERSYN-CPLX	default_name	b2585()	M_protein_recon
+UDHA-CPLX	default_name	b3962(8)	M_protein_recon
+hRNAP	DNA-directed RNA polymerase subunit alpha [EC:2.7.7.6]	b3988(1) AND b3295(2) AND b3987(1)	2011_Updated_E_recon
+EG11351-MONOMER	default_name	b3628(1)	M_protein_recon
+EG10696-MONOMER	default_name	b0932(1)	M_protein_recon
+ABC-10-CPLX	default_name	b0592(1) AND b0589(1) AND b0590(1) AND b0588(2)	M_protein_recon
+YGGA-MONOMER	default_name	b2923(1)	M_protein_recon
+PGLYCDEHYDROG-CPLX	default_name	b2913(4)	M_protein_recon
+#Dtd_dim	D-tyr-tRNA(Tyr) deacylase (EC:3.1.-.-)	b3887(2)	2011_Updated_E_recon
+UGD-MONOMER	default_name	b2028(1)	M_protein_recon
+FORMATEDEHYDROGN-CPLX	default_name	b1475(3) AND b1474(3) AND b1476(3)	M_protein_recon
+G6806-MONOMER	default_name	b1519(1)	M_protein_recon
+ACETATEKINA-MONOMER	default_name	b2296(1)	M_protein_recon
+DIHYDROOROT-CPLX	default_name	b1062(2)	M_protein_recon
+CPLX0-1142	default_name	b2374(2)	M_protein_recon
+ADENYL-KIN-MONOMER	default_name	b0474(1)	M_protein_recon
+RIBAZOLEPHOSPHAT-MONOMER	default_name	b0638(1)	M_protein_recon
+EG10203-MONOMER	default_name	b0839(1)	M_protein_recon
+ACYLCOADEHYDROG-MONOMER	default_name	b0221(1)	M_protein_recon
+RplU_mono	50S ribosomal subunit protein L21	b3186(1)	2011_Updated_E_recon
+CPLX0-743	default_name	b0420(2)	M_protein_recon
+G6849-MONOMER	default_name	b1591(1)	M_protein_recon
+RNase_P_cplx	protein C5 component of RNase P (EC:3.1.26.5)	b3704(1) AND b3123(1)	2011_Updated_E_recon
+ArgS_mono	arginyl-tRNA synthetase (EC:6.1.1.19)	b1876(1)	2011_Updated_E_recon
+ACETYLGLUTKIN-CPLX	default_name	b3959(2)	M_protein_recon
+GLYOCARBOLIG-CPLX	default_name	b0507(2)	M_protein_recon
+CPLX0-7630	default_name	b0494(4)	M_protein_recon
+FUCP-MONOMER	default_name	b2801(1)	M_protein_recon
+SDAC-MONOMER	default_name	b2796(1)	M_protein_recon
+AROC-CPLX	default_name	b2329(4)	M_protein_recon
+PANF-MONOMER	default_name	b3258(1)	M_protein_recon
+CPLX0-3952	default_name	b1662(3)	M_protein_recon
+G6414-MONOMER_CPLX0-1923	default_name	b0805() AND b1252() AND b3005() AND b3006()	M_protein_recon
+MMUM-MONOMER	default_name	b0261(1)	M_protein_recon
+GDHA-CPLX	default_name	b1761(6)	M_protein_recon
+RplD_mono	50S ribosomal subunit protein L4	b3319(1)	2011_Updated_E_recon
+HOMSUCTRAN-CPLX	default_name	b4013(2)	M_protein_recon
+ALD-CPLX	default_name	b1415(4)	M_protein_recon
+GLUTKIN-CPLX	default_name	b0242(4)	M_protein_recon
+YGJE-MONOMER	default_name	b3063(1)	M_protein_recon
+UDPHYDROXYMYRGLUCOSAMNACETYLTRANS-MONO	default_name	b0179(1)	M_protein_recon
+CPLX0-1341	default_name	b1681(1) AND b1683(1) AND b1682(2)	M_protein_recon
+COBU-CPLX	default_name	b1993(2)	M_protein_recon
+#PrmC_mono	N5-glutamine methyltransferase, modifies release factors RF-1 and RF-2 (EC:2.1.1.-), hemK	b1212(1)	2011_Updated_E_recon
+DISULFOXRED-MONOMER	default_name	b3860(1)	M_protein_recon
+G6715-MONOMER	default_name	b1394(1)	M_protein_recon
+G7090-MONOMER_EG11982-MONOMER	default_name	b2027() AND b2035()	M_protein_recon
+GMP-REDUCT-CPLX	default_name	b0104(4)	M_protein_recon
+G6621-MONOMER	default_name	b1192(1)	M_protein_recon
+G7945-MONOMER	default_name	b4358(1)	M_protein_recon
+MALTACETYLTRAN-CPLX	default_name	b0459(2)	M_protein_recon
+EG12267-MONOMER	default_name	b3546(1)	M_protein_recon
+CITLY-CPLX	default_name	b0616(6) AND b0617(6) AND b0615(6)	M_protein_recon
+CPLX-154	default_name	b2415(1) AND b2416(2) AND b3722(2)	M_protein_recon
+Tsf_mono	protein chain elongation factor EF-Ts	b0170(1)	2011_Updated_E_recon
+CPLX0-3661	default_name	b3052(2)	M_protein_recon
+NITRITREDUCT-CPLX	default_name	b3365(2) AND b3366(1)	M_protein_recon
+CPLX-7	default_name	b3502(2)	M_protein_recon
+EG10122-MONOMER	default_name	b3412(1)	M_protein_recon
+CPLX0-7530	default_name	b0241(3)	M_protein_recon
+KDO-8PSYNTH-CPLX	default_name	b1215(4)	M_protein_recon
+UDPMANACATRANS-MONOMER	default_name	b3794(1)	M_protein_recon
+AMPG-MONOMER	default_name	b0433(1)	M_protein_recon
+EG12450-MONOMER	default_name	b2711(1)	M_protein_recon
+QueF_dim	7-cyano-7-deazaguanine reductase (NADPH-dependent) (EC:1.7.1.-)	b2794(2)	2011_Updated_E_recon
+PALMITOTRANS-MONOMER	default_name	b2378(1)	M_protein_recon
+DIMESULFREDUCT-CPLX	default_name	b0896(1) AND b0895(1) AND b0894(1)	M_protein_recon
+rpL7/12	50S ribosomal subunit protein L7/L12	b3986(2)	2011_Updated_E_recon
+EG10144-MONOMER	default_name	b1734(1)	M_protein_recon
+CHORISMUTPREPHENDEHYDRAT-CPLX	default_name	b2599(2)	M_protein_recon
+CPLX0-7533	default_name	b2215(3)	M_protein_recon
+DEHYDDEOXGALACTKIN-MONOMER	default_name	b3693(1)	M_protein_recon
+G6954-MONOMER	default_name	b1759(1)	M_protein_recon
+RluA_mono	pseudouridine synthase for 23S rRNA (position 746) and	b0058(1)	2011_Updated_E_recon
+CPLX0-7655	default_name	b4036(3)	M_protein_recon
+RpmC_mono	50S ribosomal subunit protein L29	b3312(1)	2011_Updated_E_recon
+COBALADENOSYLTRANS-MONOMER	default_name	b1270(1)	M_protein_recon
+RPOA-MONOMER	default_name	b2010(1)	M_protein_recon
+DIHYDROPICRED-CPLX	default_name	b0031(4)	M_protein_recon
+CPLX0-1962	default_name	b1539(4)	M_protein_recon
+TufB_mono	protein chain elongation factor EF-Tu (duplicate of TufA)	b3980(1)	2011_Updated_E_recon
+RpoN_mono	RNA polymerase, sigma 54 (sigma N) factor	b3202(1)	2011_Updated_E_recon
+ENTF-MONOMER	default_name	b0586(1)	M_protein_recon
+ValS_mono	valyl-tRNA synthetase (EC:6.1.1.9)	b4258(1)	2011_Updated_E_recon
+NusG_mono	transcription termination factor NusG	b3982(1)	2011_Updated_E_recon
+EG12394-MONOMER	default_name	b1778(1)	M_protein_recon
+CPLX0-1021	default_name	b0331(4)	M_protein_recon
+G6700-MONOMER	default_name	b1377(1)	M_protein_recon
+G7921-MONOMER	default_name	b4311(1)	M_protein_recon
+G6520-MONOMER	default_name	b1009(1)	M_protein_recon
+TETRAACYLDISACC4KIN-MONOMER	default_name	b0915(1)	M_protein_recon
+CPLX-166	default_name	b2415(1) AND b2416(2) AND b3599(2)	M_protein_recon
+TruA_dim	pseudouridylate synthase I (EC:4.2.1.70)	b2318(2)	2011_Updated_E_recon
+CHORISMUTPREPHENDEHYDROG-CPLX	default_name	b2600(2)	M_protein_recon
+AROL-MONOMER	default_name	b0388(1)	M_protein_recon
+RplJ_mono	50S ribosomal subunit protein L10	b3985(1)	2011_Updated_E_recon
+G7457-MONOMER	default_name	b2813(1)	M_protein_recon
+ACETOLACTSYNIII-CPLX	default_name	b0078(2) AND b0077(2)	M_protein_recon
+ASPKINIIHOMOSERDEHYDROGII-CPLX	default_name	b3940(2)	M_protein_recon
+HOMOSERKIN-CPLX	default_name	b0003(2)	M_protein_recon
+ANSP-MONOMER	default_name	b1453(1)	M_protein_recon
+RplV_mono	50S ribosomal subunit protein L22	b3315(1)	2011_Updated_E_recon
+CPLX0-7712	default_name	b2051(2)	M_protein_recon
+TREHALOSE6PSYN-MONOMER	default_name	b1896(1)	M_protein_recon
+NARK-MONOMER	default_name	b1223(1)	M_protein_recon
+CYTIDEAM-CPLX	default_name	b2143(2)	M_protein_recon
+GNTP-MONOMER	default_name	b4321(1)	M_protein_recon
+BTUE-MONOMER	default_name	b1710(1)	M_protein_recon
+CPLX0-3951_G6561-MONOMER	default_name	b1069() AND b0149(2)	M_protein_recon
+RplN_mono	50S ribosomal subunit protein L14	b3310(1)	2011_Updated_E_recon
+NICONUCADENYLYLTRAN-MONOMER	default_name	b0639(1)	M_protein_recon
+CPLX0-237	default_name	b3607(6)	M_protein_recon
+GLUTCYSLIG-MONOMER	default_name	b2688(1)	M_protein_recon
+CPLX0-3641	default_name	b1444(4)	M_protein_recon
+PORPHOBILSYNTH-CPLX	default_name	b0369(8)	M_protein_recon
+EG10456-MONOMER	default_name	b2552(1)	M_protein_recon
+CPLX0-7684	default_name	b2682() AND b2683()	M_protein_recon
+CPLX0-7718	default_name	b2255(6)	M_protein_recon
+ATPSYN-CPLX	default_name	b3733(1) AND b3738(1) AND b3732(3) AND b3736(2) AND b3731(1) AND b3735(1) AND b3737(10) AND b3734(3)	M_protein_recon
+EG12287-MONOMER	default_name	b3583(1)	M_protein_recon
+MENF-CPLX	default_name	b2265(2)	M_protein_recon
+PRPPAMIDOTRANS-CPLX	default_name	b2312(4)	M_protein_recon
+FLAVODOXIN2-MONOMER	default_name	b2895(1)	M_protein_recon
+RpmF_mono	50S ribosomal subunit protein L32	b1089(1)	2011_Updated_E_recon
+CPLX0-7641	default_name	b3915(2)	M_protein_recon
+PUTP-MONOMER	default_name	b1015(1)	M_protein_recon
+EG11595-MONOMER_EG11666-MONOMER	default_name	b0783() AND b0781()	M_protein_recon
+CPLX0-1667	default_name	b2342()	M_protein_recon
+UBIX-MONOMER_DHHB-METHYLTRANSFER-MONOMER	default_name	b2311() AND b2232()	M_protein_recon
+G6967-MONOMER	default_name	b1781(1)	M_protein_recon
+NACMURLALAAMI1-MONOMER	default_name	b2435(1)	M_protein_recon
+EG13236-MONOMER	default_name	b0732(1)	M_protein_recon
+PYRUVFORMLY-INACTIVE-CPLX	default_name	b0903(2)	M_protein_recon
+GALACTARDEHYDRA-MONOMER	default_name	b3128(1)	M_protein_recon
+CPLX0-761	default_name	b2868() AND b2866() AND b2867()	M_protein_recon
+YIDK-MONOMER	default_name	b3679(1)	M_protein_recon
+#RimK_mono	ribosomal protein S6 modification protein	b0852(1)	2011_Updated_E_recon
+GlnS_mono	glutamyl-tRNA synthetase (EC:6.1.1.18)	b0680(1)	2011_Updated_E_recon
+N-ACETYLTRANSFER-CPLX	default_name	b2818(6)	M_protein_recon
+RpmI_mono	50S ribosomal subunit protein L35	b1717(1)	2011_Updated_E_recon
+CPLX0-7532	default_name	b0451(3)	M_protein_recon
+2-ISOPROPYLMALATESYN-MONOMER	default_name	b0074(1)	M_protein_recon
+DnaK_mono	molecular chaperone DnaK	b0014(1)	2011_Updated_E_recon
+EG11341-MONOMER	default_name	b3632(1)	M_protein_recon
+SUCCORNTRANSAM-CPLX	default_name	b1748(2)	M_protein_recon
+G7164-MONOMER	default_name	b2251(1)	M_protein_recon
+CFA-CPLX	default_name	b1661(2)	M_protein_recon
+EG11239-MONOMER	default_name	b0766(1)	M_protein_recon
+KETOBUTFORMLY-INACT-MONOMER	default_name	b3114(1)	M_protein_recon
+TilS_mono	tRNA(Ile)-lysidine synthetase (EC:6.1.1.5)	b0188(1)	2011_Updated_E_recon
+ALPHAGALACTOSID-CPLX	default_name	b4119(2)	M_protein_recon
+METNIQ-METHIONINE-ABC-CPLX	default_name	b0197() AND b0198() AND b0199(2)	M_protein_recon
+EG10341-MONOMER	default_name	b0084(1)	M_protein_recon
+EG10943-MONOMER	default_name	b1764(1)	M_protein_recon
+G6880-MONOMER	default_name	b1640(1)	M_protein_recon
+EG10043-MONOMER	default_name	b4214(1)	M_protein_recon
+GLUCOKIN-MONOMER	default_name	b2388(1)	M_protein_recon
+InfC_mono	protein chain initiation factor IF-3	b1718(1)	2011_Updated_E_recon
+ABC-53-CPLX	default_name	b4261() AND b4262() AND b3201(2) AND b3199() AND b3200()	M_protein_recon
+XASA-MONOMER	default_name	b1492(1)	M_protein_recon
+RIBF-MONOMER	default_name	b0025(1)	M_protein_recon
+RpsM_mono	30S ribosomal subunit protein S13	b3298(1)	2011_Updated_E_recon
+G7169-MONOMER	default_name	b2256(1)	M_protein_recon
+CYCA-MONOMER	default_name	b4208(1)	M_protein_recon
+RIBULOKIN-CPLX	default_name	b0063(2)	M_protein_recon
+CPLX0-721	default_name	b2746(3)	M_protein_recon
+LTAA-CPLX	default_name	b0870(4)	M_protein_recon
+YfiC_mono	tRNA m6A37 methyltransferase	b2575()	2011_Updated_E_recon
+GLUCOSE-1-PHOSPHAT-CPLX	default_name	b1002(2)	M_protein_recon
+SUCCARGDIHYDRO-MONOMER	default_name	b1745(1)	M_protein_recon
+MHPCHYDROL-MONOMER	default_name	b0349(1)	M_protein_recon
+B2975-MONOMER	default_name	b2975(1)	M_protein_recon
+MONOMER0-148	default_name	b3012(1)	M_protein_recon
+G7502-MONOMER	default_name	b2883(1)	M_protein_recon
+EG11736-MONOMER	default_name	b0200(1)	M_protein_recon
+RpsC_mono	30S ribosomal subunit protein S3	b3314(1)	2011_Updated_E_recon
+MnmG_dim	glucose-inhibited cell-division protein	b3741(2)	2011_Updated_E_recon
+IPPISOM-MONOMER	default_name	b2889(1)	M_protein_recon
+ABC-19-CPLX	default_name	b0764(2) AND b0765(2) AND b0763(1)	M_protein_recon
+ORNCARBAMTRANSFERI-CPLX	default_name	b4254(3)	M_protein_recon
+ABC-6-CPLX	default_name	b0887(2) AND b0886(2)	M_protein_recon
+CPLX0-7642	default_name	b4111(2)	M_protein_recon
+CPLX0-3943	default_name	b1298(2)	M_protein_recon
+GPH-MONOMER	default_name	b3385(1)	M_protein_recon
+RpsE_mono	30S ribosomal subunit protein S5	b3303(1)	2011_Updated_E_recon
+FLAVODOXIN1-MONOMER	default_name	b0684(1)	M_protein_recon
+MHPDHYDROL-MONOMER	default_name	b0350(1)	M_protein_recon
+G7800-MONOMER	default_name	b4481(1)	M_protein_recon
+EG12134-MONOMER	default_name	b0813(1)	M_protein_recon
+FMNREDUCT-MONOMER	default_name	b3844(1)	M_protein_recon
+TYRB-DIMER	default_name	b4054(2)	M_protein_recon
+DnaJ_dim	molecular chaperone DnaJ	b0015(2)	2011_Updated_E_recon
+CARDIOLIPSYN-MONOMER	default_name	b1249(1)	M_protein_recon
+ORNDECARBOX-BIO-CPLX	default_name	b2965(2)	M_protein_recon
+FecI_mono	KpLE2 phage-like element; RNA polymerase, sigma 19 factor	b4293(1)	2011_Updated_E_recon
+ABC-16-CPLX	default_name	b4034(1) AND b4035(2) AND b4033(1) AND b4032(1)	M_protein_recon
+G7814-MONOMER	default_name	b3875(1)	M_protein_recon
+TrmJ_dim	tRNA Um32 methyltransferase / tRNA Cm32 methyltransferase	b2532(2)	2011_Updated_E_recon
+CPLX0-1	default_name	b2710(4)	M_protein_recon
+PKII-CPLX	default_name	b1854(4)	M_protein_recon
+CPLX0-1923_EG10155-MONOMER	default_name	b3005() AND b1252() AND b2155() AND b3006()	M_protein_recon
+EG10370-MONOMER	default_name	b2515(1)	M_protein_recon
+#RimJ_mono	ribosomal-protein-S5-alanine N-acetyltransferase (EC:2.3.1.128)	b1066(1)	2011_Updated_E_recon
+ALDHDEHYDROG-MONOMER	default_name	b1300(1)	M_protein_recon
+YrdC_mono	predicted ribosome maturation factor, rimN	b3282(1)	2011_Updated_E_recon
+RsmC_mono	16S rRNA m(2)G1207 methyltransferase (EC:2.1.1.52)	b4371(1)	2011_Updated_E_recon
+EG11671-MONOMER	default_name	b2223(1)	M_protein_recon
+G6340-MONOMER	default_name	b0614(1)	M_protein_recon
+2-DEHYDROPANTOATE-REDUCT-MONOMER	default_name	b0425(1)	M_protein_recon
+ABC-46-CPLX	default_name	b4485(1) AND b4231(1) AND b4227(1) AND b4230(2)	M_protein_recon
+PTSI-MONOMER	default_name	b2416(1)	M_protein_recon
+COADTRI-CPLX	default_name	b3634(6)	M_protein_recon
+CPLX0-3936	default_name	b3058(8)	M_protein_recon
+UDP-NACMURALGLDAPLIG-MONOMER	default_name	b0085(1)	M_protein_recon
+CPLX0-7888	default_name	b2290(2)	M_protein_recon
+CPLX-171	default_name	b0508(2)	M_protein_recon
+CPLX0-1943	default_name	b4291() AND b1252() AND b3005() AND b3006()	M_protein_recon
+HISTCYCLOPRATPPHOS	default_name	b2026(1)	M_protein_recon
+LDC2-CPLX	default_name	b0186(10)	M_protein_recon
+G7517-MONOMER	default_name	b2920(1)	M_protein_recon
+CMPKI-MONOMER	default_name	b0910(1)	M_protein_recon
+GSAAMINOTRANS-CPLX	default_name	b0154(2)	M_protein_recon
+ACETYLORNTRANSAM-CPLX	default_name	b3359(2)	M_protein_recon
+ARGDECARBOXDEG-CPLX	default_name	b4117(10)	M_protein_recon
+RNase_BN_dim	binuclear zinc phosphodiesterase, rbn	b2268(2)	2011_Updated_E_recon
+ISOCITHASE-CPLX	default_name	b1136(2)	M_protein_recon
+SPERMACTRAN-CPLX	default_name	b1584(4)	M_protein_recon
+YJIZ-MONOMER	default_name	b4356(1)	M_protein_recon
+YqcB_mono	tRNA U65 pseudouridine synthase (EC:4.2.1.70)	b2791(1)	2011_Updated_E_recon
+EG11350-MONOMER	default_name	b3629(1)	M_protein_recon
+ABC-9-CPLX	default_name	b4287(2) AND b4290(1) AND b4288(1) AND b4289(1)	M_protein_recon
+H2PTERIDINEPYROPHOSPHOKIN-MONOMER	default_name	b0142(1)	M_protein_recon
+FEOB-MONOMER	default_name	b3409(1)	M_protein_recon
+#YadB_mono	glutamyl-Q tRNA(Asp) synthetase (EC:6.1.1.-)	b0144(1)	2011_Updated_E_recon
+S-ADENMETSYN-CPLX	default_name	b2942(4)	M_protein_recon
+RplF_mono	50S ribosomal subunit protein L6	b3305(1)	2011_Updated_E_recon
+TMAOREDUCTI-CPLX	default_name	b0996() AND b0997(2)	M_protein_recon
+YggH_mono	tRNA m(7)G46 methyltransferase, SAM-dependent (EC:2.1.1.33)	b2960(1)	2011_Updated_E_recon
+XANTHOSINEPHOSPHORY-CPLX	default_name	b2407(6)	M_protein_recon
+G6576-MONOMER	default_name	b1119(1)	M_protein_recon
+CPLX0-7695	default_name	b1524(2)	M_protein_recon
+GLCNACPTRANS-MONOMER	default_name	b3784(1)	M_protein_recon
+IleS_mono	isoleucyl-tRNA synthetase (EC:6.1.1.5)	b0026(1)	2011_Updated_E_recon
+GLUTATHIONE-REDUCT-NADPH-CPLX	default_name	b3500(2)	M_protein_recon
+UDP-NACMURALGLDAPAALIG-MONOMER	default_name	b0086(1)	M_protein_recon
+NRDACTMULTI-CPLX	default_name	b4237(2) AND b4238(2) AND b3924(1)	M_protein_recon
+KDO-8PPHOSPHAT-CPLX	default_name	b3198(4)	M_protein_recon
+G6708-MONOMER	default_name	b1387(1)	M_protein_recon
+DTDPGLUCOSEPP2-MONOMER	default_name	b3789(1)	M_protein_recon
+PAPSSULFOTRANS-CPLX	default_name	b2762(2)	M_protein_recon
+GLYCRIBONUCSYN-MONOMER	default_name	b4005(1)	M_protein_recon
+YICE-MONOMER	default_name	b3654(1)	M_protein_recon
+RpsQ_mono	30S ribosomal subunit protein S17	b3311(1)	2011_Updated_E_recon
+EG11985-MONOMER	default_name	b2032(1)	M_protein_recon
+CPLX0-7741	default_name	b2917(2)	M_protein_recon
+ABC-59-CPLX	default_name	b1487(1) AND b1486(1) AND b1485(1) AND b1484(1) AND b1483(1)	M_protein_recon
+EG11352-MONOMER	default_name	b3627(1)	M_protein_recon
+RplP_mono	50S ribosomal subunit protein L16	b3313(1)	2011_Updated_E_recon
+EG10544-MONOMER	default_name	b1677(1)	M_protein_recon
+DIAMINOPIMEPIM-MONOMER	default_name	b3809(1)	M_protein_recon
+DEHYDDEOXPHOSGALACT-ALDOL-MONOMER	default_name	b4477(1)	M_protein_recon
+EG12310-MONOMER	default_name	b2523(1)	M_protein_recon
+NACMURLALAAMI2-MONOMER	default_name	b4169(1)	M_protein_recon
+PPK-CPLX	default_name	b2501(4)	M_protein_recon
+CPLX0-7521	default_name	b0126(4)	M_protein_recon
+ABC-64-CPLX	default_name	b0365(1) AND b0366(2) AND b0367(2)	M_protein_recon
+ASPCARBCAT-TRIMER	default_name	b4245(3)	M_protein_recon
+G6701-MONOMER	default_name	b1378(1)	M_protein_recon
+CPLX0-224	default_name	b0937(2)	M_protein_recon
+Sra_mono	30S ribosomal subunit protein S22	b1480(1)	2011_Updated_E_recon
+ACSERLYA-CPLX	default_name	b2414(2)	M_protein_recon
+FOCB-MONOMER	default_name	b2492(1)	M_protein_recon
+G6502-MONOMER	default_name	b0968(1)	M_protein_recon
+RpoD_mono	RNA polymerase, sigma 70 (sigma D) factor	b3067(1)	2011_Updated_E_recon
+CPLX0-1924	default_name	b3966() AND b1252() AND b3005() AND b3006()	M_protein_recon
+EG10374-MONOMER	default_name	b3447(1)	M_protein_recon
+G6246-MONOMER	default_name	b0446(1)	M_protein_recon
+THIC-MONOMER	default_name	b3994(1)	M_protein_recon
+RsuA_mono	16S rRNA pseudouridylate 516 synthase (EC:4.2.1.70)	b2183(1)	2011_Updated_E_recon
+G6657-MONOMER	default_name	b1319(1)	M_protein_recon
+LeuS_mono	leucyl-tRNA synthetase (EC:6.1.1.4)	b0642(1)	2011_Updated_E_recon
+GALPMUT-MONOMER	default_name	b2036(1)	M_protein_recon
+ASPKINIHOMOSERDEHYDROGI-CPLX	default_name	b0002(4)	M_protein_recon
+UDP-NACMURALA-GLU-LIG-MONOMER	default_name	b0088(1)	M_protein_recon
+EG12440-MONOMER	default_name	b4233(1)	M_protein_recon
+His_RS_dim	histidyl tRNA synthetase (EC:6.1.1.21)	b2514(2)	2011_Updated_E_recon
+YHFM-MONOMER	default_name	b3370(1)	M_protein_recon
+RFFTRANS-MONOMER	default_name	b3791(1)	M_protein_recon
+YADQ-MONOMER	default_name	b0155(1)	M_protein_recon
+LACY-MONOMER	default_name	b0343(1)	M_protein_recon
+GLUTATHIONE-SYN-CPLX	default_name	b2947(4)	M_protein_recon
+ANGLYC3PDEHYDROG-CPLX	default_name	b2241(1) AND b2242(1) AND b2243(1)	M_protein_recon
+EG11674-MONOMER	default_name	b3059(1)	M_protein_recon
+YIDT-MONOMER	default_name	b3691(1)	M_protein_recon
+CPLX0-1261	default_name	b2465()	M_protein_recon
+SAICARSYN-CPLX	default_name	b2476(3)	M_protein_recon
+GLUTRACE-CPLX	default_name	b3967(2)	M_protein_recon
+cisGroES_hepta	cisGroES_hepta	b4142(7)	2011_Updated_E_recon
+YheLMN_cplx	default_name	b3343(2) AND b3344(2) AND b3345(2)	2011_Updated_E_recon
+MnmEG_cplx	default_name	b3706(2) AND b3741(2)	2011_Updated_E_recon
+TatA_MONOMER	default_name	b3836(1)	2011_Updated_E_recon
+TatE_MONOMER	defualt_name	b0627(1)	2011_Updated_E_recon
+TatBC_octa	default_name	b3838(8) AND b3839(8)	2011_Updated_E_recon
+SecA_MONOMER	default_name	b0098(1)	2011_Updated_E_recon
+SecB_tetra	default_name	b3609(4)	2011_Updated_E_recon
+SRP-CPLX	default_name	b2610(1) AND b0455(1)	2011_Updated_E_recon
+Sec-CPLX	default_name	b3300(1) AND b3981(1) AND b3175(1) AND b0408(1) AND b0409(1)	2011_Updated_E_recon
+SecYE-CPLX	Sec CPLX without secG	b3300(1) AND b3981(1) AND b0408(1) AND b0409(1)	2011_Updated_E_recon
+LolA_MONOMER	default_name	b0891(1)	2011_Updated_E_recon
+#LolB_precursor	default_name	b1209(1)	2011_Updated_E_recon
+LolB_MONOMER	default_name	b1209(1)	2011_Updated_E_recon
+LolCDE-CPLX	default_name	b1116(2) AND b1117(1) AND b1118(1)	2011_Updated_E_recon
+#BamB_precursor	default_name	b2512(1)	2011_Updated_E_recon
+#BamC_precursor	default_name	b2477(1)	2011_Updated_E_recon
+#BamD_precursor	default_name	b2595(1)	2011_Updated_E_recon
+#BamE_precursor	default_name	b2617(1)	2011_Updated_E_recon
+Bam-CPLX	default_name	b0177(1) AND b2512(1) AND b2477(1) AND b2595(1) AND b2617(1)	2011_Updated_E_recon
+BamAD-CPLX	Minimal Bam CPLX needed for insertion	b0177(1) AND b2595(1)	2011_Updated_E_recon
+YidC_MONOMER	default_name	b3705(1)	2011_Updated_E_recon
+SurA_MONOMER	default_name	b0053(1)	2011_Updated_E_recon
+Lgt_MONOMER	Diacylglycerol transferase	b2828(1)	2011_Updated_E_recon
+LspA_MONOMER	Signal peptidase II	b0027(1)	2011_Updated_E_recon
+#LepB_MONOMER	Leader peptidase I	b2568(1)	2011_Updated_E_recon
+FtsY_MONOMER	SRP receptor	b3464(1)	2011_Updated_E_recon
+#SpeA_precursor	default_name	b2938(1)	2011_Updated_E_recon
+#ARGDECARBOXBIO-CPLX_mod_4:pydx5p	default_name	SpeA_mod_pydx5p(4)	M_protein_recon
