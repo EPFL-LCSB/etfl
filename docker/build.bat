@@ -1,1 +1,1 @@
-docker build -t therme-docker .
+docker build -t etfl-docker .

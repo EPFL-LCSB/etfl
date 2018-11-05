@@ -18,8 +18,8 @@ RUN pip install -r requirements.txt
 COPY utils/setup_svg_export.sh .
 RUN chmod +x setup_svg_export.sh && ./setup_svg_export.sh
 
-# Make the /src/therme folder that will link the sources
-RUN mkdir /src/therme
+# Make the /src/etfl folder that will link the sources
+RUN mkdir /src/etfl
 
-ENTRYPOINT ["/bin/bash", "-c", "pip install --user -e /src/pytfa && pip install --user -e /src/therme && $0 $*"]
+ENTRYPOINT ["/bin/bash", "-c", "pip install --user -e /src/pytfa && pip install --user -e /src/etfl && $0 $*"]
 CMD /bin/bash

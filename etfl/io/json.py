@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-.. module:: therme
+.. module:: etfl
    :platform: Unix, Windows
    :synopsis: Expression and thermodynamics-based models
 

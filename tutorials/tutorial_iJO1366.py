@@ -20,10 +20,10 @@ from pytfa.io import load_thermoDB,                    \
                             read_compartment_data, apply_compartment_data
 from pytfa.optim.relaxation import relax_dgo
 
-from therme.core import Enzyme, Ribosome, RNAPolymerase, ThermoMEModel, MEModel
-from therme.core.mrna import mRNA
+from etfl.core import Enzyme, Ribosome, RNAPolymerase, ThermoMEModel, MEModel
+from etfl.core.mrna import mRNA
 
-from therme.io.json import save_json_model
+from etfl.io.json import save_json_model
 
 from collections import defaultdict
 

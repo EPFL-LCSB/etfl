@@ -15,7 +15,7 @@ bp.curdoc().clear()
 
 data_dir = '../organism_data/info_ecoli'
 
-from therme.io.json import load_json_model
+from etfl.io.json import load_json_model
 scaling_model = load_json_model('models/RelaxedModel iJO1366_T1E1N1_431_enz_128_bins__20180926_124941.json')
 
 def make_polygon(x, ymin, ymax):

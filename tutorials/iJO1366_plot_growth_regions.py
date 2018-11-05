@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import bokeh.plotting as bp
 from bokeh.models import Whisker, ColumnDataSource
-from therme.io.json import load_json_model
+from etfl.io.json import load_json_model
 import cobra
 
 from bokeh.io import export_svgs

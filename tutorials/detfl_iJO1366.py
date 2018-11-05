@@ -1,7 +1,7 @@
-from therme.tests.small_model import create_etfl_model
-from therme.analysis.dynamic import run_dynamic_etfl
-from therme.optim.config import standard_solver_config
-from therme.core.reactions import EnzymaticReaction
+from etfl.tests.small_model import create_etfl_model
+from etfl.analysis.dynamic import run_dynamic_etfl
+from etfl.optim.config import standard_solver_config
+from etfl.core.reactions import EnzymaticReaction
 
 import bokeh.plotting as bp
 from bokeh.palettes import Category10
@@ -23,7 +23,7 @@ import pandas as pd
 #                   model.reactions.EX_glc__D_e.reverse_variable
 
 
-from therme.io.json import load_json_model
+from etfl.io.json import load_json_model
 
 model = load_json_model('models/iJO1366_T0E1N1_431_enz_128_bins__20180926_135704.json')
 # model = load_json_model('models/RelaxedModel iJO1366_T1E1N1_431_enz_128_bins__20180926_124941.json')

@@ -1,11 +1,11 @@
-from therme.tests.small_model import create_etfl_model
-from therme.optim.config import standard_solver_config
+from etfl.tests.small_model import create_etfl_model
+from etfl.optim.config import standard_solver_config
 from pytfa.optim.debugging import find_maxed_vars
 
 m = create_etfl_model(0,1)
 
 mv = find_maxed_vars(m)
-from therme.io.dict import model_to_dict, model_from_dict
+from etfl.io.dict import model_to_dict, model_from_dict
 
 dm = model_to_dict(m)
 

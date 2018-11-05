@@ -1,14 +1,14 @@
-from therme.io.json import load_json_model
+from etfl.io.json import load_json_model
 
-from therme.optim.variables import mRNAVariable, EnzymeVariable
-from therme.optim.utils import fix_integers
+from etfl.optim.variables import mRNAVariable, EnzymeVariable
+from etfl.optim.utils import fix_integers
 
 from pytfa.analysis import  variability_analysis,           \
                             apply_reaction_variability,     \
                             apply_generic_variability,      \
                             apply_directionality
 
-from therme.analysis.utils import enzymes_to_peptides_conc
+from etfl.analysis.utils import enzymes_to_peptides_conc
 
 import pandas as pd
 

@@ -803,7 +803,7 @@ class MEModel(LCSBModel, Model):
         """
 
         :param gene: A gene of the model that has sequence data
-        :type gene: therme.core.ExpressedGene
+        :type gene: etfl.core.ExpressedGene
         :return:
         """
 
@@ -858,7 +858,7 @@ class MEModel(LCSBModel, Model):
         """
 
         :param gene: A gene of the model that has sequence data
-        :type gene: therme.core.ExpressedGene
+        :type gene: etfl.core.ExpressedGene
         :return:
         """
 

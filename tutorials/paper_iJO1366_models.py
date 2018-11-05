@@ -15,12 +15,12 @@ from pytfa.io import        load_thermoDB,                    \
                             read_compartment_data, apply_compartment_data
 from pytfa.optim.relaxation import relax_dgo
 
-from therme.core import Enzyme, Ribosome, RNAPolymerase, ThermoMEModel, MEModel
+from etfl.core import Enzyme, Ribosome, RNAPolymerase, ThermoMEModel, MEModel
 
-from therme.io.json import save_json_model
+from etfl.io.json import save_json_model
 from pytfa.utils.logger import get_timestr
 
-from therme.data.ecoli import   get_model, get_thermo_data, get_coupling_dict, \
+from etfl.data.ecoli import   get_model, get_thermo_data, get_coupling_dict, \
                         get_mrna_dict, get_rib, get_rnap, get_monomers_dict, \
                         get_nt_sequences, get_ratios, get_neidhardt_data, \
                         get_mrna_metrics, get_enz_metrics, \
@@ -28,7 +28,7 @@ from therme.data.ecoli import   get_model, get_thermo_data, get_coupling_dict, \
                         get_lloyd_coupling_dict, \
                         get_essentials
 
-from therme.optim.config import standard_solver_config
+from etfl.optim.config import standard_solver_config
 
 from optlang.exceptions import SolverError
 

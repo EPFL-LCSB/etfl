@@ -1,4 +1,4 @@
-from therme.tests.small_model import create_etfl_model
+from etfl.tests.small_model import create_etfl_model
 import pandas as pd
 import numpy as np
 from optlang.exceptions import SolverError

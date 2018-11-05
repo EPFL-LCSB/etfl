@@ -1,6 +1,6 @@
 import cobra.io.json
 import pytfa.io.json
-from therme.io.json import load_json_model
+from etfl.io.json import load_json_model
 
 import numpy as np
 

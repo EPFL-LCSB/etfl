@@ -1,4 +1,4 @@
-""" Thermodynamics-based Flux Analysis
+""" Expression and Thermodynamics Flux analysis
 
 .. moduleauthor:: ETFL team
 
@@ -19,14 +19,14 @@ from setuptools import setup, find_packages
 #     reqs = [str(ir.req) for ir in install_reqs]
 #     return reqs
 
-version_tag = '0.0.1'
+version_tag = '0.0.2'
 
-setup(name='TherME',
+setup(name='ETFL',
       version=version_tag,
       author='Pierre SALVY',
       author_email='softwares.lcsb@epfl.ch',
-      url='https://github.com/EPFL-LCSB/therme/',
-      download_url='https://github.com/EPFL-LCSB/therme/archive/'+version_tag+'.tar.gz',
+      url='https://github.com/EPFL-LCSB/etfl/',
+      download_url='https://github.com/EPFL-LCSB/etfl/archive/'+version_tag+'.tar.gz',
       install_requires=['cobra>0.8',
                         'bokeh>=0.12.1',
                         'optlang',
@@ -34,7 +34,7 @@ setup(name='TherME',
                         'pytfa'],
       packages = find_packages(),
       python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4',
-      description='ME Models with thermodynamics, built on top of pytfa',
+      description='Models for Expression and Thermodynamics Flux analysis, built on top of pytfa',
       keywords=['pytfa','ME models','thermodynamics','flux analysis'],
 
       license='Apache2',

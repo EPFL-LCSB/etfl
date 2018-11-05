@@ -2,8 +2,8 @@ from collections import namedtuple
 import pandas as pd
 import numpy  as np
 
-from therme.io.json import load_json_model
-from therme.optim.config import standard_solver_config
+from etfl.io.json import load_json_model
+from etfl.optim.config import standard_solver_config
 
 
 from time import time
