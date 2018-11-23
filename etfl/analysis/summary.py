@@ -32,13 +32,25 @@ def get_amino_acid_consumption(model, solution = None,
 
     return pd.DataFrame(consumptions, index = aminoacid_ids, columns = ['tRNA_flux'])
 
-def get_ntp_consumption(mode, solution = None):
+def get_ntp_consumption(model, solution = None):
 
     usage = dict()
 
-    for ntp in model.rna_nucleotides:
+    if solution is None:
+        try:
+            solution = model.solution
+        except AttributeError as e:
+            model.logger.error('If no solution object is provided, the model '
+                               'must contain a solution attribute. You can get '
+                               'on by running model.optimize()')
+            raise(e)
+    ntp_ids = model.rna_nucleotides.values()
+    for ntp in ntp_ids:
          met = model.metabolites.get_by_id(ntp)
-         usage[ntp] = sum(x.metabolites[met]*solution.flux[x.id]
+         usage[ntp] = sum(x.metabolites[met]*solution.fluxes[x.id]
                           for x in met.reactions
                           if x.id in model.transcription_reactions)
+
+         return pd.DataFrame(usage, index=ntp_ids, columns=['ntp_usage'])
+
 
