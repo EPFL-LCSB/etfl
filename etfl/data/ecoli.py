@@ -12,6 +12,9 @@ from pytfa.io import load_thermoDB,                    \
                             read_lexicon, annotate_from_lexicon,            \
                             read_compartment_data, apply_compartment_data
 
+from .utils import infer_enzyme_from_gpr
+
+from ..core.expression import is_me_compatible
 from ..core import Enzyme, Ribosome, RNAPolymerase, ThermoMEModel, MEModel
 from ..core.rna import mRNA
 
@@ -139,7 +142,7 @@ def get_neidhardt_data():
 
 # Data
 # Sequences from KEGG
-nt_sequences = pd.read_csv('iJO1366_nt_seq_kegg.csv',
+nt_sequences = pd.read_csv(pjoin(data_dir,'iJO1366_nt_seq_kegg.csv'),
                            index_col = 0,
                            header = None)[1]
 
@@ -662,14 +665,28 @@ def get_lloyd_coupling_dict(model):
     return aggregated_coupling_dict
 
 
-def get_coupling_dict(model, mode, atps_name = None):
+def get_coupling_dict(model, mode, atps_name = None, infer_missing_enz=False):
     coupling_dict = get_homomer_coupling_dict(model, mode=mode)
     aggregated_coupling_dict = get_aggregated_coupling_dict(model, coupling_dict)
     coupling_dict.update(aggregated_coupling_dict)
     if atps_name is not None:
         atps = get_atp_synthase_coupling(atps_name)
         coupling_dict.update(atps)
+    if infer_missing_enz:
+        inferred_enz = dict()
+        for r in model.reactions:
+            if r.id not in coupling_dict \
+                    and is_me_compatible(r):
+                inferred_enz[r.id] = infer_enzyme_from_gpr(r,
+                    default_kcat=get_average_kcat(),
+                    default_kdeg=kdeg_enz)
+
+        coupling_dict.update(inferred_enz)
+
     return coupling_dict
+
+def get_average_kcat():
+    return np.median(list(get_lloyd_keffs().values()))
 
 def get_atp_synthase_coupling(atps_name):
     """
