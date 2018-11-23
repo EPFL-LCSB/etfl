@@ -971,17 +971,13 @@ class MEModel(LCSBModel, Model):
         for rid in tqdm(self.coupling_dict, desc='cat. constraints'):
             r = self.reactions.get_by_id(rid)
 
-            # If the reaction is not compatible we do not try to apply constraints
-            # if not self.is_me_compatible(r):
-            #     continue
-
             if isinstance(r, EnzymaticReaction) and r.id in coupling_dict:
                 # This is a proper enzymatic reaction and we can directly apply
                 # the constraint
                 self.logger.debug('Applying catalytic constraint to {}'. \
                                   format(rid))
                 r.add_enzymes(coupling_dict[r.id])
-                self.apply_gpr_catalytic_constraint(r)
+                self.apply_enzyme_catalytic_constraint(r)
             elif not isinstance(r, EnzymaticReaction) and r.id in coupling_dict:
                 # This reaction needs to be transformed to an EnzymaticReaction
                 self.logger.debug('Transforming and applying catalytic constraint to {}'. \
@@ -989,7 +985,7 @@ class MEModel(LCSBModel, Model):
                 #TODO : Add enzymatic_reaction dictlist ??
                 enzymes = coupling_dict[r.id]
                 enz_r = replace_by_enzymatic_reaction(self, r.id, enzymes, scaled=False)
-                self.apply_gpr_catalytic_constraint(enz_r)
+                self.apply_enzyme_catalytic_constraint(enz_r)
             else:
                 self.logger.error('Could not find reaction {} in the coupling dictionnary'.format(r.id))
 
@@ -998,7 +994,7 @@ class MEModel(LCSBModel, Model):
         self.regenerate_constraints()
         self.regenerate_variables()
 
-    def apply_gpr_catalytic_constraint(self, reaction):
+    def apply_enzyme_catalytic_constraint(self, reaction):
         """
         Apply a catalytic constraint using a gene-enzymes reaction rule (GPR)
 
@@ -1007,6 +1003,10 @@ class MEModel(LCSBModel, Model):
         """
 
         complexation = self.add_complexation_from_enzymes(reaction.enzymes)
+
+        # Why is that happening ?
+        if not complexation:
+            return None
 
         v_max_fwd = dict()
         v_max_bwd = dict()
@@ -1028,7 +1028,7 @@ class MEModel(LCSBModel, Model):
             v_max_fwd[e] = enz.kcat_fwd * enz.concentration
             v_max_bwd[e] = enz.kcat_bwd * enz.concentration
 
-            self.add_mass_balance_constraint(comp, enz, queue=True)
+            self.add_mass_balance_constraint(comp, enz, queue=False)
 
             comp.enzyme = enz
             enz.complexation = comp
@@ -1044,6 +1044,7 @@ class MEModel(LCSBModel, Model):
         # v_fwd / sum(kcat_i*E_i^max) <= sum(kcat_i*E_i) / sum(kcat_i*E_i^max) (<= 1)
 
         enz_constraint_expr_fwd = (fwd_variable - sum(v_max_fwd.values()))/(k_f*E_m)
+        enz_constraint_expr_bwd = (bwd_variable - sum(v_max_bwd.values()))/(k_b*E_m)
         enz_constraint_expr_bwd = (bwd_variable - sum(v_max_bwd.values()))/(k_b*E_m)
 
 
@@ -1065,8 +1066,7 @@ class MEModel(LCSBModel, Model):
 
         kwargs = dict()
 
-        if macromolecule is not None:
-            z = self.linearize_me(macromolecule, queue=queue)
+        z = self.linearize_me(macromolecule, queue=queue)
 
         if isinstance(macromolecule, Enzyme):
             kind = EnzymeMassBalance
@@ -1124,33 +1124,6 @@ class MEModel(LCSBModel, Model):
                             lb=0, ub=0,
                             queue = queue,
                             **kwargs)
-
-    def is_me_compatible(self, reaction):
-        # Test if the GPR is a proper one:
-        this_gpr = reaction.gene_reaction_rule
-        is_proper_gpr = bool(this_gpr) and this_gpr != '[]'
-
-        sym_gpr = parse_gpr(this_gpr)
-
-        ret = True
-
-        if not is_proper_gpr:
-            # Then we cannot constrain
-            self.logger.warning('Improper GPR for {}'.format(reaction.id))
-            ret = False
-
-        # Check that all the genes participating in this gpr have a translation
-        # reaction:
-        is_translated = {x: '{}_translation'.format(x.name) \
-                            in self.translation_reactions
-                         for x in sym_gpr.free_symbols}
-        if not all(is_translated.values()):
-            self.logger.warning(
-                'Not all peptides in the GPR of {} are translated: {}'.format(
-                    reaction.id, is_translated))
-            ret = False
-
-        return ret
 
     def linearize_me(self, macromolecule, queue=False):
         """
@@ -1230,31 +1203,40 @@ class MEModel(LCSBModel, Model):
         complexation = []
 
         for e,this_isozyme in enumerate(enzymes):
-            this_id = '{}_complex_{}'.format(this_isozyme.id,e)
-            this_name = '{} Complexation {}'.format(this_isozyme.id,e)
+            # Does this enzyme already have a complexation reaction ?
+            # This happens if an enzyme is used in several reactions
+            if this_isozyme.complexation is not None:
+                complexation += [this_isozyme.complexation]
+            else:
+                if not this_isozyme.composition:
+                    self.logger.warning('Enzyme {} has no composition'
+                                        .format(this_isozyme.id))
+                    continue
+
+                this_id = '{}_complex_{}'.format(this_isozyme.id,e)
+                this_name = '{} Complexation {}'.format(this_isozyme.id,e)
 
 
-            this_complexation = ProteinComplexation(id = this_id,
-                                                    name = this_name,
-                                                    target=this_isozyme,
-                                                    # upper_bound=1,
-                                                    scaled=True)
+                this_complexation = ProteinComplexation(id = this_id,
+                                                        name = this_name,
+                                                        target=this_isozyme,
+                                                        # upper_bound=1,
+                                                        scaled=True)
 
-            peptides = {self.peptides.get_by_id(k):-v \
-                        for k,v in this_isozyme.composition.items()}
+                peptides = {self.peptides.get_by_id(k):-v \
+                            for k,v in this_isozyme.composition.items()}
 
-            self.add_reactions([this_complexation])
-            this_complexation.add_peptides(peptides)
+                self.add_reactions([this_complexation])
+                this_complexation.add_peptides(peptides)
 
-            complexation += [this_complexation]
-            this_isozyme.init_variable()
+                complexation += [this_complexation]
+                this_isozyme.init_variable()
 
-            # also add degradation
-            self._add_enzyme_degradation(this_isozyme, scaled=True, queue=True)
+                # also add degradation
+                self._add_enzyme_degradation(this_isozyme, scaled=True, queue=True)
 
-        # self.add_reactions(complexation)
-        # Add it to a specific index
-        self.complexation_reactions += complexation
+                # Add it to a specific index
+                self.complexation_reactions += [this_complexation]
         # self._push_queue()
 
         return complexation
@@ -1289,7 +1271,9 @@ class MEModel(LCSBModel, Model):
             enzyme_list = [x for item in enzyme_list for x in item]
 
         # First check whether the enzymes exist in the model
-        enzyme_list = [x for x in enzyme_list if x.id not in self.enzymes]
+        # Also enzymes could be declared twice for different reactions,
+        # hence turn the list into a set
+        enzyme_list = [x for x in set(enzyme_list) if x.id not in self.enzymes]
 
         for enz in enzyme_list:
             enz._model = self

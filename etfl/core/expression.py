@@ -12,7 +12,9 @@ ME-related Reaction subclasses and methods definition
 """
 from cobra import Reaction, Metabolite
 from .rna import tRNA
+from ..utils.parsing import parse_gpr
 
+from warnings import warn
 from collections import defaultdict
 
 def build_trna_charging(model, aa_dict,
@@ -114,3 +116,31 @@ def degrade_mrna(mrna, nt_dict, h2o, h):
     stoich[h] = 1 * len(sequence)
 
     return stoich
+
+
+def is_me_compatible(reaction):
+    # Test if the GPR is a proper one:
+    this_gpr = reaction.gene_reaction_rule
+    is_proper_gpr = bool(this_gpr) and this_gpr != '[]' and not 's0001' in this_gpr
+
+    # sym_gpr = parse_gpr(this_gpr)
+
+    ret = True
+
+    if not is_proper_gpr:
+        # Then we cannot constrain
+        warn('Improper GPR for {}'.format(reaction.id))
+        ret = False
+
+    # # Check that all the genes participating in this gpr have a translation
+    # # reaction:
+    # is_translated = {x: '{}_translation'.format(x.name) \
+    #                     in translation_reactions
+    #                  for x in sym_gpr.free_symbols}
+    # if not all(is_translated.values()):
+    #     warn(
+    #         'Not all peptides in the GPR of {} are translated: {}'.format(
+    #             reaction.id, is_translated))
+    #     ret = False
+
+    return ret
