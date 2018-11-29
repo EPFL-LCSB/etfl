@@ -11,20 +11,9 @@ Variables declarations
 """
 
 from pytfa.optim.variables import GenericVariable, BinaryVariable, \
-    ReactionVariable, get_binary_type
+    ReactionVariable, ModelVariable, get_binary_type
 
-class ModelVariable(GenericVariable):
-    """
-    Class to represent a variable attached to the model
-    """
 
-    def __init__(self, model, id_, **kwargs):
-        if not 'lb' in kwargs:
-            kwargs['lb'] = 0
-        GenericVariable.__init__(self,
-                                 id_= id_,
-                                 model=model,
-                                 **kwargs)
 
 
 class GrowthRate(ModelVariable):
@@ -58,7 +47,6 @@ class EnzymeVariable(GenericVariable):
     prefix = 'EZ_'
 
     def __init__(self, enzyme, **kwargs):
-        self.enzyme = enzyme
         model = enzyme.model
 
 
@@ -68,8 +56,12 @@ class EnzymeVariable(GenericVariable):
             kwargs['ub'] = model.max_enzyme_concentration
 
 
-        GenericVariable.__init__(self, id_=self.id, model=model,
+        GenericVariable.__init__(self, model=model, hook=enzyme,
                                  **kwargs)
+
+    @property
+    def enzyme(self):
+        return self.hook
 
     @property
     def id(self):
@@ -87,7 +79,6 @@ class GeneVariable(GenericVariable):
     prefix = 'GV_'
 
     def __init__(self, gene, **kwargs):
-        self.gene = gene
         model = gene.model
 
 
@@ -96,8 +87,12 @@ class GeneVariable(GenericVariable):
         if not 'ub' in kwargs:
             kwargs['ub'] = model.max_enzyme_concentration
 
-        GenericVariable.__init__(self, id_=self.id, model=model,
+        GenericVariable.__init__(self, model=model, hook=gene,
                                  **kwargs)
+
+    @property
+    def gene(self):
+        return self.hook
 
     @property
     def id(self):

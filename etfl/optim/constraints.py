@@ -46,6 +46,7 @@ class ModelConstraint(GenericConstraint):
                                    id_= id_,
                                    expr=expr,
                                    model=model,
+                                   hook=model,
                                    **kwargs)
 
 
@@ -55,14 +56,17 @@ class GeneConstraint(GenericConstraint):
     """
 
     def __init__(self, gene, expr, **kwargs):
-        self.gene = gene
         model = gene.model
 
         GenericConstraint.__init__(self,
-                                   id_=self.id,
                                    expr=expr,
                                    model=model,
+                                   hook=gene,
                                    **kwargs)
+
+    @property
+    def gene(self):
+        return self.hook
 
     @property
     def id(self):
@@ -79,14 +83,17 @@ class EnzymeConstraint(GenericConstraint):
     """
 
     def __init__(self, enzyme, expr, **kwargs):
-        self.enzyme = enzyme
         model = enzyme.model
 
         GenericConstraint.__init__(self,
-                                   id_=self.id,
                                    expr=expr,
                                    model=model,
+                                   hook=enzyme,
                                    **kwargs)
+
+    @property
+    def enzyme(self):
+        return self.hook
 
     @property
     def id(self):
