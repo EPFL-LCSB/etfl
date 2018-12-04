@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from os.path import join as pjoin
+import os
 
 import cobra
 
@@ -34,8 +35,8 @@ def clean_string(s):
 
     return s
 
-
-data_dir = '../organism_data/info_ecoli'
+file_dir = os.path.dirname(os.path.abspath(__file__))
+data_dir = pjoin(file_dir,'../../organism_data/info_ecoli')
 
 #########################
 ###     BASE MODEL    ###
@@ -77,7 +78,7 @@ def get_model(solver):
 
 def get_thermo_data():
     # Load Thermo data
-    thermo_data = load_thermoDB('../../pytfa/data/thermo_data.thermodb')
+    thermo_data = load_thermoDB(pjoin(file_dir,'../../../pytfa/data/thermo_data.thermodb'))
     lexicon = read_lexicon('thermo_data/iJO1366_lexicon.csv')
     # lexicon = curate_lexicon(read_lexicon('thermo_data/iJO1366_lexicon.csv'))
     compartment_data = read_compartment_data('thermo_data/iJO1366_compartment_data.json')
@@ -154,11 +155,11 @@ def get_nt_sequences():
 # Davidi, Dan, et al.
 # "Global characterization of in vivo enzyme catalytic rates and their correspondence to in vitro kcat measurements."
 # Proceedings of the National Academy of Sciences 113.12 (2016): 3401-3406.
-kcat_info_milo = pd.read_excel('../organism_data/info_ecoli/pnas.1514240113.sd01.xlsx',
+kcat_info_milo = pd.read_excel(pjoin(data_dir,'pnas.1514240113.sd01.xlsx'),
                                sheet_name='kcat 1s',
                                header=1,
                                )
-kmax_info_milo = pd.read_excel('../organism_data/info_ecoli/pnas.1514240113.sd01.xlsx',
+kmax_info_milo = pd.read_excel(pjoin(data_dir,'pnas.1514240113.sd01.xlsx'),
                                sheet_name='kmax 1s',
                                header=1,
                                )
