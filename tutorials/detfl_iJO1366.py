@@ -2,6 +2,8 @@ from etfl.tests.small_model import create_etfl_model
 from etfl.analysis.dynamic import run_dynamic_etfl
 from etfl.optim.config import standard_solver_config
 from etfl.core.reactions import EnzymaticReaction
+from etfl.optim.constraints import ForwardCatalyticConstraint, \
+    BackwardCatalyticConstraint, ExpressionCoupling
 
 import bokeh.plotting as bp
 from bokeh.palettes import Category10
@@ -10,13 +12,11 @@ from bokeh.layouts import row, gridplot
 from bokeh.io import export_svgs
 
 import pandas as pd
-
-# model = create_etfl_model(  1,0,
-#                             prot_scaling=1e3,
-#                             mrna_scaling=1e3,
+#
+# model = create_etfl_model(  0,0,
 #                             n_mu_bins = 128,
 #                             )
-# model.reactions.ATPM.lower_bound = 4
+# # model.reactions.ATPM.lower_bound = 4
 # model.reactions.EX_glc__D_e.lower_bound = -1
 # model.optimize()
 # model.objective = model.growth_reaction.forward_variable + \
@@ -115,9 +115,9 @@ def plot_dynamics(model, time_data):
         p.output_backend = 'svg'
 
     gp = gridplot([[p1,p3],[p2,p4],[pex]])
-    bp.output_file('plots/dETFL_small.html')
+    bp.output_file('plots/dETFL_cheby.html')
     bp.show(gp)
-    export_svgs(gp, filename='plots/dETFL.svg')
+    export_svgs(gp, filename='plots/dETFL_cheby.svg')
 
 
 def plot_hist(figure, t, time_data, the_var, color):
@@ -189,7 +189,7 @@ def prepare_model(in_model, S0_glyc, S0_glc):
 
 if __name__ == '__main__':
 
-    timestep = 0.2
+    timestep = 0.1
 
     S0_gly = 0 #mmol/L
     S1_gly = 0 #mmol/L
@@ -220,7 +220,7 @@ if __name__ == '__main__':
         _ = [values.append(fun(t,values[-1])) for t in times]
         print(rxn, values)
 
-    # standard_solver_config(model)
+    standard_solver_config(model)
     min_glycolysis_enz = prepare_model(model, S0_glyc=S0_gly, S0_glc=S0_glc)
 
     time_data = run_dynamic_etfl(model,
@@ -231,8 +231,11 @@ if __name__ == '__main__':
                                  S0={'EX_glyc_e':S0_gly, 'EX_glc__D_e':S0_glc},
                                  X0=X0,
                                  inplace=True,
-                                 initial_solution = min_glycolysis_enz
+                                 initial_solution = min_glycolysis_enz,
+                                 chebyshev_include = [ForwardCatalyticConstraint,
+                                                      BackwardCatalyticConstraint,
+                                                      ExpressionCoupling]
                                  )
 
     plot_dynamics(model, time_data)
-    time_data.to_csv('outputs/detfl.csv')
+    time_data.to_csv('outputs/detfl_cheby.csv')
