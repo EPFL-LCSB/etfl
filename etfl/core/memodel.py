@@ -783,6 +783,13 @@ class MEModel(LCSBModel, Model):
         self.express_genes(self.genes)
 
     def express_genes(self, gene_list):
+        """
+        Adds translation and transcription reaction to the genes in the
+        provided list
+        :param gene_list:
+        :type gene_list: Iterable of str or etfl.core.genes.ExpressedGene
+        :return:
+        """
 
         for gene in gene_list:
 
@@ -848,6 +855,15 @@ class MEModel(LCSBModel, Model):
         self.translation_reactions += [rxn]
 
     def _extract_trna_from_reaction(self, aa_stoichiometry, rxn):
+        """
+        Read a stoichiometry dictionnary, and replaces free aminoacids with tRNAs
+
+        :param aa_stoichiometry: the stoichiometry dict to edit
+        :type aa_stoichiometry: (dict) {cobra.core.Metabolite: Number}
+        :param rxn: the reaction whose stoichiometry is inspected
+        :type rxn: cobra.core.Reaction
+        :return:
+        """
         # Extract the tRNAs, since they will be used for a different mass balance
         # in self.add_trna_mass_balances
         for met, stoich in list(aa_stoichiometry.items()):
@@ -1184,6 +1200,10 @@ class MEModel(LCSBModel, Model):
         return out_expr
 
     def get_ordered_ga_vars(self):
+        """
+        Returns in order the variables that discretize growth
+        :return:
+        """
         # ga_i is a binary variable for the binary expansion f the fraction on N
         # of the max growth rate
         ga_vars = self.get_variables_of_type(GrowthActivation)
@@ -1242,6 +1262,14 @@ class MEModel(LCSBModel, Model):
         return complexation
 
     def match_enzymes_to_complexes(self, enzymes, complexes):
+        """
+        Peptides are assembled into enzymes. This function maps the peptides
+        assembly reactions with the enzymes they make up.
+
+        :param enzymes: List of etfl.core.enzyme.Enzyme
+        :param complexes: List of etfl.core.reactions.ComplexationReaction
+        :return:
+        """
         #TODO: Implement this better
         # if only one prot, replicate it with similar kdeg and kcat
         if   len(enzymes) == len(complexes):
@@ -1386,6 +1414,18 @@ class MEModel(LCSBModel, Model):
         return new_enzymes
 
     def _add_enzyme_degradation(self, enzyme, scaled=True, queue=False):
+        """
+        Given an enzyme, adds the corresponding degradation reaction
+
+        :param enzyme:
+        :type enzyme: etfl.core.enzyme.Enzyme
+        :param scaled: Indicates whether scaling should be performed (see manuscript)
+        :type scaled: bool
+        :param queue: Indicates whether to add the variable directly or
+                        in the next batch
+        :type queue: bool
+        :return:
+        """
 
         h2o = self.essentials['h2o']
 
@@ -1410,6 +1450,18 @@ class MEModel(LCSBModel, Model):
 
 
     def _add_mrna_degradation(self, mrna, scaled = True, queue=False):
+        """
+        Given an mRNA, adds the corresponding degradation reaction
+
+        :param enzyme:
+        :type enzyme: etfl.core.enzyme.mRNA
+        :param scaled: Indicates whether scaling should be performed (see manuscript)
+        :type scaled: bool
+        :param queue: Indicates whether to add the variable directly or
+                        in the next batch
+        :type queue: bool
+        :return:
+        """
 
         h2o = self.essentials['h2o']
         h = self.essentials['h']
@@ -1425,6 +1477,24 @@ class MEModel(LCSBModel, Model):
 
     def _make_degradation_reaction(self, deg_stoich, macromolecule,
                                    kind, scaled, queue=False):
+        """
+        given a degradation stoichiometry, makes the corresponding degradation
+        reaction
+
+        :param deg_stoich: stoichiometry of the degradation
+        :type deg_stoich: dict({cobra.core.Species:Number})
+        :param macromolecule: the macromalecule being degraded. Used for binding
+                                the degradation constraint
+        :type macromolecule: etfl.core.macromolecule.Macromolecule
+        :param kind: kind of constraint
+        :type kind: mRNADegradation or EnzymeDegradation
+        :param scaled: Indicates whether scaling should be performed (see manuscript)
+        :type scaled: bool
+        :param queue: Indicates whether to add the variable directly or
+                        in the next batch
+        :type queue: bool
+        :return:
+        """
 
         reaction = DegradationReaction(id='{}_degradation'.format(macromolecule.id),
                                        macromolecule=macromolecule,
@@ -1521,15 +1591,39 @@ class MEModel(LCSBModel, Model):
         self.regenerate_constraints()
 
     def _get_transcription_name(self, the_mrna_id):
+        """
+        Given an mrna_id, gives the id of the corresponding transcription reaction
+        :param the_mrna_id:
+        :type the_mrna_id: str
+        :return: str
+        """
         return '{}_transcription'.format(the_mrna_id)
 
     def _get_translation_name(self, the_peptide_id):
+        """
+        Given an mrna_id, gives the id of the corresponding translation reaction
+        :param the_peptide_id:
+        :type the_peptide_id: str
+        :return: str
+        """
         return '{}_translation'.format(the_peptide_id)
 
     def get_translation(self, the_peptide_id):
+        """
+        Given an peptide_id, gives the translation reaction
+        :param the_peptide_id:
+        :type the_peptide_id: str
+        :return: etfl.core.reactions.TranslationReaction
+        """
         return self.reactions.get_by_id(self._get_translation_name(the_peptide_id))
 
     def get_transcription(self, the_peptide_id):
+        """
+        Given an mrna_id, gives corresponding transcription reaction
+        :param the_mrna_id:
+        :type the_mrna_id: str
+        :return: etfl.core.reactions.TranscriptionReaction
+        """
         return self.reactions.get_by_id(self._get_transcription_name(the_peptide_id))
 
     def add_rnap(self, rnap, free_ratio = 0.8):
@@ -1941,7 +2035,7 @@ class MEModel(LCSBModel, Model):
 
     def __deepcopy__(self, memo):
         """
-
+        Calls self.copy() to return an independant copy of the model
         :param memo:
         :return:
         """
@@ -1949,6 +2043,12 @@ class MEModel(LCSBModel, Model):
         return self.copy()
 
     def copy(self):
+        """
+        Pseudo-smart copy of the model using dict serialization. This builds a
+        new model from the ground up, with independant variables, solver, etc.
+        
+        :return:
+        """
 
         from ..io.dict import model_from_dict, model_to_dict
         dictmodel = model_to_dict(self)
