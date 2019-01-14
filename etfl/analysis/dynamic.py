@@ -321,7 +321,9 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
         try:
             the_solution = compute_center(dmodel)
         except AttributeError:
-            print('Crashed at t={},k={}'.format(t,k))
+            print('############################')
+            print('### Crashed at t={},k={}'.format(t,k))
+            print('############################')
             return wrap_time_sol(var_solutions, obs_values)
 
         colname = 't_{}'.format(k)
