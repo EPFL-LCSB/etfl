@@ -2,6 +2,8 @@ from etfl.tests.small_model import create_etfl_model
 from etfl.analysis.dynamic import run_dynamic_etfl
 from etfl.optim.config import standard_solver_config
 from etfl.core.reactions import EnzymaticReaction
+from etfl.optim.constraints import ForwardCatalyticConstraint, \
+    BackwardCatalyticConstraint, ExpressionCoupling
 
 import bokeh.plotting as bp
 from bokeh.palettes import Category10
@@ -10,13 +12,11 @@ from bokeh.layouts import row, gridplot
 from bokeh.io import export_svgs
 
 import pandas as pd
-
-# model = create_etfl_model(  1,0,
-#                             prot_scaling=1e3,
-#                             mrna_scaling=1e3,
+#
+# model = create_etfl_model(  0,0,
 #                             n_mu_bins = 128,
 #                             )
-# model.reactions.ATPM.lower_bound = 4
+# # model.reactions.ATPM.lower_bound = 4
 # model.reactions.EX_glc__D_e.lower_bound = -1
 # model.optimize()
 # model.objective = model.growth_reaction.forward_variable + \
@@ -73,16 +73,13 @@ def plot_dynamics(model, time_data):
     for e, the_var in enumerate(['ub_EX_glc__D_e', 'ub_EX_glyc_e',
                                  'act_EX_glc__D_e', 'act_EX_glyc_e',
                                  'mu']):
-        plot_hist(p2, t, time_data, the_var, cmap[e])
+        shape = 'square' if the_var.startswith('act_') else 'circle'
+        plot_hist(p2, t, time_data, the_var, cmap[e], marker=shape)
 
     glycolysis_enzymes = get_enzymes_of_subsystem(model, 'Glycolysis')
     ppp_enzymes = get_enzymes_of_subsystem(model, 'pentose phosphate')
     tca_enzymes = get_enzymes_of_subsystem(model, 'Citric Acid Cycle')
 
-    for e, the_var in enumerate(['ub_EX_glc__D_e', 'ub_EX_glyc_e',
-                                 'act_EX_glc__D_e', 'act_EX_glyc_e',
-                                 'mu']):
-        plot_hist(p2, t, time_data, the_var, cmap[e])
 
     for e, the_var in enumerate(vars_to_obs):
         plot_hist(p3, t, time_data, the_var, cmap[e])
@@ -115,19 +112,24 @@ def plot_dynamics(model, time_data):
         p.output_backend = 'svg'
 
     gp = gridplot([[p1,p3],[p2,p4],[pex]])
-    bp.output_file('plots/dETFL_small.html')
+    bp.output_file('plots/dETFL_cheby_glyc.html')
     bp.show(gp)
-    export_svgs(gp, filename='plots/dETFL.svg')
+    export_svgs(gp, filename='plots/dETFL_cheby_glyc.svg')
 
 
-def plot_hist(figure, t, time_data, the_var, color):
+def plot_hist(figure, t, time_data, the_var, color, marker='circle'):
     figure.line(t, time_data.loc[the_var],
                 color=color,
                 line_width=2,
                 legend=the_var)
-    figure.circle(t, time_data.loc[the_var],
-                  color=color,
-                  legend=the_var)
+
+    figure.scatter(t, time_data.loc[the_var],
+                line_color=color,
+                fill_color=None,
+                legend=the_var,
+                marker=marker,
+                size=10,
+                line_width=2)
 
 
 def get_uptake_funs():
@@ -164,7 +166,7 @@ def prepare_model(in_model, S0_glyc, S0_glc):
     """
 
     in_model.reactions.EX_glc__D_e.lower_bound = -1 * S0_glc
-    in_model.reactions.EX_glyc_e.lower_bound = -1 * S0_glyc
+    in_model.reactions.EX_ac_e.lower_bound = -1 * S0_glyc
     sol_glyc = in_model.optimize()
 
     # in_model.growth_reaction.lower_bound = sol_glyc.f * 0.9
@@ -189,25 +191,28 @@ def prepare_model(in_model, S0_glyc, S0_glc):
 
 if __name__ == '__main__':
 
-    timestep = 0.2
+    timestep = 0.1
 
-    S0_gly = 0 #mmol/L
-    S1_gly = 0 #mmol/L
+    S0_gly = 1e-1 #mmol/L
+    S1_gly = 10.0 #mmol/L
 
-    S0_glc = 1e0 #mmol/L
-    S1_glc = 10 #mmol/L
+    S0_glc = 2 #mmol/L
+    S1_glc = 0 #mmol/L
     # X0 = 0.1 #mmol[Cell]/L
     X0 = 0.05 #g[Cell]/L
 
     glc_step = lambda t,S,S0=S0_glc,S1=S1_glc: \
         S + S1 if abs(t - 1) <= timestep and S <= S0 else max(S, 0)
         # S1 if t > 1  else S0
+
     gly_step = lambda t,S,S0=S0_gly,S1=S1_gly: \
-        S + S1 if abs(t - 1) <= timestep and S <= S0 else max(S, 0)
+        S1 if t > 1  else S0
+        # S + S1 if abs(t - 1) <= timestep and S <= S0 else max(S, 0)
 
     glyc_glc_switch = {
         'EX_glc__D_e': glc_step,
         'EX_glyc_e'  : gly_step,
+        # 'EX_ac_e'  : gly_step,
     }
 
     times = [x*timestep for x in range(1,10)]
@@ -220,19 +225,22 @@ if __name__ == '__main__':
         _ = [values.append(fun(t,values[-1])) for t in times]
         print(rxn, values)
 
-    # standard_solver_config(model)
+    standard_solver_config(model)
     min_glycolysis_enz = prepare_model(model, S0_glyc=S0_gly, S0_glc=S0_glc)
 
     time_data = run_dynamic_etfl(model,
                                  timestep=timestep,
-                                 tfinal=5,
+                                 tfinal=2.5,
                                  uptake_fun=get_uptake_funs(),
                                  medium_fun = glyc_glc_switch,
                                  S0={'EX_glyc_e':S0_gly, 'EX_glc__D_e':S0_glc},
                                  X0=X0,
                                  inplace=True,
-                                 initial_solution = min_glycolysis_enz
+                                 initial_solution = min_glycolysis_enz,
+                                 chebyshev_include = [ForwardCatalyticConstraint,
+                                                      BackwardCatalyticConstraint,
+                                                      ExpressionCoupling]
                                  )
 
     plot_dynamics(model, time_data)
-    time_data.to_csv('outputs/detfl.csv')
+    time_data.to_csv('outputs/detfl_cheby_glyc.csv')

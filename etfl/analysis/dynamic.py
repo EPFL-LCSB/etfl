@@ -20,6 +20,8 @@ from ..optim.constraints import EnzymeDeltaPos, EnzymeDeltaNeg, \
     mRNADeltaPos, mRNADeltaNeg
 import operator
 
+from pytfa.analysis.chebyshev import chebyshev_center
+
 from collections import defaultdict
 
 mrna_length_avg = 370
@@ -187,28 +189,66 @@ def apply_ref_state(dmodel, solution):
 def update_sol(t, X, S, dmodel, obs_values, colname):
     obs_values.loc['t',colname] = t
     obs_values.loc['X',colname] = X
-    obs_values.loc['mu',colname] = dmodel.growth_reaction.flux
+    obs_values.loc['mu',colname] = dmodel.solution.fluxes[dmodel.growth_reaction.id]
 
     obs_values.loc['X', colname] = X
     for uptake_flux, value in S.items():
         the_rxn = dmodel.reactions.get_by_id(uptake_flux)
         obs_values.loc['S_'+uptake_flux, colname] = value
         obs_values.loc['ub_'+uptake_flux, colname] = -1*the_rxn.lower_bound
-        obs_values.loc['act_'+uptake_flux, colname] = -1*the_rxn.flux
+        obs_values.loc['act_'+uptake_flux, colname] = -1*dmodel.solution.fluxes[uptake_flux]
+    return obs_values
 
 def update_medium(t, Xi, Si, dmodel, medium_fun, timestep):
-    mu = dmodel.growth_reaction.flux
+    mu = dmodel.solution.fluxes[dmodel.growth_reaction.id]
     X = Xi + mu * Xi * timestep
     S = dict()
     for uptake_flux, medium_change in medium_fun.items():
-        sol_flux = dmodel.reactions.get_by_id(uptake_flux).flux
+        sol_flux = dmodel.solution.fluxes[uptake_flux]
         S[uptake_flux] = Si[uptake_flux] + sol_flux * Xi * timestep
         S[uptake_flux] = medium_change(t, S[uptake_flux])
 
     return X,S
 
+def get_active_growth_bounds(model):
+    mu = model.growth_reaction.flux
+    difflist = [abs(mu - x[0]) for x in model.mu_bins]
+    min_diff = min(difflist)
+    min_ix = difflist.index(min_diff)
+
+    mu_i, (mu_lb, mu_ub) = model.mu_bins[min_ix]
+
+    return mu_i, mu_lb, mu_ub
+
+BIGM=1000
+
+
+def compute_center(dmodel):
+    """
+    Fixes growth to be above computed lower bound, finds chebyshev center,
+    resets the model, returns solution data
+
+    :param dmodel:
+    :return:
+    """
+    dmodel.optimize() # Almost free if the model has been optimized before
+    prev_lb = dmodel.growth_reaction.lower_bound
+    prev_obj = dmodel.objective.expression
+    _,mu_lb,_ = get_active_growth_bounds(dmodel)
+    dmodel.growth_reaction.lower_bound = mu_lb - 0.0001
+    dmodel.objective = dmodel.chebyshev_radius.radius.variable
+    dmodel.optimize()
+    chebyshev_sol = dmodel.solution
+    dmodel.growth_reaction.lower_bound = prev_lb
+    dmodel.objective = prev_obj
+    return chebyshev_sol
+
+
+
 def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
-                     S0, X0, inplace=False, initial_solution = None):
+                     S0, X0, inplace=False, initial_solution = None,
+                     chebyshev_bigm=BIGM, chebyshev_variables=None,
+                     chebyshev_exclude=None, chebyshev_include=None):
     """
 
     :param model:
@@ -225,6 +265,32 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
 
     dmodel.optimize()
 
+    the_obj = dmodel.objective.expression
+
+    # Add chebyshev center transformation to stay in an approximate center of
+    # the feasible space at all steps
+
+    if chebyshev_exclude is None:
+        from ..optim.variables import LinearizationVariable
+        chebyshev_exclude = [LinearizationVariable]
+
+    if chebyshev_include is None:
+        chebyshev_include = list()
+
+    if chebyshev_variables is None:
+        from ..optim.variables import mRNAVariable, EnzymeVariable
+        chebyshev_variables =  dmodel.get_variables_of_type(mRNAVariable)
+        chebyshev_variables += dmodel.get_variables_of_type(EnzymeVariable)
+
+    chebyshev_center(dmodel, chebyshev_variables,
+                     inplace=True,
+                     big_m=chebyshev_bigm,
+                     include=chebyshev_include,
+                     exclude=chebyshev_exclude)
+    dmodel.objective = the_obj
+
+    chebyshev_sol = compute_center(dmodel)
+
     add_dynamic_variables_constraints(dmodel, timestep)
 
     for uptake_flux, kinfun in uptake_fun.items():
@@ -233,7 +299,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
         the_rxn.lower_bound = -1 * kinfun(S0[uptake_flux])
 
     if initial_solution is None:
-        current_solution = dmodel.solution
+        current_solution = chebyshev_sol
     else:
         current_solution = initial_solution
 
@@ -253,14 +319,17 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
                 -1 * kinfun(S[uptake_flux])
 
         try:
-            the_solution = dmodel.optimize()
+            the_solution = compute_center(dmodel)
         except AttributeError:
+            print('############################')
+            print('### Crashed at t={},k={}'.format(t,k))
+            print('############################')
             return wrap_time_sol(var_solutions, obs_values)
 
         colname = 't_{}'.format(k)
 
         var_solutions[colname] = the_solution.raw.copy()
-        update_sol(t,X,S,dmodel,obs_values, colname)
+        obs_values = update_sol(t,X,S,dmodel,obs_values, colname)
         X,S= update_medium(t,X,S,model,medium_fun,timestep)
 
         current_solution = the_solution
