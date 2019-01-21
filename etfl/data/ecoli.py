@@ -20,6 +20,7 @@ from ..core import Enzyme, Ribosome, RNAPolymerase, ThermoMEModel, MEModel
 from ..core.rna import mRNA
 
 from collections import defaultdict
+from numbers import Number
 
 import re
 
@@ -361,7 +362,8 @@ kdeg_mrna = 1-np.exp(-60*np.log(2)/5)
 
 # Average mrna length from Bionumber 100023
 # http://bionumbers.hms.harvard.edu/bionumber.aspx?&id=100023&ver=3
-mrna_length_avg = 370
+# mrna_length_avg = 370
+mrna_length_avg = 1000
 
 # Average peptide length
 peptide_length_avg = int(np.round(mrna_length_avg/3))
@@ -381,53 +383,27 @@ def is_gpr(s):
 #############
 
 def get_homomer_coupling_dict(model, mode = 'kcat'):
-
     if mode == 'kcat':
         k_info = kcat_info_milo
         column = 'kcat per active site [1/s]'
     elif mode == 'kmax':
         k_info = kmax_info_milo
         column = 'kmax per polypeptide chain [s-1]'
+    elif isinstance(mode, Number):
+        k_info = kmax_info_milo
+        column = 'kmax per polypeptide chain [s-1]'
+
     else:
-        raise Exception("Mode {} not understood. Should be 'kcat' or 'kmax'")
+        raise Exception("Mode {} not understood. Should be 'kcat' or 'kmax' "
+                        "or a number")
 
     coupling_dict = dict()
 
     for x in model.reactions:
-        k_data = k_info[k_info['reaction (model name)'] == x.id]
-        k_data_reverse = k_info[k_info['reaction (model name)'] == x.id + '_reverse']
-        data = kcat_info_milo[kcat_info_milo['reaction (model name)'] == x.id]
-        data_reverse = kcat_info_milo[kcat_info_milo['reaction (model name)'] == x.id + '_reverse']
-
-        kcat_fwd = 0
-        kcat_bwd = 0
-        composition = {}
-
-        if len(k_data)>0:
-            candidate_k = k_data[column].iloc[0]
-            n_peptides = data['polypeptides per complex'].iloc[0] \
-                        if len(data) > 0 else 1
-            n_sites = data['catalytic sites per complex'].iloc[0] \
-                        if len(data) > 0 else 1
-
-            kcat_fwd = candidate_k \
-                       * n_sites \
-                       * 3600 # s/h
-            composition = {k_data['bnumber'].iloc[0]:n_peptides}
-
-        if len(k_data_reverse)>0:
-            candidate_k = k_data_reverse[column].iloc[0]
-            n_peptides = data_reverse['polypeptides per complex'].iloc[0] \
-                        if len(data_reverse) > 0 else 1
-            n_sites = data_reverse['catalytic sites per complex'].iloc[0] \
-                        if len(data_reverse) > 0 else 1
-
-            kcat_bwd = candidate_k \
-                    * n_sites \
-                    * 3600 # s/h
-            composition = {
-                k_data_reverse['bnumber'].iloc[0]:n_peptides} \
-                    if not composition else composition
+        composition, kcat_bwd, kcat_fwd = get_rate_constant(x, k_info, column)
+        if isinstance(mode, Number):
+            # It is a number
+            kcat_fwd = kcat_bwd = mode
 
         if kcat_fwd == 0 and kcat_bwd == 0:
             continue
@@ -438,6 +414,10 @@ def get_homomer_coupling_dict(model, mode = 'kcat'):
         if kcat_fwd == 0:
             kcat_fwd = kcat_bwd
 
+        if not composition:
+            # WE cannot make the enzyme. To infer a composition, use
+            # infer_missing_enzymes in get_coupling_dict
+            continue
         #FIXME several polypeptides per complex ??
 
         new_enzyme = Enzyme(x.id,
@@ -450,6 +430,40 @@ def get_homomer_coupling_dict(model, mode = 'kcat'):
 
     return coupling_dict
 
+
+def get_rate_constant(reaction, k_info, column):
+    k_data = k_info[k_info['reaction (model name)'] == reaction.id]
+    k_data_reverse = k_info[k_info['reaction (model name)'] == reaction.id + '_reverse']
+    data = kcat_info_milo[kcat_info_milo['reaction (model name)'] == reaction.id]
+    data_reverse = kcat_info_milo[kcat_info_milo['reaction (model name)'] == reaction.id + '_reverse']
+    kcat_fwd = 0
+    kcat_bwd = 0
+    composition = {}
+    if len(k_data) > 0:
+        candidate_k = k_data[column].iloc[0]
+        n_peptides = data['polypeptides per complex'].iloc[0] \
+            if len(data) > 0 else 1
+        n_sites = data['catalytic sites per complex'].iloc[0] \
+            if len(data) > 0 else 1
+
+        kcat_fwd = candidate_k \
+                   * n_sites \
+                   * 3600  # s/h
+        composition = {k_data['bnumber'].iloc[0]: n_peptides}
+    if len(k_data_reverse) > 0:
+        candidate_k = k_data_reverse[column].iloc[0]
+        n_peptides = data_reverse['polypeptides per complex'].iloc[0] \
+            if len(data_reverse) > 0 else 1
+        n_sites = data_reverse['catalytic sites per complex'].iloc[0] \
+            if len(data_reverse) > 0 else 1
+
+        kcat_bwd = candidate_k \
+                   * n_sites \
+                   * 3600  # s/h
+        composition = {
+            k_data_reverse['bnumber'].iloc[0]: n_peptides} \
+            if not composition else composition
+    return composition, kcat_bwd, kcat_fwd
 
 
 # Aggregated kcats
@@ -675,11 +689,17 @@ def get_coupling_dict(model, mode, atps_name = None, infer_missing_enz=False):
         coupling_dict.update(atps)
     if infer_missing_enz:
         inferred_enz = dict()
+
+        if isinstance(mode, Number):
+            kcat = mode
+        else:
+            kcat = get_average_kcat()
+
         for r in model.reactions:
             if r.id not in coupling_dict \
                     and is_me_compatible(r):
                 inferred_enz[r.id] = infer_enzyme_from_gpr(r,
-                    default_kcat=get_average_kcat(),
+                    default_kcat=kcat,
                     default_kdeg=kdeg_enz)
 
         coupling_dict.update(inferred_enz)
@@ -687,7 +707,8 @@ def get_coupling_dict(model, mode, atps_name = None, infer_missing_enz=False):
     return coupling_dict
 
 def get_average_kcat():
-    return np.median(list(get_lloyd_keffs().values()))
+    # return np.median(list(get_lloyd_keffs().values()))
+    return np.mean(list(get_lloyd_keffs().values()))
 
 def get_atp_synthase_coupling(atps_name):
     """
