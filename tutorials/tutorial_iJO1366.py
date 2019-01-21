@@ -542,7 +542,7 @@ ecoli.optimize()
 # relaxed_model, slack_model, relax_table = relax_dgo(ecoli)
 #
 # solution = relaxed_model.optimize()
-# print('Growth               : {}'.format(relaxed_model.solution.f))
+# print('Growth               : {}'.format(relaxed_model.solution.objective_value))
 # print(' - Ribosomes produced: {}'.format(relaxed_model.solution.x_dict.EZ_rib))
 # print(' - RNAP produced: {}'.format(relaxed_model.solution.x_dict.EZ_rnap))
 #

@@ -1,6 +1,7 @@
 import cobra.io.json
 import pytfa.io.json
 from etfl.io.json import load_json_model
+from etfl.optim.config import standard_solver_config, gene_ko_config
 
 import numpy as np
 
@@ -10,7 +11,6 @@ from tqdm import tqdm
 
 import time
 
-
 solver = 'optlang-gurobi'
 #
 # ecoli_fba = cobra.io.json.load_json_model('models/iJO1366_T0E0N0__20180606_121758.json')
@@ -18,37 +18,28 @@ solver = 'optlang-gurobi'
 # ecoli_tfa = pytfa.io.json.load_json_model('models/iJO1366_T1E0N0__20180606_121751.json')
 # ecoli_tfa.solver = solver
 
-ecoli = load_json_model('models/iJO1366_T0E1N1_431_enz_128_bins__20180926_135704.json')
-# ecoli = load_json_model('models/RelaxedModel '
-#                         'iJO1366_T1E1N1_430_enz_256_bins__20180903_141648.json')
+ecoli = load_json_model('models/RelaxedModel iJO1366_vETFL_431_enz_128_bins__20190108_181346.json')
 ecoli.solver = solver
-ecoli.solver.configuration.verbosity = 1
-ecoli.solver.configuration.tolerances.feasibility = 1e-9
-try:
-    ecoli.solver.problem.Params.NumericFocus = 3
-except AttributeError:
-    pass
 
-ecoli.solver.configuration.presolve = True
+standard_solver_config(ecoli)
 ecoli.optimize()
+max_growth = ecoli.solution.objective_value
 
-print('Growth               : {}'.format(ecoli.solution.f))
+print('Growth               : {}'.format(ecoli.solution.objective_value))
 print(' - Ribosomes produced: {}'.format(ecoli.solution.raw.EZ_rib))
 print(' - RNAP produced: {}'.format(ecoli.solution.raw.EZ_rnap))
-
 
 
 # --
 
 def ko_gene(model, gene_id):
-    # DIRTYYYY
-    rxn_id = '{}_transcription'.format(gene_id)
     try:
-        the_trans = model.reactions.get_by_id(rxn_id)
-        initial_value = the_trans.upper_bound
+        the_trans = model.get_translation(gene_id)
+    except KeyError:
+        return None
 
+    try:
         the_trans.upper_bound = 0
-
         growth = model.slim_optimize()
         #
         # the_trans.upper_bound = initial_value
@@ -81,10 +72,23 @@ def timeit(method):
 @timeit
 def ko_etfl(model):
     growth = dict()
+    gene_ko_config(model)
+    model.growth_reaction.lower_bound = 0.1*max_growth
+    model.objective = 0 # Gene essentiality is a feasibility problem
+
 
     for g in tqdm(model.genes):
         with model as model:
-            growth[g.id] = ko_gene(model, g.id)
+            ret = ko_gene(model, g.id)
+            if ret is None:
+                # There is no translation associated to this gene
+                model.logger.warning('There is no translation associated '
+                                     'to this gene: {}'.format(g.id))
+                continue
+
+            growth[g.id] = ret
+
+    model.growth_reaction.lower_bound = 0
     return growth
 
 @timeit
@@ -104,4 +108,4 @@ values = ko_etfl(ecoli, log_data = log_data)
 
 import pandas as pd
 df = pd.DataFrame.from_dict(values, orient='index')
-df.to_csv('outputs/gene_essentiality_etfl.csv')
+df.to_csv('outputs/gene_essentiality_vETFL.csv')

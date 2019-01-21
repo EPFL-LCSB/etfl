@@ -74,7 +74,8 @@ def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 128):
     coupling_dict = get_coupling_dict(vanilla_model,
                                       mode = 'kmax',
                                       # mode = 'kcat',
-                                      atps_name = 'ATPS4rpp')
+                                      atps_name = 'ATPS4rpp',
+                                      infer_missing_enz=True)
     # coupling_dict = get_lloyd_coupling_dict(vanilla_model)
     aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides = get_monomers_dict()
     essentials = get_essentials()
@@ -226,7 +227,7 @@ def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 128):
 
     final_model.growth_reaction.lower_bound = 0
     solution = final_model.optimize()
-    print('Objective            : {}'.format(final_model.solution.f))
+    print('Objective            : {}'.format(final_model.solution.objective_value))
     print(' - Glucose uptake    : {}'.format(final_model.reactions.EX_glc__D_e.flux))
     print(' - Growth            : {}'.format(final_model.growth_reaction.flux))
     print(' - Ribosomes produced: {}'.format(final_model.ribosome.X))
@@ -237,7 +238,7 @@ def create_model(has_thermo, has_expression, has_neidhardt, n_mu_bins = 128):
         pass
 
     filepath = 'models/{}'.format(final_model.name)
-    save_json_model(final_model, filepath)
+    # save_json_model(final_model, filepath)
 
     final_model.logger.info('Build complete for model {}'.format(final_model.name))
 
@@ -296,9 +297,9 @@ if __name__ == '__main__':
     # Models defined by Thermo - Expression - Neidhardt
     model_calls = [
         (False, True, True),
-        (True, True, False),
+        # (True, True, False),
         # (True, True, True),
-        (False, True, False),
+        # (False, True, False),
         ]
 
     for mc in model_calls:

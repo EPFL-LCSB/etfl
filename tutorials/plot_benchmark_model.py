@@ -8,6 +8,7 @@ from collections import OrderedDict
 
 from bokeh.palettes import Category10
 from bokeh.io import export_svgs
+from bokeh.layouts import row
 
 from os.path import join as pjoin
 
@@ -45,7 +46,7 @@ def plot_growth_vs_uptake(fig, df, legend_text, color ='forestgreen'):
     fig.circle(df['uptake'], df['mu'], color=color, legend=legend_text)
     fig.line  (df['uptake'], df['mu'], color=color, legend=legend_text)
 
-    plot_var_vs_uptake(fig, df, 'mu', 1, legend_text, color)
+    # plot_var_vs_uptake(fig, df, 'mu', 1, legend_text, color)
 
 def plot_var_vs_uptake(fig, df, var, sigma, legend_text, color, alpha = 0.5):
 
@@ -91,38 +92,146 @@ neidhardt_prel = (Pc/Mc).astype(float)
 neidhardt_rrel = (Rc/Mc).astype(float)
 neidhardt_mu = pd.Series(Pc.index.str.replace('mu=','')).astype(float)
 
-if __name__ == '__main__':
 
-    cmap = Category10[10]
-
-    model_data = OrderedDict({
-        'T0E1N0': pd.read_csv('outputs/benchmark_T0E1N0.csv'),
-        'T0E1N1': pd.read_csv('outputs/benchmark_T0E1N1.csv'),
-        'T1E1N0': pd.read_csv('outputs/benchmark_T1E1N0.csv'),
-        'T1E1N1': pd.read_csv('outputs/benchmark_T1E1N1.csv'),
-    })
-
-
-    # Plot growth rate vs glucose uptake
-
+def wrapper_plot_growth(data, color_offset=0):
+    global mu_figure, e, model_name, df
     mu_figure = figure()
-
-    for e, (model_name, df) in enumerate(model_data.items()):
+    for e, (model_name, df) in enumerate(data.items()):
         plot_growth_vs_uptake(mu_figure,
                               df,
                               model_name,
-                              cmap[e])
-
+                              cmap[e+color_offset])
     mu_figure.legend.location = 'bottom_right'
     mu_figure.title.text = 'Growth rate vs glucose uptake'
     mu_figure.xaxis.axis_label = 'glucose uptake [mmol/(gDw.h)]'
     mu_figure.yaxis.axis_label = 'Growth rate [1/h]'
+    mu_figure.output_backend = 'svg'
 
+    return mu_figure
+
+def wrapper_plot_var(data, var, color_offset=0):
+    if var in ['EZ_rib', 'EZ_rnap']:
+        fig = figure(y_axis_type='log')
+    else:
+        fig = figure()
+
+    for e, (model_name, df) in enumerate(data.items()):
+
+        if var.startswith('EZ_'):
+            # it's an enzyme
+            sigma = scaling_model.enzymes.get_by_id(var[3:]).scaling_factor
+        elif var.startswith('MR_'):
+            # it's an mRNA
+            sigma = scaling_model.mrnas.get_by_id(var[3:]).scaling_factor
+        else:
+            sigma = 1
+
+        plot_var_vs_uptake(fig,
+                           df,
+                           var,
+                           sigma,
+                           model_name,
+                           cmap[e+color_offset],
+                           alpha=0.8
+                           )
+
+    if var in ['EZ_dummy_enzyme']:
+        fig.legend.location = 'top_right'
+    elif var in ['EZ_rnap', 'EZ_rib']:
+        fig.legend.location = 'bottom_right'
+    else:
+        fig.legend.location = 'top_left'
+
+    fig.title.text = var
+    fig.xaxis.axis_label = 'glucose uptake [mmol/(gDw.h)]'
+    fig.yaxis.axis_label = var + ' concentration [μmol/gDw]'
+
+    fig.output_backend = 'svg'
+
+    return fig
+
+def wrapper_plot_ratio(data, ratio, color_offset = 0):
+    fig = figure()
+    for e, (model_name, df) in enumerate(data.items()):
+        plot_prop_vs_uptake(fig, df, ratio, model_name, cmap[e+color_offset])
+
+    fig.title.text = ratio + ' vs glucose uptake'
+    fig.xaxis.axis_label = 'glucose uptake [mmol/(gDw.h)]'
+    fig.yaxis.axis_label = ratio + ' [g/gDw]'
+
+    if 'mrna' in ratio:
+        fig.legend.location = 'bottom_right'
+    fig.output_backend = 'svg'
+
+    return fig
+
+def wrapper_plot_ratio_vs_growth(data,ratio,color_offset = 0):
+    fig = figure()
+    for e, (model_name, df) in enumerate(data.items()):
+        plot_prop_vs_growth(fig, df, ratio, model_name, cmap[e], plot_lines=False)
+
+    fig.title.text = ratio + ' vs growth rate'
+    fig.xaxis.axis_label = 'Growth rate [1/h]'
+    fig.yaxis.axis_label = ratio + ' [g/gDw]'
+
+    if 'mrna' in ratio:
+        fig.legend.location = 'bottom_right'
+        fig.square(neidhardt_mu, neidhardt_rrel,
+                   line_color=cmap[3],
+                   fill_alpha=0,
+                   size=10,
+                   line_width=2,
+                   legend='Neidhardt et al. measurements')
+    elif 'prot' in ratio:
+        fig.square(neidhardt_mu, neidhardt_prel,
+                   line_color=cmap[3],
+                   fill_alpha=0,
+                   size=10,
+                   line_width=2,
+                   legend='Neidhardt et al. measurements')
+    fig.output_backend = 'svg'
+
+    return fig
+
+if __name__ == '__main__':
+
+    cmap = Category10[10]
+
+    model_data1 = OrderedDict({
+        'EFL': pd.read_csv('outputs/benchmark_EFL.csv'),
+        'ETFL': pd.read_csv('outputs/benchmark_ETFL.csv'),
+        'vEFL': pd.read_csv('outputs/benchmark_vEFL.csv'),
+        'vETFL': pd.read_csv('outputs/benchmark_vETFL.csv'),
+    })
+    model_data2 = OrderedDict({
+        'vETFL': model_data1['vETFL'],
+        'vETFL65': pd.read_csv('outputs/benchmark_vETFL65.csv'),
+        'vETFL, inferred enzymes': pd.read_csv('outputs/benchmark_vETFL_infer.csv'),
+        'vETFL65, inferred enzymes': pd.read_csv('outputs/benchmark_vETFL65_infer.csv'),
+    })
+    model_data_old = OrderedDict({
+        # 'T0E1N0': pd.read_csv('outputs/benchmark_T0E1N0.csv'),
+        # 'T0E1N1': pd.read_csv('outputs/benchmark_T0E1N1.csv'),
+        # 'T1E1N0': pd.read_csv('outputs/benchmark_T1E1N0.csv'),
+        # 'T1E1N1': pd.read_csv('outputs/benchmark_T1E1N1.csv'),
+        # 'T0E1N1_inferred_mean': pd.read_csv('outputs/benchmark_T0E1N1_inferred_mean.csv'),
+        # 'T0E1N1_inferred_median': pd.read_csv('outputs/benchmark_T0E1N1_inferred_median.csv'),
+    })
+
+
+    OFFSET = len(model_data1)-1
+
+    # Plot growth rate vs glucose uptake
+
+
+    mu_figure1 = wrapper_plot_growth(data = model_data1)
+    mu_figure2 = wrapper_plot_growth(data = model_data2,
+                                     color_offset=OFFSET)
+    growth_fig = row([mu_figure1,mu_figure2])
     filename  = 'plots/benchmark_growth'
     output_file(filename + '.html')
-    show(mu_figure)
-    mu_figure.output_backend = 'svg'
-    export_svgs(mu_figure, filename=filename + '.svg')
+    show(growth_fig)
+    export_svgs(growth_fig, filename=filename + '.svg')
 
     curdoc().clear()
 
@@ -132,113 +241,43 @@ if __name__ == '__main__':
                          # 'EZ_dummy_enzyme',
                          # 'MR_dummy_gene',
                          ]
-    figures = {}
 
     for var in variables_to_plot:
-        if var in ['EZ_rib', 'EZ_rnap']:
-            fig = figure(y_axis_type='log')
-        else:
-            fig = figure()
-
-        for e, (model_name, df) in enumerate(model_data.items()):
-
-            if var.startswith('EZ_'):
-                #it's an enzyme
-                sigma = scaling_model.enzymes.get_by_id(var[3:]).scaling_factor
-            elif var.startswith('MR_'):
-                #it's an mRNA
-                sigma = scaling_model.mrnas.get_by_id(var[3:]).scaling_factor
-            else:
-                sigma = 1
-
-            plot_var_vs_uptake( fig,
-                                df,
-                                var,
-                                sigma,
-                                model_name,
-                                cmap[e],
-                                alpha=0.8
-                                )
+        var_fig1 = wrapper_plot_var(model_data1,var)
+        var_fig2 = wrapper_plot_var(model_data2,var,color_offset=OFFSET)
+        fig = row([var_fig1,var_fig2])
 
         filename = 'plots/benchmark_{}'.format(var)
         output_file(filename + '.html')
-
-        if var in ['EZ_dummy_enzyme']:
-            fig.legend.location = 'top_right'
-        elif var in ['EZ_rnap', 'EZ_rib']:
-            fig.legend.location = 'bottom_right'
-        else:
-            fig.legend.location = 'top_left'
-
-        fig.title.text = var
-        fig.xaxis.axis_label = 'glucose uptake [mmol/(gDw.h)]'
-        fig.yaxis.axis_label = var + ' concentration [μmol/gDw]'
-
-
-
         show(fig)
-        fig.output_backend = 'svg'
         export_svgs(fig, filename=filename + '.svg')
         curdoc().clear()
-        figures[model_name] = fig
 
     # mrna / ribosome content
 
     for ratio in ['mrna_ratio','prot_ratio']:
-        fig = figure()
-        for e, (model_name, df) in enumerate(model_data.items()):
-            plot_prop_vs_uptake(fig,df,ratio,model_name,cmap[e])
-
-        fig.title.text = ratio + ' vs glucose uptake'
-        fig.xaxis.axis_label = 'glucose uptake [mmol/(gDw.h)]'
-        fig.yaxis.axis_label = ratio + ' [g/gDw]'
-
-        if 'mrna' in ratio:
-            fig.legend.location = 'bottom_right'
+        ratio_fig1 = wrapper_plot_ratio(model_data1, ratio)
+        ratio_fig2 = wrapper_plot_ratio(model_data2, ratio, color_offset=OFFSET)
+        fig = row([ratio_fig1, ratio_fig2])
 
         filename = 'plots/benchmark_{}'.format(ratio)
         output_file(filename + '.html')
         show(fig)
-        fig.output_backend = 'svg'
         export_svgs(fig, filename=filename + '.svg')
         curdoc().clear()
-
-        figures[ratio] = fig
 
 
     # mrna / ribosome content
 
     for ratio in ['mrna_ratio','prot_ratio']:
-        fig = figure()
-        for e, (model_name, df) in enumerate(model_data.items()):
-            plot_prop_vs_growth(fig,df,ratio,model_name,cmap[e], plot_lines = False)
+        ratio_fig3 = wrapper_plot_ratio_vs_growth(model_data1, ratio)
+        ratio_fig4 = wrapper_plot_ratio_vs_growth(model_data1, ratio, color_offset=OFFSET)
 
-        fig.title.text = ratio + ' vs growth rate'
-        fig.xaxis.axis_label = 'Growth rate [1/h]'
-        fig.yaxis.axis_label = ratio + ' [g/gDw]'
-
-        if 'mrna' in ratio:
-            fig.legend.location = 'bottom_right'
-            fig.square(neidhardt_mu, neidhardt_rrel,
-                       line_color=cmap[3],
-                       fill_alpha = 0,
-                       size = 10,
-                       line_width = 2,
-                       legend='Neidhardt et al. measurements')
-        elif 'prot' in ratio:
-            fig.square(neidhardt_mu, neidhardt_prel,
-                       line_color=cmap[3],
-                       fill_alpha = 0,
-                       size = 10,
-                       line_width = 2,
-                       legend='Neidhardt et al. measurements')
+        fig = row([ratio_fig3,ratio_fig4])
 
         filename = 'plots/benchmark_{}_vs_mu'.format(ratio)
         output_file(filename + '.html'.format(ratio))
 
         show(fig)
-        fig.output_backend = 'svg'
         export_svgs(fig, filename=filename + '.svg')
         curdoc().clear()
-
-        figures[ratio] = fig

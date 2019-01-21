@@ -3,11 +3,13 @@ import pandas as pd
 import numpy  as np
 
 from etfl.io.json import load_json_model
-from etfl.optim.config import standard_solver_config
+from etfl.optim.config import standard_solver_config, growth_uptake_config
 
 from etfl.optim.variables import GrowthActivation, BinaryActivator
 
 from time import time
+from copy import copy
+
 
 try:
     from gurobipy import GRB
@@ -18,18 +20,13 @@ solver = 'optlang-gurobi'
 
 DefaultSol = namedtuple('DefaultSol', field_names='f')
 
+
 def is_gurobi(model):
     return model.problem.__name__ == 'optlang.gurobi_interface'
 
 def fix_growth(model, solution = None):
 
-    if solution is None:
-        try:
-            solution = model.solution
-        except AttributeError:
-            raise AttributeError('If not providing a solution object, please '
-                                 'provide a model with an embedded solution '
-                                 '(call model.solve())')
+    solution = check_solution(model, solution)
 
     mu_variables = model.get_variables_of_type(GrowthActivation)
     interp_variables = model.get_variables_of_type(BinaryActivator)
@@ -55,6 +52,17 @@ def fix_growth(model, solution = None):
             the_var.variable._internal_variable.VarHintPri = 5
 
 
+def check_solution(model, solution):
+    if solution is None:
+        try:
+            solution = model.solution
+        except AttributeError:
+            raise AttributeError('If not providing a solution object, please '
+                                 'provide a model with an embedded solution '
+                                 '(call model.solve())')
+    return solution
+
+
 def release_growth(model):
 
     mu_variables = model.get_variables_of_type(GrowthActivation)
@@ -71,6 +79,18 @@ def release_growth(model):
             the_var.variable._internal_variable.VarHintVal = GRB.UNDEFINED
             the_var.variable._internal_variable.VarHintPri = 0
 
+def apply_warm_start(model, solution):
+    solution = check_solution(model, solution)
+
+    for the_var in model.variables:
+        if the_var.type == 'binary':
+            the_var._internal_variable.Start = solution.raw[the_var.name]
+
+def release_warm_start(model):
+
+    for the_var in model.variables:
+        if the_var.type == 'binary':
+            the_var._internal_variable.Start = GRB.UNDEFINED
 
 def get_active_growth_bounds(model):
     mu = model.growth_reaction.flux
@@ -101,8 +121,7 @@ def _va_sim(model):
     return sol_min, sol_max
 
 
-def simulate(available_uptake, model, variables):
-    epsilon = model.solver.configuration.tolerances.optimality
+def simulate(available_uptake, model, variables, warm_start=None):
 
     model.logger.info('available_uptake = {}'.format(available_uptake))
     model.reactions.EX_glc__D_e.lower_bound = available_uptake
@@ -110,9 +129,10 @@ def simulate(available_uptake, model, variables):
     model.growth_reaction.upper_bound = 10
 
     model.objective = model.growth_reaction.id
-    # model.objective = sum(model.objective_variable)
     model.objective.direction = 'max'
+
     out = safe_optim(model)
+    growth_solution = copy(model.solution)
 
     if model.solver.status == 'infeasible':
         ret = {'obj':np.nan,
@@ -132,6 +152,7 @@ def simulate(available_uptake, model, variables):
 
     mu_i, mu_lb, mu_ub = get_active_growth_bounds(model)
     mu = model.growth_reaction.flux
+    release_warm_start(model)
 
     try:
         prot_ratio = model.interpolation_variable.prot_ggdw.variable.primal
@@ -147,7 +168,7 @@ def simulate(available_uptake, model, variables):
            'mu_lb':mu_lb,
            'mu_ub':mu_ub,
            'available_substrate':-1*available_uptake,
-           'uptake':-1*model.reactions.EX_glc__D_e.flux,
+           'uptake':-1*growth_solution.fluxes['EX_glc__D_e'],
            'prot_ratio':prot_ratio,
            'mrna_ratio':mrna_ratio
            }
@@ -165,6 +186,7 @@ def simulate(available_uptake, model, variables):
     print(pd.Series(ret))
 
     release_growth(model)
+    apply_warm_start(model, growth_solution)
 
     return pd.Series(ret)
 
@@ -180,7 +202,7 @@ if __name__ == '__main__':
 
 
     # uptake_range = pd.Series(np.arange(-1,-40, -1))
-    uptake_range = pd.Series(np.arange(-1,-40, -1))
+    uptake_range = pd.Series(np.arange(-1,-25, -1))
 
     model_files = {
         # 'EFL':'iJO1366_EFL_431_enz_128_bins__20190108_172213.json',
@@ -194,10 +216,10 @@ if __name__ == '__main__':
 
     models = {k:load_json_model('models/'+v,solver=solver) for k,v in model_files.items()}
     data = {}
+
     for name,model in models.items():
-
-        standard_solver_config(model)
-
+        growth_uptake_config(model)
+        model.warm_start = None
         model.logger.info('Simulating ...')
         start = time()
         data[name] = uptake_range.apply(simulate, args=[model,variables])

@@ -93,7 +93,7 @@ for k in scales:
             #     this_model.objective = this_model.variables.get(o)
             #     try:
             #         this_model.optimize()
-            #         sol = this_model.solution.f
+            #         sol = this_model.solution.objective_value
             #     except (AttributeError, SolverError):
             #         sol = np.nan
 

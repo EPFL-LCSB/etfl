@@ -15,7 +15,7 @@ from scipy.stats.kde import gaussian_kde
 import datetime as dt
 
 now = dt.datetime.now()
-ago = now-dt.timedelta(days=10)
+ago = now-dt.timedelta(days=1.5)
 
 cmap = Category10[10]
 
@@ -23,13 +23,13 @@ log_folder = './logs/'
 
 OPTIM_REGEX = re.compile(r'optimize')
 TIME_REGEX = re.compile(r'(\d*\.\d*) sec')
-MODELTYPE_REGEX=re.compile(r'T([01])E[01]N([01])')
+MODELTYPE_REGEX=re.compile(r'T([01])E[01]N([01])|(v?)E(T?)FL')
 
 bool2name={
-    (False, False)  : 'T0E1N0',
-    (False, True)   : 'T0E1N1',
-    (True, False)   : 'T1E1N0',
-    (True, True)    : 'T1E1N1',
+    (False, False)  : 'EFL',
+    (False, True)   : 'vEFL',
+    (True, False)   : 'ETFL',
+    (True, True)    : 'vETFL',
 }
 
 bp.curdoc().clear()
@@ -161,13 +161,20 @@ if __name__ == '__main__':
     for filename,these_t in times.items():
         model_type = MODELTYPE_REGEX.search(filename)
         if model_type:
-            has_thermo, has_alloc = model_type.groups(1)
+            has_thermo, has_alloc, is_v, is_T = model_type.groups(1)
+            has_thermo = bool(has_thermo=='1') + bool(is_T)
+            has_alloc = bool(has_alloc=='1') + bool(is_v)
             measured[bool2name[str2bool(has_thermo),str2bool(has_alloc)]] += these_t
         else:
             pass
             # measured['other'] += these_t
 
     all_times = [item for subl in times.values() for item in subl]
+
+
+    for k in bool2name.values():
+        if not measured[k]:
+            measured[k]=[1]
 
     p1 = plot_hist(measured)
     # p2 = plot_ridge(measured)

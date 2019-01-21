@@ -15,9 +15,9 @@ standard_solver_config(md)
 
 md.optimize()
 
-print(abs(m.solution.f - md.solution.f))
+print(abs(m.solution.objective_value - md.solution.objective_value))
 
-print('Objective            : {}'.format(md.solution.f))
+print('Objective            : {}'.format(md.solution.objective_value))
 print(' - Glucose uptake    : {}'.format(md.reactions.EX_glc__D_e.flux))
 print(' - Growth            : {}'.format(md.growth_reaction.flux))
 print(' - Ribosomes produced: {}'.format(md.ribosome.X))
@@ -27,4 +27,4 @@ print(' - RNAP produced: {}'.format(md.rnap.X))
 print(mv)
 
 
-assert abs(m.solution.f - md.solution.f) < md.solver.configuration.tolerances.optimality
+assert abs(m.solution.objective_value - md.solution.objective_value) < md.solver.configuration.tolerances.optimality
