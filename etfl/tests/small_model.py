@@ -284,7 +284,7 @@ def create_etfl_model(has_thermo, has_neidhardt,
     try:
         ecoli.optimize()
 
-        print('Objective            : {}'.format(ecoli.solution.f))
+        print('Objective            : {}'.format(ecoli.solution.objective_value))
         print(' - Glucose uptake    : {}'.format(ecoli.reactions.EX_glc__D_e.flux))
         print(' - Growth            : {}'.format(ecoli.growth_reaction.flux))
         print(' - Ribosomes produced: {}'.format(ecoli.ribosome.X))
