@@ -163,7 +163,7 @@ def simulate(available_uptake, model, variables, warm_start=None):
         mrna_ratio = np.nan
 
 
-    ret = {'obj':model.solution.f,
+    ret = {'obj':model.solution.objective_value,
            'mu': mu,
            'mu_lb':mu_lb,
            'mu_ub':mu_ub,
@@ -180,8 +180,8 @@ def simulate(available_uptake, model, variables, warm_start=None):
 
         lb, ub = _va_sim(model)
 
-        ret[var + '_lb'] = lb.f
-        ret[var + '_ub'] = ub.f
+        ret[var + '_lb'] = lb.objective_value
+        ret[var + '_ub'] = ub.objective_value
 
     print(pd.Series(ret))
 
@@ -202,16 +202,16 @@ if __name__ == '__main__':
 
 
     # uptake_range = pd.Series(np.arange(-1,-40, -1))
-    uptake_range = pd.Series(np.arange(-1,-25, -1))
+    uptake_range = pd.Series(np.arange(-1,-30, -1))
 
     model_files = {
-        # 'EFL':'iJO1366_EFL_431_enz_128_bins__20190108_172213.json',
-        # 'ETFL':'RelaxedModel iJO1366_ETFL_431_enz_128_bins__20190108_173057.json',
-        # 'vEFL':'iJO1366_vEFL_431_enz_128_bins__20190108_180140.json',
-        # 'vETFL':'RelaxedModel iJO1366_vETFL_431_enz_128_bins__20190108_181346.json',
-        # 'vETFL65':'SlackModel iJO1366_vETFL_431_enz_128_bins__20190110_134145.json',
-        'vETFL_infer':'SlackModel iJO1366_vETFL_2084_enz_128_bins__20190110_134830.json',
-        'vETFL65_infer':'SlackModel iJO1366_vETFL_2084_enz_128_bins__20190110_182855.json',
+        # 'EFL':'iJO1366_EFL_431_enz_128_bins__20190121_080047.json',
+        # 'ETFL':'SlackModel iJO1366_ETFL_431_enz_128_bins__20190121_110027.json',
+        # 'vEFL':'iJO1366_vEFL_431_enz_128_bins__20190121_090316.json',
+        # 'vETFL':'SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_145700.json',
+        # 'vETFL65':'SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_155755.json',
+        # 'vETFL_infer':'SlackModel iJO1366_vETFL_2084_enz_128_bins__20190122_170118.json',
+        # 'vETFL65_infer':'SlackModel iJO1366_vETFL_2084_enz_128_bins__20190124_082824.json',
     }
 
     models = {k:load_json_model('models/'+v,solver=solver) for k,v in model_files.items()}

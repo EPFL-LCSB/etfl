@@ -21,6 +21,9 @@ verbose_kinds = {
 VA_REGEX = re.compile(r'iJO_(T[01]E[01]N[01])_low?_hi_\-?\d+\.?\d*_({})'
                         .format('|'.join(verbose_kinds.keys())))
 
+# DEFAULT_COLOR = "#b3de69" # Light Green
+DEFAULT_COLOR = "#2579b6" # Mid blue
+
 def get_va_files():
 
     files = dict()
@@ -33,7 +36,7 @@ def get_va_files():
 
     return files
 
-def plot_va(filename, tag, kind, color = "#b3de69", orient = 'horizontal'):
+def plot_va(filename, tag, kind, color = DEFAULT_COLOR, orient = 'horizontal'):
     bp.curdoc().clear()
 
     title = verbose_kinds[kind] + ' variability analysis for {} iJO1366 model'\
