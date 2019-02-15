@@ -2046,7 +2046,7 @@ class MEModel(LCSBModel, Model):
         """
         Pseudo-smart copy of the model using dict serialization. This builds a
         new model from the ground up, with independant variables, solver, etc.
-        
+
         :return:
         """
 

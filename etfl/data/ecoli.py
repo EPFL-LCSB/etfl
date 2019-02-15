@@ -684,9 +684,6 @@ def get_coupling_dict(model, mode, atps_name = None, infer_missing_enz=False):
     coupling_dict = get_homomer_coupling_dict(model, mode=mode)
     aggregated_coupling_dict = get_aggregated_coupling_dict(model, coupling_dict)
     coupling_dict.update(aggregated_coupling_dict)
-    if atps_name is not None:
-        atps = get_atp_synthase_coupling(atps_name)
-        coupling_dict.update(atps)
     if infer_missing_enz:
         inferred_enz = dict()
 
@@ -699,10 +696,14 @@ def get_coupling_dict(model, mode, atps_name = None, infer_missing_enz=False):
             if r.id not in coupling_dict \
                     and is_me_compatible(r):
                 inferred_enz[r.id] = infer_enzyme_from_gpr(r,
-                    default_kcat=kcat,
-                    default_kdeg=kdeg_enz)
+                                                           default_kcat=kcat,
+                                                           default_kdeg=kdeg_enz)
 
         coupling_dict.update(inferred_enz)
+    # ATP Synthase bypasses numeric kcat
+    if atps_name is not None:
+        atps = get_atp_synthase_coupling(atps_name)
+        coupling_dict.update(atps)
 
     return coupling_dict
 

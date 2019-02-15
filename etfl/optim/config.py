@@ -45,7 +45,7 @@ def gene_ko_config(model):
     standard_solver_config(model)
     if model.solver.interface.__name__ == 'optlang.gurobi_interface':
         # model.solver.problem.Params.MIPFocus = 1# Find a feasible solution
-        model.solver.problem.Params.Normadjust = 2#
+        model.solver.problem.Params.NormAdjust = 2#
         model.solver.problem.Params.AggFill = 10#
         model.solver.problem.Params.BranchDir = 1#
         model.solver.problem.Params.PrePasses = 5#
@@ -55,7 +55,7 @@ def growth_uptake_config(model):
     """
     Solver settings for performing growth vs uptake studies. Tuned using the
     grbtune tool on the vETFL model iJO1366.
-     
+
     :param model:
     :return:
     """
