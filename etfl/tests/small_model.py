@@ -145,6 +145,7 @@ def create_etfl_model(has_thermo, has_neidhardt,
     # coupling_dict = get_lloyd_coupling_dict(vanilla_model)
 
 
+
     # Initialize the model
 
     name = 'small_model_T{:1}E{:1}N{:1}_{}_enz_{}_bins.json'.format(
@@ -179,7 +180,7 @@ def create_etfl_model(has_thermo, has_neidhardt,
 
     ecoli.name = name
     ecoli.logger.setLevel(logging.WARNING)
-
+    ecoli.sloppy = True
 
     # Solver settings
     ecoli.solver = solver
@@ -200,10 +201,16 @@ def create_etfl_model(has_thermo, has_neidhardt,
     rnap = get_rnap()
     rib = get_rib()
 
+
+    all_peptides = set([x for enzymes in coupling_dict.values()
+                        for enz in enzymes
+                        for x in enz.composition])
     prune_to_genes = lambda the_dict:{k:v for k,v in the_dict.items() \
-                    if k in vanilla_model.genes or \
-                     k in rib.rrna_composition or k in rib.composition
-                                      or k in rnap.composition}
+                    if  k in vanilla_model.genes or
+                        k in rib.rrna_composition or
+                        k in rib.composition or
+                        k in rnap.composition or
+                        k in all_peptides}
 
     nt_sequences = prune_to_genes(nt_sequences)
     mrna_dict = prune_to_genes(mrna_dict)

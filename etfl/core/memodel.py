@@ -1044,7 +1044,7 @@ class MEModel(LCSBModel, Model):
             v_max_fwd[e] = enz.kcat_fwd * enz.concentration
             v_max_bwd[e] = enz.kcat_bwd * enz.concentration
 
-            self.add_mass_balance_constraint(comp, enz, queue=False)
+            self.add_mass_balance_constraint(comp, enz, queue=True)
 
             comp.enzyme = enz
             enz.complexation = comp
@@ -1060,7 +1060,6 @@ class MEModel(LCSBModel, Model):
         # v_fwd / sum(kcat_i*E_i^max) <= sum(kcat_i*E_i) / sum(kcat_i*E_i^max) (<= 1)
 
         enz_constraint_expr_fwd = (fwd_variable - sum(v_max_fwd.values()))/(k_f*E_m)
-        enz_constraint_expr_bwd = (bwd_variable - sum(v_max_bwd.values()))/(k_b*E_m)
         enz_constraint_expr_bwd = (bwd_variable - sum(v_max_bwd.values()))/(k_b*E_m)
 
 
@@ -1275,8 +1274,9 @@ class MEModel(LCSBModel, Model):
         if   len(enzymes) == len(complexes):
             return zip(enzymes, complexes)
         elif len(enzymes) == 1:
-            enzyme_list = self.replicate_enzyme(enzymes[0], len(complexes))
-            return zip(enzyme_list, complexes)
+            # enzyme_list = self.replicate_enzyme(enzymes[0], len(complexes))
+            # return zip(enzyme_list, complexes)
+            return zip(enzymes,[complexes[0]])
         else:
             raise NotImplementedError
 
@@ -1678,9 +1678,11 @@ class MEModel(LCSBModel, Model):
 
         # 2 -> Parametrize all the transcription reactions with RNAP vmax
         for trans_rxn in self.transcription_reactions:
-            self.apply_rnap_catalytic_constraint(trans_rxn)
+            self.apply_rnap_catalytic_constraint(trans_rxn, queue=True)
+        self._push_queue()
 
         # 3 -> Add RNAP capacity constraint
+
         self.regenerate_variables()
 
         all_rnap_usage = self.get_variables_of_type(RNAPUsage)
@@ -1704,7 +1706,7 @@ class MEModel(LCSBModel, Model):
         self.regenerate_constraints()
         self.regenerate_variables()
 
-    def apply_rnap_catalytic_constraint(self, reaction):
+    def apply_rnap_catalytic_constraint(self, reaction, queue):
         """
         Given a translation reaction, apply the constraint that links it with
         RNAP usage
@@ -1720,7 +1722,8 @@ class MEModel(LCSBModel, Model):
                                 reaction.gene,
                                 scaling_factor = self.rnap.scaling_factor,
                                 lb =0,
-                                ub=1)
+                                ub=1,
+                                queue=False)
 
         # fwd_variable = reaction.forward_variable
         # bwd_variable = reaction.reverse_variable
@@ -1747,7 +1750,7 @@ class MEModel(LCSBModel, Model):
 
 
         self.add_constraint(kind=SynthesisConstraint, hook=reaction,
-                            expr=rnap_constraint_expr, ub=0)
+                            expr=rnap_constraint_expr, ub=0,queue=queue)
 
 
 
