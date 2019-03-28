@@ -15,7 +15,8 @@ import pandas as pd
 import numpy as np
 from tqdm import tqdm
 
-from ..optim.variables import EnzymeRef, mRNARef, EnzymeVariable, mRNAVariable
+from ..optim.variables import EnzymeRef, mRNARef, EnzymeVariable, mRNAVariable, \
+    LinearizationVariable
 from ..optim.constraints import EnzymeDeltaPos, EnzymeDeltaNeg, \
     mRNADeltaPos, mRNADeltaNeg
 from ..optim.utils import fix_growth, release_growth, \
@@ -94,6 +95,25 @@ def add_mRNA_rhs_variable(dmodel):
                                 queue=True)
 
     dmodel.repair()
+    
+def get_mu_times_var(dmodel, macromolecule):
+    resolution = dmodel.mu_bins[-1][-1][-1] / len(dmodel.mu_bins)
+
+    growth_discretization_vars = dmodel.get_ordered_ga_vars()
+
+    # Build z =   ga_0*2^0*mu_max/N * [E]
+    #           + ga_1*2^1*mu_max/N * [E]
+    #           + ...
+    #           + ga_n*2^n*mu_max/N * [E]
+    out_expr = 0
+    for i, ga_i in enumerate(growth_discretization_vars):
+        # Linearization step for ga_i * [E]
+        z_name = LinearizationVariable.prefix + \
+                 '__MUL__'.join([ga_i.name,macromolecule.variable.name])
+        model_z_i = dmodel.variables.get(z_name)
+        out_expr += (2 ** i) * resolution * model_z_i
+
+    return out_expr
 
 def add_enzyme_delta_constraint(dmodel, timestep, degradation, synthesis):
     """
@@ -108,25 +128,35 @@ def add_enzyme_delta_constraint(dmodel, timestep, degradation, synthesis):
     :return:
     """
 
-    # enzyme_ref_variables = dmodel.get_variables_of_type(EnzymeRef)
-    enzyme_rhs_variables = dmodel.get_variables_of_type(EnzymeDeltaRHS)
+    enzyme_ref_variables = dmodel.get_variables_of_type(EnzymeRef)
+    # enzyme_rhs_variables = dmodel.get_variables_of_type(EnzymeDeltaRHS)
 
     for enz in dmodel.enzymes:
 
         if 'dummy' in enz.id:
             continue
 
-        E = enz.concentration
+        # E = enz.concentration
         # E_ref = enzyme_ref_variables.get_by_id(enz.id) * enz.scaling_factor
-        E_rhs = enzyme_rhs_variables.get_by_id(enz.id)
+        # E_rhs = enzyme_rhs_variables.get_by_id(enz.id)
+        E_ref = enzyme_ref_variables.get_by_id(enz.id)
 
         v_asm = (enz.complexation.forward_variable \
                     - enz.complexation.reverse_variable) \
-                 * enz.complexation.scaling_factor
+                * enz.complexation.scaling_factor \
+                / enz.scaling_factor
+
+        # Backwards Euler method
+        # E(t+dt) = (mu(t+dt)+kdeg)*E(t+dt)*dt + E(t)
+        E = enz.variable
+        # muE = get_mu_times_var(dmodel, enz)
+        # conc_change = (enz.kdeg * E + muE) * timestep
+        conc_change = v_asm * timestep
 
         if synthesis:
             # expr_pos = (E - E_ref) - timestep*v_asm
-            expr_pos = E - E_rhs
+            # expr_pos = E - E_rhs
+            expr_pos = E - E_ref - conc_change
 
             dmodel.add_constraint(kind = EnzymeDeltaPos,
                                       hook = enz,
@@ -136,7 +166,8 @@ def add_enzyme_delta_constraint(dmodel, timestep, degradation, synthesis):
                                       )
         if degradation:
             # expr_neg = (E_ref - E) - timestep*v_asm
-            expr_neg = E_rhs - E
+            # expr_neg = E_rhs - E
+            expr_neg = E_ref - E - conc_change
 
             dmodel.add_constraint(kind = EnzymeDeltaNeg,
                                       hook = enz,
@@ -164,8 +195,8 @@ def add_mRNA_delta_constraint(dmodel, timestep, degradation, synthesis):
     :return:
     """
 
-    # mrna_ref_variables = dmodel.get_variables_of_type(mRNARef)
-    mrna_rhs_variables = dmodel.get_variables_of_type(mRNADeltaRHS)
+    mrna_ref_variables = dmodel.get_variables_of_type(mRNARef)
+    # mrna_rhs_variables = dmodel.get_variables_of_type(mRNADeltaRHS)
 
 
     for mrna in dmodel.mrnas:
@@ -175,7 +206,7 @@ def add_mRNA_delta_constraint(dmodel, timestep, degradation, synthesis):
 
         F = mrna.concentration
         # F_ref = mrna_ref_variables.get_by_id(mrna.id) * mrna.scaling_factor
-        F_rhs = mrna_rhs_variables.get_by_id(mrna.id)
+        # F_rhs = mrna_rhs_variables.get_by_id(mrna.id)
 
         trans_id = dmodel._get_transcription_name(mrna.id)
 
@@ -210,57 +241,70 @@ def add_mRNA_delta_constraint(dmodel, timestep, degradation, synthesis):
 
 def add_dynamic_variables_constraints(dmodel, timestep, dynamic_constraints):
     if dynamic_constraints['mRNA_degradation'] or dynamic_constraints['mRNA_synthesis']:
-        # add_mRNA_ref_variable(dmodel)
-        add_mRNA_rhs_variable(dmodel)
+        add_mRNA_ref_variable(dmodel)
+        # add_mRNA_rhs_variable(dmodel)
         add_mRNA_delta_constraint(dmodel, timestep,
                                   degradation=dynamic_constraints['mRNA_degradation'],
                                   synthesis  =dynamic_constraints['mRNA_synthesis'],
                                   )
     if dynamic_constraints['enzyme_degradation'] or dynamic_constraints['enzyme_synthesis']:
-        # add_enzyme_ref_variable(dmodel)
-        add_enzyme_rhs_variable(dmodel)
+        add_enzyme_ref_variable(dmodel)
+        # add_enzyme_rhs_variable(dmodel)
         add_enzyme_delta_constraint(dmodel, timestep,
-                                  degradation=dynamic_constraints['mRNA_degradation'],
-                                  synthesis  =dynamic_constraints['mRNA_synthesis'],
+                                  degradation=dynamic_constraints['enzyme_degradation'],
+                                  synthesis  =dynamic_constraints['enzyme_synthesis'],
                                   )
 
 
 def apply_ref_state(dmodel, solution, timestep, has_mrna, has_enzymes):
 
-    # enz_ref  = dmodel.get_variables_of_type(EnzymeRef)
-    # mrna_ref = dmodel.get_variables_of_type(mRNARef)
-    enz_rhs  = dmodel.get_variables_of_type(EnzymeDeltaRHS)
-    mrna_rhs = dmodel.get_variables_of_type(mRNADeltaRHS)
+    enz_ref  = dmodel.get_variables_of_type(EnzymeRef)
+    mrna_ref = dmodel.get_variables_of_type(mRNARef)
+    # enz_rhs  = dmodel.get_variables_of_type(EnzymeDeltaRHS)
+    # mrna_rhs = dmodel.get_variables_of_type(mRNADeltaRHS)
 
     epsilon = dmodel.solver.configuration.tolerances.feasibility
+
     if has_enzymes:
         for enz in dmodel.enzymes:
-            the_rhs = enz_rhs.get_by_id(enz.id)
+            # the_rhs = enz_rhs.get_by_id(enz.id)
+            the_ref = enz_ref.get_by_id(enz.id)
             E0 = solution.loc[enz.variable.name]
+            the_value = E0
             # Taylor expansion element
-            e = (enz.kdeg + solution.loc[dmodel.growth_reaction.id]) * timestep
-            the_value = E0 * (1 + e/1 + (e**2)/2 + (e**3)/6)
-    
-            try:
-                the_rhs.variable.ub = max(0,the_value + epsilon)
-                the_rhs.variable.lb = max(0,the_value - epsilon)
-            except ValueError:
-                the_rhs.variable.lb = max(0,the_value - epsilon)
-                the_rhs.variable.ub = max(0,the_value + epsilon)
-    if has_mrna:
-        for mrna in dmodel.mrnas:
-            the_rhs = mrna_rhs.get_by_id(mrna.id)
-            F0 = solution.loc[mrna.variable.name]
-            # Taylor expansion element
-            e = (mrna.kdeg + solution.loc[dmodel.growth_reaction.id]) * timestep
-            the_value = F0 * (1 + e/1 + (e**2)/2 + (e**3)/6)
+            # e = (enz.kdeg + solution.loc[dmodel.growth_reaction.id]) * timestep
+            # the_value = E0 * (1 + e/1 + (e**2)/2 + (e**3)/6)
 
             try:
-                the_rhs.variable.ub = max(0,the_value + epsilon)
-                the_rhs.variable.lb = max(0,the_value - epsilon)
+                # the_rhs.variable.ub = max(0,the_value + epsilon)
+                # the_rhs.variable.lb = max(0,the_value - epsilon)
+                the_ref.variable.ub = max(0,the_value + epsilon)
+                the_ref.variable.lb = max(0,the_value - epsilon)
             except ValueError:
-                the_rhs.variable.lb = max(0,the_value - epsilon)
-                the_rhs.variable.ub = max(0,the_value + epsilon)
+                # the_rhs.variable.lb = max(0,the_value - epsilon)
+                # the_rhs.variable.ub = max(0,the_value + epsilon)
+                the_ref.variable.lb = max(0,the_value - epsilon)
+                the_ref.variable.ub = max(0,the_value + epsilon)
+    if has_mrna:
+        for mrna in dmodel.mrnas:
+            # the_rhs = mrna_rhs.get_by_id(mrna.id)
+            the_ref = mrna_ref.get_by_id(mrna.id)
+            F0 = solution.loc[mrna.variable.name]
+            # Taylor expansion element
+            # e = (mrna.kdeg + solution.loc[dmodel.growth_reaction.id]) * timestep
+            # the_value = F0 * (1 + e/1 + (e**2)/2 + (e**3)/6)
+            the_value = F0
+
+            try:
+                # the_rhs.variable.ub = max(0,the_value + epsilon)
+                # the_rhs.variable.lb = max(0,the_value - epsilon)
+                the_ref.variable.ub = max(0,the_value + epsilon)
+                the_ref.variable.lb = max(0,the_value - epsilon)
+            except ValueError:
+                # the_rhs.variable.lb = max(0,the_value - epsilon)
+                # the_rhs.variable.ub = max(0,the_value + epsilon)
+                the_ref.variable.lb = max(0,the_value - epsilon)
+                the_ref.variable.ub = max(0,the_value + epsilon)
 
 def update_sol(t, X, S, dmodel, obs_values, colname):
     obs_values.loc['t',colname] = t
@@ -352,11 +396,11 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
     if chebyshev_exclude is None:
         from ..optim.variables import LinearizationVariable
         chebyshev_exclude = []#\
-            # [LinearizationVariable,
-            #                  EnzymeDeltaNeg,
-            #                  EnzymeDeltaPos,
-            #                  mRNADeltaNeg,
-            #                  mRNADeltaPos]
+        # [LinearizationVariable,
+        #                  EnzymeDeltaNeg,
+        #                  EnzymeDeltaPos,
+        #                  mRNADeltaNeg,
+        #                  mRNADeltaPos]
 
     if chebyshev_include is None:
         chebyshev_include = list()
@@ -365,6 +409,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
         from ..optim.variables import mRNAVariable, EnzymeVariable
         chebyshev_variables =  dmodel.get_variables_of_type(mRNAVariable)
         chebyshev_variables += dmodel.get_variables_of_type(EnzymeVariable)
+
 
     chebyshev_center(dmodel, chebyshev_variables,
                      inplace=True,
@@ -376,6 +421,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
     chebyshev_sol = compute_center(dmodel)
 
     add_dynamic_variables_constraints(dmodel, timestep, dynamic_constraints)
+
     has_mrna = dynamic_constraints['mRNA_degradation'] + dynamic_constraints['mRNA_synthesis']
     has_enzymes = dynamic_constraints['enzyme_degradation'] + dynamic_constraints['enzyme_synthesis']
 
