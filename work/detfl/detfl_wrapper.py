@@ -60,6 +60,7 @@ def run_detfl(yaml_file, uptake_funs, medium_funs=dict(), model=None, ini_sol=No
     makedirs(out_path)
     time_data.to_csv(join(out_path,'solution.csv'))
     write_yaml(params,join(out_path,'config.yml'))
+
     return time_data
 
 def write_yaml(config, path):

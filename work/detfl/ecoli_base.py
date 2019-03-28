@@ -69,8 +69,12 @@ def prepare_model(in_model, S0, uptake_fun):
     #     in_model.reactions.get_by_id(uptake_flux).lower_bound = \
             # -1 * kinfun(S0[uptake_flux])
     model.reactions.EX_glc__D_e.lower_bound = -10
-    model.reactions.EX_lcts_e.lower_bound = -0#8
     model.reactions.EX_o2_e.lower_bound = -15
+    try:
+        model.reactions.EX_lcts_e.lower_bound = -0#8
+    except AttributeError: # For debug models
+        pass
+
     sol_glyc = in_model.optimize()
 
     # in_model.growth_reaction.lower_bound = sol_glyc.f * 0.9
@@ -97,6 +101,8 @@ def prepare_model(in_model, S0, uptake_fun):
 if __name__ == '__main__':
     config = read_config(CONFIG)
 
+    has_lcts = 'EX_lcts_e' in config['assumptions']['S0']
+
     # timestep = 0.1
     # timestep = 0.05
     timestep = config['simulation']['timestep']
@@ -109,8 +115,12 @@ if __name__ == '__main__':
     S0_glc = config['assumptions']['S0']['EX_glc__D_e'] #mmol/L
     S1_glc = 10 #mmol/L
 
-    S0_lac = config['assumptions']['S0']['EX_lcts_e'] #mmol/L
-    S1_lac = 10 #mmol/L
+    if has_lcts:
+        S0_lac = config['assumptions']['S0']['EX_lcts_e'] #mmol/L
+        S1_lac = 10 #mmol/L
+    else:
+        S0_lac = 0
+        S1_lac = 0
 
     S0_ac = config['assumptions']['S0']['EX_ac_e']
 
@@ -143,16 +153,27 @@ if __name__ == '__main__':
         'EX_ac_e'    : ac_fun,
     }
 
+    uptake_funs = get_uptake_funs()
 
-    model = load_json_model(config['model'])
+    if not has_lcts:
+        medium_funs.pop('EX_lcts_e')
+        uptake_funs.pop('EX_lcts_e')
+
+
+    if config['model'] != 'debug':
+        model = load_json_model(config['model'])
+    else:
+        from etfl.tests.small_model import create_etfl_model
+        model = create_etfl_model(0,0)
 
     standard_solver_config(model)
     model.solver.configuration.verbosity = 0
 
-    ini_sol = prepare_model(model, S0=config['assumptions']['S0'], uptake_fun = get_uptake_funs())
+    ini_sol = prepare_model(model, S0=config['assumptions']['S0'], uptake_fun = uptake_funs)
 
     time_data = run_detfl(model=model,
                           yaml_file=CONFIG,
                           ini_sol=ini_sol,
-                          uptake_funs=get_uptake_funs(),
+                          uptake_funs=uptake_funs,
                           medium_funs=medium_funs)
+

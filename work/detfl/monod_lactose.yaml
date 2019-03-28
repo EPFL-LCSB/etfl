@@ -28,6 +28,8 @@ options:
   chebyshev_include:
     - ForwardCatalyticConstraint
     - BackwardCatalyticConstraint
+#    - EnzymeDeltaPos
+#    - EnzymeDeltaNeg
 #    - ExpressionCoupling
   constraints:
     mRNA_degradation: no

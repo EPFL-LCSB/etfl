@@ -28,6 +28,14 @@ def summarize_model(model,time_data,groups,
 
     summary_plots = dict()
     detailed_plots = dict()
+    cleaned_groups = dict()
+
+    # Cleanup missing vars
+    for key, varnames in groups.items():
+        cleaned_groups[key] = [x for x in varnames if x in time_data.index or x == 'total']
+
+    groups = cleaned_groups
+
     for key,data_type in groups.items():
         summary_plots[key] = make_summary_plots(model,time_data,key,data_type)
 
