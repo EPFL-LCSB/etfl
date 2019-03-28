@@ -9,9 +9,18 @@
 Optimisation utilities
 """
 from pytfa.optim.variables import ReactionVariable, MetaboliteVariable
-from .variables import EnzymeVariable, GeneVariable, ModelVariable
+from .variables import EnzymeVariable, GeneVariable, ModelVariable, \
+    GrowthActivation, BinaryActivator
 from pytfa.optim.constraints import ReactionConstraint, MetaboliteConstraint
 from .constraints import EnzymeConstraint, GeneConstraint, ModelConstraint
+from collections import namedtuple
+
+
+try:
+    from gurobipy import GRB
+except ModuleNotFoundError:
+    pass
+
 
 def get_all_subclasses(cls):
     all_subclasses = []
@@ -222,3 +231,104 @@ def rebuild_constraint(classname, model, this_id, new_expr, lb, ub, queue=True):
                         .format(classname))
 
     return nc
+
+
+DefaultSol = namedtuple('DefaultSol', field_names='objective_value')
+
+
+def is_gurobi(model):
+    return model.problem.__name__ == 'optlang.gurobi_interface'
+
+
+def fix_growth(model, solution = None):
+
+    solution = check_solution(model, solution)
+
+    mu_variables = model.get_variables_of_type(GrowthActivation)
+    interp_variables = model.get_variables_of_type(BinaryActivator)
+
+    vars_to_fix = list(mu_variables) + list(interp_variables)
+
+    gurobi_hints = is_gurobi(model)
+    if gurobi_hints:
+        model.logger.info('Gurobi-based model detected - using  Gurobi hints')
+
+    for the_var in vars_to_fix:
+        value = solution.raw[the_var.name]
+        try:
+            the_var.variable.lb = int(value)
+            the_var.variable.ub = int(value)
+        except ValueError:
+            # Happens if lb>ub during assignment
+            the_var.variable.ub = int(value)
+            the_var.variable.lb = int(value)
+
+        if gurobi_hints:
+            the_var.variable._internal_variable.VarHintVal = value
+            the_var.variable._internal_variable.VarHintPri = 5
+
+
+def check_solution(model, solution):
+    if solution is None:
+        try:
+            solution = model.solution
+        except AttributeError:
+            raise AttributeError('If not providing a solution object, please '
+                                 'provide a model with an embedded solution '
+                                 '(call model.solve())')
+    return solution
+
+
+def release_growth(model):
+
+    mu_variables = model.get_variables_of_type(GrowthActivation)
+    interp_variables = model.get_variables_of_type(BinaryActivator)
+
+    vars_to_fix = list(mu_variables) + list(interp_variables)
+
+    gurobi_hints = is_gurobi(model)
+    for the_var in vars_to_fix:
+        the_var.variable.lb = 0
+        the_var.variable.ub = 1
+
+        if gurobi_hints:
+            the_var.variable._internal_variable.VarHintVal = GRB.UNDEFINED
+            the_var.variable._internal_variable.VarHintPri = 0
+
+
+def apply_warm_start(model, solution):
+    solution = check_solution(model, solution)
+
+    for the_var in model.variables:
+        if the_var.type == 'binary':
+            the_var._internal_variable.Start = solution.raw[the_var.name]
+
+
+def release_warm_start(model):
+
+    for the_var in model.variables:
+        if the_var.type == 'binary':
+            the_var._internal_variable.Start = GRB.UNDEFINED
+
+
+def get_active_growth_bounds(model):
+    mu = model.growth_reaction.flux
+    difflist = [abs(mu - x[0]) for x in model.mu_bins]
+    min_diff = min(difflist)
+    min_ix = difflist.index(min_diff)
+
+    mu_i, (mu_lb, mu_ub) = model.mu_bins[min_ix]
+
+    return mu_i, mu_lb, mu_ub
+
+
+def safe_optim(model):
+    try:
+        out = model.optimize()
+    except Exception:
+        import numpy as np
+
+        model.logger.warning('Solver status: {}'.format(model.solver.status))
+        out = DefaultSol
+        out.objective_value = np.nan
+    return  out

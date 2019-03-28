@@ -76,12 +76,12 @@ def add_enzyme_delta_constraint(dmodel, timestep):
         # expr_pos = (E - E_ref) - timestep*v_asm
         expr_pos = (E - E_ref) - timestep*v_loss
 
-        dmodel.add_constraint(kind = EnzymeDeltaPos,
-                                  hook = enz,
-                                  expr = expr_pos,
-                                  ub = 0,
-                                  queue = True
-                                  )
+        # dmodel.add_constraint(kind = EnzymeDeltaPos,
+        #                           hook = enz,
+        #                           expr = expr_pos,
+        #                           ub = 0,
+        #                           queue = True
+        #                           )
 
         expr_neg = (E_ref - E) - timestep*v_loss
         # expr_neg = (E_ref - E) - timestep*v_asm
@@ -130,22 +130,22 @@ def add_mRNA_delta_constraint(dmodel, timestep):
 
         expr_pos = (F - F_ref)- timestep*v_loss
 
-        dmodel.add_constraint(kind = mRNADeltaPos,
-                                  hook = mrna,
-                                  expr = expr_pos,
-                                  ub = 0,
-                                  queue = True
-                                  )
-
-        expr_neg = (F_ref - F) - timestep*v_loss
-        # expr_neg = (F_ref - F) - timestep*v_syn
-
-        dmodel.add_constraint(kind = mRNADeltaNeg,
-                                  hook = mrna,
-                                  expr = expr_neg,
-                                  ub = 0,
-                                  queue = True
-                                  )
+        # dmodel.add_constraint(kind = mRNADeltaPos,
+        #                           hook = mrna,
+        #                           expr = expr_pos,
+        #                           ub = 0,
+        #                           queue = True
+        #                           )
+        #
+        # expr_neg = (F_ref - F) - timestep*v_loss
+        # # expr_neg = (F_ref - F) - timestep*v_syn
+        #
+        # dmodel.add_constraint(kind = mRNADeltaNeg,
+        #                           hook = mrna,
+        #                           expr = expr_neg,
+        #                           ub = 0,
+        #                           queue = True
+        #                           )
     dmodel.repair()
 
 
@@ -295,7 +295,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
 
     for uptake_flux, kinfun in uptake_fun.items():
         the_rxn = dmodel.reactions.get_by_id(uptake_flux)
-        the_rxn.upper_bound = 0
+        # the_rxn.upper_bound = 0
         the_rxn.lower_bound = -1 * kinfun(S0[uptake_flux])
 
     if initial_solution is None:

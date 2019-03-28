@@ -10,106 +10,17 @@ from etfl.optim.variables import GrowthActivation, BinaryActivator
 from time import time
 from copy import copy
 
+from etfl.optim.utils import fix_growth, release_growth, \
+                            get_active_growth_bounds, safe_optim
 
 try:
     from gurobipy import GRB
 except ModuleNotFoundError:
     pass
 
-solver = 'optlang-gurobi'
+# solver = 'optlang-gurobi'
+solver = 'optlang-cplex'
 
-DefaultSol = namedtuple('DefaultSol', field_names='f')
-
-
-def is_gurobi(model):
-    return model.problem.__name__ == 'optlang.gurobi_interface'
-
-def fix_growth(model, solution = None):
-
-    solution = check_solution(model, solution)
-
-    mu_variables = model.get_variables_of_type(GrowthActivation)
-    interp_variables = model.get_variables_of_type(BinaryActivator)
-
-    vars_to_fix = list(mu_variables) + list(interp_variables)
-
-    gurobi_hints = is_gurobi(model)
-    if gurobi_hints:
-        model.logger.info('Gurobi-based model detected - using  Gurobi hints')
-
-    for the_var in vars_to_fix:
-        value = solution.raw[the_var.name]
-        try:
-            the_var.variable.lb = int(value)
-            the_var.variable.ub = int(value)
-        except ValueError:
-            # Happens if lb>ub during assignment
-            the_var.variable.ub = int(value)
-            the_var.variable.lb = int(value)
-
-        if gurobi_hints:
-            the_var.variable._internal_variable.VarHintVal = value
-            the_var.variable._internal_variable.VarHintPri = 5
-
-
-def check_solution(model, solution):
-    if solution is None:
-        try:
-            solution = model.solution
-        except AttributeError:
-            raise AttributeError('If not providing a solution object, please '
-                                 'provide a model with an embedded solution '
-                                 '(call model.solve())')
-    return solution
-
-
-def release_growth(model):
-
-    mu_variables = model.get_variables_of_type(GrowthActivation)
-    interp_variables = model.get_variables_of_type(BinaryActivator)
-
-    vars_to_fix = list(mu_variables) + list(interp_variables)
-
-    gurobi_hints = is_gurobi(model)
-    for the_var in vars_to_fix:
-        the_var.variable.lb = 0
-        the_var.variable.ub = 1
-
-        if gurobi_hints:
-            the_var.variable._internal_variable.VarHintVal = GRB.UNDEFINED
-            the_var.variable._internal_variable.VarHintPri = 0
-
-def apply_warm_start(model, solution):
-    solution = check_solution(model, solution)
-
-    for the_var in model.variables:
-        if the_var.type == 'binary':
-            the_var._internal_variable.Start = solution.raw[the_var.name]
-
-def release_warm_start(model):
-
-    for the_var in model.variables:
-        if the_var.type == 'binary':
-            the_var._internal_variable.Start = GRB.UNDEFINED
-
-def get_active_growth_bounds(model):
-    mu = model.growth_reaction.flux
-    difflist = [abs(mu - x[0]) for x in model.mu_bins]
-    min_diff = min(difflist)
-    min_ix = difflist.index(min_diff)
-
-    mu_i, (mu_lb, mu_ub) = model.mu_bins[min_ix]
-
-    return mu_i, mu_lb, mu_ub
-
-def safe_optim(model):
-    try:
-        out = model.optimize()
-    except Exception:
-        model.logger.warning('Solver status: {}'.format(model.solver.status))
-        out = DefaultSol
-        out.f = np.nan
-    return  out
 
 def _va_sim(model):
     model.objective.direction = 'max'
@@ -132,7 +43,6 @@ def simulate(available_uptake, model, variables, warm_start=None):
     model.objective.direction = 'max'
 
     out = safe_optim(model)
-    growth_solution = copy(model.solution)
 
     if model.solver.status == 'infeasible':
         ret = {'obj':np.nan,
@@ -150,9 +60,10 @@ def simulate(available_uptake, model, variables, warm_start=None):
         print('INFEASIBLE SOLUTION AT q={}'.format(available_uptake))
         return pd.Series(ret)
 
+    growth_solution = copy(model.solution)
     mu_i, mu_lb, mu_ub = get_active_growth_bounds(model)
     mu = model.growth_reaction.flux
-    release_warm_start(model)
+    # release_warm_start(model)
 
     try:
         prot_ratio = model.interpolation_variable.prot_ggdw.variable.primal
@@ -186,7 +97,7 @@ def simulate(available_uptake, model, variables, warm_start=None):
     print(pd.Series(ret))
 
     release_growth(model)
-    apply_warm_start(model, growth_solution)
+    # apply_warm_start(model, growth_solution)
 
     return pd.Series(ret)
 
@@ -202,16 +113,25 @@ if __name__ == '__main__':
 
 
     # uptake_range = pd.Series(np.arange(-1,-40, -1))
-    uptake_range = pd.Series(np.arange(-1,-30, -1))
+    # uptake_range = pd.Series(np.arange(-1,-30, -1))
+    uptake_range = pd.Series(np.arange(-1,-20, -1))
 
     model_files = {
+        # 'EFL':'iJO1366_EFL_1783_enz_128_bins__20190221_165945.json',
+        # 'ETFL':'SlackModel iJO1366_ETFL_1783_enz_128_bins__20190221_172509.json',
+        # 'vEFL':'iJO1366_vEFL_1783_enz_128_bins__20190221_182321.json',
+        # 'vETFL':'SlackModel iJO1366_vETFL_1783_enz_128_bins__20190221_185154.json',
+        # 'vETFL65':'SlackModel iJO1366_vETFL_1783_enz_128_bins__20190221_194424.json',
+        # 'vETFL_infer':'SlackModel iJO1366_vETFL_infer_2088_enz_128_bins__20190221_204202.json',
+        # 'vETFL65_infer': 'SlackModel iJO1366_vETFL_infer_2088_enz_128_bins__20190221_220847.json',
+
         # 'EFL':'iJO1366_EFL_431_enz_128_bins__20190121_080047.json',
         # 'ETFL':'SlackModel iJO1366_ETFL_431_enz_128_bins__20190121_110027.json',
         # 'vEFL':'iJO1366_vEFL_431_enz_128_bins__20190121_090316.json',
-        # 'vETFL':'SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_145700.json',
-        # 'vETFL65':'SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_155755.json',
-        # 'vETFL_infer':'SlackModel iJO1366_vETFL_2084_enz_128_bins__20190122_170118.json',
-        # 'vETFL65_infer':'SlackModel iJO1366_vETFL_2084_enz_128_bins__20190124_082824.json',
+        'vETFL':'SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_145700.json',
+        'vETFL65':'SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_155755.json',
+        'vETFL_infer':'SlackModel iJO1366_vETFL_2084_enz_128_bins__20190122_170118.json',
+        'vETFL65_infer':'SlackModel iJO1366_vETFL_2084_enz_128_bins__20190124_082824.json',
     }
 
     models = {k:load_json_model('models/'+v,solver=solver) for k,v in model_files.items()}
