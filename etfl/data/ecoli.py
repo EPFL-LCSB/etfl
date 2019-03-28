@@ -385,13 +385,16 @@ def is_gpr(s):
 def get_homomer_coupling_dict(model, mode = 'kcat'):
     if mode == 'kcat':
         k_info = kcat_info_milo
-        column = 'kcat per active site [1/s]'
+        k_column = 'kcat per active site [1/s]'
+        n_column = 'catalytic sites per complex'
     elif mode == 'kmax':
         k_info = kmax_info_milo
-        column = 'kmax per polypeptide chain [s-1]'
+        k_column = 'kmax per polypeptide chain [s-1]'
+        n_column = 'polypeptides per complex'
     elif isinstance(mode, Number):
         k_info = kmax_info_milo
-        column = 'kmax per polypeptide chain [s-1]'
+        k_column = 'kmax per polypeptide chain [s-1]'
+        n_column = 'polypeptides per complex'
 
     else:
         raise Exception("Mode {} not understood. Should be 'kcat' or 'kmax' "
@@ -400,7 +403,9 @@ def get_homomer_coupling_dict(model, mode = 'kcat'):
     coupling_dict = dict()
 
     for x in model.reactions:
-        composition, kcat_bwd, kcat_fwd = get_rate_constant(x, k_info, column)
+        composition, kcat_bwd, kcat_fwd = get_rate_constant(x, k_info,
+                                                            k_column,
+                                                            n_column)
         if isinstance(mode, Number):
             # It is a number
             kcat_fwd = kcat_bwd = mode
@@ -431,7 +436,7 @@ def get_homomer_coupling_dict(model, mode = 'kcat'):
     return coupling_dict
 
 
-def get_rate_constant(reaction, k_info, column):
+def get_rate_constant(reaction, k_info, k_column, n_column):
     k_data = k_info[k_info['reaction (model name)'] == reaction.id]
     k_data_reverse = k_info[k_info['reaction (model name)'] == reaction.id + '_reverse']
     data = kcat_info_milo[kcat_info_milo['reaction (model name)'] == reaction.id]
@@ -440,10 +445,10 @@ def get_rate_constant(reaction, k_info, column):
     kcat_bwd = 0
     composition = {}
     if len(k_data) > 0:
-        candidate_k = k_data[column].iloc[0]
+        candidate_k = k_data[k_column].iloc[0]
         n_peptides = data['polypeptides per complex'].iloc[0] \
             if len(data) > 0 else 1
-        n_sites = data['catalytic sites per complex'].iloc[0] \
+        n_sites = data[n_column].iloc[0] \
             if len(data) > 0 else 1
 
         kcat_fwd = candidate_k \
@@ -451,10 +456,10 @@ def get_rate_constant(reaction, k_info, column):
                    * 3600  # s/h
         composition = {k_data['bnumber'].iloc[0]: n_peptides}
     if len(k_data_reverse) > 0:
-        candidate_k = k_data_reverse[column].iloc[0]
+        candidate_k = k_data_reverse[k_column].iloc[0]
         n_peptides = data_reverse['polypeptides per complex'].iloc[0] \
             if len(data_reverse) > 0 else 1
-        n_sites = data_reverse['catalytic sites per complex'].iloc[0] \
+        n_sites = data_reverse[n_column].iloc[0] \
             if len(data_reverse) > 0 else 1
 
         kcat_bwd = candidate_k \
@@ -621,25 +626,33 @@ def get_lloyd_keffs():
 
     for key in keffs.keys():
         new_key = key.replace('keff_','')
-        new_key = new_key.replace('_DASH_','_')
-        new_keffs[new_key] = keffs[key]* 3600  # s/h
+        new_key = new_key.replace('_DASH_','-')
+        new_keffs[new_key] = keffs[key] * 3600  # s/h
 
     return new_keffs
 
 def get_keffs_from_complex_name(keffs, name):
     try:
         kcat_fwd = keffs[name + '_forward_priming_keff']
-        kcat_bwd = keffs[name + '_reverse_priming_keff']
-
-        return kcat_bwd, kcat_fwd
     except KeyError:
-        return None, None
+        kcat_fwd = None
+    try:
+        kcat_bwd = keffs[name + '_reverse_priming_keff']
+    except KeyError:
+        kcat_bwd = None
 
-def get_lloyd_coupling_dict(model):
+    return kcat_fwd, kcat_bwd
+
+def get_lloyd_coupling_dict(model, select = None):
+
+    if select is None:
+        select = model.reactions.list_attr('id')
+
     aggregated_coupling_dict = defaultdict(list)
     keffs = get_lloyd_keffs()
 
-    for x in model.reactions:
+    for xid in select:
+        x = model.reactions.get_by_id(xid)
         lloyd_id = check_id_in_reaction_list(x.id, reaction2complexes_info_lloyd)
         obrien_id = check_id_in_reaction_list(x.id, reaction2complexes_info_obrien)
 
@@ -661,17 +674,24 @@ def get_lloyd_coupling_dict(model):
                 continue
 
             cleaned_cplx_name = clean_string(this_complex_name)
-            enz_name = '{}_{}'.format(x.id,cleaned_cplx_name)
-            kcat_fwd, kcat_bwd = get_keffs_from_complex_name(keffs, enz_name)
+            keff_name = '{}_{}'.format(x.id,this_complex_name)
+            enz_name =  '{}_{}'.format(x.id,cleaned_cplx_name)
+            kcat_fwd, kcat_bwd = get_keffs_from_complex_name(keffs, keff_name)
 
-            if kcat_fwd is None or kcat_bwd is None:
+            if kcat_fwd is None and kcat_bwd is None:
                 continue
+            elif kcat_fwd is None:
+                kcat_fwd = kcat_bwd
+            elif kcat_bwd is None:
+                kcat_bwd = kcat_fwd
 
 
             new_enzyme = Enzyme(enz_name,
                                 name='{}_{}: {}'.format(x.id, e, this_complex_name),
                                 kcat_fwd=kcat_fwd,
                                 kcat_bwd=kcat_bwd,
+                                # kcat_fwd=5*kcat_fwd,
+                                # kcat_bwd=5*kcat_bwd,
                                 kdeg=kdeg_enz,
                                 composition=composition)
 
@@ -681,9 +701,15 @@ def get_lloyd_coupling_dict(model):
 
 
 def get_coupling_dict(model, mode, atps_name = None, infer_missing_enz=False):
-    coupling_dict = get_homomer_coupling_dict(model, mode=mode)
-    aggregated_coupling_dict = get_aggregated_coupling_dict(model, coupling_dict)
+    homomer_coupling_dict = get_homomer_coupling_dict(model, mode=mode)
+    aggregated_coupling_dict = get_aggregated_coupling_dict(model, homomer_coupling_dict)
+    # lloyd_dict = get_lloyd_coupling_dict(model)
+    coupling_dict = dict()
+    # Most important last
+    # coupling_dict.update(lloyd_dict)
     coupling_dict.update(aggregated_coupling_dict)
+    coupling_dict.update(homomer_coupling_dict)
+
     if infer_missing_enz:
         inferred_enz = dict()
 
@@ -693,6 +719,9 @@ def get_coupling_dict(model, mode, atps_name = None, infer_missing_enz=False):
             kcat = get_average_kcat()
 
         for r in model.reactions:
+            if r.id in coupling_dict:
+                continue
+
             if r.id not in coupling_dict \
                     and is_me_compatible(r):
                 inferred_enz[r.id] = infer_enzyme_from_gpr(r,
@@ -700,10 +729,13 @@ def get_coupling_dict(model, mode, atps_name = None, infer_missing_enz=False):
                                                            default_kdeg=kdeg_enz)
 
         coupling_dict.update(inferred_enz)
+
     # ATP Synthase bypasses numeric kcat
     if atps_name is not None:
         atps = get_atp_synthase_coupling(atps_name)
         coupling_dict.update(atps)
+
+    # coupling_dict.update(get_transporters_coupling())
 
     return coupling_dict
 
@@ -747,6 +779,38 @@ def get_atp_synthase_coupling(atps_name):
                         composition=composition)
 
     return {atps_name:[atp_synthase]}
+
+# def get_transporters_coupling():
+#     from etfl.core.enzymes import Enzyme
+#     from etfl.data.ecoli import kdeg_enz
+#
+#     coupling = dict()
+#
+#     # Lactose:
+#     lcts_rxn = 'LCTStpp'
+#     # Olsen, S. G., and R. J. Brooker.
+#     # "Analysis of the structural specificity of the lactose permease toward sugars."
+#     # Journal of Biological Chemistry 264.27 (1989): 15982-15987.
+#     # http://www.jbc.org/content/264/27/15982.full.pdf+html
+#     # Hammes GG (2005). Spectroscopy for the biological sciences. Hoboken, N.J.: Wiley-Interscience. p. 140. ISBN 9780471713449.
+#     # The protein has twelve transmembrane alpha-helices and its molecular weight is 45,000 Daltons
+#     kcat_lac = 210 / 1000 * 60 * 1000 / 45  # nmol/min/mgProt * mmol/nmol
+#                                             #  * min/h * mgProt/gProt * gProt/mmol
+#
+#     composition = {'b0343':1}
+#     lactose_permease = Enzyme(lcts_rxn,
+#                               name='Lactose permease',
+#                               kcat = kcat_lac,
+#                               kdeg=kdeg_enz,
+#                               composition = composition)
+#
+#     coupling[lcts_rxn] = [lactose_permease,]
+#
+#     # Glucose
+#
+#     # Do O2, Glc, Ac
+#
+#     return coupling
 
 def get_mrna_dict(model):
     mrna_dict = dict()
