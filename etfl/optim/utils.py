@@ -15,6 +15,7 @@ from pytfa.optim.constraints import ReactionConstraint, MetaboliteConstraint
 from .constraints import EnzymeConstraint, GeneConstraint, ModelConstraint
 from collections import namedtuple
 
+
 try:
     from gurobipy import GRB
 except ModuleNotFoundError:
@@ -325,6 +326,8 @@ def safe_optim(model):
     try:
         out = model.optimize()
     except Exception:
+        import numpy as np
+
         model.logger.warning('Solver status: {}'.format(model.solver.status))
         out = DefaultSol
         out.objective_value = np.nan
