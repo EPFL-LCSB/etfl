@@ -2,7 +2,7 @@ import pandas as pd
 
 import bokeh.plotting as bp
 from bokeh.layouts import column
-from bokeh.palettes import Category10, magma
+from bokeh.palettes import Category10, magma, plasma
 from bokeh.models import Legend, Range1d, LinearAxis
 
 from os import makedirs
@@ -16,9 +16,12 @@ def get_mrna_total(time_data, mrnas):
     return time_data.loc[[x.variable.name * x.scaling_factor
                           for x in mrnas]].sum()
 
-def get_prot_total(time_data, enzymes):
+def get_prot_total(time_data, enzymes, mass_mode = True):
     enz = time_data.loc[[x.variable.name for x in enzymes]]
-    sigma =  pd.Series([x.scaling_factor for x in enzymes], index = enz.index)
+    if mass_mode:
+        sigma=1
+    else:
+        sigma =  pd.Series([x.scaling_factor for x in enzymes], index = enz.index)
 
     return (sigma*enz.T).T.sum()
 
@@ -42,6 +45,9 @@ def summarize_model(model,time_data,groups,
         detailed_plots[key] = make_detailed_plots(model,time_data,data_type)
 
     summary_plots['growth'] = make_growth_plot(model,time_data)
+
+    if model is not None:
+        summary_plots['subsystems'] = plot_subsystems(model,time_data)
 
     output_folder = join(output_path,model_tag)#+'_'+get_timestr())
 
@@ -163,7 +169,12 @@ def plot_lines(t,ys,title, total = False):
     return p
 
 
-def plot_subsystems(p,t,model,time_data):
+def plot_subsystems(model,time_data,compact=True):
+    t = time_data.loc['t']
+    if compact:
+        p = bp.figure(width=1000)
+    else:
+        p = bp.figure(width=1000, height = 800)
 
     subsystems = list(set((x.subsystem for x in model.reactions
                            if x.subsystem is not None and x.subsystem)))
@@ -171,30 +182,53 @@ def plot_subsystems(p,t,model,time_data):
     all_enz = dict()
     for sub in subsystems:
         these_enzymes = get_enzymes_of_subsystem(model, sub)
+        if len(these_enzymes) ==0:
+            continue
         all_enz[sub] = get_prot_total(time_data, these_enzymes)
 
     data = pd.DataFrame.from_dict(all_enz, orient = 'columns')
     data = data.reindex(data.max().sort_values(ascending=False).index, axis=1)
-    chosen_subs = data.columns[:10]
+    data.to_csv('tmp.csv')
+
+    if compact:
+        chosen_subs = data.columns[:10]
+        colors = Category10[len(chosen_subs)]
+    else:
+        chosen_subs = data.columns
+        colors = plasma(len(chosen_subs))
+
     data = data[chosen_subs]
 
     data['t'] = t
-    colors = Category10[len(data.columns)-1]
 
     last_y = 0*t
     times = list(t) + list(t[::-1])
-
+    legend_it = []
     for e,sub in enumerate(chosen_subs):
         this_y = data[sub] + last_y
         ys = list(this_y) + list(last_y[::-1])
 
-        p.patch(x = times, y = ys, color = colors[e], legend = sub)
+        c = p.patch(x = times, y = ys, color = colors[e])#, legend = sub)
+        legend_it.append((sub, [c]))
+
 
         last_y = this_y
 
     p.legend.location = 'top_left'
+    legend = Legend(items=legend_it[::-1], location=(0, 0))
 
-    return data
+    p.add_layout(legend, 'right')
+
+    return p
+
+def get_enzymes_of_subsystem(model, subsystem):
+    reactions = [x for x in model.reactions if subsystem.lower() in x.subsystem.lower()]
+
+    enzymes = [item for rxn in reactions if hasattr(rxn,'enzymes') and rxn.enzymes is not None
+               for item in rxn.enzymes
+               ]
+
+    return enzymes
 
 if __name__ == '__main__':
 

@@ -204,19 +204,28 @@ def add_mRNA_delta_constraint(dmodel, timestep, degradation, synthesis):
         if 'dummy' in mrna.id:
             continue
 
-        F = mrna.concentration
-        # F_ref = mrna_ref_variables.get_by_id(mrna.id) * mrna.scaling_factor
+        # F = mrna.concentration
+        F_ref = mrna_ref_variables.get_by_id(mrna.id)
         # F_rhs = mrna_rhs_variables.get_by_id(mrna.id)
 
         trans_id = dmodel._get_transcription_name(mrna.id)
 
         trans = dmodel.transcription_reactions.get_by_id(trans_id)
         v_syn = (trans.forward_variable - trans.reverse_variable) \
-                 * trans.scaling_factor
+                 * trans.scaling_factor / mrna.scaling_factor
+
+        # Backwards Euler method
+        # F(t+dt) = (mu(t+dt)+kdeg)*F(t+dt)*dt + F(t)
+        F = mrna.variable
+        # muF = get_mu_times_var(dmodel, mrna)
+        # conc_change = (mrna.kdeg * F + muF) * timestep
+        conc_change = v_syn * timestep
+
 
         if synthesis:
             # expr_pos = (F - F_ref)- timestep*v_syn
-            expr_pos = F - F_rhs
+            # expr_pos = F - F_rhs
+            expr_pos = F - F_ref - conc_change
 
             dmodel.add_constraint(kind = mRNADeltaPos,
                                       hook = mrna,
@@ -227,7 +236,8 @@ def add_mRNA_delta_constraint(dmodel, timestep, degradation, synthesis):
 
         if degradation:
             # expr_neg = (F_ref - F) - timestep*v_syn
-            expr_neg = F_rhs - F
+            # expr_neg = F_rhs - F
+            expr_neg = F_ref - F - conc_change
 
             dmodel.add_constraint(kind = mRNADeltaNeg,
                                       hook = mrna,
@@ -411,6 +421,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
         chebyshev_variables += dmodel.get_variables_of_type(EnzymeVariable)
 
 
+    add_dynamic_variables_constraints(dmodel, timestep, dynamic_constraints)
     chebyshev_center(dmodel, chebyshev_variables,
                      inplace=True,
                      big_m=chebyshev_bigm,
@@ -420,7 +431,6 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
 
     chebyshev_sol = compute_center(dmodel)
 
-    add_dynamic_variables_constraints(dmodel, timestep, dynamic_constraints)
 
     has_mrna = dynamic_constraints['mRNA_degradation'] + dynamic_constraints['mRNA_synthesis']
     has_enzymes = dynamic_constraints['enzyme_degradation'] + dynamic_constraints['enzyme_synthesis']

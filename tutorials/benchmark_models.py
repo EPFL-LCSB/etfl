@@ -18,8 +18,8 @@ try:
 except ModuleNotFoundError:
     pass
 
-# solver = 'optlang-gurobi'
-solver = 'optlang-cplex'
+solver = 'optlang-gurobi'
+# solver = 'optlang-cplex'
 
 
 def _va_sim(model):
@@ -117,21 +117,21 @@ if __name__ == '__main__':
     uptake_range = pd.Series(np.arange(-1,-20, -1))
 
     model_files = {
-        'EFL':'iJO1366_EFL_1783_enz_128_bins__20190221_165945.json',
-        'ETFL':'SlackModel iJO1366_ETFL_1783_enz_128_bins__20190221_172509.json',
-        'vEFL':'iJO1366_vEFL_1783_enz_128_bins__20190221_182321.json',
-        'vETFL':'SlackModel iJO1366_vETFL_1783_enz_128_bins__20190221_185154.json',
-        'vETFL65':'SlackModel iJO1366_vETFL_1783_enz_128_bins__20190221_194424.json',
-        'vETFL_infer':'SlackModel iJO1366_vETFL_infer_2088_enz_128_bins__20190221_204202.json',
-        'vETFL65_infer': 'SlackModel iJO1366_vETFL_infer_2088_enz_128_bins__20190221_220847.json',
-
-        # 'EFL':'iJO1366_EFL_431_enz_128_bins__20190121_080047.json',
-        # 'ETFL':'SlackModel iJO1366_ETFL_431_enz_128_bins__20190121_110027.json',
-        # 'vEFL':'iJO1366_vEFL_431_enz_128_bins__20190121_090316.json',
-        # 'vETFL':'SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_145700.json',
-        # 'vETFL65':'SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_155755.json',
-        # 'vETFL_infer':'SlackModel iJO1366_vETFL_2084_enz_128_bins__20190122_170118.json',
-        # 'vETFL65_infer':'SlackModel iJO1366_vETFL_2084_enz_128_bins__20190124_082824.json',
+        # 'EFL':'iJO1366_EFL_1783_enz_128_bins__20190221_165945.json',
+        # 'ETFL':'SlackModel iJO1366_ETFL_1783_enz_128_bins__20190221_172509.json',
+        # 'vEFL':'iJO1366_vEFL_1783_enz_128_bins__20190221_182321.json',
+        # 'vETFL':'SlackModel iJO1366_vETFL_1783_enz_128_bins__20190221_185154.json',
+        # 'vETFL65':'SlackModel iJO1366_vETFL_1783_enz_128_bins__20190221_194424.json',
+        # 'vETFL_infer':'SlackModel iJO1366_vETFL_infer_2088_enz_128_bins__20190221_204202.json',
+        # 'vETFL65_infer': 'SlackModel iJO1366_vETFL_infer_2088_enz_128_bins__20190221_220847.json',
+        #
+        'EFL':'iJO1366_EFL_431_enz_128_bins__20190121_080047.json',
+        'ETFL':'SlackModel iJO1366_ETFL_431_enz_128_bins__20190121_110027.json',
+        'vEFL':'iJO1366_vEFL_431_enz_128_bins__20190121_090316.json',
+        'vETFL':'SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_145700.json',
+        'vETFL65':'SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_155755.json',
+        'vETFL_infer':'SlackModel iJO1366_vETFL_2084_enz_128_bins__20190122_170118.json',
+        'vETFL65_infer':'SlackModel iJO1366_vETFL_2084_enz_128_bins__20190124_082824.json',
     }
 
     models = {k:load_json_model('models/'+v,solver=solver) for k,v in model_files.items()}

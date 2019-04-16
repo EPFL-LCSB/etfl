@@ -12,16 +12,15 @@ from etfl.analysis.utils import enzymes_to_peptides_conc
 
 import pandas as pd
 
-
-ecoli = load_json_model('models/RelaxedModel iJO1366_T1E1N1_431_enz_128_bins__20180926_124941.json')
+ecoli = load_json_model('models/SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_145700.json')
 ecoli.optimize()
 
 def print_sol(model):
-    print('Objective            : {}'.format(model.solution.f))
-    print(' - Glucose uptake    : {}'.format(model.solution.x_dict.EX_glc__D_e))
-    print(' - Growth            : {}'.format(model.solution.x_dict[model.growth_reaction.id]))
-    print(' - Ribosomes produced: {}'.format(model.solution.raw.EZ_rib))
-    print(' - RNAP produced: {}'.format(model.solution.raw.EZ_rnap))
+    print('Objective            : {}'.format(model.solution.objective_value))
+    print(' - Glucose uptake    : {}'.format(model.solution.raw.loc['EX_glc__D_e']))
+    print(' - Growth            : {}'.format(model.solution.raw.loc[model.growth_reaction.id]))
+    print(' - Ribosomes produced: {}'.format(model.solution.raw.loc['EZ_rib']))
+    print(' - RNAP produced: {}'.format(model.solution.raw.loc['EZ_rnap']))
     try:
         print(' - DNA produced: {}'.format(model.solution.raw.DN_DNA))
     except AttributeError:
@@ -73,8 +72,8 @@ def get_mu_bin(model, mu):
 for glc_uptake in [uptake_high,uptake_low]:
     continuous_model.growth_reaction.lower_bound = 0
     continuous_model.growth_reaction.upper_bound = 10
-    continuous_model.reactions.EX_glc__D_e.lower_bound = glc_uptake - 0.1
-    continuous_model.reactions.EX_glc__D_e.upper_bound = glc_uptake + 0.1
+    continuous_model.reactions.EX_glc__D_e.lower_bound = glc_uptake - 0.01
+    continuous_model.reactions.EX_glc__D_e.upper_bound = glc_uptake + 0.01
 
     continuous_model.optimize()
     mu = continuous_model.growth_reaction.flux
@@ -91,16 +90,16 @@ for glc_uptake in [uptake_high,uptake_low]:
     peptides_conc_min = pd.Series(enzymes_to_peptides_conc(continuous_model, eva['minimum']))
     peptides_conc_max = pd.Series(enzymes_to_peptides_conc(continuous_model, eva['maximum']))
     peptides_conc = pd.concat([peptides_conc_min,peptides_conc_max], axis=1)
-    peptides_conc.to_csv('outputs/iJO_T1E1N1_low_hi_{}_pep.csv'.format(glc_uptake))
+    peptides_conc.to_csv('outputs/iJO_vETFL_low_hi_{}_pep.csv'.format(glc_uptake))
 
-    rescale = lambda row: ecoli.mrnas.get_by_id(row.name[3:]).scaling_factor * row
+    rescale = lambda row: ecoli.enzymes.get_by_id(row.name[3:]).scaling_factor * row
     eva_real = eva.apply(rescale, axis=1)
-    eva_real.to_csv('outputs/iJO_T1E1N1_low_hi_{}_enz.csv'.format(glc_uptake))
+    eva_real.to_csv('outputs/iJO_vETFL_1783_low_hi_{}_enz.csv'.format(glc_uptake))
 
     # mva = variability_analysis(continuous_model, mRNAVariable)
     # rescale = lambda row: ecoli.mrnas.get_by_id(row.name[3:]).scaling_factor * row
     # mva_real = mva.apply(rescale, axis=1)
-    # mva_real.to_csv('outputs/iJO_T1E1N1_low_hi_{}_mrna.csv'.format(glc_uptake))
+    # mva_real.to_csv('outputs/iJO_vETFL_low_hi_{}_mrna.csv'.format(glc_uptake))
 
 
 

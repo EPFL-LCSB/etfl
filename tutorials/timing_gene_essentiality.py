@@ -19,7 +19,9 @@ solver = 'optlang-gurobi'
 # ecoli_tfa.solver = solver
 
 # ecoli = load_json_model('models/RelaxedModel iJO1366_vETFL_431_enz_128_bins__20190108_181346.json')
-ecoli = load_json_model('models/SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_155755.json')
+# ecoli = load_json_model('models/SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_155755.json')
+# ecoli = load_json_model('models/SlackModel iJO1366_vETFL_1783_enz_128_bins__20190221_185154.json')
+ecoli = load_json_model('models/SlackModel iJO1366_vETFL_2084_enz_128_bins__20190122_170118.json')
 ecoli.solver = solver
 
 standard_solver_config(ecoli)

@@ -1,5 +1,5 @@
 model: '../../tutorials/models/SlackModel iJO1366_vETFL_440_enz_128_bins__20190227_141232.json'
-tag: 'vETFL_glc_ac'
+tag: 'vETFL_glc_ac_all_deg'
 simulation:
   timestep: 0.05
   tfinal: 3
@@ -23,6 +23,8 @@ options:
   chebyshev_include:
     - ForwardCatalyticConstraint
     - BackwardCatalyticConstraint
+#    - EnzymeDeltaPos
+#    - EnzymeDeltaNeg
 #    - ExpressionCoupling
   constraints:
     mRNA_degradation: no
