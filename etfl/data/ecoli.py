@@ -158,11 +158,11 @@ def get_nt_sequences():
 # Proceedings of the National Academy of Sciences 113.12 (2016): 3401-3406.
 kcat_info_milo = pd.read_excel(pjoin(data_dir,'pnas.1514240113.sd01.xlsx'),
                                sheet_name='kcat 1s',
-                               header=1,
+                               header=2,
                                )
 kmax_info_milo = pd.read_excel(pjoin(data_dir,'pnas.1514240113.sd01.xlsx'),
                                sheet_name='kmax 1s',
-                               header=1,
+                               header=2,
                                )
 kcat_info_aggregated    = pd.read_csv(pjoin(data_dir,'aggregated_kcats.csv'),
                                       index_col = 0)
@@ -629,6 +629,7 @@ def get_lloyd_keffs():
         new_key = new_key.replace('_DASH_','-')
         new_keffs[new_key] = keffs[key] * 3600  # s/h
 
+
     return new_keffs
 
 def get_keffs_from_complex_name(keffs, name):
@@ -641,10 +642,12 @@ def get_keffs_from_complex_name(keffs, name):
     except KeyError:
         kcat_bwd = None
 
-    return kcat_fwd, kcat_bwd
+    return kcat_fwd,kcat_bwd
 
-def get_lloyd_coupling_dict(model, select = None):
 
+
+
+def get_lloyd_coupling_dict(model, select=None):
     if select is None:
         select = model.reactions.list_attr('id')
 
@@ -657,15 +660,15 @@ def get_lloyd_coupling_dict(model, select = None):
         obrien_id = check_id_in_reaction_list(x.id, reaction2complexes_info_obrien)
 
         if lloyd_id:
-            complex_names = reaction2complexes_info_lloyd.loc[lloyd_id,'Enzymes']\
+            complex_names = reaction2complexes_info_lloyd.loc[lloyd_id, 'Enzymes'] \
                 .split(' OR ')
         elif obrien_id:
-            complex_names = reaction2complexes_info_obrien.loc[obrien_id,'Enzymes']\
+            complex_names = reaction2complexes_info_obrien.loc[obrien_id, 'Enzymes'] \
                 .split(' OR ')
         else:
             continue
 
-        for e,this_complex_name in enumerate(complex_names):
+        for e, this_complex_name in enumerate(complex_names):
 
             # Start with this:
             composition = complex2composition(this_complex_name)
@@ -674,8 +677,10 @@ def get_lloyd_coupling_dict(model, select = None):
                 continue
 
             cleaned_cplx_name = clean_string(this_complex_name)
-            keff_name = '{}_{}'.format(x.id,this_complex_name)
-            enz_name =  '{}_{}'.format(x.id,cleaned_cplx_name)
+
+            keff_name = '{}_{}'.format(x.id, this_complex_name)
+            enz_name = '{}_{}'.format(x.id, cleaned_cplx_name)
+
             kcat_fwd, kcat_bwd = get_keffs_from_complex_name(keffs, keff_name)
 
             if kcat_fwd is None and kcat_bwd is None:
@@ -780,37 +785,41 @@ def get_atp_synthase_coupling(atps_name):
 
     return {atps_name:[atp_synthase]}
 
-# def get_transporters_coupling():
-#     from etfl.core.enzymes import Enzyme
-#     from etfl.data.ecoli import kdeg_enz
-#
-#     coupling = dict()
-#
-#     # Lactose:
-#     lcts_rxn = 'LCTStpp'
-#     # Olsen, S. G., and R. J. Brooker.
-#     # "Analysis of the structural specificity of the lactose permease toward sugars."
-#     # Journal of Biological Chemistry 264.27 (1989): 15982-15987.
-#     # http://www.jbc.org/content/264/27/15982.full.pdf+html
-#     # Hammes GG (2005). Spectroscopy for the biological sciences. Hoboken, N.J.: Wiley-Interscience. p. 140. ISBN 9780471713449.
-#     # The protein has twelve transmembrane alpha-helices and its molecular weight is 45,000 Daltons
-#     kcat_lac = 210 / 1000 * 60 * 1000 / 45  # nmol/min/mgProt * mmol/nmol
-#                                             #  * min/h * mgProt/gProt * gProt/mmol
-#
-#     composition = {'b0343':1}
-#     lactose_permease = Enzyme(lcts_rxn,
-#                               name='Lactose permease',
-#                               kcat = kcat_lac,
-#                               kdeg=kdeg_enz,
-#                               composition = composition)
-#
-#     coupling[lcts_rxn] = [lactose_permease,]
-#
-#     # Glucose
-#
-#     # Do O2, Glc, Ac
-#
-#     return coupling
+
+def get_transporters_coupling(model, additional_enz):
+
+    coupling_dict = get_lloyd_coupling_dict(model, select=additional_enz)
+
+    curated_refs = pd.read_csv(pjoin(data_dir,'transporters_kcats.csv'),
+                               header=0, skiprows=[1,], # Units row
+                               index_col=0)
+
+    # UNIPROT has non SI units:
+        # umol / (min.mgEnz) *    g/mol               *mol/umol * min/h  * mg/g
+    curated_refs['etfl_kcat'] = \
+        curated_refs['kcat'] * curated_refs['weight'] * 1e-6    *  60    * 1000
+
+    curated_dict = defaultdict(list)
+
+    for rxn, row in curated_refs.iterrows():
+
+        if row['kcat'] == 0:
+            continue
+
+        composition = {row['gene'] : 1}
+        enz_id = '{}_{}'.format(rxn,row['gene'])
+        enz_name = '{}, {} isoform'.format(rxn,row['gene'])
+        enz = Enzyme(enz_id,
+                        name=enz_name,
+                        kcat_fwd=row['etfl_kcat'] * 3600,
+                        kcat_bwd=row['etfl_kcat'] * 3600,
+                        kdeg=kdeg_enz,
+                        composition=composition)
+        curated_dict[rxn].append(enz)
+
+    coupling_dict.update(curated_dict)
+    print(curated_refs)
+    return coupling_dict
 
 def get_mrna_dict(model):
     mrna_dict = dict()

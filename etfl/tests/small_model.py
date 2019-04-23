@@ -1,7 +1,7 @@
 """
 .. module:: ETFL
    :platform: Unix, Windows
-   :synopsis: Thermodynamics-based Flux Analysis
+   :synopsis: flux balance models accounting for expression, thermodynamics, and resource allocation constraints
 
 .. moduleauthor:: ETFL team
 
@@ -36,7 +36,7 @@ CPLEX = 'optlang-cplex'
 GUROBI = 'optlang-gurobi'
 GLPK = 'optlang-glpk'
 
-solver = GUROBI
+solver = GLPK
 aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides = get_monomers_dict()
 essentials = get_essentials()
 

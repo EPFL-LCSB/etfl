@@ -1,0 +1,193 @@
+from detfl_wrapper import run_detfl, read_config
+from etfl.io.json import load_json_model
+from etfl.optim.config import standard_solver_config
+import yaml
+from math import exp
+import sys
+
+if len(sys.argv)<=1:
+    CONFIG = 'monod_acetate.yml'
+    # CONFIG = 'monod_lactose.yml'
+else:
+    CONFIG = sys.argv[1]
+
+print('Using configuration file: {}'.format(CONFIG))
+
+def get_uptake_funs():
+
+    uptake_funs = dict()
+
+    # Glucose:
+
+    # Vmax0 = 10 # mmol/(h.mmol[E]) Mahadevan et al. 2002
+    Vmax0 = 1
+    Km0 = 0.015 # mM, Mahadevan et al. 2002, Wong et al. 1997
+
+    uptake_funs['EX_glc__D_e'] = lambda x: Vmax0 * x / (Km0 + x)
+
+    # Lactose:
+    # Olsen, S. G., and R. J. Brooker.
+    # "Analysis of the structural specificity of the lactose permease toward sugars."
+    # Journal of Biological Chemistry 264.27 (1989): 15982-15987.
+    # http://www.jbc.org/content/264/27/15982.full.pdf+html
+    # TODO: Stop assuming 1mgProt/gDW
+    # Vmax_lac = 210 /1000 * 60 *1  # nmol/min/mgProt * mmol/nmol * min/h * mgProt/gDW
+    Vmax_lac = 1
+    Km_lac = 1.3 # mM
+
+    uptake_funs['EX_lcts_e'] = lambda x: Vmax_lac * x / (Km_lac + x)
+
+    # O2
+    # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC134846/
+    # Alexeeva S, Hellingwerf KJ, Teixeira de Mattos MJ.
+    # Quantitative assessment of oxygen availability: perceived aerobiosis and
+    # its effect on flux distribution in the respiratory chain of
+    # Escherichia coli.
+    # J Bacteriol. 2002;184(5):1402-6.
+    # The cytochrome bo oxidase has a Km for O2 of 2 × 10−4 mM and a Vmax of
+    # 6.6 × 10−2 mmol of O2·nmol of cytochrome o−1·h−1 (18). This corresponds,
+    # at the measured rDOT value of 1.6 × 10−2 mM, to a cytochrome bo oxidase
+    # content of 73 nmol of protein·g (dry weight)−1
+    # VmaxO2 = 6.6*1e-2 *73 # mmol/h
+    VmaxO2 = 15 # mmol/h
+    KmO2 = 2 * 1e-4 #mM
+    uptake_funs['EX_o2_e'] = lambda x: VmaxO2 * x /(KmO2 + x)
+
+    # Acetate
+    uptake_funs['EX_ac_e'] = lambda x: 15 if x>0 else 0
+
+    return uptake_funs
+
+def prepare_model(in_model, v0, S0, uptake_fun):
+    """
+    Minimize glucose enzymes on glycerol uptake
+    :param in_model:
+    :return:
+    """
+
+    # for uptake_flux, kinfun in uptake_fun.items():
+    #     in_model.reactions.get_by_id(uptake_flux).lower_bound = \
+            # -1 * kinfun(S0[uptake_flux])
+    # model.reactions.EX_glc__D_e.lower_bound = -10
+    # model.reactions.EX_o2_e.lower_bound = -15
+
+
+    #  ('LCTSt3ipp',
+    # 'Lactose transport via proton aniport _periplasm',
+    # 'h_p + lcts_c --> h_c + lcts_p'),
+    # We set it to 0, since we will not produce lactose,
+    # and do not have any enzyme related to it
+    model.reactions.LCTSt3ipp.lower_bound = 0
+
+    for rxn_id,lb in v0.items():
+        try:
+            model.reactions.get_by_id(rxn_id).lower_bound = lb
+        except AttributeError: # For debug models
+            model.logger.warning('Reaction {} not in model - could not '
+                                 'initialize flux'.format(rxn_id))
+
+    sol_glyc = in_model.optimize()
+
+    # in_model.growth_reaction.lower_bound = sol_glyc.f * 0.9
+    #
+    # glycolysis_rxns = [x for x in in_model.reactions
+    #                    if x.subsystem == 'Glycolysis/Gluconeogenesis' and
+    #                    isinstance(x, EnzymaticReaction)]
+    # glycolysis_enz = [item for rxn in glycolysis_rxns for item in rxn.enzymes]
+    #
+    # obj = sum([-1*x.concentration for x in glycolysis_enz])
+    #
+    # in_model.objective = obj
+    #
+    # sol_min = in_model.optimize()
+    #
+    # in_model.objective = in_model.growth_reaction
+    # in_model.growth_reaction.lower_bound = 0
+    #
+    # return sol_min
+    return sol_glyc
+
+
+
+if __name__ == '__main__':
+    config = read_config(CONFIG)
+
+    has_lcts = 'EX_lcts_e' in config['assumptions']['S0']
+
+    # timestep = 0.1
+    # timestep = 0.05
+    timestep = config['simulation']['timestep']
+    epsilon = timestep/100
+
+    S0_o2 = config['assumptions']['S0']['EX_o2_e']  # mmol/L
+    S1_o2 = 0.21  # mmol/L
+    kla_o2 = 7.5  # h^-1
+
+    S0_glc = config['assumptions']['S0']['EX_glc__D_e'] #mmol/L
+    S1_glc = 10 #mmol/L
+
+    if has_lcts:
+        S0_lac = config['assumptions']['S0']['EX_lcts_e'] #mmol/L
+        S1_lac = 10 #mmol/L
+    else:
+        S0_lac = 0
+        S1_lac = 0
+
+    S0_ac = config['assumptions']['S0']['EX_ac_e']
+
+
+    X0 = config['assumptions']['X0']
+
+    glc_fun = lambda t, S, S0=S0_glc, S1=S1_glc: \
+        max(S, 0)
+        # S + S1 if abs(t - 1) <= timestep+epsilon and S <= S0 else max(S, 0)
+    # S1 if t > 1  else S0
+
+
+    lac_fun = lambda t, S, S0=S0_lac, S1=S1_lac: \
+        max(S, 0)
+
+    o2_fun = lambda t, S, S0=S0_o2, S1=S1_o2: \
+        S1 # if t > 1  else S0
+    # S + S1 if abs(t - 1) <= timestep+epsilon and S <= S0 else max(S, 0)
+
+    glc_free = lambda t,S : max(S0_glc,0)
+    # o2_diff = lambda t,S,S0=S0_o2,kla=kla_o2 : max(S + kla*(S0-S),0)
+    o2_diff = lambda t,S,S0=S1_o2,kla=kla_o2 : max(S0 - (S0-S)*exp(-kla*timestep),0)
+
+    ac_fun = lambda t,S : max(S,0)
+
+    medium_funs = {
+        'EX_glc__D_e': glc_fun,
+        'EX_lcts_e'  : lac_fun,
+        'EX_o2_e'    : o2_diff,
+        'EX_ac_e'    : ac_fun,
+    }
+
+    uptake_funs = get_uptake_funs()
+
+    if not has_lcts:
+        medium_funs.pop('EX_lcts_e')
+        uptake_funs.pop('EX_lcts_e')
+
+
+    if config['model'] != 'debug':
+        model = load_json_model(config['model'])
+    else:
+        from etfl.tests.small_model import create_etfl_model
+        model = create_etfl_model(0,0)
+
+    standard_solver_config(model)
+    model.solver.configuration.verbosity = 0
+
+    ini_sol = prepare_model(model,
+                            v0=config['assumptions']['v0'],
+                            S0=config['assumptions']['S0'],
+                            uptake_fun = uptake_funs)
+
+    time_data = run_detfl(model=model,
+                          yaml_file=CONFIG,
+                          ini_sol=ini_sol,
+                          uptake_funs=uptake_funs,
+                          medium_funs=medium_funs)
+
