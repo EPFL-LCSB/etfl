@@ -621,7 +621,7 @@ def get_lloyd_keffs():
 
     for key in keffs.keys():
         new_key = key.replace('keff_','')
-        new_key = new_key.replace('_DASH_','_')
+        new_key = new_key.replace('_DASH_','-')
         new_keffs[new_key] = keffs[key]* 3600  # s/h
 
     return new_keffs
@@ -629,30 +629,40 @@ def get_lloyd_keffs():
 def get_keffs_from_complex_name(keffs, name):
     try:
         kcat_fwd = keffs[name + '_forward_priming_keff']
-        kcat_bwd = keffs[name + '_reverse_priming_keff']
-
-        return kcat_bwd, kcat_fwd
     except KeyError:
-        return None, None
+        kcat_fwd = None
+    try:
+        kcat_bwd = keffs[name + '_reverse_priming_keff']
+    except KeyError:
+        kcat_bwd = None
 
-def get_lloyd_coupling_dict(model):
+    return kcat_fwd,kcat_bwd
+
+
+
+
+def get_lloyd_coupling_dict(model, select=None):
+    if select is None:
+        select = model.reactions.list_attr('id')
+
     aggregated_coupling_dict = defaultdict(list)
     keffs = get_lloyd_keffs()
 
-    for x in model.reactions:
+    for xid in select:
+        x = model.reactions.get_by_id(xid)
         lloyd_id = check_id_in_reaction_list(x.id, reaction2complexes_info_lloyd)
         obrien_id = check_id_in_reaction_list(x.id, reaction2complexes_info_obrien)
 
         if lloyd_id:
-            complex_names = reaction2complexes_info_lloyd.loc[lloyd_id,'Enzymes']\
+            complex_names = reaction2complexes_info_lloyd.loc[lloyd_id, 'Enzymes'] \
                 .split(' OR ')
         elif obrien_id:
-            complex_names = reaction2complexes_info_obrien.loc[obrien_id,'Enzymes']\
+            complex_names = reaction2complexes_info_obrien.loc[obrien_id, 'Enzymes'] \
                 .split(' OR ')
         else:
             continue
 
-        for e,this_complex_name in enumerate(complex_names):
+        for e, this_complex_name in enumerate(complex_names):
 
             # Start with this:
             composition = complex2composition(this_complex_name)
@@ -661,12 +671,16 @@ def get_lloyd_coupling_dict(model):
                 continue
 
             cleaned_cplx_name = clean_string(this_complex_name)
-            enz_name = '{}_{}'.format(x.id,cleaned_cplx_name)
-            kcat_fwd, kcat_bwd = get_keffs_from_complex_name(keffs, enz_name)
+            keff_name = '{}_{}'.format(x.id, this_complex_name)
+            enz_name = '{}_{}'.format(x.id, cleaned_cplx_name)
+            kcat_fwd, kcat_bwd = get_keffs_from_complex_name(keffs, keff_name)
 
-            if kcat_fwd is None or kcat_bwd is None:
+            if kcat_fwd is None and kcat_bwd is None:
                 continue
-
+            elif kcat_fwd is None:
+                kcat_fwd = kcat_bwd
+            elif kcat_bwd is None:
+                kcat_bwd = kcat_fwd
 
             new_enzyme = Enzyme(enz_name,
                                 name='{}_{}: {}'.format(x.id, e, this_complex_name),
@@ -747,6 +761,43 @@ def get_atp_synthase_coupling(atps_name):
                         composition=composition)
 
     return {atps_name:[atp_synthase]}
+
+
+def get_transporters_coupling(model, additional_enz):
+
+    coupling_dict = get_lloyd_coupling_dict(model, select=additional_enz)
+
+    curated_refs = pd.read_csv(pjoin(data_dir,'transporters_kcats.csv'),
+                               header=0, skiprows=[1,], # Units row
+                               index_col=0)
+
+    # UNIPROT has non SI units:
+        # umol / (min.mgEnz) *    g/mol               *mol/umol * min/h  * mg/g
+    curated_refs['etfl_kcat'] = \
+        curated_refs['kcat'] * curated_refs['weight'] * 1e-6    *  60    * 1000
+
+    curated_dict = defaultdict(list)
+
+    for rxn, row in curated_refs.iterrows():
+
+        if row['kcat'] == 0:
+            continue
+
+        composition = {row['gene'] : 1}
+        enz_id = '{}_{}'.format(rxn,row['gene'])
+        enz_name = '{}, {} isoform'.format(rxn,row['gene'])
+        enz = Enzyme(enz_id,
+                        name=enz_name,
+                        kcat_fwd=row['etfl_kcat'] * 3600,
+                        kcat_bwd=row['etfl_kcat'] * 3600,
+                        kdeg=kdeg_enz,
+                        composition=composition)
+        curated_dict[rxn].append(enz)
+
+    coupling_dict.update(curated_dict)
+    print(curated_refs)
+    return coupling_dict
+
 
 def get_mrna_dict(model):
     mrna_dict = dict()

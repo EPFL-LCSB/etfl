@@ -59,7 +59,7 @@ def run_detfl(yaml_file, uptake_funs, medium_funs=dict(), model=None, ini_sol=No
     out_path = join('outputs',params['tag']+get_timestr())
     makedirs(out_path)
     time_data.to_csv(join(out_path,'solution.csv'))
-    write_yaml(params,join(out_path,'config.yml'))
+    write_yaml(params,join(out_path,'config.yaml'))
 
     return time_data
 

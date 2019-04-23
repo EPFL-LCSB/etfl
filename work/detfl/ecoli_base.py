@@ -58,7 +58,7 @@ def get_uptake_funs():
 
     return uptake_funs
 
-def prepare_model(in_model, S0, uptake_fun):
+def prepare_model(in_model, v0, S0, uptake_fun):
     """
     Minimize glucose enzymes on glycerol uptake
     :param in_model:
@@ -68,12 +68,23 @@ def prepare_model(in_model, S0, uptake_fun):
     # for uptake_flux, kinfun in uptake_fun.items():
     #     in_model.reactions.get_by_id(uptake_flux).lower_bound = \
             # -1 * kinfun(S0[uptake_flux])
-    model.reactions.EX_glc__D_e.lower_bound = -10
-    model.reactions.EX_o2_e.lower_bound = -15
-    try:
-        model.reactions.EX_lcts_e.lower_bound = -0#8
-    except AttributeError: # For debug models
-        pass
+    # model.reactions.EX_glc__D_e.lower_bound = -10
+    # model.reactions.EX_o2_e.lower_bound = -15
+
+
+    #  ('LCTSt3ipp',
+    # 'Lactose transport via proton aniport _periplasm',
+    # 'h_p + lcts_c --> h_c + lcts_p'),
+    # We set it to 0, since we will not produce lactose,
+    # and do not have any enzyme related to it
+    model.reactions.LCTSt3ipp.lower_bound = 0
+
+    for rxn_id,lb in v0.items():
+        try:
+            model.reactions.get_by_id(rxn_id).lower_bound = lb
+        except AttributeError: # For debug models
+            model.logger.warning('Reaction {} not in model - could not '
+                                 'initialize flux'.format(rxn_id))
 
     sol_glyc = in_model.optimize()
 
@@ -169,7 +180,10 @@ if __name__ == '__main__':
     standard_solver_config(model)
     model.solver.configuration.verbosity = 0
 
-    ini_sol = prepare_model(model, S0=config['assumptions']['S0'], uptake_fun = uptake_funs)
+    ini_sol = prepare_model(model,
+                            v0=config['assumptions']['v0'],
+                            S0=config['assumptions']['S0'],
+                            uptake_fun = uptake_funs)
 
     time_data = run_detfl(model=model,
                           yaml_file=CONFIG,

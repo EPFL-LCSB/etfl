@@ -2,7 +2,7 @@
 """
 .. module:: ETFL
    :platform: Unix, Windows
-   :synopsis: Thermodynamics-based Flux Analysis
+   :synopsis: flux balance models accounting for expression, thermodynamics, and resource allocation constraints
 
 .. moduleauthor:: ETFL team
 
@@ -348,6 +348,7 @@ def compute_center(dmodel):
     :param dmodel:
     :return:
     """
+
     dmodel.optimize() # Almost free if the model has been optimized before
     prev_lb = dmodel.growth_reaction.lower_bound
     prev_obj = dmodel.objective.expression
@@ -356,11 +357,21 @@ def compute_center(dmodel):
 
     fix_growth(dmodel, dmodel.solution)
 
-    dmodel.objective = dmodel.chebyshev_radius.radius.variable
-    dmodel.optimize()
-    chebyshev_sol = dmodel.solution
+    try:
+        dmodel.objective = dmodel.chebyshev_radius.radius.variable
+        dmodel.optimize()
+        chebyshev_sol = dmodel.solution
 
-    release_growth(dmodel)
+        release_growth(dmodel)
+    except AttributeError: #does not solve
+        dmodel.logger.warning('Chebyshev solution at fixed growth solution '
+                              'not found - relaxing integers and solving '
+                              'with growth lb')
+        # We relax the integer bounds and try solving anyway with just the lb
+        epsilon = dmodel.solver.configuration.tolerances.feasibility
+        release_growth(dmodel)
+        dmodel.growth_reaction.lower_bound = mu_lb - epsilon
+        dmodel.optimize()
 
     dmodel.growth_reaction.lower_bound = prev_lb
     dmodel.objective = prev_obj

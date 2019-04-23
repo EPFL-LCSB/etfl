@@ -15,7 +15,11 @@ rpeptide_genes = pd.read_csv('ribosomal_proteins_ecoli.tsv',
                              delimiter='\t',
                              header=None)[0]
 
-all_b_genes = pd.concat([all_b_genes, rnap_genes, rrna_genes, rpeptide_genes])
+transporter_genes = pd.read_csv(pjoin(data_dir,'transporters_kcats.csv'),
+                               header=0, skiprows=[1,], # Units row
+                               index_col=0)['gene']
+
+all_b_genes = pd.concat([all_b_genes, rnap_genes, rrna_genes, rpeptide_genes, transporter_genes])
 
 def get_from_kegg(gene_id):
     org,gene_name = gene_id.split(':')
