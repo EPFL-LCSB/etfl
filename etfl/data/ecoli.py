@@ -648,7 +648,6 @@ def get_keffs_from_complex_name(keffs, name):
 
 
 def get_lloyd_coupling_dict(model, select=None):
-git commit -u 
     if select is None:
         select = model.reactions.list_attr('id')
 
