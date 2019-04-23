@@ -27,13 +27,14 @@ import pandas as pd
 
 from etfl.io.json import load_json_model
 
+model = load_json_model('models/SlackModel iJO1366_vETFL_440_enz_128_bins__20190227_141232.json')
 # model = load_json_model('models/SlackModel iJO1366_vETFL_2084_enz_128_bins__20190122_170118.json')
-model = load_json_model('models/iJO1366_vEFL_431_enz_128_bins__20190121_090316.json')
+# model = load_json_model('models/iJO1366_vEFL_431_enz_128_bins__20190121_090316.json')
 # model = load_json_model('models/SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_145700.json')
 # model = load_json_model('models/iJO1366_T0E1N1_431_enz_128_bins__20180926_135704.json')
 # model = load_json_model('models/RelaxedModel iJO1366_T1E1N1_431_enz_128_bins__20180926_124941.json')
 
-model_tag = 'vEFL_mixed_lcts2_with_degradation'
+model_tag = 'dvETFL_deg_glc_lcts_alldelta_noexpc'
 
 # for rxn in model.translation_reactions:
 #     rxn.subsystem = 'Translation'
@@ -202,9 +203,9 @@ def plot_dynamics(model, time_data):
         p.output_backend = 'svg'
 
     gp = gridplot([[p1,p3],[p2,p4],[ps,px]])
-    bp.output_file('plots/dETFL_cheby_monod_{}.html'.format(model_tag))
+    bp.output_file('plots/{}.html'.format(model_tag))
     bp.show(gp)
-    export_svgs(gp, filename='plots/dETFL_cheby_monod_{}.svg'.format(model_tag))
+    export_svgs(gp, filename='plots/{}.svg'.format(model_tag))
 
 def plot_var(p, t, time_data, the_var, color, **kwargs):
 
@@ -241,7 +242,8 @@ def get_uptake_funs():
 
     # Glucose:
 
-    Vmax0 = 10 # mmol/(h.mmol[E]) Mahadevan et al. 2002
+    # Vmax0 = 10 # mmol/(h.mmol[E]) Mahadevan et al. 2002
+    Vmax0 = 1
     Km0 = 0.015 # mM, Mahadevan et al. 2002, Wong et al. 1997
 
     uptake_funs['EX_glc__D_e'] = lambda x: Vmax0 * x / (Km0 + x)
@@ -252,7 +254,8 @@ def get_uptake_funs():
     # Journal of Biological Chemistry 264.27 (1989): 15982-15987.
     # http://www.jbc.org/content/264/27/15982.full.pdf+html
     # TODO: Stop assuming 1mgProt/gDW
-    Vmax_lac = 210 /1000 * 60 *1  # nmol/min/mgProt * mmol/nmol * min/h * mgProt/gDW
+    # Vmax_lac = 210 /1000 * 60 *1  # nmol/min/mgProt * mmol/nmol * min/h * mgProt/gDW
+    Vmax_lac = 1
     Km_lac = 1.3 # mM
 
     uptake_funs['EX_lcts_e'] = lambda x: Vmax_lac * x / (Km_lac + x)
@@ -268,7 +271,8 @@ def get_uptake_funs():
     # 6.6 × 10−2 mmol of O2·nmol of cytochrome o−1·h−1 (18). This corresponds,
     # at the measured rDOT value of 1.6 × 10−2 mM, to a cytochrome bo oxidase
     # content of 73 nmol of protein·g (dry weight)−1
-    VmaxO2 = 6.6*1e-2 *73 # mmol/h
+    # VmaxO2 = 6.6*1e-2 *73 # mmol/h
+    VmaxO2 = 15 # mmol/h
     KmO2 = 2 * 1e-4 #mM
     uptake_funs['EX_o2_e'] = lambda x: VmaxO2 * x /(KmO2 + x)
 
@@ -277,6 +281,10 @@ def get_uptake_funs():
 
     return uptake_funs
 
+def get_uptake_enzymes(model):
+    pass
+
+
 def prepare_model(in_model, S0, uptake_fun):
     """
     Minimize glucose enzymes on glycerol uptake
@@ -284,9 +292,12 @@ def prepare_model(in_model, S0, uptake_fun):
     :return:
     """
 
-    for uptake_flux, kinfun in uptake_fun.items():
-        in_model.reactions.get_by_id(uptake_flux).lower_bound = \
-            -1 * kinfun(S0[uptake_flux])
+    # for uptake_flux, kinfun in uptake_fun.items():
+    #     in_model.reactions.get_by_id(uptake_flux).lower_bound = \
+            # -1 * kinfun(S0[uptake_flux])
+    model.reactions.EX_glc__D_e.lower_bound = -8
+    model.reactions.EX_lcts_e.lower_bound = -0#8
+    model.reactions.EX_o2_e.lower_bound = -5
     sol_glyc = in_model.optimize()
 
     # in_model.growth_reaction.lower_bound = sol_glyc.f * 0.9
@@ -313,11 +324,13 @@ def prepare_model(in_model, S0, uptake_fun):
 if __name__ == '__main__':
 
     timestep = 0.1
+    # timestep = 0.05
+    # timestep = 0.02
     epsilon = timestep/100
 
     S0_o2 = 0  # mmol/L
     S1_o2 = 0.21  # mmol/L
-    kla_o2 = 7.2  # h^-1
+    kla_o2 = 7.5  # h^-1
 
     S0_glc = 0.5 #mmol/L
     S1_glc = 10 #mmol/L
@@ -328,8 +341,8 @@ if __name__ == '__main__':
     S0_ac = 0
 
 
-    X0 = 0.1 #mmol[Cell]/L
-    # X0 = 0.05 #g[Cell]/L
+    # X0 = 0.1 #mmol[Cell]/L
+    X0 = 0.05 #g[Cell]/L
 
     glc_fun = lambda t, S, S0=S0_glc, S1=S1_glc: \
         max(S, 0)
@@ -364,6 +377,12 @@ if __name__ == '__main__':
           'EX_lcts_e': S0_lac,
           'EX_ac_e': S0_ac}
 
+    uptake_enz = {
+        'EX_glc__D_e': ['GLCDpp', 'GLCabcpp','GLCptspp', 'GLCt2pp'],
+        'EX_lcts_e'  : ['LACZpp', 'LCTSt3ipp', 'LCTStpp'],
+        'EX_ac_e'    : ['ACt4pp']
+        }
+
     times = [x*timestep for x in range(1,10)]
 
 
@@ -377,21 +396,23 @@ if __name__ == '__main__':
     standard_solver_config(model)
     model.solver.configuration.verbosity = 0
 
-    min_glycolysis_enz = prepare_model(model, S0=S0, uptake_fun = get_uptake_funs())
+    ini_sol = prepare_model(model, S0=S0, uptake_fun = get_uptake_funs())
 
     time_data = run_dynamic_etfl(model,
                                  timestep=timestep,
                                  tfinal=3,
                                  uptake_fun=get_uptake_funs(),
+                                 uptake_enz=uptake_enz,
                                  medium_fun =conc_funs,
                                  S0=S0,
                                  X0=X0,
                                  inplace=True,
-                                 initial_solution = min_glycolysis_enz,
+                                 initial_solution = ini_sol,
                                  chebyshev_include = [ForwardCatalyticConstraint,
                                                       BackwardCatalyticConstraint,
-                                                      ExpressionCoupling]
+                                                      ExpressionCoupling,
+                                                      ]
                                  )
 
     plot_dynamics(model, time_data)
-    time_data.to_csv('outputs/detfl_cheby_monod_{}.csv'.format(model_tag))
+    time_data.to_csv('outputs/{}.csv'.format(model_tag))

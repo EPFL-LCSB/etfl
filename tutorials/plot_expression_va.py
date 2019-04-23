@@ -17,8 +17,11 @@ verbose_kinds = {
     'enz': 'Enzyme',
     'pep': 'Peptide',
 }
+#
+# VA_REGEX = re.compile(r'iJO_(T[01]E[01]N[01])_low?_hi_\-?\d+\.?\d*_({})'
+#                         .format('|'.join(verbose_kinds.keys())))
 
-VA_REGEX = re.compile(r'iJO_(T[01]E[01]N[01])_low?_hi_\-?\d+\.?\d*_({})'
+VA_REGEX = re.compile(r'iJO_(v?ET?FL)_low?_hi_\-?\d+\.?\d*_({})'
                         .format('|'.join(verbose_kinds.keys())))
 
 # DEFAULT_COLOR = "#b3de69" # Light Green
@@ -71,11 +74,11 @@ def plot_va(filename, tag, kind, color = DEFAULT_COLOR, orient = 'horizontal'):
                         # h_symmetry=False, v_symmetry=False,
                         min_border=0)
         glyph = HBar(y="y", right="maximum", left="minimum", height=0.9,
-                     fill_color=color, fill_alpha=1,
+                     fill_color=color, fill_alpha=0.5,
                      line_color = None)
         p1.add_glyph(source, glyph)
 
-        p1.circle(x='score', y='y', fill_color='white', line_color=color,
+        p1.circle(x='score', y='y', fill_color=color, line_color=None,
                   source=source)
         axis1 = p1.xaxis
         axis2 = p1.yaxis
@@ -89,11 +92,11 @@ def plot_va(filename, tag, kind, color = DEFAULT_COLOR, orient = 'horizontal'):
                        min_border=0)
 
         glyph = VBar(x="y", top="maximum", bottom="minimum", width=0.9,
-                     fill_color=color, fill_alpha=1,
+                     fill_color=color, fill_alpha=0.5,
                      line_color=None)
         p1.add_glyph(source, glyph)
 
-        p1.circle(y='score', x='y', fill_color='white', line_color=color,
+        p1.circle(y='score', x='y', fill_color=color, line_color=None,
                   source=source)
         axis1 = p1.yaxis
         axis2 = p1.xaxis

@@ -17,7 +17,8 @@ bp.curdoc().clear()
 data_dir = '../organism_data/info_ecoli'
 
 from etfl.io.json import load_json_model
-scaling_model = load_json_model('models/RelaxedModel iJO1366_T1E1N1_431_enz_128_bins__20180926_124941.json')
+# scaling_model = load_json_model('models/RelaxedModel iJO1366_T1E1N1_431_enz_128_bins__20180926_124941.json')
+scaling_model = load_json_model('models/iJO1366_EFL_431_enz_128_bins__20190121_080047.json')
 
 def make_polygon(x, ymin, ymax):
     lx = x.tolist()
@@ -198,16 +199,16 @@ if __name__ == '__main__':
     cmap = Category10[10]
 
     model_data1 = OrderedDict({
-        'EFL': pd.read_csv('outputs/benchmark_EFL.csv'),
-        'ETFL': pd.read_csv('outputs/benchmark_ETFL.csv'),
-        'vEFL': pd.read_csv('outputs/benchmark_vEFL.csv'),
-        'vETFL': pd.read_csv('outputs/benchmark_vETFL.csv'),
+        'EFL': pd.read_csv('outputs/benchmark_EFL_25.csv'),
+        'ETFL': pd.read_csv('outputs/benchmark_ETFL_25.csv'),
+        'vEFL': pd.read_csv('outputs/benchmark_vEFL_25.csv'),
+        'vETFL': pd.read_csv('outputs/benchmark_vETFL_25.csv'),
     })
     model_data2 = OrderedDict({
         'vETFL': model_data1['vETFL'],
-        'vETFL65': pd.read_csv('outputs/benchmark_vETFL65.csv'),
-        'vETFL, inferred enzymes': pd.read_csv('outputs/benchmark_vETFL_infer.csv'),
-        'vETFL65, inferred enzymes': pd.read_csv('outputs/benchmark_vETFL65_infer.csv'),
+        'vETFL65': pd.read_csv('outputs/benchmark_vETFL65_25.csv'),
+        'vETFL, inferred enzymes': pd.read_csv('outputs/benchmark_vETFL_infer_25.csv'),
+        'vETFL65, inferred enzymes': pd.read_csv('outputs/benchmark_vETFL65_infer_25.csv'),
     })
     model_data_old = OrderedDict({
         # 'T0E1N0': pd.read_csv('outputs/benchmark_T0E1N0.csv'),

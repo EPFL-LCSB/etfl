@@ -1,7 +1,7 @@
 """
 .. module:: ETFL
    :platform: Unix, Windows
-   :synopsis: Thermodynamics-based Flux Analysis
+   :synopsis: flux balance models accounting for expression, thermodynamics, and resource allocation constraints
 
 .. moduleauthor:: ETFL team
 

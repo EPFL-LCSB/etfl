@@ -15,7 +15,7 @@ from scipy.stats.kde import gaussian_kde
 import datetime as dt
 
 now = dt.datetime.now()
-ago = now-dt.timedelta(days=1.5)
+ago = now-dt.timedelta(days=15)
 
 cmap = Category10[10]
 
@@ -42,7 +42,7 @@ def get_file_optim_times(filename):
 
     with open(os.path.join(log_folder,filename), 'r') as fid:
         for line in fid:
-            if OPTIM_REGEX.search(line):
+            if OPTIM_REGEX.search(line) :#and 'gurobi' in line:
                 times.append(float(TIME_REGEX.search(line).group(1)))
 
     return times
@@ -106,8 +106,14 @@ def plot_hist(measured):
         # p1.add_layout(Label(x=med,y=ymax,text='{:.2f}s'.format(med)))
         # p1.add_layout(Label(x=geo,y=ymax,text='{:.2f}s'.format(geo)))
 
+        p1.xaxis.axis_label_text_font_size = "14pt"
+        p1.yaxis.axis_label_text_font_size = "14pt"
+        p1.xaxis.major_label_text_font_size = "14pt"
+        p1.yaxis.major_label_text_font_size = "14pt"
+
         # last_height += hist
-        p1.legend.location = "center_right"
+        # p1.legend.location = "center_right"
+        p1.legend.location = "top_left"
         p1.xaxis.axis_label = 'seconds'
         p1.yaxis.axis_label = 'counts'
         p1.output_backend = 'svg'

@@ -21,5 +21,5 @@ RUN chmod +x setup_svg_export.sh && ./setup_svg_export.sh
 # Make the /src/etfl folder that will link the sources
 RUN mkdir /src/etfl
 
-ENTRYPOINT ["/bin/bash", "-c", "pip install --user -e /src/pytfa && pip install --user -e /src/etfl && $0 $*"]
+ENTRYPOINT ["/bin/bash", "-c", "pip install --user -e /src/pytfa && pip install --user -e /src/etfl && pip install --user -e /src/optlang && $0 $*"]
 CMD /bin/bash
