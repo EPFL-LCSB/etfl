@@ -158,11 +158,11 @@ def get_nt_sequences():
 # Proceedings of the National Academy of Sciences 113.12 (2016): 3401-3406.
 kcat_info_milo = pd.read_excel(pjoin(data_dir,'pnas.1514240113.sd01.xlsx'),
                                sheet_name='kcat 1s',
-                               header=1,
+                               header=2,
                                )
 kmax_info_milo = pd.read_excel(pjoin(data_dir,'pnas.1514240113.sd01.xlsx'),
                                sheet_name='kmax 1s',
-                               header=1,
+                               header=2,
                                )
 kcat_info_aggregated    = pd.read_csv(pjoin(data_dir,'aggregated_kcats.csv'),
                                       index_col = 0)
