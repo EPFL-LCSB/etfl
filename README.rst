@@ -1,6 +1,6 @@
 ETFL
 ====
-|Build Status| |Codecov| |Codacy branch grade| |license|
+|Documentation Status| |Build Status| |Codecov| |Codacy branch grade| |license|
 
 ETFL: A formulation for flux balance models accounting for expression, thermodynamics, and resource allocation constraints
 
@@ -23,6 +23,8 @@ You can install them by following the instructions in pyTFA's Documentation_.
 .. _Documentation: https://pytfa.readthedocs.io/en/latest/solver.html
 .. |license| image:: http://img.shields.io/badge/license-APACHE2-blue.svg
    :target: https://github.com/EPFL-LCSB/etfl/blob/master/LICENSE.txt
+.. |Documentation Status| image:: https://readthedocs.org/projects/etfl/badge/?version=latest
+   :target: http://etfl.readthedocs.io/en/latest/?badge=latest
 .. |Build Status| image:: https://travis-ci.org/EPFL-LCSB/etfl.svg?branch=master
    :target: https://travis-ci.org/EPFL-LCSB/etfl
 .. |Codecov| image:: https://img.shields.io/codecov/c/github/EPFL-LCSB/etfl.svg
