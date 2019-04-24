@@ -79,10 +79,11 @@ def get_model(solver):
 
 def get_thermo_data():
     # Load Thermo data
-    thermo_data = load_thermoDB(pjoin(file_dir,'../../../pytfa/data/thermo_data.thermodb'))
-    lexicon = read_lexicon('thermo_data/iJO1366_lexicon.csv')
+    thermo_data = load_thermoDB(pjoin(data_dir,'thermo_data','thermo_data.thermodb'))
+    lexicon = read_lexicon(pjoin(data_dir,'thermo_data','iJO1366_lexicon.csv'))
     # lexicon = curate_lexicon(read_lexicon('thermo_data/iJO1366_lexicon.csv'))
-    compartment_data = read_compartment_data('thermo_data/iJO1366_compartment_data.json')
+    compartment_data = read_compartment_data(pjoin(data_dir,'thermo_data',
+                                                   'iJO1366_compartment_data.json'))
 
 
     def curate_lexicon(lexicon):

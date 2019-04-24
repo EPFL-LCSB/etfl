@@ -24,7 +24,10 @@ from etfl.io.dict import model_from_dict, model_to_dict
 @pytest.fixture(autouse=True)
 def init_cache(request):
     m = request.config.cache.get('small_etfl', None)
-    m = create_etfl_model(has_thermo=False,has_neidhardt=True)
+    m = create_etfl_model(has_thermo=False,
+                          has_neidhardt=False,
+                          n_mu_bins = 4,
+                          optimize = False)
     request.config.cache.set('small_etfl', json_dumps_model(m))
 
 @pytest.mark.dependency(name='test_etfl')
@@ -47,3 +50,15 @@ def test_write(request):
 def test_read():
     m = load_json_model(savepath)
     m.optimize()
+
+
+# Optim configs
+from etfl.optim.config import standard_solver_config, gene_ko_config, \
+    growth_uptake_config
+
+@pytest.mark.dependency(depends=['test_etfl'])
+def test_configs(request):
+    model = json_loads_model(request.config.cache.get('small_etfl', None))
+    standard_solver_config(model)
+    gene_ko_config(model)
+    growth_uptake_config(model)
