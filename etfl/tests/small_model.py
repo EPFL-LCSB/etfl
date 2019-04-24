@@ -122,6 +122,7 @@ def add_e_metabolites(model):
 def create_etfl_model(has_thermo, has_neidhardt,
                       n_mu_bins = 64,
                       mu_max = 3,
+                      optimize = True,
                       ):
     #------------------------------------------------------------
     # Initialisation
@@ -288,17 +289,18 @@ def create_etfl_model(has_thermo, has_neidhardt,
 
     ecoli.repair()
 
-    try:
-        ecoli.optimize()
+    if optimize:
+        try:
+            ecoli.optimize()
 
-        print('Objective            : {}'.format(ecoli.solution.objective_value))
-        print(' - Glucose uptake    : {}'.format(ecoli.reactions.EX_glc__D_e.flux))
-        print(' - Growth            : {}'.format(ecoli.growth_reaction.flux))
-        print(' - Ribosomes produced: {}'.format(ecoli.ribosome.X))
-        print(' - RNAP produced: {}'.format(ecoli.rnap.X))
+            print('Objective            : {}'.format(ecoli.solution.objective_value))
+            print(' - Glucose uptake    : {}'.format(ecoli.reactions.EX_glc__D_e.flux))
+            print(' - Growth            : {}'.format(ecoli.growth_reaction.flux))
+            print(' - Ribosomes produced: {}'.format(ecoli.ribosome.X))
+            print(' - RNAP produced: {}'.format(ecoli.rnap.X))
 
-    except (AttributeError, SolverError):
-        pass
+        except (AttributeError, SolverError):
+            pass
 
     return ecoli
 

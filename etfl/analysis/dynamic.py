@@ -182,12 +182,13 @@ def add_mRNA_delta_constraint(dmodel, timestep, degradation, synthesis):
     """
     Adds the constraint
 
+    .. ::
+
         |F-Fref| <= Δt*v_transcription_max
-    <=>
+        <=>
         F-Fref -Δt*v_transcription_max <= 0
         &
         Fref-F -Δt*v_transcription_max <= 0
-
 
 
     :param dmodel:
@@ -372,6 +373,8 @@ def compute_center(dmodel):
         release_growth(dmodel)
         dmodel.growth_reaction.lower_bound = mu_lb - epsilon
         dmodel.optimize()
+        chebyshev_sol = dmodel.solution
+
 
     dmodel.growth_reaction.lower_bound = prev_lb
     dmodel.objective = prev_obj
