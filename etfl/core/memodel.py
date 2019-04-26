@@ -1117,8 +1117,8 @@ class MEModel(LCSBModel, Model):
             kind = tRNAMassBalance
             kwargs['id_'] = macromolecule.id
             hook = self
-            mu_ub = self.mu_max
-            sigma = mu_ub * macromolecule.scaling_factor
+            # mu_ub = self.mu_max
+            # sigma = mu_ub * macromolecule.scaling_factor
             # The synthesis flux comes unscaled [flux units]
             # expr = 1/sigma * synthesis_flux - 1/mu_ub * z
             expr = synthesis_flux - macromolecule.scaling_factor * z
@@ -1126,7 +1126,7 @@ class MEModel(LCSBModel, Model):
             kind = DNAMassBalance
             kwargs['id_'] = 'dna'
             hook = self
-            mu_ub = self.mu_max
+            # mu_ub = self.mu_max
             # expr = synthesis_flux.scaled_net - 1/mu_ub *z
             expr = synthesis_flux.net - macromolecule.scaling_factor * z
         else:

@@ -165,7 +165,8 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-        'python': ('https://docs.python.org/3.4', None),
+        'python': ('https://docs.python.org/3.7', None),
+        'pytfa': ('https://pytfa.readthedocs.io/en/latest', None),
         'cobra': ('https://cobrapy.readthedocs.io/en/stable', None),
         'optlang': ('https://optlang.readthedocs.io/en/latest', None),
         'sympy': ('http://docs.sympy.org/latest', None)
