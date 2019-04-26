@@ -23,6 +23,28 @@ def build_trna_charging(model, aa_dict,
                         ppi='ppi_c',
                         h2o='h2o_c',
                         h='h_c'):
+    """
+    Build th tRNA charging reactions, based on the amino acid dictionary
+
+    :param model: An ETFL Model
+    :type model: :class:`etfl.core.memodel.MEModel`
+    :param aa_dict: A dictionary of aminoacid letter to amicoacid met id
+            Example :
+            ```python
+            aa_dict = {
+                        'A':'ala__L_c',
+                        'R':'arg__L_c',
+                        ...
+                    }
+            ```
+    :param atp: metabolite ID of the cytosolic ATP
+    :param amp: metabolite ID of the cytosolic AMP
+    :param ppi: metabolite ID of the cytosolic diphosphate
+    :param h2o: metabolite ID of the cytosolic water
+    :param h: metabolite ID of the cytosolic hydrogen ions
+    :return: A dictionary of tRNAs, keys are the aminoacido letters,
+            values the charging reactions
+    """
     trna_dict = dict()
     for letter, aa_id in aa_dict.items():
         aa = model.metabolites.get_by_id(aa_id)
@@ -69,6 +91,29 @@ def build_trna_charging(model, aa_dict,
 
 def make_stoich_from_aa_sequence(sequence, aa_dict, trna_dict,
                                  gtp, gdp, pi, h2o, h):
+    """
+    Makes the stoichiometry of the peptide synthesis reaction based on the
+    amino acid sequence
+
+    :param sequence: sequence of aminoacids (letter form)
+    :type sequence: :class:`Bio.Seq` or :class:`str`
+    :param aa_dict: A dictionary of aminoacid letter to amicoacid met id
+            Example :
+            ```python
+            aa_dict = {
+                        'A':'ala__L_c',
+                        'R':'arg__L_c',
+                        ...
+                    }
+            ```
+    :param trna_dict: the dict returned by :func:`etfl.core.expression.build_trna_charging`
+    :param gtp: metabolite ID for GTP
+    :param gdp: metabolite ID for GDP
+    :param pi: metabolite ID for phosphate
+    :param h2o: metabolite ID for water
+    :param h: metabolite ID for H+
+    :return:
+    """
     stoich = defaultdict(int)
 
     for letter in sequence:
@@ -85,6 +130,25 @@ def make_stoich_from_aa_sequence(sequence, aa_dict, trna_dict,
     return stoich
 
 def make_stoich_from_nt_sequence(sequence, nt_dict, ppi):
+    """
+    Makes the stoichiometry of the RNA synthesis reaction based on the
+    nucleotides sequence
+
+    :param sequence: sequence of RNA nucleotides
+    :type sequence: :class:`Bio.Seq` or :class:`str`
+    :param nt_dict: A dictionary of RNA nucleotide triphosphate
+                            letter to nucleotideTP met id
+            Example :
+            ```python
+            rna_nucleotides = {
+                        'A':'atp_c',
+                        'U':'utp_c',
+                        ...
+                    }
+            ```
+    :param ppi: metabolite ID for diphosphate
+    :return:
+    """
     stoich = defaultdict(int)
     for letter in sequence:
         met_id = nt_dict[letter]
@@ -93,6 +157,23 @@ def make_stoich_from_nt_sequence(sequence, nt_dict, ppi):
     return stoich
 
 def degrade_peptide(peptide, aa_dict, h2o):
+    """
+    Degrades a peptide in amino acids, based on its sequence
+
+    :param peptide: The peptide
+    :type peptide: :class:`etfl.core.enzyme.Peptide`
+    :param aa_dict: A dictionary of aminoacid letter to amicoacid met id
+            Example :
+            ```python
+            aa_dict = {
+                        'A':'ala__L_c',
+                        'R':'arg__L_c',
+                        ...
+                    }
+            ```
+    :param h2o: metabolite ID for water
+    :return:
+    """
     sequence = peptide.peptide
 
     stoich = defaultdict(int)
@@ -105,6 +186,25 @@ def degrade_peptide(peptide, aa_dict, h2o):
     return stoich
 
 def degrade_mrna(mrna, nt_dict, h2o, h):
+    """
+    Degrades a mRNA in nucleotides monophosphate, based on its sequence
+
+    :param mrna: The peptide
+    :type mrna: :class:`etfl.core.rna.mRNA`
+    :param nt_dict: A dictionary of RNA nucleotide monophosphate
+                        letter to nucleotideMP met id
+        Example :
+        ```python
+        rna_nucleotides_mp = {
+                    'A':'amp_c',
+                    'U':'ump_c',
+                    ...
+                }
+        ```
+    :param h2o: metabolite ID for water
+    :param h: metabolite ID for H+
+    :return:
+    """
     sequence = mrna.rna
 
     stoich = defaultdict(int)
@@ -119,6 +219,13 @@ def degrade_mrna(mrna, nt_dict, h2o, h):
 
 
 def is_me_compatible(reaction):
+    """
+    Check if a Cobra reaction has sufficient information to add expression coupling
+
+    :param reaction:
+    :type reaction: :class:`cobra.core.Reaction`
+    :return:
+    """
     # Test if the GPR is a proper one:
     this_gpr = reaction.gene_reaction_rule
     is_proper_gpr = bool(this_gpr) and this_gpr != '[]' and not 's0001' in this_gpr

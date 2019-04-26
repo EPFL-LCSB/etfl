@@ -8,15 +8,39 @@ from pytfa.optim.constraints import BackwardDirectionCoupling
 from pytfa.optim.variables import BackwardUseVariable
 
 def localize_exp(exp):
+    """
+    Takes an optlang expression, and replaces symbols (tied to variables) by
+    their string names, to compare expressions of two different models
+
+    :param exp:
+    :type exp: :class:`optlang.symbolics.Expr`
+    :return:
+    """
     return exp.subs({x : x.name for x in exp.free_symbols})
 
 def compare_expressions(exp1, exp2):
+    """
+    Check is the two given expressions are equal
+
+    :param exp1:
+    :type exp1: :class:`optlang.symbolics.Expr`
+    :param exp2:
+    :type exp2: :class:`optlang.symbolics.Expr`
+    :return:
+    """
     local_1 = localize_exp(exp1)
     local_2 = localize_exp(exp2)
 
     return local_1 == local_2
 
 def find_different_constraints(model1, model2):
+    """
+    Given two models, find which expressions are different
+
+    :param model1:
+    :param model2:
+    :return:
+    """
     out = []
     for x in model1.constraints:
         y = model2.constraints.get(x.name)
@@ -27,6 +51,16 @@ def find_different_constraints(model1, model2):
     return out
 
 def find_translation_gaps(model):
+    """
+    For each translation constraint in the model, finds the value of each
+    variable, and then evaluates the LHS of the constraint
+
+    Constraints look like
+    v_tsl - ktrans/L [RNAP_i] <= 0
+
+    :param model:
+    :return:
+    """
     tr_gaps = dict()
     for tr in model.translation_constraint:
         this_dict = {x: x.primal for x in tr.expr.free_symbols}
@@ -37,6 +71,17 @@ def find_translation_gaps(model):
 
 
 def find_essentials_from(model, met_dict):
+    """
+    Given a dictionnary of {met_id:uptake_reaction}, checks the value of the
+    objective function at optimality when the given uptake is closed.
+
+    **Uptake reactions are expected to be aligned according to the consensus
+    directionality for systems : met_e <=> []**
+
+    :param model:
+    :param met_dict:
+    :return:
+    """
     solvals = dict()
     for x, r in met_dict.items():
         previous_lb = r.lower_bound
@@ -48,6 +93,14 @@ def find_essentials_from(model, met_dict):
 
 
 def get_model_argument(args, kwargs, arg_index = 0):
+    """
+    Utility function to get the model object from the arguments of a function
+
+    :param args:
+    :param kwargs:
+    :param arg_index:
+    :return:
+    """
     try:
         model = kwargs['model']
     except KeyError:
@@ -56,6 +109,13 @@ def get_model_argument(args, kwargs, arg_index = 0):
     return model
 
 def save_objective_function(fun):
+    """
+    Decorator to restore the objective function after the execution of the
+    decorated function.
+
+    :param fun:
+    :return:
+    """
     def wrapper(*args, **kwargs):
 
         model = get_model_argument(args, kwargs)
@@ -70,6 +130,13 @@ def save_objective_function(fun):
     return wrapper
 
 def save_growth_bounds(fun):
+    """
+    Decorator to save the growth bound and restore them after the execution of
+    the decorated function.
+
+    :param fun:
+    :return:
+    """
     def wrapper(*args, **kwargs):
 
         model = get_model_argument(args, kwargs)
@@ -87,6 +154,25 @@ def save_growth_bounds(fun):
 @save_objective_function
 @save_growth_bounds
 def perform_iMM(model, uptake_dict, min_growth_coef=0.5, bigM=1000):
+    """
+    An implementation of the *in silico Minimal Media* methods, which uses MILP
+    to find a minimum set of uptakes necessary to meet growth requirements
+
+    See:
+
+    Bioenergetics-based modeling of Plasmodium falciparum metabolism reveals
+    its essential genes, nutritional requirements, and thermodynamic bottlenecks
+    Chiappino-Pepe A, Tymoshenko S, Ataman M, Soldati-Favre D, Hatzimanikatis V
+    (2017) PLOS Computational Biology 13(3): e1005397.
+    https://doi.org/10.1371/journal.pcbi.1005397
+
+    :param model:
+    :type model: :class:`etfl.core.memodel.MEModel`
+    :param uptake_dict: {met_id : <reaction object>}
+    :param min_growth_coef: minimum fraction of optimal growth to be met
+    :param bigM: a big-M value for the optimization problem
+    :return:
+    """
     use_vars = dict()
     use_cons = dict()
 
@@ -127,6 +213,15 @@ def perform_iMM(model, uptake_dict, min_growth_coef=0.5, bigM=1000):
 
 @save_objective_function
 def check_production_of_mets(model, met_ids):
+    """
+    for each metabolite ID given, create a sink and maximize the production of
+    the metabolite
+
+    :param model:
+    :type model: :class:`etfl.core.memodel.MEModel`
+    :param met_ids:
+    :return:
+    """
     # Check that the FBA model can produce each metabolite in the given list
     met_production = dict()
 
@@ -154,6 +249,15 @@ def check_production_of_mets(model, met_ids):
 
 
 def relax_catalytic_constraints(model, min_growth):
+    """
+    Find a minimal set of catalytic constraints to relax to meet a minimum
+    growth criterion
+
+    :param model:
+    :type model: :class:`etfl.core.memodel.MEModel`
+    :param min_growth:
+    :return:
+    """
 
     relaxation = deepcopy(model)
 

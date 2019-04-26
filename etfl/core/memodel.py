@@ -269,10 +269,8 @@ class MEModel(LCSBModel, Model):
                     enzyme_kdeg, peptide_length):
         """
 
-        create dummies to enforce mrna and peptide production even in the
-        absence of data for all mrnas and proteins
-        absence of data for all mrnas and proteins
-
+        Create dummy peptide and mrna to enforce mrna and peptide production.
+        Can be used to account for the missing data for all mrnas and proteins.
 
         :param nt_ratios:
         :param mrna_kdeg:
@@ -476,7 +474,7 @@ class MEModel(LCSBModel, Model):
         mu_values=[ 0.6,        1.0,        1.5,        2.0,        2.5     ]
         p_rel   = [ 0.675676,   0.604651,   0.540416,   0.530421,   0.520231]
 
-        mu_values in [h^-]
+        mu_values in [h^-1]
         p_rel in [g/gDw]
 
         :param mu_values:
@@ -546,7 +544,7 @@ class MEModel(LCSBModel, Model):
         mu_values = [   0.6,        1.0,        1.5,        2.0,        2.5     ]
         rna_rel   = [   0.135135    0.151163    0.177829    0.205928    0.243931]
 
-        mu_values in [h^-]
+        mu_values in [h^-1]
         rna_rel in [g/gDw]
 
         :param mu_values:
@@ -618,7 +616,7 @@ class MEModel(LCSBModel, Model):
         mu_values = [   0.6,        1.0,        1.5,        2.0,        2.5     ]
         dna_rel   = [   0.135135    0.151163    0.177829    0.205928    0.243931]
 
-        mu_values in [h^-]
+        mu_values in [h^-1]
         dna_rel in [g/gDw]
 
         :param mu_values:
@@ -719,9 +717,20 @@ class MEModel(LCSBModel, Model):
         """
         Marks important metabolites for expression
 
-        :param essentials:
+        :param essentials: A dictionary of important metabolites to met id
+            Example :
+            ```python
+            essentials = {
+                        'atp': 'atp_c',
+                        'adp': 'adp_c',
+                        'amp': 'amp_c',
+                        ...
+                        'h2o': 'h2o_c',
+                        'h': 'h_c'}
+                    }
+            ```
 
-        :param aa_dict: A dictionnary of aminoacid letter to amicoacid met id
+        :param aa_dict: A dictionary of aminoacid letter to amicoacid met id
             Example :
             ```python
             aa_dict = {
@@ -730,7 +739,8 @@ class MEModel(LCSBModel, Model):
                         ...
                     }
             ```
-        :param rna_nucleotides: A dictionnary of RNA nucleotide letter to nucleotideTP met id
+        :param rna_nucleotides: A dictionary of RNA nucleotide triphosphate
+                            letter to nucleotideTP met id
             Example :
             ```python
             rna_nucleotides = {
@@ -739,7 +749,16 @@ class MEModel(LCSBModel, Model):
                         ...
                     }
             ```
-        :param rna_nucleotides_mp:
+        :param rna_nucleotides_mp: A dictionary of RNA nucleotide monophosphate
+                            letter to nucleotideMP met id
+            Example :
+            ```python
+            rna_nucleotides_mp = {
+                        'A':'amp_c',
+                        'U':'ump_c',
+                        ...
+                    }
+            ```
         :return:
         """
 
@@ -751,14 +770,13 @@ class MEModel(LCSBModel, Model):
 
     def build_expression(self):
         """
-        Given a dictionnary from amino acids nucleotides to metabolite names,
+        Given a dictionary from amino acids nucleotides to metabolite names,
         goes through the list of genes in the model that have sequence
         information to build transcription and traduction reactions
         :return:
         """
 
         aa_dict = self.aa_dict
-        rna_nucleotides = self.rna_nucleotides
 
         atp = self.essentials['atp']
         amp = self.essentials['amp']
@@ -820,8 +838,6 @@ class MEModel(LCSBModel, Model):
         h2o = self.essentials['h2o']
         h   = self.essentials['h']
 
-        Rmax = 1 / self.ribosome.molecular_weight
-
         rxn = TranslationReaction(
             id='{}_translation'.format(gene.id),
             name='Translation, {}'.format(gene.id),
@@ -856,7 +872,7 @@ class MEModel(LCSBModel, Model):
 
     def _extract_trna_from_reaction(self, aa_stoichiometry, rxn):
         """
-        Read a stoichiometry dictionnary, and replaces free aminoacids with tRNAs
+        Read a stoichiometry dictionary, and replaces free aminoacids with tRNAs
 
         :param aa_stoichiometry: the stoichiometry dict to edit
         :type aa_stoichiometry: (dict) {cobra.core.Metabolite: Number}
@@ -872,6 +888,7 @@ class MEModel(LCSBModel, Model):
 
     def _add_gene_transcription_reaction(self, gene):
         """
+        Adds the transcription reaction related to a gene
 
         :param gene: A gene of the model that has sequence data
         :type gene: etfl.core.ExpressedGene
@@ -1003,7 +1020,7 @@ class MEModel(LCSBModel, Model):
                 enz_r = replace_by_enzymatic_reaction(self, r.id, enzymes, scaled=False)
                 self.apply_enzyme_catalytic_constraint(enz_r)
             else:
-                self.logger.error('Could not find reaction {} in the coupling dictionnary'.format(r.id))
+                self.logger.error('Could not find reaction {} in the coupling dictionary'.format(r.id))
 
         # update variable and constraints attributes
         self._push_queue()
@@ -1346,9 +1363,8 @@ class MEModel(LCSBModel, Model):
         if len(trna_list) == 0:
             return None
 
-
-            # First check whether the tRNAs exist in the model
-            trna_list = [x for x in trna_list if x.id not in self.trnas]
+        # First check whether the tRNAs exist in the model
+        trna_list = [x for x in trna_list if x.id not in self.trnas]
 
         for trna in trna_list:
             trna._model = self
@@ -1359,6 +1375,7 @@ class MEModel(LCSBModel, Model):
     def add_dna(self, dna):
         """
         Adds a DNA object to the model
+
         :param dna:
         :type dna: DNA
         :return:
@@ -1372,6 +1389,7 @@ class MEModel(LCSBModel, Model):
     def remove_enzymes(self, enzyme_list):
         """
         Removes an Enzyme object, or iterable of Enzyme objects, from the model
+
         :param enzyme_list:
         :type enzyme_list:Iterable(Enzyme) or Enzyme
         :return:
@@ -1824,7 +1842,10 @@ class MEModel(LCSBModel, Model):
 
     def add_rrnas_to_rib_assembly(self):
         """
-        Has to be done after the transcription reactions have been added
+        Adds the ribosomal RMAs to the composition of the ribosome.
+        This has to be done after the transcription reactions have been added,
+        so that the rRNAs synthesis reactions exist for the mass balance
+
         :return:
         """
         # rRNA
@@ -2004,6 +2025,11 @@ class MEModel(LCSBModel, Model):
     #-------------------------------------------------------------------------#
 
     def sanitize_varnames(self):
+        """
+        Makes variable name safe for the solvers. In particular, variables whose
+        name start with
+        :return:
+        """
         for met in self.metabolites:
             if met.id[0].isdigit():
                 met.id = '_'+met.id
@@ -2039,6 +2065,7 @@ class MEModel(LCSBModel, Model):
     def __deepcopy__(self, memo):
         """
         Calls self.copy() to return an independant copy of the model
+
         :param memo:
         :return:
         """
@@ -2048,7 +2075,7 @@ class MEModel(LCSBModel, Model):
     def copy(self):
         """
         Pseudo-smart copy of the model using dict serialization. This builds a
-        new model from the ground up, with independant variables, solver, etc.
+        new model from the ground up, with independwnt variables, solver, etc.
 
         :return:
         """
