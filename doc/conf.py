@@ -18,7 +18,7 @@
 import os
 import sys
 from os.path import dirname, join
-sys.path.insert(0, os.path.abspath(join(__file__,'..')))
+sys.path.insert(0, os.path.abspath(join('..','etfl')))
 
 # In order to build documentation that requires libraries to import
 class Mock(object):
