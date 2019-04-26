@@ -121,8 +121,8 @@ def get_neidhardt_data():
                                    skiprows=range(0,6),
                                    skipfooter=22)
     mu_cols = ['mu=0.6','mu=1.0','mu=1.5','mu=2.0','mu=2.5']
-    neidhardt_data.columns = ['parameter','symbol','units'] + mu_cols, \
-                             +['observed_parameters','footnote']
+    neidhardt_data.columns = ['parameter','symbol','units'] + mu_cols \
+                             + ['observed_parameters','footnote']
     neidhardt_data.set_index('symbol', inplace=True)
 
     Pc = neidhardt_data.loc['Pc (μg)'][mu_cols] # μg/10^9 cells
