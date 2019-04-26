@@ -23,6 +23,13 @@ except ModuleNotFoundError:
 
 
 def get_all_subclasses(cls):
+    """
+    Given a variable or constraint class, get all the subclassses
+    that inherit from it
+
+    :param cls:
+    :return:
+    """
     all_subclasses = []
 
     for subclass in cls.__subclasses__():
@@ -32,6 +39,13 @@ def get_all_subclasses(cls):
     return all_subclasses
 
 def make_subclasses_dict(cls):
+    """
+    Return a dictionary of the subclasses inheriting from the argument class.
+    Keys are String names of the classes, values the actual classes.
+
+    :param cls:
+    :return:
+    """
     the_dict = {x.__name__:x for x in get_all_subclasses(cls)}
     the_dict[cls.__name__] = cls
     return the_dict
@@ -65,12 +79,25 @@ def fix_integers(model):
         return _generic_fix_integers(model)
 
 def _gurobi_fix_integers(model):
+    """
+    If the solver of the model whose integers to fix has Gurobi as a solver,
+    use the built-in method
+
+    :param model: A model with a Gurobi backend
+    :return:
+    """
     new = model.copy()
     fixed = model.solver.problem.fixed()
     new.solver.problem = fixed
     return new
 
 def _generic_fix_integers(model):
+    """
+    Fix the integers of a model to its solution, and removes the variables.
+
+    :param model:
+    :return:
+    """
     continuous_model = model.copy()
     continuous_model.name = model.name + ' - continuous'
 
@@ -104,6 +131,7 @@ def _generic_fix_integers(model):
         lb = this_cons.constraint.lb
         the_id = this_cons.id
 
+        # TODO make fatser, using cons.change_expr and ad-hoc subs dicts
         continuous_model.remove_constraint(this_cons)
         rebuild_constraint(classname=kind.__name__,
                            model=continuous_model,
@@ -127,6 +155,17 @@ def _generic_fix_integers(model):
     return continuous_model
 
 def rebuild_variable(classname, model, this_id, lb, ub, queue=True):
+    """
+    Rebuilds a variable from a classname and link it to the model
+
+    :param classname:
+    :param model:
+    :param this_id:
+    :param lb:
+    :param ub:
+    :param queue:
+    :return:
+    """
     if classname in REACTION_VARIABLE_SUBCLASSES:
         hook = model.reactions.get_by_id(this_id)
         this_class = REACTION_VARIABLE_SUBCLASSES[classname]
@@ -182,6 +221,18 @@ def rebuild_variable(classname, model, this_id, lb, ub, queue=True):
 
 
 def rebuild_constraint(classname, model, this_id, new_expr, lb, ub, queue=True):
+    """
+    Rebuilds a constraint from a classname and link it to the model
+
+    :param classname:
+    :param model:
+    :param this_id:
+    :param new_expr:
+    :param lb:
+    :param ub:
+    :param queue:
+    :return:
+    """
     if classname in REACTION_CONSTRAINT_SUBCLASSES:
         hook = model.reactions.get_by_id(this_id)
         this_class = REACTION_CONSTRAINT_SUBCLASSES[classname]
@@ -237,10 +288,26 @@ DefaultSol = namedtuple('DefaultSol', field_names='objective_value')
 
 
 def is_gurobi(model):
+    """
+    Check if the model uses Gurobi as a solver
+
+    :param model:
+    :return:
+    """
     return model.problem.__name__ == 'optlang.gurobi_interface'
 
 
 def fix_growth(model, solution = None):
+    """
+    Set the growth integers to their fixed values from a solution. If no
+    solution is provided, the model's latest solution is used.
+    The growth can be released using the function
+    :func:`etfl.optim.utils.release_growth`
+
+    :param model:
+    :param solution:
+    :return:
+    """
 
     solution = check_solution(model, solution)
 
@@ -269,6 +336,13 @@ def fix_growth(model, solution = None):
 
 
 def check_solution(model, solution):
+    """
+    Helper function. if solution is None, attempts to get it from the model.
+
+    :param model:
+    :param solution:
+    :return:
+    """
     if solution is None:
         try:
             solution = model.solution
@@ -280,6 +354,13 @@ def check_solution(model, solution):
 
 
 def release_growth(model):
+    """
+    After growth has been fixed by :func:`etfl.optim.utils.fix_growth`,
+    it can be released using this function.
+
+    :param model:
+    :return:
+    """
 
     mu_variables = model.get_variables_of_type(GrowthActivation)
     interp_variables = model.get_variables_of_type(BinaryActivator)
@@ -297,21 +378,49 @@ def release_growth(model):
 
 
 def apply_warm_start(model, solution):
+    """
+    Gives a warm start to the model.
+    Release it with :func:`etfl.optim.utils.release_warm_start`.
+
+    :param model:
+    :param solution:
+    :return:
+    """
     solution = check_solution(model, solution)
 
-    for the_var in model.variables:
-        if the_var.type == 'binary':
-            the_var._internal_variable.Start = solution.raw[the_var.name]
+    if is_gurobi(model):
+        for the_var in model.variables:
+            if the_var.type == 'binary':
+                the_var._internal_variable.Start = solution.raw[the_var.name]
+    else:
+        raise NotImplementedError('Solver not supported: ' + model.problem.__name__)
 
 
 def release_warm_start(model):
+    """
+    Releases the warm start provided by
+    :func:`etfl.optim.utils.apply_warm_start`.
 
-    for the_var in model.variables:
-        if the_var.type == 'binary':
-            the_var._internal_variable.Start = GRB.UNDEFINED
+    :param model:
+    :return:
+    """
+
+    if is_gurobi(model):
+        for the_var in model.variables:
+            if the_var.type == 'binary':
+                the_var._internal_variable.Start = GRB.UNDEFINED
+    else:
+        raise NotImplementedError('Solver not supported: ' + model.problem.__name__)
 
 
 def get_active_growth_bounds(model):
+    """
+    Returns the growth bound closest to the growth flux calculated at the
+    last solution.
+
+    :param model:
+    :return:
+    """
     mu = model.growth_reaction.flux
     difflist = [abs(mu - x[0]) for x in model.mu_bins]
     min_diff = min(difflist)
@@ -323,12 +432,21 @@ def get_active_growth_bounds(model):
 
 
 def safe_optim(model):
+    """
+    Catches *any* exception that can happen during solving, and logs it.
+    Useful if you solve many problems in a sequence and some of then are
+    infeasible.
+    **Be careful** : This wil catch literally **any** Exception.
+
+    :param model:
+    :return:
+    """
     try:
         out = model.optimize()
-    except Exception:
+    except Exception as e:
         import numpy as np
-
-        model.logger.warning('Solver status: {}'.format(model.solver.status))
+        model.logger.warning('Exception occurred during solving: {}. - '
+                             'Solver status: {}'.format(str(e), model.solver.status))
         out = DefaultSol
         out.objective_value = np.nan
     return  out
