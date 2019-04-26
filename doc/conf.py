@@ -17,8 +17,9 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
-
+from os.path import dirname
+# sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, dirname(dirname(__file__)))
 
 # In order to build documentation that requires libraries to import
 class Mock(object):
