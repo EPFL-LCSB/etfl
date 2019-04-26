@@ -39,6 +39,12 @@ class DNA(Macromolecule):
 
     @property
     def molecular_weight(self):
+        """
+        Calculates the moleular weight of DNA based on the DNA GC-content and
+        length
+
+        :return:
+        """
 
         g = self.gc_ratio
 

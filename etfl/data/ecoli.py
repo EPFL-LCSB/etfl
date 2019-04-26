@@ -121,8 +121,8 @@ def get_neidhardt_data():
                                    skiprows=range(0,6),
                                    skipfooter=22)
     mu_cols = ['mu=0.6','mu=1.0','mu=1.5','mu=2.0','mu=2.5']
-    neidhardt_data.columns = ['parameter','symbol','units',*mu_cols,
-                              'observed_parameters','footnote']
+    neidhardt_data.columns = ['parameter','symbol','units'] + mu_cols \
+                             + ['observed_parameters','footnote']
     neidhardt_data.set_index('symbol', inplace=True)
 
     Pc = neidhardt_data.loc['Pc (μg)'][mu_cols] # μg/10^9 cells
@@ -791,7 +791,7 @@ def get_transporters_coupling(model, additional_enz):
 
     coupling_dict = get_lloyd_coupling_dict(model, select=additional_enz)
 
-    curated_refs = pd.read_csv(pjoin(data_dir,'transporters_kcats.csv'),
+    curated_refs = pd.read_csv(pjoin(data_dir,'transporters_kcats_missing.csv'),
                                header=0, skiprows=[1,], # Units row
                                index_col=0)
 
@@ -819,7 +819,7 @@ def get_transporters_coupling(model, additional_enz):
         curated_dict[rxn].append(enz)
 
     coupling_dict.update(curated_dict)
-    print(curated_refs)
+    # print(curated_refs)
     return coupling_dict
 
 def get_mrna_dict(model):

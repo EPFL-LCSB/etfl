@@ -1,7 +1,7 @@
 .. ETFL documentation master file.
 
 Welcome to the ETFL documentation!
-=================================
+==================================
 
 ETFL is a framework to account for expression, resource allocation,
 and thermodynamic constraints on stoichiometric models.
