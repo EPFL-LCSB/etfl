@@ -154,11 +154,14 @@ class MEModel(LCSBModel, Model):
     def init_mu_variables(self):
         """
         Necessary for the zeroth order approximation of mu:
-        mu in [0.1, 0.9] with nbins = 8
-        => mu = 0.15 OR mu = 0.25 OR ... OR mu = 0.85
 
-        Using binary exapnsion of the bins instead of a list of 0-1s
-         described `here <https://orinanobworld.blogspot.ch/2013/07/integer-variables-and-quadratic-terms.html>`_
+        .. math::
+
+            mu \in [0.1, 0.9] , nbins = 8
+            => mu = 0.15 OR mu = 0.25 OR ... OR mu = 0.85
+
+        Using binary expansion of the bins instead of a list of 0-1s
+        described `here <https://orinanobworld.blogspot.ch/2013/07/integer-variables-and-quadratic-terms.html>`_
 
         :return:
         """
@@ -221,6 +224,7 @@ class MEModel(LCSBModel, Model):
         """
         Returns the growth reaction of the model. Useful because tied to the
         growth variable
+        
         :return:
         """
         if self._growth_reaction_id:
@@ -471,11 +475,14 @@ class MEModel(LCSBModel, Model):
         Adds protein synthesis requirement
 
         input of type:
-        mu_values=[ 0.6,        1.0,        1.5,        2.0,        2.5     ]
-        p_rel   = [ 0.675676,   0.604651,   0.540416,   0.530421,   0.520231]
 
-        mu_values in [h^-1]
-        p_rel in [g/gDw]
+        ..code ::
+
+            mu_values=[ 0.6,        1.0,        1.5,        2.0,        2.5     ]
+            p_rel   = [ 0.675676,   0.604651,   0.540416,   0.530421,   0.520231]
+
+            # mu_values in [h^-1]
+            # p_rel in [g/gDw]
 
         :param mu_values:
         :param p_rel:
@@ -541,11 +548,14 @@ class MEModel(LCSBModel, Model):
         Adds RNA synthesis requirement
 
         input of type:
-        mu_values = [   0.6,        1.0,        1.5,        2.0,        2.5     ]
-        rna_rel   = [   0.135135    0.151163    0.177829    0.205928    0.243931]
 
-        mu_values in [h^-1]
-        rna_rel in [g/gDw]
+        .. code::
+
+            mu_values = [   0.6,        1.0,        1.5,        2.0,        2.5     ]
+            rna_rel   = [   0.135135    0.151163    0.177829    0.205928    0.243931]
+
+            # mu_values in [h^-1]
+            # rna_rel in [g/gDw]
 
         :param mu_values:
         :param rna_rel:
@@ -613,11 +623,14 @@ class MEModel(LCSBModel, Model):
         Adds DNA synthesis requirement
 
         input of type:
-        mu_values = [   0.6,        1.0,        1.5,        2.0,        2.5     ]
-        dna_rel   = [   0.135135    0.151163    0.177829    0.205928    0.243931]
 
-        mu_values in [h^-1]
-        dna_rel in [g/gDw]
+        .. code::
+
+            mu_values = [   0.6,        1.0,        1.5,        2.0,        2.5     ]
+            dna_rel   = [   0.135135    0.151163    0.177829    0.205928    0.243931]
+
+            # mu_values in [h^-1]
+            # dna_rel in [g/gDw]
 
         :param mu_values:
         :param dna_rel:
@@ -718,47 +731,58 @@ class MEModel(LCSBModel, Model):
         Marks important metabolites for expression
 
         :param essentials: A dictionary of important metabolites to met id
-            Example :
-            ```python
-            essentials = {
-                        'atp': 'atp_c',
-                        'adp': 'adp_c',
-                        'amp': 'amp_c',
-                        ...
-                        'h2o': 'h2o_c',
-                        'h': 'h_c'}
-                    }
-            ```
+
+            **Example :**
+
+            .. code-block:: python
+
+                essentials = {
+                            'atp': 'atp_c',
+                            'adp': 'adp_c',
+                            'amp': 'amp_c',
+                            ...
+                            'h2o': 'h2o_c',
+                            'h': 'h_c'}
+                        }
 
         :param aa_dict: A dictionary of aminoacid letter to amicoacid met id
-            Example :
-            ```python
-            aa_dict = {
-                        'A':'ala__L_c',
-                        'R':'arg__L_c',
-                        ...
-                    }
-            ```
+
+            **Example :**
+
+            .. code-block:: python
+
+                aa_dict = {
+                            'A':'ala__L_c',
+                            'R':'arg__L_c',
+                            ...
+                        }
+
         :param rna_nucleotides: A dictionary of RNA nucleotide triphosphate
-                            letter to nucleotideTP met id
-            Example :
-            ```python
-            rna_nucleotides = {
-                        'A':'atp_c',
-                        'U':'utp_c',
-                        ...
-                    }
-            ```
+            letter to nucleotideTP met id
+
+            **Example :**
+
+            .. code-block:: python
+
+                rna_nucleotides = {
+                            'A':'atp_c',
+                            'U':'utp_c',
+                            ...
+                        }
+
         :param rna_nucleotides_mp: A dictionary of RNA nucleotide monophosphate
-                            letter to nucleotideMP met id
-            Example :
-            ```python
-            rna_nucleotides_mp = {
-                        'A':'amp_c',
-                        'U':'ump_c',
-                        ...
-                    }
-            ```
+            letter to nucleotideMP met id
+
+            **Example :**
+
+            .. code-block:: python
+
+                rna_nucleotides_mp = {
+                            'A':'amp_c',
+                            'U':'ump_c',
+                            ...
+                        }
+
         :return:
         """
 
@@ -772,7 +796,8 @@ class MEModel(LCSBModel, Model):
         """
         Given a dictionary from amino acids nucleotides to metabolite names,
         goes through the list of genes in the model that have sequence
-        information to build transcription and traduction reactions
+        information to build transcription and translation reactions
+
         :return:
         """
 
@@ -804,8 +829,9 @@ class MEModel(LCSBModel, Model):
         """
         Adds translation and transcription reaction to the genes in the
         provided list
+
         :param gene_list:
-        :type gene_list: Iterable of str or etfl.core.genes.ExpressedGene
+        :type gene_list: Iterable of str or ExpressedGene
         :return:
         """
 
@@ -828,7 +854,7 @@ class MEModel(LCSBModel, Model):
         """
 
         :param gene: A gene of the model that has sequence data
-        :type gene: etfl.core.ExpressedGene
+        :type gene: ExpressedGene
         :return:
         """
 
@@ -875,9 +901,9 @@ class MEModel(LCSBModel, Model):
         Read a stoichiometry dictionary, and replaces free aminoacids with tRNAs
 
         :param aa_stoichiometry: the stoichiometry dict to edit
-        :type aa_stoichiometry: (dict) {cobra.core.Metabolite: Number}
+        :type aa_stoichiometry: (dict) {:class:`cobra.core.Metabolite`: Number}
         :param rxn: the reaction whose stoichiometry is inspected
-        :type rxn: cobra.core.Reaction
+        :type rxn: :class:`cobra.core.Reaction`
         :return:
         """
         # Extract the tRNAs, since they will be used for a different mass balance
@@ -891,7 +917,7 @@ class MEModel(LCSBModel, Model):
         Adds the transcription reaction related to a gene
 
         :param gene: A gene of the model that has sequence data
-        :type gene: etfl.core.ExpressedGene
+        :type gene: ExpressedGene
         :return:
         """
 
@@ -931,12 +957,14 @@ class MEModel(LCSBModel, Model):
 
         We also need to scale the tRNAs in mRNA space and unscale the translation:
 
-        d/dt σ_m * [*charged_tRNA] =    +- σ_m * v_charging
-                                        -+ σ_m/σ_p*sum(nu_tsl*σ_p*v_tr)
-                                        -  σ_m * mu*[*charged_tRNA]
+        .. code::
 
-        d/dt [*charged_tRNA]_hat =      +- σ_m * v_charging
-                                        -+ σ_m/σ_p * sum( nu_tsl * v_tr_hat)
+            d/dt σ_m * [*charged_tRNA] =    +- σ_m * v_charging
+                                            -+ σ_m/σ_p*sum(nu_tsl*σ_p*v_tr)
+                                            -  σ_m * mu*[*charged_tRNA]
+
+            d/dt [*charged_tRNA]_hat =      +- σ_m * v_charging
+                                            -+ σ_m/σ_p * sum( nu_tsl * v_tr_hat)
                                         -  mu*[*charged_tRNA]_hat
 
         :return:
@@ -984,12 +1012,16 @@ class MEModel(LCSBModel, Model):
         Couples the enzymatic reactions maximal rates with the Enzyme
         availability
         The coupling dictionary looks like:
-        coupling_dict : {
+
+        .. code-block:: python
+
+            coupling_dict : {
                             'reaction_id_1':[   enzyme_instance_1,
                                                 enzyme_instance_2],
                             'reaction_id_2':[   enzyme_instance_3,
                                                 enzyme_instance_4,
                                                 enzyme_instance_5],
+
         :param coupling_dict: A dictionary of reaction ids to enzyme lists
         :type coupling_dict: {str:list(Enzyme)}
         :return:
@@ -1089,8 +1121,13 @@ class MEModel(LCSBModel, Model):
                                     queue=False):
         """
         Adds a mass balance constraint of the type
-        d[E]/dt = 0 <=> v_synthesis - k_deg*[M] - μ*[M] = 0
+
+        .. math::
+
+            d[E]/dt = 0 <=> v_synthesis - k_deg*[M] - μ*[M] = 0
+
         for a macromolecule (mRNA or enzyme)
+
         :param synthesis_flux:
         :param macromolecule:
         :return:
@@ -1282,8 +1319,8 @@ class MEModel(LCSBModel, Model):
         Peptides are assembled into enzymes. This function maps the peptides
         assembly reactions with the enzymes they make up.
 
-        :param enzymes: List of etfl.core.enzyme.Enzyme
-        :param complexes: List of etfl.core.reactions.ComplexationReaction
+        :param enzymes: List of Enzyme
+        :param complexes: List of ComplexationReaction
         :return:
         """
         #TODO: Implement this better
@@ -1411,7 +1448,7 @@ class MEModel(LCSBModel, Model):
         Useful for isozymes
 
         :param enzyme:
-        :type enzyme: pytfa.me.Enzyme
+        :type enzyme: Enzyme
         :param n_replicates:
         :type n_replicates: int
         :return:
@@ -1436,7 +1473,7 @@ class MEModel(LCSBModel, Model):
         Given an enzyme, adds the corresponding degradation reaction
 
         :param enzyme:
-        :type enzyme: etfl.core.enzyme.Enzyme
+        :type enzyme: Enzyme
         :param scaled: Indicates whether scaling should be performed (see manuscript)
         :type scaled: bool
         :param queue: Indicates whether to add the variable directly or
@@ -1471,8 +1508,8 @@ class MEModel(LCSBModel, Model):
         """
         Given an mRNA, adds the corresponding degradation reaction
 
-        :param enzyme:
-        :type enzyme: etfl.core.enzyme.mRNA
+        :param mrna:
+        :type mrna: mRNA
         :param scaled: Indicates whether scaling should be performed (see manuscript)
         :type scaled: bool
         :param queue: Indicates whether to add the variable directly or
@@ -1500,10 +1537,10 @@ class MEModel(LCSBModel, Model):
         reaction
 
         :param deg_stoich: stoichiometry of the degradation
-        :type deg_stoich: dict({cobra.core.Species:Number})
+        :type deg_stoich: dict({:class:`cobra.core.Species:Number`})
         :param macromolecule: the macromalecule being degraded. Used for binding
                                 the degradation constraint
-        :type macromolecule: etfl.core.macromolecule.Macromolecule
+        :type macromolecule: Macromolecule
         :param kind: kind of constraint
         :type kind: mRNADegradation or EnzymeDegradation
         :param scaled: Indicates whether scaling should be performed (see manuscript)
@@ -1631,7 +1668,7 @@ class MEModel(LCSBModel, Model):
         Given an peptide_id, gives the translation reaction
         :param the_peptide_id:
         :type the_peptide_id: str
-        :return: etfl.core.reactions.TranslationReaction
+        :return: TranslationReaction
         """
         return self.reactions.get_by_id(self._get_translation_name(the_peptide_id))
 
@@ -1640,7 +1677,7 @@ class MEModel(LCSBModel, Model):
         Given an mrna_id, gives corresponding transcription reaction
         :param the_mrna_id:
         :type the_mrna_id: str
-        :return: etfl.core.reactions.TranscriptionReaction
+        :return: TranscriptionReaction
         """
         return self.reactions.get_by_id(self._get_transcription_name(the_peptide_id))
 
@@ -1649,7 +1686,7 @@ class MEModel(LCSBModel, Model):
         Adds the RNA Polymerase used by the model.
 
         :param rnap:
-        :type rnap: pytfa.me.Ribosome
+        :type rnap: Ribosome
         :return:
         """
 
@@ -1805,7 +1842,7 @@ class MEModel(LCSBModel, Model):
         Adds the ribosome used by the model.
 
         :param ribosome:
-        :type ribosome: pytfa.me.Ribosome
+        :type ribosome: Ribosome
         :return:
         """
 

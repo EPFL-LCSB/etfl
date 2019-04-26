@@ -29,14 +29,17 @@ def build_trna_charging(model, aa_dict,
     :param model: An ETFL Model
     :type model: :class:`etfl.core.memodel.MEModel`
     :param aa_dict: A dictionary of aminoacid letter to amicoacid met id
-            Example :
-            ```python
+
+        **Example :**
+
+        .. code-block:: python
+
             aa_dict = {
                         'A':'ala__L_c',
                         'R':'arg__L_c',
                         ...
                     }
-            ```
+    
     :param atp: metabolite ID of the cytosolic ATP
     :param amp: metabolite ID of the cytosolic AMP
     :param ppi: metabolite ID of the cytosolic diphosphate
@@ -98,14 +101,17 @@ def make_stoich_from_aa_sequence(sequence, aa_dict, trna_dict,
     :param sequence: sequence of aminoacids (letter form)
     :type sequence: :class:`Bio.Seq` or :class:`str`
     :param aa_dict: A dictionary of aminoacid letter to amicoacid met id
-            Example :
-            ```python
+
+        **Example :**
+
+        .. code-block:: python
+
             aa_dict = {
                         'A':'ala__L_c',
                         'R':'arg__L_c',
                         ...
                     }
-            ```
+    
     :param trna_dict: the dict returned by :func:`etfl.core.expression.build_trna_charging`
     :param gtp: metabolite ID for GTP
     :param gdp: metabolite ID for GDP
@@ -138,14 +144,16 @@ def make_stoich_from_nt_sequence(sequence, nt_dict, ppi):
     :type sequence: :class:`Bio.Seq` or :class:`str`
     :param nt_dict: A dictionary of RNA nucleotide triphosphate
                             letter to nucleotideTP met id
-            Example :
-            ```python
+        **Example :**
+
+        .. code-block:: python
+
             rna_nucleotides = {
                         'A':'atp_c',
                         'U':'utp_c',
                         ...
                     }
-            ```
+    
     :param ppi: metabolite ID for diphosphate
     :return:
     """
@@ -163,14 +171,17 @@ def degrade_peptide(peptide, aa_dict, h2o):
     :param peptide: The peptide
     :type peptide: :class:`etfl.core.enzyme.Peptide`
     :param aa_dict: A dictionary of aminoacid letter to amicoacid met id
-            Example :
-            ```python
+
+        ** Example : **
+
+        .. code-block:: python
+
             aa_dict = {
                         'A':'ala__L_c',
                         'R':'arg__L_c',
                         ...
                     }
-            ```
+
     :param h2o: metabolite ID for water
     :return:
     """
@@ -191,16 +202,18 @@ def degrade_mrna(mrna, nt_dict, h2o, h):
 
     :param mrna: The peptide
     :type mrna: :class:`etfl.core.rna.mRNA`
-    :param nt_dict: A dictionary of RNA nucleotide monophosphate
-                        letter to nucleotideMP met id
-        Example :
-        ```python
-        rna_nucleotides_mp = {
-                    'A':'amp_c',
-                    'U':'ump_c',
-                    ...
-                }
-        ```
+    :param nt_dict: A dictionary of RNA nucleotide monophosphate letter to nucleotideMP met id
+
+        **Example :**
+
+        .. code-block:: python
+
+            rna_nucleotides_mp = {
+                        'A':'amp_c',
+                        'U':'ump_c',
+                        ...
+                    }
+
     :param h2o: metabolite ID for water
     :param h: metabolite ID for H+
     :return:
