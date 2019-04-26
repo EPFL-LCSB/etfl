@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-.. module:: thermome
+.. module:: ETFL
    :platform: Unix, Windows
    :synopsis: flux balance models accounting for expression, thermodynamics, and resource allocation constraints
 
