@@ -113,6 +113,7 @@ class MEModel(LCSBModel, Model):
         self.aa_dict = dict()
         self.rna_nucleotides = dict()
         self.trna_dict = dict()
+        self.dilution_terms = dict()
         self.enzymes = DictList()
         self.mrnas = DictList()
         self.rrnas = DictList()
@@ -1093,7 +1094,8 @@ class MEModel(LCSBModel, Model):
             v_max_fwd[e] = enz.kcat_fwd * enz.concentration
             v_max_bwd[e] = enz.kcat_bwd * enz.concentration
 
-            self.add_mass_balance_constraint(comp, enz, queue=True)
+            # Cannot queue, if the same enzyme is to be added twice
+            self.add_mass_balance_constraint(comp, enz, queue=False)
 
             comp.enzyme = enz
             enz.complexation = comp
@@ -1135,7 +1137,11 @@ class MEModel(LCSBModel, Model):
 
         kwargs = dict()
 
-        z = self.linearize_me(macromolecule, queue=queue)
+        try:
+            z = self.dilution_terms[macromolecule.id]
+            self.logger.warning('Dilution term already exists for {}'.format(macromolecule.id))
+        except KeyError:
+            z = self.linearize_me(macromolecule, queue=queue)
 
         if isinstance(macromolecule, Enzyme):
             kind = EnzymeMassBalance
@@ -1250,6 +1256,8 @@ class MEModel(LCSBModel, Model):
 
             out_expr += (2 ** i) * self.mu_approx_resolution * model_z_i
 
+        self.dilution_terms[macromolecule.id] = out_expr
+
         return out_expr
 
     def get_ordered_ga_vars(self):
@@ -1352,10 +1360,20 @@ class MEModel(LCSBModel, Model):
         if not isinstance(enzyme_list[0],Enzyme):
             enzyme_list = [x for item in enzyme_list for x in item]
 
+
         # First check whether the enzymes exist in the model
         # Also enzymes could be declared twice for different reactions,
         # hence turn the list into a set
         enzyme_list = [x for x in set(enzyme_list) if x.id not in self.enzymes]
+
+        enz_ids = [x.id for x in enzyme_list]
+
+        tot_ids = len(enz_ids)
+        unique_ids = len(set(enz_ids))
+        if tot_ids != unique_ids:
+            msg = '{} duplicate enzyme IDs detected'.format(tot_ids-unique_ids)
+            self.logger.error(msg)
+            raise KeyError(msg)
 
         for enz in enzyme_list:
             enz._model = self
