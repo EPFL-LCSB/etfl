@@ -12,6 +12,7 @@ from pytfa.optim.variables import ReactionVariable, MetaboliteVariable
 from .variables import EnzymeVariable, GeneVariable, ModelVariable, \
     GrowthActivation, BinaryActivator
 from pytfa.optim.constraints import ReactionConstraint, MetaboliteConstraint
+from pytfa.optim.utils import get_all_subclasses
 from .constraints import EnzymeConstraint, GeneConstraint, ModelConstraint
 from collections import namedtuple
 
@@ -21,22 +22,6 @@ try:
 except ModuleNotFoundError:
     pass
 
-
-def get_all_subclasses(cls):
-    """
-    Given a variable or constraint class, get all the subclassses
-    that inherit from it
-
-    :param cls:
-    :return:
-    """
-    all_subclasses = []
-
-    for subclass in cls.__subclasses__():
-        all_subclasses.append(subclass)
-        all_subclasses.extend(get_all_subclasses(subclass))
-
-    return all_subclasses
 
 def make_subclasses_dict(cls):
     """
