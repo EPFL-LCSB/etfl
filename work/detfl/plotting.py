@@ -27,7 +27,7 @@ def get_prot_total(time_data, enzymes, mass_mode = True):
 
 
 def summarize_model(model,time_data,groups,
-                    output_path='.', model_tag=''):
+                    output_path='.', model_tag='', backend ='png'):
 
     summary_plots = dict()
     detailed_plots = dict()
@@ -56,11 +56,17 @@ def summarize_model(model,time_data,groups,
 
     bp.curdoc().clear()
     bp.output_file(join(output_folder,'summary.html'))
+
+    for p in summary_plots.values():
+        p.output_backend = backend
+
     bp.show(column(list(summary_plots.values())))
 
     for key,this_dp in detailed_plots.items():
         bp.curdoc().clear()
         bp.output_file(join(output_folder,'{}.html'.format(key)))
+        for p in this_dp.children:
+            p.output_backend = backend
         bp.show(this_dp)
 
 def make_summary_plots(model, time_data, key, data_type, total=False):
