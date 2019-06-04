@@ -455,6 +455,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
         the_rxn.lower_bound = -1 * kinfun(S0[uptake_flux])
 
     if initial_solution is None:
+        dmodel.logger.info('No initial solution provided - computing now')
         current_solution = chebyshev_sol
     else:
         current_solution = initial_solution
