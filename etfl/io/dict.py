@@ -15,7 +15,8 @@ from tqdm import tqdm
 import cobra.io.dict as cbd
 from cobra.exceptions import SolverNotFound
 from optlang.util import expr_to_json, parse_expr
-from pytfa.io.dict import get_solver_string, var_to_dict, cons_to_dict
+from pytfa.io.dict import get_solver_string, var_to_dict, cons_to_dict, \
+    obj_to_dict, rebuild_obj_from_dict
 from pytfa.thermo.tmodel import ThermoModel
 
 from ..core.enzyme import Enzyme, Ribosome, Peptide, RNAPolymerase
@@ -211,6 +212,7 @@ def model_to_dict(model):
     obj = cbd.model_to_dict(model)
 
     obj['solver'] = get_solver_string(model)
+    obj['objective'] = obj_to_dict(model)
 
     # Copy variables, constraints
     # obj['var_dict'] = archive_variables(model._var_kinds)
@@ -320,6 +322,10 @@ def model_to_dict(model):
             # Not an ExpressedGene
             pass
 
+    try:
+        rebuild_obj_from_dict(new, obj['objective'])
+    except KeyError:
+        pass
 
     return obj
 

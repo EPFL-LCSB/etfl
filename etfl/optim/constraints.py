@@ -18,7 +18,7 @@ class CatalyticConstraint(ReactionConstraint):
     Class to represent a enzymatic constraint
     """
 
-    prefix = 'EC_'
+    prefix = 'CC_'
 
 
 class ForwardCatalyticConstraint(ReactionConstraint):
@@ -62,6 +62,8 @@ class EnzymeConstraint(GenericConstraint):
     @property
     def model(self):
         return self.enzyme.model
+
+    prefix = 'EZ_'
 
 
 class EnzymeMassBalance(EnzymeConstraint):
