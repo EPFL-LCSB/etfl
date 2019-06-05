@@ -791,34 +791,34 @@ def get_transporters_coupling(model, additional_enz):
 
     coupling_dict = get_lloyd_coupling_dict(model, select=additional_enz)
 
-    curated_refs = pd.read_csv(pjoin(data_dir,'transporters_kcats_missing.csv'),
-                               header=0, skiprows=[1,], # Units row
-                               index_col=0)
-
-    # UNIPROT has non SI units:
-        # umol / (min.mgEnz) *    g/mol               *mol/umol * min/h  * mg/g
-    curated_refs['etfl_kcat'] = \
-        curated_refs['kcat'] * curated_refs['weight'] * 1e-6    *  60    * 1000
-
-    curated_dict = defaultdict(list)
-
-    for rxn, row in curated_refs.iterrows():
-
-        if row['kcat'] == 0:
-            continue
-
-        composition = {row['gene'] : 1}
-        enz_id = '{}_{}'.format(rxn,row['gene'])
-        enz_name = '{}, {} isoform'.format(rxn,row['gene'])
-        enz = Enzyme(enz_id,
-                        name=enz_name,
-                        kcat_fwd=row['etfl_kcat'] * 3600,
-                        kcat_bwd=row['etfl_kcat'] * 3600,
-                        kdeg=kdeg_enz,
-                        composition=composition)
-        curated_dict[rxn].append(enz)
-
-    coupling_dict.update(curated_dict)
+    # curated_refs = pd.read_csv(pjoin(data_dir,'transporters_kcats_missing.csv'),
+    #                            header=0, skiprows=[1,], # Units row
+    #                            index_col=0)
+    #
+    # # UNIPROT has non SI units:
+    #     # umol / (min.mgEnz) *    g/mol               *mol/umol * min/h  * mg/g
+    # curated_refs['etfl_kcat'] = \
+    #     curated_refs['kcat'] * curated_refs['weight'] * 1e-6    *  60    * 1000
+    #
+    # curated_dict = defaultdict(list)
+    #
+    # for rxn, row in curated_refs.iterrows():
+    #
+    #     if row['kcat'] == 0:
+    #         continue
+    #
+    #     composition = {row['gene'] : 1}
+    #     enz_id = '{}_{}'.format(rxn,row['gene'])
+    #     enz_name = '{}, {} isoform'.format(rxn,row['gene'])
+    #     enz = Enzyme(enz_id,
+    #                     name=enz_name,
+    #                     kcat_fwd=row['etfl_kcat'] * 3600,
+    #                     kcat_bwd=row['etfl_kcat'] * 3600,
+    #                     kdeg=kdeg_enz,
+    #                     composition=composition)
+    #     curated_dict[rxn].append(enz)
+    #
+    # coupling_dict.update(curated_dict)
     # print(curated_refs)
     return coupling_dict
 

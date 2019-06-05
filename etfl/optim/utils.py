@@ -301,6 +301,11 @@ def fix_growth(model, solution = None):
 
     vars_to_fix = list(mu_variables) + list(interp_variables)
 
+    # # Growth rate
+    # epsilon = model.solver.configuration.tolerances.feasibility
+    # _,mu_lb,_ = get_active_growth_bounds(model)
+    # model.growth_reaction.lower_bound = mu_lb - epsilon
+
     gurobi_hints = is_gurobi(model)
     if gurobi_hints:
         model.logger.info('Gurobi-based model detected - using  Gurobi hints')
@@ -352,6 +357,9 @@ def release_growth(model):
 
     vars_to_fix = list(mu_variables) + list(interp_variables)
 
+    # # Growth reaction
+    # model.growth_reaction.lower_bound = 0
+
     gurobi_hints = is_gurobi(model)
     for the_var in vars_to_fix:
         the_var.variable.lb = 0
@@ -398,7 +406,7 @@ def release_warm_start(model):
         raise NotImplementedError('Solver not supported: ' + model.problem.__name__)
 
 
-def get_active_growth_bounds(model):
+def get_active_growth_bounds(model, growth_rate=None):
     """
     Returns the growth bound closest to the growth flux calculated at the
     last solution.
@@ -406,7 +414,11 @@ def get_active_growth_bounds(model):
     :param model:
     :return:
     """
-    mu = model.growth_reaction.flux
+    if growth_rate is None:
+        mu = model.growth_reaction.flux
+    else:
+        mu = growth_rate
+
     difflist = [abs(mu - x[0]) for x in model.mu_bins]
     min_diff = min(difflist)
     min_ix = difflist.index(min_diff)

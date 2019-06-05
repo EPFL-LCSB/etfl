@@ -82,8 +82,7 @@ def prepare_model(in_model, v0, S0, uptake_fun):
             model.logger.warning('Reaction {} not in model - could not '
                                  'initialize flux'.format(rxn_id))
 
-    # We provide no solution, so that the Chebyshev center is used.
-    sol_ini = None#in_model.optimize()
+    sol_ini = in_model.optimize()
 
     return sol_ini
 
