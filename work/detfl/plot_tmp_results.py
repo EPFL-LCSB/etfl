@@ -20,6 +20,7 @@ fluxes = ['EX_glc__D_e','EX_lcts_e','EX_o2_e','EX_ac_e']
 
 glc_fluxes  = ['GLCDpp','GLCabcpp','GLCptspp','GLCt2pp','total']
 lcts_fluxes = ['LACZpp','LCTSt3ipp','LCTStpp','total']
+gal_fluxes  = ['GALt2pp','GALabcpp','total']
 ac_fluxes   = ['ACt2rpp', 'ACt4pp', 'total']
 
 # lcts_enzymes = ['EZ_'+ x for x in ['LACZpp_EG12013_MONOMER',
@@ -57,14 +58,23 @@ glc_enzymes = ['EZ_'+ x for x in [
                                   'GLCt2pp_GALP_MONOMER',
                                   ]] + ['total']
 
+gal_enzymes = ['EZ_' + x for x in [
+                                  'GALt2pp_GALP_MONOMER',
+                                  'GALabcpp_ABC_18_CPLX',
+                                  'GALabcpp_ABC_46_CPLX',
+                                  # 'GALKr_G7096_MONOMER',
+                                  # 'GALKr_GALACTOKIN_MONOMER_mod_mg2',
+                                  ]] + ['total']
 
 species = ['S_EX_' + x for x in ['glc__D_e','lcts_e','o2_e','ac_e']]
 groups = {'fluxes':fluxes,
           'glc_enzymes':glc_enzymes,
           'lcts_enzymes':lcts_enzymes,
-          'ac_enzymes':ac_enzymes,
+          'gal_enzymes':gal_enzymes,
+          # 'ac_enzymes':ac_enzymes,
           'glc_fluxes':glc_fluxes,
           'lcts_fluxes':lcts_fluxes,
+          'gal_fluxes':gal_fluxes,
           'ac_fluxes':ac_fluxes,
           'species':species}
 
