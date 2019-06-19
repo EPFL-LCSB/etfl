@@ -340,14 +340,10 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id,
 
 
 # Prot degradation
-# Nath, Kamalendu, and Arthur L. Koch.
-# "Protein degradation in Escherichia coli II. Strain differences in the degradation of protein and nucleic acid resulting from starvation."
-# Journal of Biological Chemistry 246.22 (1971): 6956-6967.
-# http://www.jbc.org/content/246/22/6956.full.pdf
-# The total amount of enzyme undergoing degradation (2 to 7%) was the same
-# during growth and during various kinds of starvation.
-kdeg_low, kdeg_up = 0.02, 0.07
-kdeg_enz = (kdeg_low + kdeg_up)/2
+# BNID 111930
+# Moran MA et al., Sizing up metatranscriptomics. ISME J. 2013 Feb7(2):237-43.
+# A typical bacterial protein half-life is ~20 h
+kdeg_enz = np.log(2)/20 # [h-1]
 
 # From :
 # http://book.bionumbers.org/how-fast-do-rnas-and-proteins-degrade/
@@ -359,7 +355,7 @@ kdeg_enz = (kdeg_low + kdeg_up)/2
 # Mean half life of mrna is 5 minutes in ecoli
 # tau = t_0.5 /ln(2)
 # kdeg = 1-exp(1hr/tau)
-kdeg_mrna = 1-np.exp(-60*np.log(2)/5)
+kdeg_mrna = 60*np.log(2)/5
 
 # Average mrna length from Bionumber 100023
 # http://bionumbers.hms.harvard.edu/bionumber.aspx?&id=100023&ver=3
