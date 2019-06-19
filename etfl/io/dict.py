@@ -322,11 +322,6 @@ def model_to_dict(model):
             # Not an ExpressedGene
             pass
 
-    try:
-        rebuild_obj_from_dict(new, obj['objective'])
-    except KeyError:
-        pass
-
     return obj
 
 def _add_me_reaction_info(rxn, rxn_dict):
@@ -438,6 +433,12 @@ def model_from_dict(obj, solver=None):
         ub = the_cons_dict['ub']
 
         rebuild_constraint(classname, new, this_id, new_expr, lb, ub)
+
+
+    try:
+        rebuild_obj_from_dict(new, obj['objective'])
+    except KeyError:
+        pass
 
     new.repair()
     return new
