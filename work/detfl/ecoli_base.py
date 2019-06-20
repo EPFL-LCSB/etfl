@@ -126,7 +126,8 @@ def get_medium_funs(config):
     glc_free = lambda t, S: max(S0_glc, 0)
 
     # Integrated linearization of the diffusion over dt
-    o2_diff = lambda t, S, S0=S0_o2, kla=kla_o2: max(S0 - (S0 - S) * exp(-kla * timestep), 0)
+    # o2_diff = lambda t, S, S0=S0_o2, kla=kla_o2: max(S0 - (S0 - S) * exp(-kla * timestep), 0)
+    o2_diff = lambda t, S, S0=S0_o2, kla=kla_o2: max(S + kla * (S0 - S) * timestep, 0)
 
     ac_fun = lambda t, S: max(S, 0)
 
