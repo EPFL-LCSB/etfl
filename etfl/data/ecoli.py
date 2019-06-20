@@ -343,6 +343,9 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id,
 # BNID 111930
 # Moran MA et al., Sizing up metatranscriptomics. ISME J. 2013 Feb7(2):237-43.
 # A typical bacterial protein half-life is ~20 h
+# -------
+# tau = 1/kdeg = t_0.5 /ln(2)
+# kdeg = ln(2)/t_0.5
 kdeg_enz = np.log(2)/20 # [h-1]
 
 # From :
@@ -353,8 +356,8 @@ kdeg_enz = np.log(2)/20 # [h-1]
 #  C. adapted from B. Schwanhausser, Nature, 473:337, 2013).
 # -------
 # Mean half life of mrna is 5 minutes in ecoli
-# tau = t_0.5 /ln(2)
-# kdeg = 1-exp(1hr/tau)
+# tau = 1/kdeg = t_0.5 /ln(2)
+# kdeg = ln(2)/t_0.5
 kdeg_mrna = 60*np.log(2)/5
 
 # Average mrna length from Bionumber 100023
@@ -851,7 +854,8 @@ def get_mrna_dict(model):
 
 
 # Half life of a ribosome is 5 days
-kdeg_rib = 0.0023
+kdeg_rib = np.log(2)/(5*24)
+
 def get_rib():
     """
     # Ribosome
