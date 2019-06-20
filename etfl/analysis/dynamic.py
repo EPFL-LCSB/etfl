@@ -275,7 +275,7 @@ def apply_ref_state(dmodel, solution, timestep, has_mrna, has_enzymes):
     # mrna_rhs = dmodel.get_variables_of_type(mRNADeltaRHS)
 
     epsilon = dmodel.solver.configuration.tolerances.feasibility
-
+    res = dmodel.mu_bins[-1][-1][-1] / len(dmodel.mu_bins)
     if has_enzymes:
         for enz in dmodel.enzymes:
             # the_rhs = enz_rhs.get_by_id(enz.id)
@@ -286,16 +286,20 @@ def apply_ref_state(dmodel, solution, timestep, has_mrna, has_enzymes):
             # e = (enz.kdeg + solution.loc[dmodel.growth_reaction.id]) * timestep
             # the_value = E0 * (1 + e/1 + (e**2)/2 + (e**3)/6)
 
+            # vsyn/(kdeg + mu_lb) <= E0 <= vsyn/(kdeg + mu_ub)
+            # vsyn/(kdeg + mu + resolution) <= E0 <= vsyn/(kdeg + mu - resolution)
+            # vsyn/(kdeg + mu) * (1 - resolution) <= E0 <= vsyn/(kdeg + mu) * (1 + resolution)
+
             try:
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
                 # the_rhs.variable.lb = max(0,the_value - epsilon)
-                the_ref.variable.ub = max(0,the_value + epsilon)
-                the_ref.variable.lb = max(0,the_value - epsilon)
+                the_ref.variable.ub = max(0,the_value + epsilon) * (1 + res)
+                the_ref.variable.lb = max(0,the_value - epsilon) * (1 - res)
             except ValueError:
                 # the_rhs.variable.lb = max(0,the_value - epsilon)
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
-                the_ref.variable.lb = max(0,the_value - epsilon)
-                the_ref.variable.ub = max(0,the_value + epsilon)
+                the_ref.variable.lb = max(0,the_value - epsilon) * (1 - res)
+                the_ref.variable.ub = max(0,the_value + epsilon) * (1 + res)
     if has_mrna:
         for mrna in dmodel.mrnas:
             # the_rhs = mrna_rhs.get_by_id(mrna.id)
@@ -309,13 +313,13 @@ def apply_ref_state(dmodel, solution, timestep, has_mrna, has_enzymes):
             try:
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
                 # the_rhs.variable.lb = max(0,the_value - epsilon)
-                the_ref.variable.ub = max(0,the_value + epsilon)
-                the_ref.variable.lb = max(0,the_value - epsilon)
+                the_ref.variable.ub = max(0,the_value + epsilon) * (1 + res)
+                the_ref.variable.lb = max(0,the_value - epsilon) * (1 - res)
             except ValueError:
                 # the_rhs.variable.lb = max(0,the_value - epsilon)
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
-                the_ref.variable.lb = max(0,the_value - epsilon)
-                the_ref.variable.ub = max(0,the_value + epsilon)
+                the_ref.variable.lb = max(0,the_value - epsilon) * (1 - res)
+                the_ref.variable.ub = max(0,the_value + epsilon) * (1 + res)
 
 def update_sol(t, X, S, dmodel, obs_values, colname):
     obs_values.loc['t',colname] = t
@@ -379,7 +383,7 @@ def compute_center(dmodel, provided_solution=None):
         # We relax the integer bounds and try solving anyway with just the lb
         epsilon = dmodel.solver.configuration.tolerances.feasibility
         release_growth(dmodel)
-        dmodel.growth_reaction.lower_bound = mu_lb - epsilon
+        dmodel.growth_reaction.lower_bound = mu_lb - 1*epsilon
         dmodel.optimize()
         chebyshev_sol = dmodel.solution
 
