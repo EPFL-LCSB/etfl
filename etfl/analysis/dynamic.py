@@ -273,6 +273,7 @@ def apply_ref_state(dmodel, solution, timestep, has_mrna, has_enzymes):
     mrna_ref = dmodel.get_variables_of_type(mRNARef)
     # enz_rhs  = dmodel.get_variables_of_type(EnzymeDeltaRHS)
     # mrna_rhs = dmodel.get_variables_of_type(mRNADeltaRHS)
+    mu_hat, mu_lb, mu_ub = get_active_growth_bounds(dmodel, growth_rate=mu)
 
     epsilon = dmodel.solver.configuration.tolerances.feasibility
     res = dmodel.mu_bins[-1][-1][-1] / len(dmodel.mu_bins)
@@ -280,46 +281,59 @@ def apply_ref_state(dmodel, solution, timestep, has_mrna, has_enzymes):
         for enz in dmodel.enzymes:
             # the_rhs = enz_rhs.get_by_id(enz.id)
             the_ref = enz_ref.get_by_id(enz.id)
-            E0 = solution.loc[enz.variable.name]
-            the_value = E0
-            # Taylor expansion element
-            # e = (enz.kdeg + solution.loc[dmodel.growth_reaction.id]) * timestep
-            # the_value = E0 * (1 + e/1 + (e**2)/2 + (e**3)/6)
+            # E0 = solution.loc[enz.variable.name]
+            # the_value = E0
 
-            # vsyn/(kdeg + mu_lb) <= E0 <= vsyn/(kdeg + mu_ub)
-            # vsyn/(kdeg + mu + resolution) <= E0 <= vsyn/(kdeg + mu - resolution)
-            # vsyn/(kdeg + mu) * (1 - resolution) <= E0 <= vsyn/(kdeg + mu) * (1 + resolution)
+            # We use:
+            # E0 = vsyn/(kdeg+mu)
+            # E0_hat*σ_m = vsyn_hat*σ_v / (kdeg+mu)
+            # E0_hat = vsyn_hat/(kdeg+mu) *σ_v/σ_m
+            # To quantify the error on E (mu_lb. mu_ub)
+            # vsyn_hat/(kdeg + mu_lb) *σ_v/σ_m <= E0_hat <= vsyn_hat/(kdeg + mu_ub) * σ_v/σ_m
+            vsyn = solution.loc[enz.complexation.id]
+            sigma= enz.complexation.scaling_factor / enz.scaling_factor
+            the_lb = vsyn/(enz.kdeg + mu_ub) * sigma
+            the_ub = vsyn/(enz.kdeg + mu_lb) * sigma
 
             try:
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
                 # the_rhs.variable.lb = max(0,the_value - epsilon)
-                the_ref.variable.ub = max(0,the_value + epsilon) * (1 + res)
-                the_ref.variable.lb = max(0,the_value - epsilon) * (1 - res)
+                the_ref.variable.ub = max(0,the_ub + epsilon)
+                the_ref.variable.lb = max(0,the_lb - epsilon)
             except ValueError:
                 # the_rhs.variable.lb = max(0,the_value - epsilon)
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
-                the_ref.variable.lb = max(0,the_value - epsilon) * (1 - res)
-                the_ref.variable.ub = max(0,the_value + epsilon) * (1 + res)
+                the_ref.variable.lb = max(0,the_lb - epsilon)
+                the_ref.variable.ub = max(0,the_ub + epsilon)
     if has_mrna:
         for mrna in dmodel.mrnas:
             # the_rhs = mrna_rhs.get_by_id(mrna.id)
             the_ref = mrna_ref.get_by_id(mrna.id)
-            F0 = solution.loc[mrna.variable.name]
-            # Taylor expansion element
-            # e = (mrna.kdeg + solution.loc[dmodel.growth_reaction.id]) * timestep
-            # the_value = F0 * (1 + e/1 + (e**2)/2 + (e**3)/6)
-            the_value = F0
+            # F0 = solution.loc[mrna.variable.name]
+
+            # We use:
+            # F0 = vsyn/(kdeg+mu)
+            # F0_hat*σ_m = vsyn_hat*σ_v / (kdeg+mu)
+            # F0_hat = vsyn_hat/(kdeg+mu) *σ_v/σ_m
+            # To quantify the error on F (mu_lb. mu_ub)
+            # vsyn_hat/(kdeg + mu_lb) *σ_v/σ_m <= F0_hat <= vsyn_hat/(kdeg + mu_ub) * σ_v/σ_m
+            # Do not forget to scale!
+            transcription = dmodel.get_transcription(mrna)
+            vsyn = solution.loc[transcription.id]
+            sigma= transcription.scaling_factor / mrna.scaling_factor
+            the_lb = vsyn/(mrna.kdeg + mu_ub) * sigma
+            the_ub = vsyn/(mrna.kdeg + mu_lb) * sigma
 
             try:
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
                 # the_rhs.variable.lb = max(0,the_value - epsilon)
-                the_ref.variable.ub = max(0,the_value + epsilon) * (1 + res)
-                the_ref.variable.lb = max(0,the_value - epsilon) * (1 - res)
+                the_ref.variable.ub = max(0,the_ub + epsilon)
+                the_ref.variable.lb = max(0,the_lb - epsilon)
             except ValueError:
                 # the_rhs.variable.lb = max(0,the_value - epsilon)
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
-                the_ref.variable.lb = max(0,the_value - epsilon) * (1 - res)
-                the_ref.variable.ub = max(0,the_value + epsilon) * (1 + res)
+                the_ref.variable.lb = max(0,the_lb - epsilon)
+                the_ref.variable.ub = max(0,the_ub + epsilon)
 
 def update_sol(t, X, S, dmodel, obs_values, colname):
     obs_values.loc['t',colname] = t
