@@ -1,5 +1,5 @@
-model: '../../tutorials/models/SlackModel iJO1366_vETFL_440_enz_128_bins__20190424_130155.json'
-tag: 'vETFL_tp_glc_ac'
+model: '../../tutorials/models/SlackModel iJO1366_vETFL_tp_441_enz_128_bins__20190620_144322.json'
+tag: 'vETFL_tp_glc_ac_syn'
 simulation:
   timestep: 0.05
   tfinal: 3
@@ -10,14 +10,14 @@ assumptions:
     EX_ac_e: 0 # mmol/L
   S0:
     EX_o2_e: 0.21 # mmol/L
-    EX_glc__D_e: 0.5 # mmol/L
+    EX_glc__D_e: 1 # mmol/L
     EX_ac_e: 0 # mmol/L
 
   X0: 0.05
   uptake_enz:
-    EX_ac_e:
-      - ACt4pp
-      - ACt2rpp
+#    EX_ac_e:
+#      - ACt4pp
+#      - ACt2rpp
     EX_glc__D_e:
       - GLCDpp
       - GLCabcpp
