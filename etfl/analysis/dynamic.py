@@ -273,6 +273,7 @@ def apply_ref_state(dmodel, solution, timestep, has_mrna, has_enzymes):
     mrna_ref = dmodel.get_variables_of_type(mRNARef)
     # enz_rhs  = dmodel.get_variables_of_type(EnzymeDeltaRHS)
     # mrna_rhs = dmodel.get_variables_of_type(mRNADeltaRHS)
+    mu = solution.loc[dmodel.growth_reaction.id]
     mu_hat, mu_lb, mu_ub = get_active_growth_bounds(dmodel, growth_rate=mu)
 
     epsilon = dmodel.solver.configuration.tolerances.feasibility
