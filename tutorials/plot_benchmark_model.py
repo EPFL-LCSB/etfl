@@ -199,16 +199,20 @@ if __name__ == '__main__':
     cmap = Category10[10]
 
     model_data1 = OrderedDict({
-        'EFL': pd.read_csv('outputs/benchmark_EFL_25.csv'),
-        'ETFL': pd.read_csv('outputs/benchmark_ETFL_25.csv'),
-        'vEFL': pd.read_csv('outputs/benchmark_vEFL_25.csv'),
-        'vETFL': pd.read_csv('outputs/benchmark_vETFL_25.csv'),
+        'EFL': pd.read_csv('outputs/benchmark_EFL.csv'),
+        'ETFL': pd.read_csv('outputs/benchmark_ETFL.csv'),
+        'vEFL': pd.read_csv('outputs/benchmark_vEFL.csv'),
+        'vETFL': pd.read_csv('outputs/benchmark_vETFL.csv'),
     })
     model_data2 = OrderedDict({
+        # 'vETFL': model_data1['vETFL'],
+        # 'vETFL65': pd.read_csv('outputs/benchmark_vETFL65_25.csv'),
+        # 'vETFL, inferred enzymes': pd.read_csv('outputs/benchmark_vETFL_infer_25.csv'),
+        # 'vETFL65, inferred enzymes': pd.read_csv('outputs/benchmark_vETFL65_infer_25.csv'),
         'vETFL': model_data1['vETFL'],
-        'vETFL65': pd.read_csv('outputs/benchmark_vETFL65_25.csv'),
-        'vETFL, inferred enzymes': pd.read_csv('outputs/benchmark_vETFL_infer_25.csv'),
-        'vETFL65, inferred enzymes': pd.read_csv('outputs/benchmark_vETFL65_infer_25.csv'),
+        'vETFL, mean': pd.read_csv('outputs/benchmark_vETFLmean.csv'),
+        'vETFL, inferred enzymes': pd.read_csv('outputs/benchmark_vETFL_infer.csv'),
+        'vETFL, inferred mean enzymes': pd.read_csv('outputs/benchmark_vETFLmean_infer.csv'),
     })
     model_data_old = OrderedDict({
         # 'T0E1N0': pd.read_csv('outputs/benchmark_T0E1N0.csv'),
