@@ -47,6 +47,25 @@ The module can be installed like any Python package:
     
 The installation process should not exceed a minute if the requirements are installed. If they are not, it might take longer as the installer installs them first.
 
+Running the code
+----------------
+
+You can run the examples in etfl/tutorials:
+
+.. code:: bash
+
+   cd etfl/tutorials
+   python test_small.py
+
+You can also run them inside IPython to experiment and play with the
+objects:
+
+.. code:: bash
+
+   ipython
+   run test_small.py
+   m.print_info()
+
 Docker
 ------
 
