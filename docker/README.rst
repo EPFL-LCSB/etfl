@@ -7,11 +7,22 @@ Requirements
 ------------
 
 Make sure `docker`_ is installed. 
-You will need the pyTFA Docker already built, as it is where the solver hooks are set-up.
+You will need the pyTFA container already built, as it is where the solver hooks are set-up.
 Follow the instructions at `pytfa/docker`_
 
 Running the Docker
 ------------------
+Since you will need to build the pytfa container, we recommend the following architecture:
+
+.. code::
+
+    └───src_folder
+        └───pytfa
+        └───etfl
+
+The ``run`` script will build pyTFA with the local installation at ``../pytfa``.
+if pyTFA is located somewhere else, you can edit the arguments of the run script. 
+If you want to download pyTFA from PIP, simply change the last line in the Dockerfile to remove the local installation.
 
 First, build the container with ``build.bat`` or ``. build``. Then start
 the container with ``run.bat`` or ``. run``.
