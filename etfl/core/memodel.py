@@ -1304,8 +1304,14 @@ class MEModel(LCSBModel, Model):
                                                         # upper_bound=1,
                                                         scaled=True)
 
-                peptides = {self.peptides.get_by_id(k):-v \
-                            for k,v in this_isozyme.composition.items()}
+                try:
+                    peptides = {self.peptides.get_by_id(k):-v \
+                                for k,v in this_isozyme.composition.items()}
+                except KeyError:
+                    missing_genes = '.'.join(this_isozyme.composition.keys())
+                    self.logger.warning('No nucleotide sequence found for '
+                                        'some of these genes {}'.format(missing_genes))
+                    return None
 
                 self.add_reactions([this_complexation])
                 this_complexation.add_peptides(peptides)

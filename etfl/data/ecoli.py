@@ -362,7 +362,7 @@ kdeg_mrna = 60*np.log(2)/5
 
 # Average mrna length from Bionumber 100023
 # http://bionumbers.hms.harvard.edu/bionumber.aspx?&id=100023&ver=3
-# mrna_length_avg = 370
+# mrna_length_avg = 370 # nm
 mrna_length_avg = 1000
 
 # Average peptide length
