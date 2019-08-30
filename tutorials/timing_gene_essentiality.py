@@ -18,10 +18,11 @@ solver = 'optlang-gurobi'
 # ecoli_tfa = pytfa.io.json.load_json_model('models/iJO1366_T1E0N0__20180606_121751.json')
 # ecoli_tfa.solver = solver
 
-# ecoli = load_json_model('models/RelaxedModel iJO1366_vETFL_431_enz_128_bins__20190108_181346.json')
-# ecoli = load_json_model('models/SlackModel iJO1366_vETFL_431_enz_128_bins__20190122_155755.json')
-# ecoli = load_json_model('models/SlackModel iJO1366_vETFL_1783_enz_128_bins__20190221_185154.json')
-ecoli = load_json_model('models/SlackModel iJO1366_vETFL_2084_enz_128_bins__20190122_170118.json')
+# vETFL
+ecoli = load_json_model('models/SlackModel iJO1366_vETFL_431_enz_128_bins__20190701_082518.json')
+# vETFL_infer:
+#ecoli = load_json_model('models/SlackModel
+# iJO1366_vETFL_infer_2084_enz_128_bins__20190624_095428.json')
 ecoli.solver = solver
 
 standard_solver_config(ecoli)
@@ -34,6 +35,15 @@ print(' - RNAP produced: {}'.format(ecoli.solution.raw.EZ_rnap))
 
 
 # --
+
+
+def safe_optim(model):
+    try:
+        ret = model.slim_optimize()
+    except KeyError:
+        ret = np.nan
+    return ret
+
 
 def ko_gene(model, gene_id):
     try:
@@ -72,22 +82,33 @@ def timeit(method):
         return result
     return timed
 
+def gene_has_associated_enzyme(model, gene):
+    return any([gene.id in x.composition for x in model.enzymes])
+
 @timeit
 def ko_etfl(model):
     growth = dict()
     gene_ko_config(model)
+    model.solver.configuration.timeout = 14400
+
     model.growth_reaction.lower_bound = 0.1*max_growth
     model.objective = 0 # Gene essentiality is a feasibility problem
 
 
     for g in tqdm(model.genes):
         with model as model:
-            ret = ko_gene(model, g.id)
-            if ret is None:
-                # There is no translation associated to this gene
-                model.logger.warning('There is no translation associated '
-                                     'to this gene: {}'.format(g.id))
-                continue
+
+            if gene_has_associated_enzyme(model, g):
+                ret = ko_gene(model, g.id)
+                if ret is None:
+                    # There is no translation associated to this gene
+                    model.logger.warning('There is no translation associated '
+                                         'to this gene: {}'.format(g.id))
+                    continue
+            else:
+                # default to GPR KO
+                model.genes.get_by_id(g.id).knock_out()
+                ret = safe_optim(model)
 
             growth[g.id] = ret
 
