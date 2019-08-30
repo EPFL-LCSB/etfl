@@ -404,6 +404,10 @@ def model_from_dict(obj, solver=None):
 
     new._push_queue()
 
+    # Force update GPR info
+    for rxn in new.reactions:
+        rxn.gene_reaction_rule = rxn.gene_reaction_rule
+
     for the_var_dict in tqdm(obj['variables'], desc='rebuilding variables'):
         this_id = the_var_dict['id']
         classname = the_var_dict['kind']

@@ -36,6 +36,8 @@ class ExpressionReaction(Reaction):
                     scaled = scaled,
                     **kwargs)
 
+        # new._model = reaction._model
+        # new.notes = reaction.notes
         new.add_metabolites(reaction.metabolites)
         new.gene_reaction_rule = reaction.gene_reaction_rule
         return new
@@ -113,6 +115,8 @@ class EnzymaticReaction(ExpressionReaction):
                         enzymes= enzymes,
                         scaled=scaled)
 
+        # new._model = reaction._model
+        # new.notes = reaction.notes
         new.add_metabolites(reaction.metabolites, rescale = False)
         new.gene_reaction_rule = reaction.gene_reaction_rule
         return new
