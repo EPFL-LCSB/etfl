@@ -11,7 +11,7 @@ Variables declarations
 """
 
 from pytfa.optim.variables import GenericVariable, BinaryVariable, \
-    ReactionVariable, ModelVariable, get_binary_type
+    ReactionVariable, ModelVariable, GeneVariable, get_binary_type
 
 
 
@@ -70,37 +70,6 @@ class EnzymeVariable(GenericVariable):
     @property
     def model(self):
         return self.enzyme.model
-
-class GeneVariable(GenericVariable):
-    """
-    Class to represent a gene variable
-    """
-
-    prefix = 'GV_'
-
-    def __init__(self, gene, **kwargs):
-        model = gene.model
-
-
-        if not 'lb' in kwargs:
-            kwargs['lb'] = 0
-        if not 'ub' in kwargs:
-            kwargs['ub'] = model.max_enzyme_concentration
-
-        GenericVariable.__init__(self, model=model, hook=gene,
-                                 **kwargs)
-
-    @property
-    def gene(self):
-        return self.hook
-
-    @property
-    def id(self):
-        return self.gene.id
-
-    @property
-    def model(self):
-        return self.gene.model
 
 
 

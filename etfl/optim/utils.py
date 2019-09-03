@@ -12,6 +12,7 @@ from pytfa.optim.variables import ReactionVariable, MetaboliteVariable
 from .variables import EnzymeVariable, GeneVariable, ModelVariable, \
     GrowthActivation, BinaryActivator
 from pytfa.optim.constraints import ReactionConstraint, MetaboliteConstraint
+from pytfa.optim.utils import get_all_subclasses
 from .constraints import EnzymeConstraint, GeneConstraint, ModelConstraint
 from collections import namedtuple
 
@@ -21,22 +22,6 @@ try:
 except ModuleNotFoundError:
     pass
 
-
-def get_all_subclasses(cls):
-    """
-    Given a variable or constraint class, get all the subclassses
-    that inherit from it
-
-    :param cls:
-    :return:
-    """
-    all_subclasses = []
-
-    for subclass in cls.__subclasses__():
-        all_subclasses.append(subclass)
-        all_subclasses.extend(get_all_subclasses(subclass))
-
-    return all_subclasses
 
 def make_subclasses_dict(cls):
     """
@@ -316,6 +301,11 @@ def fix_growth(model, solution = None):
 
     vars_to_fix = list(mu_variables) + list(interp_variables)
 
+    # # Growth rate
+    # epsilon = model.solver.configuration.tolerances.feasibility
+    # _,mu_lb,_ = get_active_growth_bounds(model)
+    # model.growth_reaction.lower_bound = mu_lb - epsilon
+
     gurobi_hints = is_gurobi(model)
     if gurobi_hints:
         model.logger.info('Gurobi-based model detected - using  Gurobi hints')
@@ -367,6 +357,9 @@ def release_growth(model):
 
     vars_to_fix = list(mu_variables) + list(interp_variables)
 
+    # # Growth reaction
+    # model.growth_reaction.lower_bound = 0
+
     gurobi_hints = is_gurobi(model)
     for the_var in vars_to_fix:
         the_var.variable.lb = 0
@@ -413,7 +406,7 @@ def release_warm_start(model):
         raise NotImplementedError('Solver not supported: ' + model.problem.__name__)
 
 
-def get_active_growth_bounds(model):
+def get_active_growth_bounds(model, growth_rate=None):
     """
     Returns the growth bound closest to the growth flux calculated at the
     last solution.
@@ -421,7 +414,11 @@ def get_active_growth_bounds(model):
     :param model:
     :return:
     """
-    mu = model.growth_reaction.flux
+    if growth_rate is None:
+        mu = model.growth_reaction.flux
+    else:
+        mu = growth_rate
+
     difflist = [abs(mu - x[0]) for x in model.mu_bins]
     min_diff = min(difflist)
     min_ix = difflist.index(min_diff)
@@ -450,3 +447,11 @@ def safe_optim(model):
         out = DefaultSol
         out.objective_value = np.nan
     return  out
+
+def get_binding_constraints(model, epsilon):
+
+    if model.problem.__name__ == 'optlang.gurobi_interface':
+        return {kind:[c
+                               for c in these_cons
+                               if c.constraint._internal_constraint.Slack <= epsilon]
+                for kind,these_cons in model._cons_kinds.items()}

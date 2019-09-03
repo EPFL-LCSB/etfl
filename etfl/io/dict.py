@@ -15,16 +15,19 @@ from tqdm import tqdm
 import cobra.io.dict as cbd
 from cobra.exceptions import SolverNotFound
 from optlang.util import expr_to_json, parse_expr
-from pytfa.io.dict import get_solver_string, var_to_dict, cons_to_dict
+from pytfa.io.dict import get_solver_string, var_to_dict, cons_to_dict, \
+    obj_to_dict, rebuild_obj_from_dict
 from pytfa.thermo.tmodel import ThermoModel
 
 from ..core.enzyme import Enzyme, Ribosome, Peptide, RNAPolymerase
 from ..core.memodel import MEModel
-from ..core.rna import mRNA, rRNA
+from ..core.rna import mRNA, rRNA, tRNA
+from ..core.expression import get_trna_charging_id
 from ..core.reactions import TranslationReaction, TranscriptionReaction, \
     EnzymaticReaction, ProteinComplexation, DegradationReaction, ExpressionReaction
 from ..core.thermomemodel import ThermoMEModel
 from ..optim.utils import rebuild_constraint, rebuild_variable
+from ..optim.variables import tRNAVariable
 from ..utils.utils import replace_by_enzymatic_reaction, \
     replace_by_translation_reaction, replace_by_transcription_reaction, \
     replace_by_reaction_subclass, replace_by_me_gene
@@ -92,22 +95,28 @@ def archive_constraints(cons_dict):
 def archive_compositions(compositions):
     """
     Turns a peptide compositions dict of the form:
-    { 'b3991': defaultdict(int,
-             {<Metabolite ala__L_c at 0x7f7d25504f28>: -42,
-              <Metabolite arg__L_c at 0x7f7d2550bcf8>: -11,
-              <Metabolite asn__L_c at 0x7f7d2550beb8>: -6,
-              ...}),
-    ...}
+
+    .. code:: python
+
+        { 'b3991': defaultdict(int,
+                 {<Metabolite ala__L_c at 0x7f7d25504f28>: -42,
+                  <Metabolite arg__L_c at 0x7f7d2550bcf8>: -11,
+                  <Metabolite asn__L_c at 0x7f7d2550beb8>: -6,
+                  ...}),
+        ...}
 
 
     to:
 
-    { 'b3991': defaultdict(int,,
-            {'ala__L_c': -42,
-             'arg__L_c': -11,
-             'asn__L_c': -6,
-              ...}),
-    ...}
+    .. code:: python
+
+        { 'b3991': defaultdict(int,,
+                {'ala__L_c': -42,
+                 'arg__L_c': -11,
+                 'asn__L_c': -6,
+                  ...}),
+        ...}
+
     :param compositions:
     :return:
     """
@@ -120,19 +129,24 @@ def archive_compositions(compositions):
 def _stoichiometry_to_dict(stoichiometric_dict):
     """
     Turns a stoichiometric compositions dict of the form:
-    'b3991': defaultdict(int,
-           {<Metabolite ala__L_c at 0x7f7d25504f28>: -42,
-            <Metabolite arg__L_c at 0x7f7d2550bcf8>: -11,
-            <Metabolite asn__L_c at 0x7f7d2550beb8>: -6,
-            ...})
+
+    .. code:: python
+
+        'b3991': defaultdict(int,
+               {<Metabolite ala__L_c at 0x7f7d25504f28>: -42,
+                <Metabolite arg__L_c at 0x7f7d2550bcf8>: -11,
+                <Metabolite asn__L_c at 0x7f7d2550beb8>: -6,
+                ...})
 
     to:
 
-    'b3991': defaultdict(int,,
-            {'ala__L_c': -42,
-             'arg__L_c': -11,
-             'asn__L_c': -6,
-              ...})
+    .. code:: python
+
+        'b3991': defaultdict(int,,
+                {'ala__L_c': -42,
+                 'arg__L_c': -11,
+                 'asn__L_c': -6,
+                  ...})
     """
     return defaultdict(int, {k.id:v for k,v in stoichiometric_dict.items()})
 
@@ -140,16 +154,47 @@ def archive_coupling_dict(coupling_dict):
     """
     Turns an enzyme coupling dict of the form:
 
-    {'AB6PGH': <Enzyme AB6PGH at 0x7f7d1371add8>,
-     'ABTA': <Enzyme ABTA at 0x7f7d1371ae48>,
-     'ACALD': <Enzyme ACALD at 0x7f7d1371aeb8>}
+    .. code:: python
+
+        {'AB6PGH': <Enzyme AB6PGH at 0x7f7d1371add8>,
+         'ABTA': <Enzyme ABTA at 0x7f7d1371ae48>,
+         'ACALD': <Enzyme ACALD at 0x7f7d1371aeb8>}
 
     to:
-    {'AB6PGH': 'AB6PGH',
-     'ABTA': 'ABTA',
-     'ACALD': 'ACALD'
+
+    .. code:: python
+
+        {'AB6PGH': 'AB6PGH',
+         'ABTA': 'ABTA',
+         'ACALD': 'ACALD'
     """
     return {k:v.id for k,v in coupling_dict.items()}
+
+def archive_trna_dict(model):
+    """
+    Turns a tNA information dict of the form:
+
+    .. code:: python
+
+        {'ala__L_c': (<tRNA charged_tRNA_ala__L_c at 0x7f84c16d07b8>,
+                      <tRNA uncharged_tRNA_ala__L_c at 0x7f84c16d0be0>,
+                      <Reaction trna_ch_ala__L_c at 0x7f84c16d0978>),
+         'arg__L_c': (<tRNA charged_tRNA_arg__L_c at 0x7f84c169b588>,
+                      <tRNA uncharged_tRNA_arg__L_c at 0x7f84c169b5f8>,
+                      <Reaction trna_ch_arg__L_c at 0x7f84c0563ef0>)}
+
+    to:
+
+    .. code:: python
+
+        {'ala__L_c': ('charged_tRNA_ala__L_c',
+                      'uncharged_tRNA_ala__L_c',
+                      'trna_ch_ala__L_c'),
+         'arg__L_c': ('charged_tRNA_arg__L_c',
+                      'uncharged_tRNA_arg__L_c',
+                      'trna_ch_arg__L_c')}
+    """
+    return{k:(v[0].id,v[1].id,v[2].id) for k,v in model.trna_dict.items()}
 
 def get_solver_string(model):
     return SOLVER_DICT[model.solver.__class__.__module__]
@@ -167,6 +212,7 @@ def model_to_dict(model):
     obj = cbd.model_to_dict(model)
 
     obj['solver'] = get_solver_string(model)
+    obj['objective'] = obj_to_dict(model)
 
     # Copy variables, constraints
     # obj['var_dict'] = archive_variables(model._var_kinds)
@@ -215,7 +261,12 @@ def model_to_dict(model):
 
         # Enzymes
         obj['enzymes'] = list(map(enzyme_to_dict, model.enzymes))
+
+        # mRNAs
         obj['mrnas'] = list(map(mrna_to_dict, model.mrnas))
+
+        # tRNAs
+        obj['trna_dict'] = archive_trna_dict(model)
 
         # Ribosome
         obj['ribosome'] = ribosome_to_dict(model.ribosome)
@@ -270,7 +321,6 @@ def model_to_dict(model):
         except AttributeError:
             # Not an ExpressedGene
             pass
-
 
     return obj
 
@@ -354,6 +404,10 @@ def model_from_dict(obj, solver=None):
 
     new._push_queue()
 
+    # Force update GPR info
+    for rxn in new.reactions:
+        rxn.gene_reaction_rule = rxn.gene_reaction_rule
+
     for the_var_dict in tqdm(obj['variables'], desc='rebuilding variables'):
         this_id = the_var_dict['id']
         classname = the_var_dict['kind']
@@ -383,6 +437,12 @@ def model_from_dict(obj, solver=None):
         ub = the_cons_dict['ub']
 
         rebuild_constraint(classname, new, this_id, new_expr, lb, ub)
+
+
+    try:
+        rebuild_obj_from_dict(new, obj['objective'])
+    except KeyError:
+        pass
 
     new.repair()
     return new
@@ -441,6 +501,12 @@ def init_me_model_from_dict(new, obj):
     find_complexation_reactions_from_dict(new, obj)
     # link_enzyme_complexation(new, obj)
 
+    # recover tRNAs
+    try:
+        rebuild_trna(new, obj)
+    except KeyError:
+        pass
+
     # Finally, add degradations
     find_degradation_reactions_from_dict(new, obj)
 
@@ -450,8 +516,9 @@ def init_me_model_from_dict(new, obj):
         enz.init_variable()
     for mrna in new.mrnas:
         mrna.init_variable()
-    for trna in new.trnas:
-        trna.init_variable()
+    # This is already done by model.add_trna
+    # for trna in new.trnas:
+    #     trna.init_variable()
     # new.init_ribosome_variables()
 
     return new
@@ -659,6 +726,31 @@ def find_rrna_from_dict(new, obj):
             new.metabolites._replace_on_id(rrna)
             new_rrnas.append(rrna)
     new.rrnas += new_rrnas
+
+def rebuild_trna(new, obj):
+        new_trna_dict = obj['trna_dict']
+        new_trnas = list()
+        trna_var_prefix = tRNAVariable.prefix
+        for aa_id, (ch_trna_id, unch_trna_id, charging_rxn_id) in new_trna_dict.items():
+            aa = new.metabolites.get_by_id(aa_id)
+
+            charged_trna = tRNA(aminoacid_id=aa.id,
+                                charged=True,
+                                name=aa.name)
+            charged_trna.id = ch_trna_id
+
+            uncharged_trna = tRNA(aminoacid_id=aa.id,
+                                  charged=False,
+                                  name=aa.name)
+            uncharged_trna.id = unch_trna_id
+
+            new_trnas.extend([charged_trna,uncharged_trna])
+
+            charging_reaction = new.reactions.get_by_id(get_trna_charging_id(aa_id))
+
+            new_trna_dict[aa_id] = (charged_trna, uncharged_trna, charging_reaction)
+
+        new.add_trnas(new_trnas)
 
 def find_genes_from_dict(new, obj):
     for gene_dict in obj['genes']:

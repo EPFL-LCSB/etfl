@@ -273,49 +273,68 @@ def apply_ref_state(dmodel, solution, timestep, has_mrna, has_enzymes):
     mrna_ref = dmodel.get_variables_of_type(mRNARef)
     # enz_rhs  = dmodel.get_variables_of_type(EnzymeDeltaRHS)
     # mrna_rhs = dmodel.get_variables_of_type(mRNADeltaRHS)
+    mu = solution.loc[dmodel.growth_reaction.id]
+    mu_hat, mu_lb, mu_ub = get_active_growth_bounds(dmodel, growth_rate=mu)
 
     epsilon = dmodel.solver.configuration.tolerances.feasibility
-
+    res = dmodel.mu_bins[-1][-1][-1] / len(dmodel.mu_bins)
     if has_enzymes:
         for enz in dmodel.enzymes:
             # the_rhs = enz_rhs.get_by_id(enz.id)
             the_ref = enz_ref.get_by_id(enz.id)
-            E0 = solution.loc[enz.variable.name]
-            the_value = E0
-            # Taylor expansion element
-            # e = (enz.kdeg + solution.loc[dmodel.growth_reaction.id]) * timestep
-            # the_value = E0 * (1 + e/1 + (e**2)/2 + (e**3)/6)
+            # E0 = solution.loc[enz.variable.name]
+            # the_value = E0
+
+            # We use:
+            # E0 = vsyn/(kdeg+mu)
+            # E0_hat*σ_m = vsyn_hat*σ_v / (kdeg+mu)
+            # E0_hat = vsyn_hat/(kdeg+mu) *σ_v/σ_m
+            # To quantify the error on E (mu_lb. mu_ub)
+            # vsyn_hat/(kdeg + mu_lb) *σ_v/σ_m <= E0_hat <= vsyn_hat/(kdeg + mu_ub) * σ_v/σ_m
+            vsyn = solution.loc[enz.complexation.id]
+            sigma= enz.complexation.scaling_factor / enz.scaling_factor
+            the_lb = vsyn/(enz.kdeg + mu_ub) * sigma
+            the_ub = vsyn/(enz.kdeg + mu_lb) * sigma
 
             try:
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
                 # the_rhs.variable.lb = max(0,the_value - epsilon)
-                the_ref.variable.ub = max(0,the_value + epsilon)
-                the_ref.variable.lb = max(0,the_value - epsilon)
+                the_ref.variable.ub = max(0,the_ub + epsilon)
+                the_ref.variable.lb = max(0,the_lb - epsilon)
             except ValueError:
                 # the_rhs.variable.lb = max(0,the_value - epsilon)
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
-                the_ref.variable.lb = max(0,the_value - epsilon)
-                the_ref.variable.ub = max(0,the_value + epsilon)
+                the_ref.variable.lb = max(0,the_lb - epsilon)
+                the_ref.variable.ub = max(0,the_ub + epsilon)
     if has_mrna:
         for mrna in dmodel.mrnas:
             # the_rhs = mrna_rhs.get_by_id(mrna.id)
             the_ref = mrna_ref.get_by_id(mrna.id)
-            F0 = solution.loc[mrna.variable.name]
-            # Taylor expansion element
-            # e = (mrna.kdeg + solution.loc[dmodel.growth_reaction.id]) * timestep
-            # the_value = F0 * (1 + e/1 + (e**2)/2 + (e**3)/6)
-            the_value = F0
+            # F0 = solution.loc[mrna.variable.name]
+
+            # We use:
+            # F0 = vsyn/(kdeg+mu)
+            # F0_hat*σ_m = vsyn_hat*σ_v / (kdeg+mu)
+            # F0_hat = vsyn_hat/(kdeg+mu) *σ_v/σ_m
+            # To quantify the error on F (mu_lb. mu_ub)
+            # vsyn_hat/(kdeg + mu_lb) *σ_v/σ_m <= F0_hat <= vsyn_hat/(kdeg + mu_ub) * σ_v/σ_m
+            # Do not forget to scale!
+            transcription = dmodel.get_transcription(mrna)
+            vsyn = solution.loc[transcription.id]
+            sigma= transcription.scaling_factor / mrna.scaling_factor
+            the_lb = vsyn/(mrna.kdeg + mu_ub) * sigma
+            the_ub = vsyn/(mrna.kdeg + mu_lb) * sigma
 
             try:
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
                 # the_rhs.variable.lb = max(0,the_value - epsilon)
-                the_ref.variable.ub = max(0,the_value + epsilon)
-                the_ref.variable.lb = max(0,the_value - epsilon)
+                the_ref.variable.ub = max(0,the_ub + epsilon)
+                the_ref.variable.lb = max(0,the_lb - epsilon)
             except ValueError:
                 # the_rhs.variable.lb = max(0,the_value - epsilon)
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
-                the_ref.variable.lb = max(0,the_value - epsilon)
-                the_ref.variable.ub = max(0,the_value + epsilon)
+                the_ref.variable.lb = max(0,the_lb - epsilon)
+                the_ref.variable.ub = max(0,the_ub + epsilon)
 
 def update_sol(t, X, S, dmodel, obs_values, colname):
     obs_values.loc['t',colname] = t
@@ -341,7 +360,7 @@ def update_medium(t, Xi, Si, dmodel, medium_fun, timestep):
 
     return X,S
 
-def compute_center(dmodel):
+def compute_center(dmodel, provided_solution=None):
     """
     Fixes growth to be above computed lower bound, finds chebyshev center,
     resets the model, returns solution data
@@ -350,13 +369,21 @@ def compute_center(dmodel):
     :return:
     """
 
-    dmodel.optimize() # Almost free if the model has been optimized before
+
     prev_lb = dmodel.growth_reaction.lower_bound
     prev_obj = dmodel.objective.expression
-    _,mu_lb,_ = get_active_growth_bounds(dmodel)
-    # dmodel.growth_reaction.lower_bound = mu_lb - 0.0001
 
-    fix_growth(dmodel, dmodel.solution)
+    if provided_solution is None:
+        dmodel.optimize() # Almost free if the model has been optimized before
+        _,mu_lb,_ = get_active_growth_bounds(dmodel)
+        # dmodel.growth_reaction.lower_bound = mu_lb - 0.0001
+        the_solution = dmodel.solution
+    else:
+        the_solution = provided_solution
+        mu = the_solution.fluxes[dmodel.growth_reaction.id]
+        _,mu_lb,_ = get_active_growth_bounds(dmodel, growth_rate=mu)
+
+    fix_growth(dmodel, the_solution)
 
     try:
         dmodel.objective = dmodel.chebyshev_radius.radius.variable
@@ -371,10 +398,9 @@ def compute_center(dmodel):
         # We relax the integer bounds and try solving anyway with just the lb
         epsilon = dmodel.solver.configuration.tolerances.feasibility
         release_growth(dmodel)
-        dmodel.growth_reaction.lower_bound = mu_lb - epsilon
+        dmodel.growth_reaction.lower_bound = mu_lb - 1*epsilon
         dmodel.optimize()
         chebyshev_sol = dmodel.solution
-
 
     dmodel.growth_reaction.lower_bound = prev_lb
     dmodel.objective = prev_obj
@@ -410,7 +436,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
     else:
         dmodel = model
 
-    dmodel.optimize()
+    # dmodel.optimize()
 
     the_obj = dmodel.objective.expression
 
@@ -435,29 +461,40 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
         chebyshev_variables += dmodel.get_variables_of_type(EnzymeVariable)
 
 
-    add_dynamic_variables_constraints(dmodel, timestep, dynamic_constraints)
     chebyshev_center(dmodel, chebyshev_variables,
                      inplace=True,
                      big_m=chebyshev_bigm,
                      include=chebyshev_include,
                      exclude=chebyshev_exclude)
+
+    # Revert to the previous objective, as chebyshev_center sets it to maximize
+    # the radius
     dmodel.objective = the_obj
 
-    chebyshev_sol = compute_center(dmodel)
+    # We want to compute the center under the constraint of the growth at the
+    # initial solution.
+    chebyshev_sol = compute_center(dmodel,provided_solution=initial_solution)
 
+    # Only now do we add the dynamic variable constraints.
+    add_dynamic_variables_constraints(dmodel, timestep, dynamic_constraints)
 
     has_mrna = dynamic_constraints['mRNA_degradation'] + dynamic_constraints['mRNA_synthesis']
     has_enzymes = dynamic_constraints['enzyme_degradation'] + dynamic_constraints['enzyme_synthesis']
 
-    for uptake_flux, kinfun in uptake_fun.items():
-        the_rxn = dmodel.reactions.get_by_id(uptake_flux)
-        # the_rxn.upper_bound = 0
-        the_rxn.lower_bound = -1 * kinfun(S0[uptake_flux])
+    # for uptake_flux, kinfun in uptake_fun.items():
+    #     the_rxn = dmodel.reactions.get_by_id(uptake_flux)
+    #     # the_rxn.upper_bound = 0
+    #     the_rxn.lower_bound = -1 * kinfun(S0[uptake_flux])
 
-    if initial_solution is None:
-        current_solution = chebyshev_sol
-    else:
-        current_solution = initial_solution
+    # if initial_solution is None:
+    #     dmodel.logger.info('No initial solution provided '
+    #                        '- using computed Chebyshev center')
+    #     current_solution = chebyshev_sol
+    # else:
+    #     current_solution = initial_solution
+
+    # Prepare variables for the loop
+    current_solution = chebyshev_sol
 
     var_solutions = pd.DataFrame()
     obs_values = pd.DataFrame()
@@ -465,23 +502,31 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
     times = np.arange(0,tfinal,timestep)
     S = S0
     X = X0
-    dmodel.optimize()
+    # dmodel.optimize()
 
     show_initial_solution(dmodel, current_solution)
+    dmodel.initial_solution = current_solution
 
-    for  k, t in tqdm(enumerate(times)):
+    for  k, t in tqdm(enumerate(times), total=len(times)):
 
+        # Apply the current reference solution to the model
         apply_ref_state(dmodel, current_solution.raw, timestep, has_mrna, has_enzymes)
 
+        # For each uptake flux, edit the boundaries according to its kinetic laws
         for uptake_flux, kinfun in uptake_fun.items():
             # Concentration C, cell density X
             # C(t+dt) = C(t) - dt*v*X
-            # C(t+dt) >= 0 => v <= C(t)/(dt*X)
+            # C(t+dt) >= 0 [=>] v <= C(t)/(dt*X)
             max_available_substrate = S[uptake_flux] / (timestep * X)
 
+            # If a set of enzymes is specified for the uptake, limit it with
+            # the catalytic capacity of the enzymes at their current concentration
             if uptake_flux in uptake_enz:
-                these_uptake_enz = [enz for x in uptake_enz[uptake_flux] for enz in dmodel.reactions.get_by_id(x).enzymes]
-                vmax = sum([x.kcat_fwd * x.scaling_factor * dmodel.solution.raw[x.variable.name] for x in these_uptake_enz])
+                # Sum the max catalytic rate (Vmax) of the enzymes
+                these_uptake_enz = [enz for x in uptake_enz[uptake_flux]
+                                    for enz in dmodel.reactions.get_by_id(x).enzymes]
+                vmax = sum([x.kcat_fwd * x.scaling_factor * dmodel.solution.raw[x.variable.name]
+                            for x in these_uptake_enz])
 
                 lb = vmax * kinfun(S[uptake_flux])
                 dmodel.reactions.get_by_id(uptake_flux).lower_bound = -1* min(lb, max_available_substrate)
@@ -490,9 +535,9 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
                 lb = kinfun(S[uptake_flux])
                 dmodel.reactions.get_by_id(uptake_flux).lower_bound = -1* min(lb, max_available_substrate)
 
-
-
         try:
+            # Uptake bounds have been set, reference state applied, we can now
+            # copute the center
             the_solution = compute_center(dmodel)
         except AttributeError:
             print('############################')
@@ -500,18 +545,19 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
             print('############################')
             return wrap_time_sol(var_solutions, obs_values)
 
+        # Housekeeping
         colname = 't_{}'.format(k)
-
         var_solutions[colname] = the_solution.raw.copy()
+        # Medium update after consumption has happened
         X,S= update_medium(t,X,S,model,medium_fun,timestep)
         obs_values = update_sol(t,X,S,dmodel,obs_values, colname)
 
         current_solution = the_solution
+
+        # For debugging and live viz
         wrap_time_sol(var_solutions, obs_values).to_csv('tmp_detfl.csv')
 
     return wrap_time_sol(var_solutions, obs_values)
 
 def wrap_time_sol(var_solutions, obs_values):
     return pd.concat([var_solutions,obs_values], axis=0)
-
-

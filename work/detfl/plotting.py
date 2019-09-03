@@ -10,7 +10,9 @@ from os.path import join, exists
 
 from pytfa.utils.logger import get_timestr
 
-
+AXIS_FONT_SIZE = "25pt"
+LEGEND_FONT_SIZE = "25pt"
+LINE_WIDTH = 6
 
 def get_mrna_total(time_data, mrnas):
     return time_data.loc[[x.variable.name * x.scaling_factor
@@ -27,7 +29,7 @@ def get_prot_total(time_data, enzymes, mass_mode = True):
 
 
 def summarize_model(model,time_data,groups,
-                    output_path='.', model_tag=''):
+                    output_path='.', model_tag='', backend ='png'):
 
     summary_plots = dict()
     detailed_plots = dict()
@@ -56,11 +58,17 @@ def summarize_model(model,time_data,groups,
 
     bp.curdoc().clear()
     bp.output_file(join(output_folder,'summary.html'))
+
+    for p in summary_plots.values():
+        p.output_backend = backend
+
     bp.show(column(list(summary_plots.values())))
 
     for key,this_dp in detailed_plots.items():
         bp.curdoc().clear()
         bp.output_file(join(output_folder,'{}.html'.format(key)))
+        for p in this_dp.children:
+            p.output_backend = backend
         bp.show(this_dp)
 
 def make_summary_plots(model, time_data, key, data_type, total=False):
@@ -98,8 +106,8 @@ def make_growth_plot(model,time_data):
     y2 = time_data.loc['mu']
 
     p = bp.figure(width=1000)
-    # p.title.text = 'Growth, Cell concentration over time'
-    p.line(t,y1, color='black', line_width=2)
+    p.title.text = 'Growth, Cell concentration over time'
+    p.line(t,y1, color='black', line_width=LINE_WIDTH)
 
     p.y_range.start = -0.05 * y1.min()
     p.y_range.end   =  1.05 * y1.max()
@@ -111,7 +119,12 @@ def make_growth_plot(model,time_data):
     p.add_layout(LinearAxis(y_range_name="mu",
                             axis_label='growth rate $[h^{-1}]$'), 'right')
 
-    p.line(t,y2, color='grey',  line_width=2, line_dash = 'dashed', y_range_name='mu')
+    p.line(t,y2, color='grey',  line_width=LINE_WIDTH,
+           line_dash = 'dashed', y_range_name='mu')
+
+    p.xaxis.major_label_text_font_size = AXIS_FONT_SIZE
+    p.yaxis.major_label_text_font_size = AXIS_FONT_SIZE
+    # p.legend.label_text_font_size = LEGEND_FONT_SIZE
 
     return p
 
@@ -139,6 +152,9 @@ def plot_line(t,y,label, color = 'black'):
 
     return p
 
+def enhance_varnames(s):
+    """ Removes pieces of varnames to make them more legible"""
+    return s.replace('EZ_','').replace('_MONOMER','')
 
 def plot_lines(t,ys,title, total = False):
 
@@ -153,18 +169,22 @@ def plot_lines(t,ys,title, total = False):
     legend_it = []
 
     for e,(row,y) in enumerate(ys.iterrows()):
-        c = p.line(t,y, color=colors[e], line_width=2)#, legend=labels[e])
-        legend_it.append((labels[e], [c]))
+        the_legend = enhance_varnames(labels[e])
+        c = p.line(t,y, color=colors[e], line_width=LINE_WIDTH)#, legend=labels[e])
+        legend_it.append((the_legend, [c]))
 
     if total:
         tot_y = ys.sum()
-        c = p.line(t, tot_y, color='grey', line_width=2, line_dash='dashed')
+        c = p.line(t, tot_y, color='grey', line_width=LINE_WIDTH, line_dash='dashed')
         legend_it.append(('total', [c]))
 
 
     legend = Legend(items=legend_it, location=(0, 0))
 
     p.add_layout(legend, 'right')
+    p.xaxis.major_label_text_font_size = AXIS_FONT_SIZE
+    p.yaxis.major_label_text_font_size = AXIS_FONT_SIZE
+    # p.legend.label_text_font_size = LEGEND_FONT_SIZE
 
     return p
 

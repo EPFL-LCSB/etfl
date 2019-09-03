@@ -41,7 +41,7 @@ def _replace_by_me_reaction(model, rxn, enz_rxn):
     # model.add_reactions([enz_rxn])
     model.reactions._replace_on_id(enz_rxn)
     enz_rxn._model = model
-    enz_rxn.notes = rxn.notes
+
     if hasattr(rxn, 'thermo'):
         enz_rxn.thermo = rxn.thermo
 
@@ -50,6 +50,14 @@ def replace_by_me_gene(model, gene_id, sequence):
     gene = model.genes.get_by_id(gene_id)
     new = ExpressedGene.from_gene(gene=gene,
                                   sequence=sequence)
+
+    # # That is not a typo, see class cobra.core.Species
+    # if gene.reactions:
+    #     new._reaction = set(x for x in gene.reactions)
+    # else:
+    #     # Find by enumerating:
+    #     new._reaction = set(r for r in model.reactions
+    #                         if gene.id in [x.id for x in r.genes])
 
     model.genes._replace_on_id(new)
     new._model = model

@@ -52,7 +52,7 @@ def build_trna_charging(model, aa_dict,
     for letter, aa_id in aa_dict.items():
         aa = model.metabolites.get_by_id(aa_id)
 
-        rxn_id = 'trna_ch_{}'.format(aa.id)
+        rxn_id = get_trna_charging_id(aa_id)
 
         # charged_trna = Metabolite(name = 'Charged tRNA-{}'.format(aa.name),
         #                           id = 'trna_charged_{}'.format(aa.id),
@@ -91,6 +91,12 @@ def build_trna_charging(model, aa_dict,
 
         trna_dict[aa_id] = (charged_trna,uncharged_trna, charging_rxn)
     return trna_dict
+
+
+def get_trna_charging_id(aa_id):
+    rxn_id = 'trna_ch_{}'.format(aa_id)
+    return rxn_id
+
 
 def make_stoich_from_aa_sequence(sequence, aa_dict, trna_dict,
                                  gtp, gdp, pi, h2o, h):

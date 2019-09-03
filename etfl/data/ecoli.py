@@ -340,14 +340,13 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id,
 
 
 # Prot degradation
-# Nath, Kamalendu, and Arthur L. Koch.
-# "Protein degradation in Escherichia coli II. Strain differences in the degradation of protein and nucleic acid resulting from starvation."
-# Journal of Biological Chemistry 246.22 (1971): 6956-6967.
-# http://www.jbc.org/content/246/22/6956.full.pdf
-# The total amount of enzyme undergoing degradation (2 to 7%) was the same
-# during growth and during various kinds of starvation.
-kdeg_low, kdeg_up = 0.02, 0.07
-kdeg_enz = (kdeg_low + kdeg_up)/2
+# BNID 111930
+# Moran MA et al., Sizing up metatranscriptomics. ISME J. 2013 Feb7(2):237-43.
+# A typical bacterial protein half-life is ~20 h
+# -------
+# tau = 1/kdeg = t_0.5 /ln(2)
+# kdeg = ln(2)/t_0.5
+kdeg_enz = np.log(2)/20 # [h-1]
 
 # From :
 # http://book.bionumbers.org/how-fast-do-rnas-and-proteins-degrade/
@@ -357,13 +356,13 @@ kdeg_enz = (kdeg_low + kdeg_up)/2
 #  C. adapted from B. Schwanhausser, Nature, 473:337, 2013).
 # -------
 # Mean half life of mrna is 5 minutes in ecoli
-# tau = t_0.5 /ln(2)
-# kdeg = 1-exp(1hr/tau)
-kdeg_mrna = 1-np.exp(-60*np.log(2)/5)
+# tau = 1/kdeg = t_0.5 /ln(2)
+# kdeg = ln(2)/t_0.5
+kdeg_mrna = 60*np.log(2)/5
 
 # Average mrna length from Bionumber 100023
 # http://bionumbers.hms.harvard.edu/bionumber.aspx?&id=100023&ver=3
-# mrna_length_avg = 370
+# mrna_length_avg = 370 # nm
 mrna_length_avg = 1000
 
 # Average peptide length
@@ -791,34 +790,34 @@ def get_transporters_coupling(model, additional_enz):
 
     coupling_dict = get_lloyd_coupling_dict(model, select=additional_enz)
 
-    curated_refs = pd.read_csv(pjoin(data_dir,'transporters_kcats_missing.csv'),
-                               header=0, skiprows=[1,], # Units row
-                               index_col=0)
-
-    # UNIPROT has non SI units:
-        # umol / (min.mgEnz) *    g/mol               *mol/umol * min/h  * mg/g
-    curated_refs['etfl_kcat'] = \
-        curated_refs['kcat'] * curated_refs['weight'] * 1e-6    *  60    * 1000
-
-    curated_dict = defaultdict(list)
-
-    for rxn, row in curated_refs.iterrows():
-
-        if row['kcat'] == 0:
-            continue
-
-        composition = {row['gene'] : 1}
-        enz_id = '{}_{}'.format(rxn,row['gene'])
-        enz_name = '{}, {} isoform'.format(rxn,row['gene'])
-        enz = Enzyme(enz_id,
-                        name=enz_name,
-                        kcat_fwd=row['etfl_kcat'] * 3600,
-                        kcat_bwd=row['etfl_kcat'] * 3600,
-                        kdeg=kdeg_enz,
-                        composition=composition)
-        curated_dict[rxn].append(enz)
-
-    coupling_dict.update(curated_dict)
+    # curated_refs = pd.read_csv(pjoin(data_dir,'transporters_kcats_missing.csv'),
+    #                            header=0, skiprows=[1,], # Units row
+    #                            index_col=0)
+    #
+    # # UNIPROT has non SI units:
+    #     # umol / (min.mgEnz) *    g/mol               *mol/umol * min/h  * mg/g
+    # curated_refs['etfl_kcat'] = \
+    #     curated_refs['kcat'] * curated_refs['weight'] * 1e-6    *  60    * 1000
+    #
+    # curated_dict = defaultdict(list)
+    #
+    # for rxn, row in curated_refs.iterrows():
+    #
+    #     if row['kcat'] == 0:
+    #         continue
+    #
+    #     composition = {row['gene'] : 1}
+    #     enz_id = '{}_{}'.format(rxn,row['gene'])
+    #     enz_name = '{}, {} isoform'.format(rxn,row['gene'])
+    #     enz = Enzyme(enz_id,
+    #                     name=enz_name,
+    #                     kcat_fwd=row['etfl_kcat'] * 3600,
+    #                     kcat_bwd=row['etfl_kcat'] * 3600,
+    #                     kdeg=kdeg_enz,
+    #                     composition=composition)
+    #     curated_dict[rxn].append(enz)
+    #
+    # coupling_dict.update(curated_dict)
     # print(curated_refs)
     return coupling_dict
 
@@ -855,7 +854,8 @@ def get_mrna_dict(model):
 
 
 # Half life of a ribosome is 5 days
-kdeg_rib = 0.0023
+kdeg_rib = np.log(2)/(5*24)
+
 def get_rib():
     """
     # Ribosome
