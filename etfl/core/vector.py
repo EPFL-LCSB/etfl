@@ -2,7 +2,7 @@
 """
 .. module:: ETFL
    :platform: Unix, Windows
-   :synopsis: Adding vector to an ETFL model
+   :synopsis: Models vectors in ETFL models
 
 .. moduleauthor:: ETFL team
 
@@ -40,14 +40,14 @@ def check_seq_type(sequence, vector_type):
 
     return typed_sequence
 
-def make_plasmid(gene_dict):
+def make_plasmid(gene_list):
     """
     gene_dict can be ordered to have an ordered sequence
 
-    :param gene_dict:
+    :param gene_list:
     :return:
     """
-    sequence = ''.join([x.sequence * x.copy_number for x in gene_dict.values()])
+    sequence = ''.join([x.sequence * x.copy_number for x in gene_list])
     return sequence
 
 class TransModel(MEModel):
@@ -70,12 +70,34 @@ class TransModel(MEModel):
         """
         return getattr(self._me_model,attr)
 
-    def add_vector(self, gene_dict, sequence, vector_type=None, copy_number=1):
+    def add_vector(self, gene_list, reaction_list, sequence, coupling_dict,
+                   vector_type=None,
+                   copy_number=1):
 
         if vector_type is not None:
             sequence = check_seq_type(sequence, vector_type)
 
-        pass
+        self.add_reactions(reaction_list)
+
+        # Edit the gene copy number by the number of plasmids.
+        for g in gene_list:
+            g.copy_number *= copy_number
+
+        self.add_genes(gene_list)
+        self.express_genes(gene_list)
+        self.add_mrnas(mrna_dict.values())
+
+        self.add_enzymatic_coupling(coupling_dict)
+
+        # recompute mRNA-dependent constraints
+        self.recompute_capacity_constraints()
+        self.recompute_trna_balances
+
+        self.recompute_transcription()
+        self.recompute_translation()
+
+        # This needs to account for new DNA
+        self.recompute_allocation()
 
     def add_vector_RNAP(self, rnap):
         """
@@ -84,6 +106,7 @@ class TransModel(MEModel):
         :param rnap:
         :return:
         """
+        self.add_ribosome(rib, free_ratio=free_rib_ratio)
 
         pass
 
@@ -94,6 +117,7 @@ class TransModel(MEModel):
         :param rnap:
         :return:
         """
+        self.add_rnap(rnap, free_ratio=free_rnap_ratio)
 
         pass
 
