@@ -29,7 +29,7 @@ from .rna  import mRNA,rRNA, tRNA
 from .enzyme import Enzyme, Peptide
 from .reactions import EnzymaticReaction, ProteinComplexation, \
     TranslationReaction, TranscriptionReaction, DegradationReaction, DNAFormation
-from .expression import build_trna_charging, \
+from .expression import build_trna_charging, enzymes_to_gpr, \
     make_stoich_from_aa_sequence, make_stoich_from_nt_sequence, \
     degrade_peptide, degrade_mrna
 from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,\
@@ -261,14 +261,14 @@ class MEModel(LCSBModel, Model):
                 new = ExpressedGene(id= gene_id, name = gene_id, sequence=seq)
                 self.add_genes([new])
 
-            free_pep = Peptide( id=gene_id,
-                                name='Peptide, {}'.format(gene_id),
-                                gene_id=gene_id)
+            self._make_peptide_from_gene(gene_id)
 
-            free_pep._model = self
-            self.peptides += [free_pep]
-
-
+    def _make_peptide_from_gene(self, gene_id):
+        free_pep = Peptide(id=gene_id,
+                           name='Peptide, {}'.format(gene_id),
+                           gene_id=gene_id)
+        free_pep._model = self
+        self.peptides += [free_pep]
 
     def add_dummies(self, nt_ratios, mrna_kdeg, mrna_length, aa_ratios,
                     enzyme_kdeg, peptide_length):
@@ -290,12 +290,6 @@ class MEModel(LCSBModel, Model):
         :return:
         """
 
-        gtp = self.essentials['gtp']
-        gdp = self.essentials['gdp']
-        h2o = self.essentials['h2o']
-        h = self.essentials['h']
-        ppi = self.essentials['ppi']
-
         # Create a dummy gene and override the sequences with input data
         dummy_gene = ExpressedGene(id='dummy_gene',
                                    name='Dummy Gene',
@@ -305,76 +299,23 @@ class MEModel(LCSBModel, Model):
 
         self.add_genes([dummy_gene])
 
-        # Create a dummy mRNA
-        dummy_mrna = mRNA(id='dummy_gene',
-                          name='dummy mRNA',
-                          kdeg=mrna_kdeg,
-                          gene_id = dummy_gene.id)
+        dummy_mrna = self._add_dummy_mrna(dummy_gene, mrna_kdeg, mrna_length, nt_ratios)
 
-        nt_weights = [v*molecular_weight(k, 'RNA') for k,v in nt_ratios.items()]
-        dummy_mrna.molecular_weight = mrna_length*sum(nt_weights)/ 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+        dummy_peptide = self._add_dummy_peptide(aa_ratios, dummy_gene, peptide_length)
 
-        self.add_mrnas([dummy_mrna], add_degradation = False)
+        dummy_protein = self._add_dummy_protein(dummy_peptide, enzyme_kdeg)
 
-        dummy_transcription = TranscriptionReaction(id=self._get_transcription_name(dummy_mrna.id),
-                                                    name = 'Dummy Transcription',
-                                                    gene_id=dummy_gene.id,
-                                                    enzymes=self.rnap,
-                                                    scaled=True)
-        self.add_reactions([dummy_transcription])
-        self.transcription_reactions += [dummy_transcription]
+        self._add_dummy_expression(aa_ratios, dummy_gene, dummy_peptide, dummy_protein,
+                                   peptide_length)
 
-        # Use the input ratios to make the stoichiometry
-        transcription_mets = {
-            self.metabolites.get_by_id(self.rna_nucleotides[k]):
-                -1 * v * mrna_length
-            for k,v in nt_ratios.items()
-        }
-        transcription_mets[ppi] = mrna_length
-
-        dummy_transcription.add_metabolites(transcription_mets, rescale = True)
-
-
-        # Add the degradation
-        mrna_deg_stoich = {
-            self.metabolites.get_by_id(self.rna_nucleotides_mp[k]):
-                -1 * v * mrna_length
-            for k,v in nt_ratios.items()
-        }
-        mrna_deg_stoich[h2o] = -1 * mrna_length
-        mrna_deg_stoich[h] = 1 * mrna_length
-
-        self._make_degradation_reaction(deg_stoich=mrna_deg_stoich,
-                                        macromolecule=dummy_mrna,
-                                        kind=mRNADegradation,
-                                        scaled = True)
-
-        self.add_mass_balance_constraint(dummy_transcription, dummy_mrna)
-
-        # Create a dummy peptide
-        dummy_peptide = Peptide(id='dummy_peptide',
-                                name='Dummy peptide',
-                                gene_id=dummy_gene.id)
-
-        aa_weights = [v*molecular_weight(k, 'protein') for k,v in aa_ratios.items()]
-
-        dummy_peptide.molecular_weight = peptide_length*sum(aa_weights)/ 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
-
-
-        # Create a dummy protein made of the dummy peptide
-        dummy_protein = Enzyme(id='dummy_enzyme',
-                               name='Dummy Enzyme',
-                               kcat=0,
-                               composition=[dummy_peptide.id],
-                               kdeg=enzyme_kdeg)
-
-        self.add_enzymes([dummy_protein])
-        dummy_peptide._model = self
-        self.peptides += [dummy_peptide]
-
+    def _add_dummy_expression(self, aa_ratios, dummy_gene, dummy_peptide, dummy_protein,
+                              peptide_length):
         # Making the reactions and adding them to the model so that they can
         # reference genes
-
+        gtp = self.essentials['gtp']
+        gdp = self.essentials['gdp']
+        h2o = self.essentials['h2o']
+        h = self.essentials['h']
         dummy_translation = TranslationReaction(id=self._get_translation_name(dummy_peptide),
                                                 name='Dummy Translation',
                                                 gene_id=dummy_gene.id,
@@ -387,49 +328,104 @@ class MEModel(LCSBModel, Model):
         self.add_reactions([dummy_translation, dummy_complexation])
         self.translation_reactions += [dummy_translation]
         self.complexation_reactions += [dummy_complexation]
-
         # Use the input ratios to make the stoichiometry
         translation_mets = {}
-
-        for k,v in aa_ratios.items():
+        for k, v in aa_ratios.items():
             the_met_id = self.aa_dict[k]
             the_charged_trna, the_uncharged_trna, _ = self.trna_dict[the_met_id]
-            translation_mets[the_charged_trna  ] = -1*v*peptide_length
-            translation_mets[the_uncharged_trna] =  1*v*peptide_length
-
-
-        translation_mets[self.metabolites.get_by_id(gtp)] = -2*peptide_length
-        translation_mets[self.metabolites.get_by_id(h2o)] = -2*peptide_length
-        translation_mets[self.metabolites.get_by_id(gdp)] =  2*peptide_length
-        translation_mets[self.metabolites.get_by_id( h )] =  2*peptide_length
-
+            translation_mets[the_charged_trna] = -1 * v * peptide_length
+            translation_mets[the_uncharged_trna] = 1 * v * peptide_length
+        translation_mets[self.metabolites.get_by_id(gtp)] = -2 * peptide_length
+        translation_mets[self.metabolites.get_by_id(h2o)] = -2 * peptide_length
+        translation_mets[self.metabolites.get_by_id(gdp)] = 2 * peptide_length
+        translation_mets[self.metabolites.get_by_id(h)] = 2 * peptide_length
         # Do not forget to extract the tRNAs from the stoichiometry, since they
         # get diluted
         self._extract_trna_from_reaction(translation_mets, dummy_translation)
-
         dummy_translation.add_metabolites(translation_mets, rescale=True)
         dummy_translation.add_peptide(dummy_peptide)
-
-        dummy_complexation.add_peptides({dummy_peptide:-1})
+        dummy_complexation.add_peptides({dummy_peptide: -1})
         dummy_protein.init_variable()
-
         # Finally add the degradation flux
-
         prot_deg_stoich = dict()
-
         for k, v in aa_ratios.items():
             the_met_id = self.aa_dict[k]
             prot_deg_stoich[the_met_id] = v * peptide_length
-        prot_deg_stoich[h2o] = -1*peptide_length
-
+        prot_deg_stoich[h2o] = -1 * peptide_length
         self._make_degradation_reaction(deg_stoich=prot_deg_stoich,
                                         macromolecule=dummy_protein,
                                         kind=EnzymeDegradation,
                                         scaled=True)
-
         # Now we can add the mass balance constraint
-
         self.add_mass_balance_constraint(dummy_complexation, dummy_protein)
+
+    def _add_dummy_protein(self, dummy_peptide, enzyme_kdeg):
+        # Create a dummy protein made of the dummy peptide
+        dummy_protein = Enzyme(id='dummy_enzyme',
+                               name='Dummy Enzyme',
+                               kcat=0,
+                               composition=[dummy_peptide.id],
+                               kdeg=enzyme_kdeg)
+        self.add_enzymes([dummy_protein])
+        return dummy_protein
+
+    def _add_dummy_peptide(self, aa_ratios, dummy_gene, peptide_length):
+        # Create a dummy peptide
+        dummy_peptide = Peptide(id='dummy_peptide',
+                                name='Dummy peptide',
+                                gene_id=dummy_gene.id)
+        aa_weights = [v * molecular_weight(k, 'protein') for k, v in aa_ratios.items()]
+        dummy_peptide.molecular_weight = peptide_length * sum(
+            aa_weights) / 1000  # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+        dummy_peptide._model = self
+        self.peptides += [dummy_peptide]
+        return dummy_peptide
+
+    def _add_dummy_mrna(self, dummy_gene, mrna_kdeg, mrna_length, nt_ratios):
+
+        h2o = self.essentials['h2o']
+        h = self.essentials['h']
+        ppi = self.essentials['ppi']
+
+        # Create a dummy mRNA
+        dummy_mrna = mRNA(id='dummy_gene',
+                          name='dummy mRNA',
+                          kdeg=mrna_kdeg,
+                          gene_id=dummy_gene.id)
+        nt_weights = [v * molecular_weight(k, 'RNA') for k, v in nt_ratios.items()]
+        dummy_mrna.molecular_weight = mrna_length * sum(
+            nt_weights) / 1000  # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+        self.add_mrnas([dummy_mrna], add_degradation=False)
+        dummy_transcription = TranscriptionReaction(id=self._get_transcription_name(dummy_mrna.id),
+                                                    name='Dummy Transcription',
+                                                    gene_id=dummy_gene.id,
+                                                    enzymes=self.rnap,
+                                                    scaled=True)
+        self.add_reactions([dummy_transcription])
+        self.transcription_reactions += [dummy_transcription]
+        # Use the input ratios to make the stoichiometry
+        transcription_mets = {
+            self.metabolites.get_by_id(self.rna_nucleotides[k]):
+                -1 * v * mrna_length
+            for k, v in nt_ratios.items()
+        }
+        transcription_mets[ppi] = mrna_length
+        dummy_transcription.add_metabolites(transcription_mets, rescale=True)
+        # Add the degradation
+        mrna_deg_stoich = {
+            self.metabolites.get_by_id(self.rna_nucleotides_mp[k]):
+                -1 * v * mrna_length
+            for k, v in nt_ratios.items()
+        }
+        mrna_deg_stoich[h2o] = -1 * mrna_length
+        mrna_deg_stoich[h] = 1 * mrna_length
+        self._make_degradation_reaction(deg_stoich=mrna_deg_stoich,
+                                        macromolecule=dummy_mrna,
+                                        kind=mRNADegradation,
+                                        scaled=True)
+        self.add_mass_balance_constraint(dummy_transcription, dummy_mrna)
+
+        return dummy_mrna
 
     def add_interpolation_variables(self):
         lambdas = []
@@ -865,11 +861,17 @@ class MEModel(LCSBModel, Model):
         h2o = self.essentials['h2o']
         h   = self.essentials['h']
 
+        if gene.translated_by is None:
+            translating_enzymes = self.ribosome
+        else:
+            translating_enzymes = [self.enzymes.get_by_id(x)
+                                   for x in gene.translated_by]
+
         rxn = TranslationReaction(
             id='{}_translation'.format(gene.id),
             name='Translation, {}'.format(gene.id),
             gene_id= gene.id,
-            enzymes=self.ribosome,
+            enzymes=translating_enzymes,
             upper_bound=1,
             scaled=True)
 
@@ -894,7 +896,7 @@ class MEModel(LCSBModel, Model):
         rxn.add_peptide(free_peptide)
 
         # Add ribosome as necessary enzyme
-        rxn.gene_reaction_rule = self.ribosome.id
+        rxn.gene_reaction_rule = enzymes_to_gpr(rxn)
         self.translation_reactions += [rxn]
 
     def _extract_trna_from_reaction(self, aa_stoichiometry, rxn):
@@ -929,11 +931,17 @@ class MEModel(LCSBModel, Model):
                                                         ppi
                                                         )
 
+        if gene.transcribed_by is None:
+            transcribing_enzymes = self.rnap
+        else:
+            transcribing_enzymes = [self.enzymes.get_by_id(x)
+                                   for x in gene.transcribed_by]
+
         rxn = TranscriptionReaction(
             id=self._get_transcription_name(gene.id),
             name='Transcription, {}'.format(gene.id),
             gene_id= gene.id,
-            enzymes=self.rnap,
+            enzymes=transcribing_enzymes,
             upper_bound=1,
             scaled=True)
         self.add_reactions([rxn])
@@ -941,7 +949,7 @@ class MEModel(LCSBModel, Model):
         rxn.add_metabolites(nt_stoichiometry)
 
         # Add rnap as necessary enzyme
-        rxn.gene_reaction_rule = ' & '.join(self.rnap.composition)
+        rxn.gene_reaction_rule = enzymes_to_gpr(rxn)
 
 
         self.transcription_reactions += [rxn]
@@ -1602,13 +1610,31 @@ class MEModel(LCSBModel, Model):
 
     def populate_expression(self):
         """
+        Populates RNAP, ribosomes, and their number on their respective templates
+
+        :return:
+        """
+        self._populate_rnap()
+        self._populate_ribosomes()
+        self._push_queue()
+
+        self._bound_()
+        self._constrain_polymerases()
+        self._constrain_polysomes()
+
+        self._push_queue()
+        self.regenerate_variables()
+        self.regenerate_constraints()
+
+    def _constrain_polysomes(self):
+        """
         Add the coupling between mRNA availability and ribosome charging
         The number of ribosomes assigned to a mRNA species is lower than
         the number of such mRNA times the max number of ribosomes that can sit
         on the mRNA:
         [RPi] <= loadmax_i*[mRNAi]
 
-        loadmax is : len(peptide_chain)/occupation(ribo)
+        loadmax is : len(peptide_chain)/size(ribo)
         "Their distance from one another along the mRNA is at least the size
         of the physical footprint of a ribosome (≈20 nm, BNID 102320, 100121)
         which is the length of about 60 base pairs (length of
@@ -1620,15 +1646,8 @@ class MEModel(LCSBModel, Model):
 
         :return:
         """
-        self._populate_rnap()
-        self._populate_ribosomes()
-
-        ribo_footprint_size = 60 # see docstring
-
-        self._push_queue()
-
+        ribo_footprint_size = 60  # see docstring
         for the_mrna in tqdm(self.mrnas, desc='populating expression'):
-
             # Get the synthesis_flux
             syn_id = self._get_transcription_name(the_mrna.id)
             syn = self.transcription_reactions.get_by_id(syn_id)
@@ -1644,7 +1663,6 @@ class MEModel(LCSBModel, Model):
 
             polysome_size = len(the_mrna.gene.rna) / ribo_footprint_size
 
-
             # σ_m is the mRNA scaling factor,
             # σ_r is the ribosome scaling factor
             # [RPi] <= Lmrna/Lrib * [mRNAi]
@@ -1657,17 +1675,35 @@ class MEModel(LCSBModel, Model):
             #                       - polysome_size * scaling_factor * mrna_hat
             expression_coupling = RPi_hat - polysome_size * mrna_hat
 
-
             # Add expression coupling
-            self.add_constraint(kind = ExpressionCoupling,
-                                hook = the_mrna,
-                                expr = expression_coupling,
-                                queue = True,
-                                ub = 0)
+            self.add_constraint(kind=ExpressionCoupling,
+                                hook=the_mrna,
+                                expr=expression_coupling,
+                                queue=True,
+                                ub=0)
 
-        self._push_queue()
-        self.regenerate_variables()
-        self.regenerate_constraints()
+    def _constrain_polymerases(self):
+        """
+        Add the coupling between DNA availability and RNAP charging
+        The number of RNAP assigned to a gene locus is lower than
+        the number of such loci times the max number of RNAP that can sit
+        on the locus:
+        [RMi] <= loadmax_i*[# of loci]
+
+        loadmax is : len(nucleotide chain)/size(RNAP)
+
+        "The footprint of RNAP II [...] covers approximately 40 nt and is
+        nearly symmetrical [...]."
+        BNID    107873
+        Range 	~40 Nucleotides
+
+        hence:
+        [RPi] <= L_nt/RNAP_footprint * [mRNA]
+
+        :return:
+        """
+        raise NotImplementedError()
+
 
     def _get_transcription_name(self, the_mrna_id):
         """
@@ -2074,13 +2110,21 @@ class MEModel(LCSBModel, Model):
         :type genes: Iterable(Gene) or Gene
         :return:
         """
-        if hasattr(genes,'__iter__'):
-            for g in genes:
-                g._model = self
-            self.genes += genes
-        else:
-            genes._model = self
-            self.genes += [genes]
+        if not hasattr(genes,'__iter__'):
+            genes = [genes]
+
+        new_genes = [x for x in genes if x.id not in self.genes]
+        modified_genes = [x for x in genes if x.id in self.genes]
+
+        for g in new_genes:
+            self._add_gene(g)
+
+        for g in modified_genes:
+            raise NotImplementedError()
+
+    def _add_gene(self, gene):
+        gene._model = self
+        self.genes.append(gene)
 
 
     #-------------------------------------------------------------------------#
