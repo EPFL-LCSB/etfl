@@ -19,11 +19,46 @@ class ExpressedGene(Gene):
     """
     Subclass to describe reactions that are catalyzed by an enzyme.
     """
-    def __init__(self, id, name, sequence, *args, **kwargs):
+    def __init__(self, id, name, sequence, copy_number=1,
+                 transcribed_by=None,
+                 translated_by=None,
+                 *args, **kwargs):
         Gene.__init__(self, id, name, *args, **kwargs)
         self.sequence = Seq(sequence, DNAAlphabet())
         self._rna = ''
         self._peptide = ''
+
+        self._copy_number = copy_number
+        self._transcribed_by = transcribed_by
+        self._translated_by = translated_by
+
+    @property
+    def copy_number(self):
+        return self._copy_number
+
+    @copy_number.setter
+    def copy_number(self, value):
+        # TODO: Make this a setter that rewrites the adequate constraints
+        raise NotImplementedError()
+
+    @property
+    def transcribed_by(self):
+        return self._transcribed_by
+
+    @transcribed_by.setter
+    def transcribed_by(self,value):
+        # TODO: Make this a setter that rewrites the adequate constraints
+        raise NotImplementedError()
+
+    @property
+    def translated_by(self):
+        return self._translated_by
+
+    @translated_by.setter
+    def translated_by(self,value):
+        # TODO: Make this a setter that rewrites the adequate constraints
+        raise NotImplementedError()
+
 
     @property
     def rna(self):

@@ -270,3 +270,15 @@ def is_me_compatible(reaction):
     #     ret = False
 
     return ret
+
+def enzymes_to_gpr(rxn):
+    """
+    Builds a Gene to Protein to Reaction association rules from the enzymes of
+    an enzymatic reaction
+
+    :param rxn:
+    :return:
+    """
+    return ' OR '.join(' ( ' + [' AND '.join(['{}*{}'.format(v,k)
+                                for v,k in isozyme.composition.items()])
+                                for isozyme in rxn.enzymes] + ' ) ')
