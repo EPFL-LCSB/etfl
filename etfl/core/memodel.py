@@ -124,6 +124,10 @@ class MEModel(LCSBModel, Model):
         self.complexation_reactions = DictList()
         self.degradation_reactions = DictList()
 
+        self.ribosome = dict()
+        self.RNAP = dict()
+        self._Rf = dict()
+        self._RNAPf = dict()
 
     @property
     def mu(self):
@@ -811,12 +815,12 @@ class MEModel(LCSBModel, Model):
                         for item in sublist if isinstance(item, tRNA)])
 
         # Check that the ribosomes have been added
-        if self.ribosome is None:
+        if not self.ribosome:
             raise Exception(
                 'A ribosome has to be added with the add_ribosome method')
 
         # Check that the RNAP has been added
-        if self.rnap is None:
+        if not self.rnap:
             raise Exception(
                 'A RNA Polymerase has to be added with the add_rnap method')
 
@@ -1750,7 +1754,11 @@ class MEModel(LCSBModel, Model):
         :return:
         """
 
-        self.rnap = rnap
+        if rnap.id in self.rnap:
+            raise KeyError('A RNAP with this id ({}) alread exists in '
+                           'the model'.format(rnap.id))
+        else:
+            self.rnap[rnap.id] = rnap
 
         self.add_enzymes(rnap)
 
@@ -1759,7 +1767,7 @@ class MEModel(LCSBModel, Model):
         for rprot_id in rnap.composition:
             peptide_stoich[self.peptides.get_by_id(rprot_id)] -= 1
 
-        complexation = ProteinComplexation(id='rnap_complex',
+        complexation = ProteinComplexation(id='{}_complex'.format(rnap.id),
                                            name='RNA Polymerase complexation',
                                            target=rnap,
                                            scaled=True)
@@ -1768,28 +1776,29 @@ class MEModel(LCSBModel, Model):
         complexation.add_peptides(peptide_stoich)
 
         self.complexation_reactions += [complexation]
-        self.rnap.init_variable()
+        rnap.init_variable()
 
         # Let us not forget the degradation
         self._add_enzyme_degradation(rnap, scaled=True)
-        self.init_rnap_variables(free_ratio=free_ratio)
+        self.init_rnap_variables(rnap, free_ratio=free_ratio)
 
 
     def _populate_rnap(self):
         """
-        Once ribosomes have been assigned to the model, we still need to link
+        Once RNAP have been assigned to the model, we still need to link
         them to the rest of the variables and constraints. This function creates
-        the mass balance constraint on the ribosomes, as well as the total
-        ribosome capacity constraint
+        the mass balance constraint on the RNAP, as well as the total
+        RNAP capacity constraint
         :return:
         """
 
         # v_complexation =   complexation.forward_variable  \
         #                  - complexation.reverse_variable
 
+        # Create the mass balance constraint
         # 1 -> Write the RNAP mass balance
-        # Create the mass ba;ance constraint
-        self.add_mass_balance_constraint(self.rnap.complexation, self.rnap)
+        for this_rnap in self.rnap.values()
+            self.add_mass_balance_constraint(this_rnap.complexation, self.rnap)
 
         # 2 -> Parametrize all the transcription reactions with RNAP vmax
         for trans_rxn in self.transcription_reactions:
@@ -1803,15 +1812,20 @@ class MEModel(LCSBModel, Model):
         all_rnap_usage = self.get_variables_of_type(RNAPUsage)
         sum_RMs = symbol_sum([x.unscaled for x in all_rnap_usage])
 
-        # For nondimensionalization, we divide by the sum of D upperbounds
-        D = self.rnap.scaling_factor
-        # usage = (sum_RMs- self.rnap.concentration) / D
-        usage = (sum_RMs + self.RNAPf.unscaled - self.rnap.concentration) / \
-                self.rnap.scaling_factor
+        # The total RNAP capacity constraint looks like
+        # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
+        usage = sum_RMs \
+                + sum([x.unscaled for x in self.RNAPf.values()]) \
+                - sum([x.concentration for x in self.rnap.values()])
+        usage /= min([x.scaling_factor for x in self.rnap.values()])
+
+        # usage = (sum_RMs + self.RNAPf[this_rnap.id].unscaled - this_rnap.concentration) / \
+        #         this_rnap.scaling_factor
 
         # Create the capacity constraint
         self.add_constraint(kind=TotalCapacity,
-                            hook=self.rnap,
+                            hook=self,
+                            id_ = 'rnap',
                             expr=usage,
                             lb = 0,
                             ub = 0,
@@ -1833,9 +1847,11 @@ class MEModel(LCSBModel, Model):
         # Check that we indeed have a transcription reaction
         assert(isinstance(reaction, TranscriptionReaction))
 
+        the_scaling_factor = min([x.scaling_factor for x in self.rnap.values()])
+
         RMi = self.add_variable(RNAPUsage,
                                 reaction.gene,
-                                scaling_factor = self.rnap.scaling_factor,
+                                scaling_factor = the_scaling_factor,
                                 lb =0,
                                 ub=1,
                                 queue=False)
@@ -1857,7 +1873,8 @@ class MEModel(LCSBModel, Model):
         #         * (self._mrna_scaling/self._prot_scaling) \
         #         * RMi
         # rnap_constraint_expr = fwd_variable - bwd_variable - v_max
-        k = self.rnap.ktrans / reaction.nucleotide_length
+        k = [this_rnap.ktrans / reaction.nucleotide_length
+             for this_rnap in self.rnap.values()]
 
         # Scaled version:
         # rnap_constraint_expr = reaction.scaled_net - RMi # scaled
@@ -1869,26 +1886,26 @@ class MEModel(LCSBModel, Model):
 
 
 
-    def init_rnap_variables(self, free_ratio):
+    def init_rnap_variables(self, the_rnap, free_ratio):
         """
         Adds Free and Total ribosome variables to the models
         :return:
         """
 
         # Free ribosomes
-        self._rnapf = self.add_variable(FreeRibosomes,
-                                    self.rnap,
+        self._rnapf[the_rnap.id] = self.add_variable(FreeRibosomes,
+                                    the_rnap,
                                     lb=0,
                                     ub=1,
-                                    scaling_factor = self.rnap.scaling_factor)
+                                    scaling_factor = the_rnap.scaling_factor)
 
         # Add constraint on availability of free ribosomes
         # Rf and Rt are both concentrations
-        expr = self.RNAPf - free_ratio * self.rnap.variable #scaled
+        expr = self.RNAPf[the_rnap.id] - free_ratio * the_rnap.variable #scaled
         self.add_constraint(EnzymeRatio,
                             hook=self,
                             expr=expr,
-                            id_='rnap',
+                            id_=the_rnap.id,
                             lb=0,
                             ub=0)
 
@@ -1906,7 +1923,11 @@ class MEModel(LCSBModel, Model):
         :return:
         """
 
-        self.ribosome = ribosome
+        if ribosome.id in self.ribosome:
+            raise KeyError('A ribosome with this id ({}) alread exists in '
+                           'the model'.format(ribosome.id))
+        else:
+            self.ribosome[ribosome.id] = ribosome
 
         self.add_enzymes(ribosome)
 
@@ -1930,14 +1951,14 @@ class MEModel(LCSBModel, Model):
 
         # Add it to a specific index
         self.complexation_reactions += [complexation]
-        self.ribosome.init_variable()
+        ribosome.init_variable()
 
         # Let us not forget the degradation
         self._add_enzyme_degradation(ribosome, scaled=True)
 
-        self.init_ribosome_variables(free_ratio=free_ratio)
+        self.init_ribosome_variables(ribosome, free_ratio=free_ratio)
 
-    def add_rrnas_to_rib_assembly(self):
+    def add_rrnas_to_rib_assembly(self, ribosome):
         """
         Adds the ribosomal RMAs to the composition of the ribosome.
         This has to be done after the transcription reactions have been added,
@@ -1948,10 +1969,10 @@ class MEModel(LCSBModel, Model):
         # rRNA
         rrnas = []
 
-        f = self.ribosome.kdeg * self.ribosome.scaling_factor
+        f = ribosome.kdeg * ribosome.scaling_factor
         # f = self.mu_max * self.ribosome.scaling_factor
 
-        for the_rrna_id in self.ribosome.rrna_composition:
+        for the_rrna_id in ribosome.rrna_composition:
             the_rrna = rRNA(id = 'rrna_' + the_rrna_id,
                             name = 'rRNA {}'.format(the_rrna_id))
 
@@ -1970,44 +1991,44 @@ class MEModel(LCSBModel, Model):
             # synthesis.add_metabolites({the_rrna:1}, rescale = False)
 
 
-        self.ribosome.complexation.add_metabolites(
+        ribosome.complexation.add_metabolites(
             {x:-1 for x in rrnas}, rescale=True)
             # {x:-1*f for x in rrnas}, rescale=False)
         self.rrnas += rrnas
 
 
-    def init_ribosome_variables(self, free_ratio):
+    def init_ribosome_variables(self, ribosome, free_ratio):
         """
         Adds Free and Total ribosome variables to the models
         :return:
         """
 
         # Free ribosomes
-        self._Rf = self.add_variable(FreeRibosomes,
-                                    self.ribosome,
+        self._Rf[ribosome.id] = self.add_variable(FreeRibosomes,
+                                    ribosome,
                                     lb=0,
                                     ub=1,
-                                    scaling_factor = self.ribosome.scaling_factor)
+                                    scaling_factor = ribosome.scaling_factor)
 
         # Add constraint on availability of free ribosomes
         # Rf and Rt are both concentrations
-        expr = self.Rf - free_ratio * self.Rt #scaled
+        expr = self.Rf[ribosome.id] - free_ratio * ribosome.variable #scaled
         self.add_constraint(EnzymeRatio,
                             hook=self,
                             expr=expr,
-                            id_='rib',
+                            id_=ribosome.id,
                             lb=0,
                             ub=0)
 
 
     @property
     def Rt(self):
-        return self.ribosome.variable
+        return self.ribosome
     @property
     def Rf(self):
         return self._Rf
 
-    def _populate_ribosomes(self, free_ratio=0.2):
+    def _populate_ribosomes(self):
         """
         Once ribosomes have been assigned to the model, we still need to link
         them to the rest of the variables and constraints. This function creates
@@ -2015,21 +2036,21 @@ class MEModel(LCSBModel, Model):
         ribosome capacity constraint
         :return:
         """
+        for this_rib in self.ribosomes.values():
+            self.add_rrnas_to_rib_assembly(this_rib)
 
-        self.add_rrnas_to_rib_assembly()
+            # v_complexation =   complexation.forward_variable  \
+            #                  - complexation.reverse_variable
 
-        # v_complexation =   complexation.forward_variable  \
-        #                  - complexation.reverse_variable
+            # 1 -> Write the ribosome mass balance
+            # Total amount of ribosome is in:
+            # mass_balance_expr =   v_complexation            \
+            #                     - self.ribosome.kdeg  * Rt  \
+            #                     - self.mu             * Rt
 
-        # 1 -> Write the ribosome mass balance
-        # Total amount of ribosome is in:
-        # mass_balance_expr =   v_complexation            \
-        #                     - self.ribosome.kdeg  * Rt  \
-        #                     - self.mu             * Rt
-
-        # Create the mass balance constraint
-        self.add_mass_balance_constraint(self.ribosome.complexation,
-                                         self.ribosome)
+            # Create the mass balance constraint
+            self.add_mass_balance_constraint(this_rib.complexation,
+                                             this_rib)
 
         # 2 -> Parametrize all the translation reactions with ribosomal vmax
         for trans_rxn in self.translation_reactions:
@@ -2046,13 +2067,21 @@ class MEModel(LCSBModel, Model):
 
         # sum_RPs = chunk_sum(all_ribosome_usage)
         sum_RPs = symbol_sum([x.unscaled for x in all_ribosome_usage])
+
+        # The total RNAP capacity constraint looks like
+        # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
+        ribo_usage = sum_RPs \
+                + sum([x.unscaled for x in self.Rf.values()]) \
+                - sum([x.concentration for x in self.ribosome.values()])
+        ribo_usage /= min([x.scaling_factor for x in self.ribosome.values()])
         # For nondimensionalization
-        ribo_usage = (sum_RPs + self.Rf.unscaled - self.ribosome.concentration) \
-                     / self.ribosome.scaling_factor
+        # ribo_usage = (sum_RPs + self.Rf.unscaled - self.ribosome.concentration) \
+        #              / self.ribosome.scaling_factor
 
         # Create the capacity constraint
         self.add_constraint(kind=TotalCapacity,
-                            hook=self.ribosome,
+                            hook=self,
+                            id_='rib',
                             expr=ribo_usage,
                             lb = 0,
                             ub = 0,
@@ -2075,9 +2104,11 @@ class MEModel(LCSBModel, Model):
         # Check that we indeed have a translation reaction
         assert(isinstance(reaction, TranslationReaction))
 
+        the_scaling_factor = min([x.scaling_factor for x in self.ribosome.values()])
+
         RPi = self.add_variable(RibosomeUsage,
                                 reaction.gene,
-                                scaling_factor=self.ribosome.scaling_factor,
+                                scaling_factor=the_scaling_factor,
                                 ub=1,
                                 lb=0)
 
@@ -2090,7 +2121,8 @@ class MEModel(LCSBModel, Model):
         #         * RPi
         # ribo_constraint_expr = fwd_variable - bwd_variable - v_max
 
-        k = self.ribosome.kribo / reaction.aminoacid_length
+        k = sum([rib.kribo / reaction.aminoacid_length
+                 for rib in self.ribosome.values()])
 
         # Scaled version
         # ribo_constraint_expr = reaction.scaled_net - RPi

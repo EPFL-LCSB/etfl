@@ -12,9 +12,9 @@ Utility functions
 
 def read_seq(filename):
     with open(filename,'r') as fid:
-        all_lines = fid.read_lines()
+        all_lines = fid.readlines()
 
     seq = ''.join([x for line in all_lines for x in line.split()
-                   if not x.isidigit()])
+                   if not x.isdigit()])
 
     return seq
