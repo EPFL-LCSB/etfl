@@ -279,6 +279,18 @@ def enzymes_to_gpr(rxn):
     :param rxn:
     :return:
     """
-    return ' OR '.join(' ( ' + [' AND '.join(['{}*{}'.format(v,k)
-                                for v,k in isozyme.composition.items()])
-                                for isozyme in rxn.enzymes] + ' ) ')
+    return ' or '.join([' ( ' + ' and '.join(['{}*{}'.format(v,k)
+                                for v,k in isozyme.composition.items()])  + ' ) '
+                                for isozyme in rxn.enzymes] )
+
+def enzymes_to_gpr_no_stoichiometry(rxn):
+    """
+    Builds a Gene to Protein to Reaction association rules from the enzymes of
+    an enzymatic reaction
+
+    :param rxn:
+    :return:
+    """
+    return ' or '.join([' ( ' + ' and '.join([v
+                                for v in isozyme.composition])  + ' ) '
+                                for isozyme in rxn.enzymes] )

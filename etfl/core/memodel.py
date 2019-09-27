@@ -29,7 +29,7 @@ from .rna  import mRNA,rRNA, tRNA
 from .enzyme import Enzyme, Peptide
 from .reactions import EnzymaticReaction, ProteinComplexation, \
     TranslationReaction, TranscriptionReaction, DegradationReaction, DNAFormation
-from .expression import build_trna_charging, enzymes_to_gpr, \
+from .expression import build_trna_charging, enzymes_to_gpr_no_stoichiometry, \
     make_stoich_from_aa_sequence, make_stoich_from_nt_sequence, \
     degrade_peptide, degrade_mrna
 from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,\
@@ -125,7 +125,7 @@ class MEModel(LCSBModel, Model):
         self.degradation_reactions = DictList()
 
         self.ribosome = dict()
-        self.RNAP = dict()
+        self.rnap = dict()
         self._Rf = dict()
         self._RNAPf = dict()
 
@@ -323,7 +323,7 @@ class MEModel(LCSBModel, Model):
         dummy_translation = TranslationReaction(id=self._get_translation_name(dummy_peptide),
                                                 name='Dummy Translation',
                                                 gene_id=dummy_gene.id,
-                                                enzymes=self.ribosome,
+                                                enzymes=self.ribosome.values(),
                                                 scaled=True)
         dummy_complexation = ProteinComplexation(id='dummy_complexation',
                                                  name='Dummy Complexation',
@@ -403,7 +403,7 @@ class MEModel(LCSBModel, Model):
         dummy_transcription = TranscriptionReaction(id=self._get_transcription_name(dummy_mrna.id),
                                                     name='Dummy Transcription',
                                                     gene_id=dummy_gene.id,
-                                                    enzymes=self.rnap,
+                                                    enzymes=self.rnap.values(),
                                                     scaled=True)
         self.add_reactions([dummy_transcription])
         self.transcription_reactions += [dummy_transcription]
@@ -866,7 +866,7 @@ class MEModel(LCSBModel, Model):
         h   = self.essentials['h']
 
         if gene.translated_by is None:
-            translating_enzymes = self.ribosome
+            translating_enzymes = self.ribosome.values()
         else:
             translating_enzymes = [self.enzymes.get_by_id(x)
                                    for x in gene.translated_by]
@@ -900,7 +900,7 @@ class MEModel(LCSBModel, Model):
         rxn.add_peptide(free_peptide)
 
         # Add ribosome as necessary enzyme
-        rxn.gene_reaction_rule = enzymes_to_gpr(rxn)
+        rxn.gene_reaction_rule = enzymes_to_gpr_no_stoichiometry(rxn)
         self.translation_reactions += [rxn]
 
     def _extract_trna_from_reaction(self, aa_stoichiometry, rxn):
@@ -936,7 +936,7 @@ class MEModel(LCSBModel, Model):
                                                         )
 
         if gene.transcribed_by is None:
-            transcribing_enzymes = self.rnap
+            transcribing_enzymes = self.rnap.values()
         else:
             transcribing_enzymes = [self.enzymes.get_by_id(x)
                                    for x in gene.transcribed_by]
@@ -953,7 +953,7 @@ class MEModel(LCSBModel, Model):
         rxn.add_metabolites(nt_stoichiometry)
 
         # Add rnap as necessary enzyme
-        rxn.gene_reaction_rule = enzymes_to_gpr(rxn)
+        rxn.gene_reaction_rule = enzymes_to_gpr_no_stoichiometry(rxn)
 
 
         self.transcription_reactions += [rxn]
@@ -1622,8 +1622,7 @@ class MEModel(LCSBModel, Model):
         self._populate_ribosomes()
         self._push_queue()
 
-        self._bound_()
-        self._constrain_polymerases()
+        # self._constrain_polymerases()
         self._constrain_polysomes()
 
         self._push_queue()
@@ -1797,8 +1796,8 @@ class MEModel(LCSBModel, Model):
 
         # Create the mass balance constraint
         # 1 -> Write the RNAP mass balance
-        for this_rnap in self.rnap.values()
-            self.add_mass_balance_constraint(this_rnap.complexation, self.rnap)
+        for this_rnap in self.rnap.values():
+            self.add_mass_balance_constraint(this_rnap.complexation, this_rnap)
 
         # 2 -> Parametrize all the transcription reactions with RNAP vmax
         for trans_rxn in self.transcription_reactions:
@@ -1873,8 +1872,8 @@ class MEModel(LCSBModel, Model):
         #         * (self._mrna_scaling/self._prot_scaling) \
         #         * RMi
         # rnap_constraint_expr = fwd_variable - bwd_variable - v_max
-        k = [this_rnap.ktrans / reaction.nucleotide_length
-             for this_rnap in self.rnap.values()]
+        k = sum([this_rnap.ktrans / reaction.nucleotide_length
+             for this_rnap in self.rnap.values()])
 
         # Scaled version:
         # rnap_constraint_expr = reaction.scaled_net - RMi # scaled
@@ -1893,7 +1892,7 @@ class MEModel(LCSBModel, Model):
         """
 
         # Free ribosomes
-        self._rnapf[the_rnap.id] = self.add_variable(FreeRibosomes,
+        self._RNAPf[the_rnap.id] = self.add_variable(FreeRibosomes,
                                     the_rnap,
                                     lb=0,
                                     ub=1,
@@ -1911,7 +1910,7 @@ class MEModel(LCSBModel, Model):
 
     @property
     def RNAPf(self):
-        return self._rnapf
+        return self._RNAPf
 
 
     def add_ribosome(self, ribosome, free_ratio = 0.2):
@@ -2036,7 +2035,7 @@ class MEModel(LCSBModel, Model):
         ribosome capacity constraint
         :return:
         """
-        for this_rib in self.ribosomes.values():
+        for this_rib in self.ribosome.values():
             self.add_rrnas_to_rib_assembly(this_rib)
 
             # v_complexation =   complexation.forward_variable  \
