@@ -395,7 +395,7 @@ def add_dna_mass_requirement(model, mu_values, dna_rel, gc_ratio,
 
     # Create dummy DNA reaction
     dna_formation = DNAFormation(id=DNA_FORMATION_RXN_ID, name='DNA Formation',
-                                 dna=dna, mu_sigma= model.mu_range[-1],
+                                 dna=dna, mu_sigma= model._mu_range[-1],
                                  scaled=True)
     model.add_reactions([dna_formation])
 
