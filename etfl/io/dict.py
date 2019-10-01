@@ -22,12 +22,15 @@ from pytfa.thermo.tmodel import ThermoModel
 from ..core.enzyme import Enzyme, Ribosome, Peptide, RNAPolymerase
 from ..core.memodel import MEModel
 from ..core.rna import mRNA, rRNA, tRNA
+from ..core.dna import DNA
+from ..core.genes import ExpressedGene
 from ..core.expression import get_trna_charging_id
 from ..core.reactions import TranslationReaction, TranscriptionReaction, \
-    EnzymaticReaction, ProteinComplexation, DegradationReaction, ExpressionReaction
+    EnzymaticReaction, ProteinComplexation, DegradationReaction, \
+    ExpressionReaction, DNAFormation
 from ..core.thermomemodel import ThermoMEModel
 from ..optim.utils import rebuild_constraint, rebuild_variable
-from ..optim.variables import tRNAVariable
+from ..optim.variables import tRNAVariable, GrowthRate
 from ..utils.utils import replace_by_enzymatic_reaction, \
     replace_by_translation_reaction, replace_by_transcription_reaction, \
     replace_by_reaction_subclass, replace_by_me_gene
@@ -38,8 +41,24 @@ SOLVER_DICT = {
     'optlang.glpk_interface':'optlang-glpk',
 }
 
+MW_OVERRIDE_KEY = 'molecular_weight_override'
+
 def metabolite_thermo_to_dict(metthermo):
     return metthermo.thermo.__dict__
+
+def expressed_gene_to_dict(gene):
+    obj = OrderedDict()
+    obj['id'] = gene.id
+    obj['sequence'] = str(gene.sequence)
+    obj['rna'] = str(gene.rna)
+    obj['peptide'] = str(gene.peptide)
+    obj['copy_number'] = str(gene.copy_number)
+    obj['transcribed_by'] = [x.id for x in gene.transcribed_by] \
+        if gene.transcribed_by is not None else None
+    obj['translated_by'] = [x.id for x in gene.translated_by]\
+        if gene.translated_by is not None else None
+
+    return obj
 
 def enzyme_to_dict(enzyme):
     obj = OrderedDict()
@@ -60,19 +79,47 @@ def mrna_to_dict(mrna):
     obj['gene_id'] = mrna._gene_id
     obj['kdeg'] = mrna.kdeg
     obj['varname'] = mrna.variable.name
+    if mrna._molecular_weight_override:
+        obj['molecular_weight_override'] = mrna._molecular_weight_override
     return obj
 
 def ribosome_to_dict(ribosome):
+    if isinstance(ribosome, dict):
+        # New models, possibility of several ribosomes
+        return {k:_single_ribosome_to_dict(this_ribosome)
+                for k,this_ribosome in ribosome.items()}
+    else:
+        # Older models, there is only one ribosome
+        return _single_ribosome_to_dict(ribosome)
+
+def _single_ribosome_to_dict(ribosome):
     obj = enzyme_to_dict(ribosome)
     obj['kribo'] = ribosome.kribo
     obj['rrna_composition'] = ribosome.rrna_composition
     return obj
 
-
 def rnap_to_dict(rnap):
+    if isinstance(rnap, dict):
+        # New models, possibility of several rnap
+        return {k:_single_rnap_to_dict(this_rnap)
+                for k,this_rnap in rnap.items()}
+    else:
+        # Older models, there is only one rnap
+        return _single_rnap_to_dict(rnap)
+
+def _single_rnap_to_dict(rnap):
     obj = enzyme_to_dict(rnap)
     obj['ktrans'] = rnap.ktrans
     obj['kdeg'] = rnap.kdeg
+    return obj
+
+def dna_to_dict(dna):
+    obj = OrderedDict()
+    obj['id'] = dna.id
+    obj['name'] = dna.name
+    obj['gc_ratio'] = dna.gc_ratio
+    obj['len'] = dna.len
+    obj['kdeg'] = dna.kdeg
     return obj
 
 def archive_variables(var_dict):
@@ -250,7 +297,6 @@ def model_to_dict(model):
         obj['rna_nucleotides_mp'] = model.rna_nucleotides_mp
         try:
             obj['dna_nucleotides'] = model.dna_nucleotides
-            obj['dna_nucleotides'] = model.dna_nucleotides
         except AttributeError:
             # DNA has not been added
             pass
@@ -258,6 +304,11 @@ def model_to_dict(model):
 
         # Growth
         obj['growth_reaction'] = model.growth_reaction.id
+
+        # Genes
+        obj['expressed_genes'] = list(map(expressed_gene_to_dict,
+                                [g for g in model.genes
+                                 if isinstance(g,ExpressedGene)]))
 
         # Enzymes
         obj['enzymes'] = list(map(enzyme_to_dict, model.enzymes))
@@ -274,6 +325,11 @@ def model_to_dict(model):
         # RNAP
         obj['rnap'] = rnap_to_dict(model.rnap)
 
+        try:
+            obj['dna'] = dna_to_dict(model.dna)
+        except AttributeError:
+            # DNA has not been added
+            pass
 
         obj['kind'] = 'MEModel'
         is_me = True
@@ -301,26 +357,24 @@ def model_to_dict(model):
         met_dict['kind'] = 'Metabolite'
         the_met = model.metabolites.get_by_id(the_met_id)
 
-        is_peptide = False
+        is_me_met = False
 
         if is_me:
             if the_met_id in model.peptides:
                 met_dict['kind'] = 'Peptide'
                 met_dict['gene_id'] = the_met._gene_id
-                is_peptide = True
+                if the_met._molecular_weight_override:
+                    met_dict['molecular_weight_override'] = \
+                        the_met._molecular_weight_override
+                is_me_met = True
             if the_met_id in model.rrnas:
                 met_dict['kind'] = 'rRNA'
-                is_peptide = True
+                is_me_met = True
 
-        if is_thermo and not is_peptide: # peptides have no thermo
+        if is_thermo and not is_me_met: # peptides have no thermo
             _add_thermo_metabolite_info(the_met, rxn_dict)
 
-    for gene_dict in obj['genes']:
-        try:
-            gene_dict['sequence'] = str(model.genes.get_by_id(gene_dict['id']).sequence)
-        except AttributeError:
-            # Not an ExpressedGene
-            pass
+    find_genes_from_dict(model, obj)
 
     return obj
 
@@ -353,6 +407,8 @@ def _add_me_reaction_info(rxn, rxn_dict):
     elif isinstance(rxn, EnzymaticReaction):
         rxn_dict['kind'] = 'EnzymaticReaction'
         rxn_dict['enzymes'] = [x.id for x in rxn.enzymes]
+    elif isinstance(rxn, DNAFormation):
+        rxn_dict['kind'] = 'DNAFormation'
     # Generic Reaction
     else:
         rxn_dict['kind'] = 'Reaction'
@@ -439,6 +495,10 @@ def model_from_dict(obj, solver=None):
         rebuild_constraint(classname, new, this_id, new_expr, lb, ub)
 
 
+    # Mu variable handle for ME-models
+    if obj['kind'] in ['ThermoMEModel','MEModel']:
+        new._mu = new.get_variables_of_type(GrowthRate).get_by_id('total')
+
     try:
         rebuild_obj_from_dict(new, obj['objective'])
     except KeyError:
@@ -454,6 +514,7 @@ def init_me_model_from_dict(new, obj):
     # new._mu = new.variables.get(obj['_mu'])
     # new.compositions = rebuild_compositions(new, obj['compositions'])
     new.mu_bins = obj['mu_bins']
+    new._mu_range = [new.mu_bins[0][1][0], new.mu_bins[-1][1][-1]]
     new.essentials = obj['essentials']
     new.rna_nucleotides = obj['rna_nucleotides']
     new.rna_nucleotides_mp = obj['rna_nucleotides_mp']
@@ -474,15 +535,23 @@ def init_me_model_from_dict(new, obj):
 
     # Make RNAP
     new_rnap = rnap_from_dict(obj['rnap'])
-    new_rnap._model = new
-    new.enzymes._replace_on_id(new_rnap)
+    for this_rnap in new_rnap.values():
+        this_rnap._model = new
+        new.enzymes._replace_on_id(this_rnap)
     new.rnap = new_rnap
 
     # Make ribosome
     new_rib = ribosome_from_dict(obj['ribosome'])
-    new_rib._model = new
-    new.enzymes._replace_on_id(new_rib)
+    for this_rib in new_rib.values():
+        this_rib._model = new
+        new.enzymes._replace_on_id(this_rib)
     new.ribosome = new_rib
+
+    try:
+        new.add_dna(dna_from_dict(obj['dna']))
+    except KeyError:
+        # There is no DNA in the model
+        pass
 
     # Populate Peptides
     find_peptides_from_dict(new, obj)
@@ -499,6 +568,7 @@ def init_me_model_from_dict(new, obj):
     find_translation_reactions_from_dict(new, obj)
     find_transcription_reactions_from_dict(new, obj)
     find_complexation_reactions_from_dict(new, obj)
+    find_dna_formation_reaction_from_dict(new, obj)
     # link_enzyme_complexation(new, obj)
 
     # recover tRNAs
@@ -587,17 +657,29 @@ def rebuild_coupling_dict(new, coupling_dict):
 
 def enzyme_from_dict(obj):
     return Enzyme(id = obj['id'],
-                  kcat_fwd = obj['kcat_fwd'],
-                  kcat_bwd = obj['kcat_bwd'],
-                  kdeg = obj['kdeg'],
-                  composition=obj['composition'])
+                     kcat_fwd = obj['kcat_fwd'],
+                     kcat_bwd = obj['kcat_bwd'],
+                     kdeg = obj['kdeg'],
+                     composition=obj['composition'])
 
 def mrna_from_dict(obj):
-    return mRNA(id = obj['id'],
-                  kdeg = obj['kdeg'],
-                  gene_id = obj['gene_id'])
+    the_mrna = mRNA(id = obj['id'],
+                    kdeg = obj['kdeg'],
+                    gene_id = obj['gene_id'])
+    if MW_OVERRIDE_KEY in obj:
+        the_mrna._molecular_weight_override = obj[MW_OVERRIDE_KEY]
+    return the_mrna
 
 def ribosome_from_dict(obj):
+    if isinstance(list(obj.values())[0],dict):
+        # The object describes a collection of ribosomes, it is one of the newer
+        # models which allow several ribosomes
+        return {k : _single_ribosome_from_dict(x) for k,x in obj.items()}
+    else:
+        # This is an older model with a single ribosome
+        return {obj['id']:_single_ribosome_from_dict(obj)}
+
+def _single_ribosome_from_dict(obj):
     return  Ribosome(   id = obj['id'],
                         kribo = obj['kribo'],
                         kdeg = obj['kdeg'],
@@ -605,10 +687,26 @@ def ribosome_from_dict(obj):
                         rrna=obj['rrna_composition'])
 
 def rnap_from_dict(obj):
+    if isinstance(list(obj.values())[0],dict):
+        # The object describes a collection of rnap, it is one of the newer
+        # models which allow several rnap
+        return {k : _single_rnap_from_dict(x) for k,x in obj.items()}
+    else:
+        # This is an older model with a single rnap
+        return {obj['id']:_single_rnap_from_dict(obj)}
+
+def _single_rnap_from_dict(obj):
     return  RNAPolymerase(  id = obj['id'],
                             ktrans = obj['ktrans'],
                             kdeg = obj['kdeg'],
                             composition=obj['composition'])
+
+def dna_from_dict(obj):
+    return DNA( id = obj['id'],
+                dna_len = obj['len'],
+                name=obj['name'],
+                gc_ratio = obj['gc_ratio'],
+                kdeg=obj['kdeg'])
 
 def find_enzymatic_reactions_from_dict(new, obj):
     for rxn_dict in obj['reactions']:
@@ -631,7 +729,7 @@ def find_translation_reactions_from_dict(new, obj):
                 scaled = rxn_dict['scaled']
             else:
                 scaled = False
-            enzymes = new.ribosome
+            enzymes = new.ribosome.values()
             enz_rxn = replace_by_translation_reaction(new,
                                                       reaction_id=rxn_dict['id'],
                                                       gene_id=rxn_dict['gene_id'],
@@ -649,7 +747,7 @@ def find_transcription_reactions_from_dict(new, obj):
                 scaled = rxn_dict['scaled']
             else:
                 scaled = False
-            enzymes = new.rnap
+            enzymes = new.rnap.values()
             enz_rxn = replace_by_transcription_reaction(new,
                                                         reaction_id=rxn_dict['id'],
                                                         gene_id=rxn_dict['gene_id'],
@@ -706,6 +804,18 @@ def find_degradation_reactions_from_dict(new, obj):
             new_rxns.append(new_rxn)
     new.degradation_reactions += new_rxns
 
+def find_dna_formation_reaction_from_dict(new, obj):
+    new_rxns = list()
+    for rxn_dict in obj['reactions']:
+        if rxn_dict['kind'] == 'DNAFormation':
+            dna = new.dna
+            new_rxn = replace_by_reaction_subclass(new,
+                                                   kind = DNAFormation,
+                                                   reaction_id=rxn_dict['id'],
+                                                   scaled=rxn_dict['scaled'],
+                                                   dna=dna,
+                                                   mu_sigma=new._mu_range[-1])
+            new_rxns.append(new_rxn)
 
 def find_peptides_from_dict(new, obj):
     new_peptides = list()
@@ -713,6 +823,8 @@ def find_peptides_from_dict(new, obj):
         if met_dict['kind'] == 'Peptide':
             met = new.metabolites.get_by_id(met_dict['id'])
             pep = Peptide.from_metabolite(met, met_dict['gene_id'])
+            if MW_OVERRIDE_KEY in met_dict:
+                pep._molecular_weight_override = met_dict[MW_OVERRIDE_KEY]
             new.metabolites._replace_on_id(pep)
             new_peptides.append(pep)
     new.peptides += new_peptides
@@ -730,7 +842,6 @@ def find_rrna_from_dict(new, obj):
 def rebuild_trna(new, obj):
         new_trna_dict = obj['trna_dict']
         new_trnas = list()
-        trna_var_prefix = tRNAVariable.prefix
         for aa_id, (ch_trna_id, unch_trna_id, charging_rxn_id) in new_trna_dict.items():
             aa = new.metabolites.get_by_id(aa_id)
 
@@ -751,12 +862,29 @@ def rebuild_trna(new, obj):
             new_trna_dict[aa_id] = (charged_trna, uncharged_trna, charging_reaction)
 
         new.add_trnas(new_trnas)
+        new.trna_dict = new_trna_dict
 
 def find_genes_from_dict(new, obj):
-    for gene_dict in obj['genes']:
+    if 'expressed_genes' in obj:
+        key = 'expressed_genes'
+    else:
+        key = 'genes'
+
+    for gene_dict in obj[key]:
         try:
             sequence = gene_dict['sequence']
-            replace_by_me_gene(new, gene_dict['id'], str(sequence))
+            g = replace_by_me_gene(new, gene_dict['id'], str(sequence))
+            if key == 'expressed_genes':
+                # Newer models
+                g._rna            = gene_dict['rna']
+                g._peptide        = gene_dict['peptide']
+                g._copy_number    = gene_dict['copy_number']
+                g._transcribed_by = [new.enzymes.get_by_id(e)
+                                     for e in gene_dict['transcribed_by']] \
+                                     if gene_dict['transcribed_by'] else None
+                g._translated_by  = [new.enzymes.get_by_id(e)
+                                     for e in gene_dict['translated_by']] \
+                                     if gene_dict['translated_by'] else None
         except KeyError:
             pass
 
