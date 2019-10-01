@@ -292,21 +292,21 @@ class Vector:
 
 class Plasmid(Vector):
     def check_sequence(self, sequence):
-        return check_seq_type(sequence, type='plasmid')
+        return check_seq_type(sequence, vector_type='plasmid')
 
     def integrate(self):
         pass
 
 class ViralDNA(Vector):
     def check_sequence(self, sequence):
-        return check_seq_type(sequence, type='viral_dna')
+        return check_seq_type(sequence, vector_type='viral_dna')
 
     def integrate(self):
         pass
 
 class ViralRNA(Vector):
     def check_sequence(self, sequence):
-        return check_seq_type(sequence, type='viral_rna')
+        return check_seq_type(sequence, vector_type='viral_rna')
 
     def integrate(self):
         pass
