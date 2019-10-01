@@ -18,7 +18,7 @@ from pytfa.io import        load_thermoDB,                    \
 from ..core.memodel import MEModel
 from ..core.thermomemodel import ThermoMEModel
 from ..core.allocation import add_dna_mass_requirement, \
-    git coadd_protein_mass_requirement, add_rna_mass_requirement
+    add_protein_mass_requirement, add_rna_mass_requirement
 from ..optim.config import standard_solver_config
 
 
