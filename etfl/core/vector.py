@@ -11,10 +11,20 @@ Model RNAP limitation in case of vector addition to a host
 
 from .memodel import MEModel
 from .rna import mRNA
+from .allocation import MRNA_WEIGHT_CONS_ID, PROT_WEIGHT_CONS_ID, \
+    DNA_WEIGHT_CONS_ID, MRNA_WEIGHT_VAR_ID, PROT_WEIGHT_VAR_ID, \
+    DNA_WEIGHT_VAR_ID, DNA_FORMATION_RXN_ID,\
+    define_prot_weight_constraint, define_mrna_weight_constraint, \
+    define_dna_weight_constraint
+from ..optim.constraints import tRNAMassBalance, InterpolationConstraint
+from ..optim.variables import InterpolationVariable
 
 from Bio.Seq import Seq
 from Bio.Alphabet import DNAAlphabet, RNAAlphabet
 
+
+SEQ_TYPE_ERROR = "Vector type ot recognized. Should be among " \
+                 "plasmid, viral_dna, viral_rna"
 
 def check_seq_type(sequence, vector_type):
     """
@@ -29,18 +39,38 @@ def check_seq_type(sequence, vector_type):
     """
     l_vector_type = vector_type.lower()
 
-    if l_vector_type == 'plasmid':
-        typed_sequence = Seq(sequence, alphabet = DNAAlphabet)
-    elif 'viral' in l_vector_type and 'rna' in l_vector_type:
-        typed_sequence = Seq(sequence, alphabet = RNAAlphabet)
-    elif 'viral' in l_vector_type and 'dna' in l_vector_type:
-        typed_sequence = Seq(sequence, alphabet = DNAAlphabet)
+    if isinstance(sequence, str):
+        typed_sequence = make_seq(sequence, l_vector_type)
+    elif isinstance(sequence, Seq):
+        typed_sequence = sequence
     else:
-        raise ArgumentError("Vector type ot recognized. Should be among "
-                            "plasmid, viral_dna, viral_rna")
+        raise TypeError('The type of the sequence argument should be either '
+                        'string or a Bio.Seq')
+
+    if l_vector_type == 'plasmid':
+        assert(isinstance(sequence.alphabet, DNAAlphabet))
+    elif 'viral' in l_vector_type and 'rna' in l_vector_type:
+        assert(isinstance(sequence.alphabet, RNAAlphabet))
+    elif 'viral' in l_vector_type and 'dna' in l_vector_type:
+        assert(isinstance(sequence.alphabet, DNAAlphabet))
+    else:
+        raise ArgumentError(SEQ_TYPE_ERROR)
 
 
     return typed_sequence
+
+
+def make_seq(sequence, l_vector_type):
+    if l_vector_type == 'plasmid':
+        typed_sequence = Seq(sequence, alphabet=DNAAlphabet)
+    elif 'viral' in l_vector_type and 'rna' in l_vector_type:
+        typed_sequence = Seq(sequence, alphabet=RNAAlphabet)
+    elif 'viral' in l_vector_type and 'dna' in l_vector_type:
+        typed_sequence = Seq(sequence, alphabet=DNAAlphabet)
+    else:
+        raise ArgumentError(SEQ_TYPE_ERROR)
+    return typed_sequence
+
 
 def make_plasmid(gene_list):
     """
