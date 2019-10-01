@@ -58,7 +58,14 @@ class ExpressedGene(Gene):
     @copy_number.setter
     def copy_number(self, value):
         # TODO: Make this a setter that rewrites the adequate constraints
-        raise NotImplementedError()
+        if value != self._copy_number:
+            raise NotImplementedError()
+            # Delete corresponding polymerase constraint
+
+            # Rebuild new polymerase constraint
+        else:
+            # Nothing to do here :)
+            pass
 
     @property
     def transcribed_by(self):

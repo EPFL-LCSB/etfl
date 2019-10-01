@@ -93,6 +93,7 @@ class TransModel(MEModel):
         self._me_model = new
         self._has_transcription_changed = False
         self._has_translation_changed = False
+        self.vectors = dict()
 
     def __getattr__(self,attr):
         """
@@ -113,13 +114,15 @@ class TransModel(MEModel):
         if vector.rnap is not None:
             self.add_vector_RNAP(vector.rnap)
         if vector.ribosome is not None:
-            self.add_vector_ribosome(vecor.ribosome)
+            self.add_vector_ribosome(vector.ribosome)
 
         # Edit the gene copy number by the number of plasmids.
         for g in vector.genes:
             g.copy_number *= copy_number
 
         self.add_genes(vector.genes)
+        # This adds the peptides as well:
+        self.add_nucleotide_sequences({g.id:g.sequence for g in vector.genes})
         self.express_genes(vector.genes)
 
         mrna_dict = vector.mrna_dict
@@ -129,7 +132,7 @@ class TransModel(MEModel):
         self.add_enzymatic_coupling(vector.coupling_dict)
 
         # recompute mRNA-dependent constraints
-        self.recompute_trna_balances
+        self.recompute_trna_balances()
 
         if self._has_transcription_changed:
             self.recompute_transcription()
@@ -138,6 +141,18 @@ class TransModel(MEModel):
 
         # This needs to account for new DNA
         self.recompute_allocation()
+
+        self.vectors[vector.id] = vector
+
+    def recompute_trna_balances(self):
+
+        #1. Remove tRNA balances
+        trna_mb_cons = self.get_constraints_of_type(tRNAMassBalance)
+        for the_cons in trna_mb_cons:
+            self.remove_constraint(the_cons)
+
+        #2. Remake tRNA balances
+        self.add_trna_mass_balances()
 
     def add_vector_RNAP(self, rnap):
         """
@@ -203,18 +218,85 @@ class TransModel(MEModel):
         """
 
         #0. Does the model have allocation constraints ?
+        interpolation_constraints = self.get_constraints_of_type(InterpolationConstraint)
+        interpolation_variables = self.get_variables_of_type(InterpolationVariable)
+        if not interpolation_constraints:
+            return None
+
 
         #1. Remove previous allocation constraints
 
-        #2. Apply new allocation constraints
-        self.add_protein_mass_requirement(neidhardt_mu, neidhardt_prel)
-        self.add_rna_mass_requirement(neidhardt_mu, neidhardt_rrel)
-        self.add_dna_mass_requirement(mu_values=neidhardt_mu,
-                                       dna_rel=neidhardt_drel,
-                                       gc_ratio=gc_ratio,
-                                       chromosome_len=chromosome_len,
-                                       dna_dict=dna_nucleotides)
+        # mRNA
+        mrna_weight_def_cons = interpolation_constraints.get_by_id(MRNA_WEIGHT_CONS_ID)
+        mrna_weight_var = interpolation_variables.get_by_id(MRNA_WEIGHT_VAR_ID)
 
+        # Proteins
+        prot_weight_def_cons = interpolation_constraints.get_by_id(PROT_WEIGHT_CONS_ID)
+        prot_weight_var = interpolation_variables.get_by_id(PROT_WEIGHT_VAR_ID)
+
+        #DNA
+        dna_weight_def_cons  = interpolation_constraints.get_by_id(DNA_WEIGHT_CONS_ID)
+        dna_weight_var = interpolation_variables.get_by_id(DNA_WEIGHT_VAR_ID)
+
+        for the_cons in [mrna_weight_def_cons, prot_weight_def_cons, dna_weight_def_cons]:
+            self.remove_constraint(the_cons)
+
+        #2. Apply new allocation constraints
+        define_prot_weight_constraint(self,prot_weight_var)
+        define_mrna_weight_constraint(self,mrna_weight_var)
+        self.recalculate_dna(dna_weight_var)
+        # self.add_dna_mass_requirement(mu_values=neidhardt_mu,
+        #                                dna_rel=neidhardt_drel,
+        #                                gc_ratio=gc_ratio,
+        #                                chromosome_len=chromosome_len,
+        #                                dna_dict=dna_nucleotides)
+        # TODO: Implement DNA with chromosome len increase
+
+    def recalculate_dna(self, dna_ggdw):
+        #0. DNA, metabolites and reactions to update
+        dna = self.dna
+        dna_formation_reaction = self.reactions.get_by_id(DNA_FORMATION_RXN_ID)
+        # # /i\ Some reactions are scaled /i\
+        # dna_reactants = {k:v*dna_formation_reaction.scaling_factor for k,v in
+        #                  dna_formation_reaction.metabolites.items()}
+        # ppi = self.essentials['ppi']
+        # A = self.dna_nucleotides['a']
+        # T = self.dna_nucleotides['t']
+        C = self.dna_nucleotides['c']
+        G = self.dna_nucleotides['g']
+
+        #1. Find the DNA-based vectors
+        dna_vectors = [x for x in self.vectors if not x.integrated
+                                               and isinstance(x.sequence.alphabet,
+                                                                    DNAAlphabet)]
+
+        #2. update the GC ratio
+        # 1 ppi per bp, double stranded
+        # wt_chromosome_len = dna_reactants[ppi] / 2
+        # wt_gc = (dna_reactants[G] + dna_reactants[C]) \
+        #         / wt_chromosome_len
+
+        wt_chromosome_len = dna.len
+        wt_gc = dna.gc_ratio
+
+        vector_dna_len = sum([len(x.sequence) for x in dna_vectors])
+        vector_gc = sum([1 for vector in dna_vectors
+                         for l in vector.sequence if l.lower() in 'gc'])\
+                    /vector_dna_len
+
+        new_chromosome_len = wt_chromosome_len + vector_dna_len
+        new_gc = (wt_chromosome_len * wt_gc + vector_dna_len * vector_gc) / new_chromosome_len
+
+        #3. Update ATGC stoichiometries
+        dna_formation_reaction.add_metabolites({
+            v: -1 * new_chromosome_len * (new_gc if k.lower() in 'gc' else 1 - new_gc)
+            for k, v in model.dna_nucleotides.items()
+        }, combine = False)
+
+        ##. Redefine the DNA weight constraint
+        dna.len = new_chromosome_len
+        dna.gc_ratio = new_gc
+        define_dna_weight_constraint(self, dna, dna_ggdw, new_gc, new_chromosome_len)
 
 class Vector:
     def __init__(self, sequence, genes, reactions,
@@ -242,6 +324,8 @@ class Vector:
         self.mrna_dict = mrna_dict if mrna_dict is not None else dict()
         self.coupling_dict = coupling_dict if coupling_dict is not None else dict()
 
+        self._integrated = False
+
     def check_sequence(self):
         """
         To be defined in subclasses, check wehther RNA, DNA vector
@@ -256,7 +340,10 @@ class Vector:
 
         :return:
         """
-        raise NotImplementedError
+        self._integrated  = True
+
+    def integrated(self):
+        return self._integrated
 
     def build_default_mrna(self, kdeg, ids=None, force=False):
         """
@@ -277,7 +364,7 @@ class Vector:
 
     def _add_mrna_to_dict(self, gene_id, kdeg):
 
-        if this_id in self.mrna_dict and not force:
+        if gene_id in self.mrna_dict and not force:
             raise RuntimeError('There is already a mrna_dict entry for this gene'
                                'in the vector. Use the argument force = True to '
                                'override it.')

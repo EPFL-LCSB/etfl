@@ -16,7 +16,7 @@ from etfl.core.rna import mRNA
 from etfl.core.enzyme import Enzyme
 from etfl.tests.small_model import create_etfl_model
 
-from etfl.data.ecoli import kdeg_enz, get_average_kcat
+from etfl.data.ecoli import kdeg_enz, kdeg_mrna, get_average_kcat
 
 from cobra.core import Metabolite, Reaction
 
@@ -24,9 +24,11 @@ from utils import read_seq
 
 # E. coli
 
-# model = load_json_model('models/SlackModel '
-#                     'iJO1366_vETFL_tp_441_enz_128_bins__20190620_144322.json')
-model = create_etfl_model(0,0)
+model = load_json_model('../../tutorials/models/'
+                        'iJO1366_vEFL_v_0.10_431_enz_128_bins__20190930_140304.json')
+
+# model = create_etfl_model(0,1)
+# model = create_etfl_model(0,0)
 
 # Plasmid pZS*-13S-ald-adh
 # US Patent 20,140,371,417.
@@ -66,7 +68,7 @@ h           = model.metabolites.h_c
 #############
 
 # ALS: 2 pyr + h => alac + co2
-als = Reaction(id = ALS, name = 'Acetolactate synthase [Plasmid](Enterobacter)')
+als = Reaction(id = 'ALS', name = 'Acetolactate synthase [Plasmid](Enterobacter)')
 als.add_metabolites({
     pyr:-2,
     h:-1,
@@ -75,7 +77,7 @@ als.add_metabolites({
 })
 
 # SALD: alac => diacetyl + co2 (spontaneous)
-sald = Reaction(id = SALD, name = 'Spontaneous acetolactate decarboxylation [Plasmid]')
+sald = Reaction(id = 'SALD', name = 'Spontaneous acetolactate decarboxylation [Plasmid]')
 sald.add_metabolites({
     acetolactate:-1,
     diacetyl:1,
@@ -84,7 +86,7 @@ sald.add_metabolites({
 
 # AR: diacetyl + NADH => acetoin + NAD+#############
 
-ar = Reaction(id = AR, name = 'Acetoin oxidoreductase (NADH) [Plasmid]')
+ar = Reaction(id = 'AR', name = 'Acetoin oxidoreductase (NADH) [Plasmid]')
 ar.add_metabolites({
     diacetyl:-1,
     nadh:-1,
@@ -94,7 +96,7 @@ ar.add_metabolites({
 })
 
 # BDH: acetoin + NADH => bdo + NAD+
-bdh = Reaction(id = BDH, name = 'Butanediol dehydrogenase [Plasmid]')
+bdh = Reaction(id = 'BDH', name = 'Butanediol dehydrogenase [Plasmid]')
 bdh.add_metabolites({
     acetoin:-1,
     nadh:-1,
@@ -200,13 +202,22 @@ coupling_dict = {'ALS':[ALS_enz], 'AR':[AR_enz], 'BDH':[BDH_enz]}
 
 gene_list = [ALS,AR]
 
-plasmid_seq = pET + fwd_als + ALS.seq + rev_als + fwd_ar + AR.seq + rev_ar
+plasmid_seq = pET + fwd_als + ALS.sequence + rev_als + fwd_ar + AR.sequence + rev_ar
 
-vector = Plasmid(sequence = plasmid_seq,
-                      genes = gene_list,
-                      reactions = reaction_list,
-                      coupling_dict = coupling_dict)
-vector.build_default_mrna()
+my_plasmid = Plasmid(sequence = plasmid_seq,
+                     genes = gene_list,
+                     reactions = reaction_list,
+                     coupling_dict = coupling_dict)
+my_plasmid.build_default_mrna(kdeg_mrna)
+
+#####################
+# Model integration #
+#####################
+
+transmodel = TransModel(model, inplace = True)
+transmodel.add_vector(my_plasmid, copy_number = 1)
 
 
 # Check antibiotic resistance is expressed ?
+
+
