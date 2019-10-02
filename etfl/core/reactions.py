@@ -42,7 +42,7 @@ class ExpressionReaction(Reaction):
         new.gene_reaction_rule = reaction.gene_reaction_rule
         return new
 
-    def add_metabolites(self, metabolites, rescale = True):
+    def add_metabolites(self, metabolites, rescale = True, **kwargs):
         """
         We need to override this method if the reaction is scaled
 
@@ -57,10 +57,11 @@ class ExpressionReaction(Reaction):
         """
 
         if not hasattr(self, '_scaled') or not rescale or not self._scaled:
-            Reaction.add_metabolites(self, metabolites)
+            Reaction.add_metabolites(self, metabolites, **kwargs)
         else:
             Reaction.add_metabolites(self, {k:v*self.scaling_factor
-                                        for k,v in metabolites.items()})
+                                        for k,v in metabolites.items()},
+                                     **kwargs)
 
     @property
     def scaling_factor(self):

@@ -108,6 +108,8 @@ class TransModel(MEModel):
     def add_vector(self, vector,
                    copy_number=1):
 
+        self.vectors[vector.id] = vector
+
         self.add_reactions(vector.reactions)
 
         # Add the ribosome and RNAP of the vector if they exist
@@ -141,8 +143,6 @@ class TransModel(MEModel):
 
         # This needs to account for new DNA
         self.recompute_allocation()
-
-        self.vectors[vector.id] = vector
 
     def recompute_trna_balances(self):
 
@@ -244,13 +244,9 @@ class TransModel(MEModel):
         #2. Apply new allocation constraints
         define_prot_weight_constraint(self,prot_weight_var)
         define_mrna_weight_constraint(self,mrna_weight_var)
+
         self.recalculate_dna(dna_weight_var)
-        # self.add_dna_mass_requirement(mu_values=neidhardt_mu,
-        #                                dna_rel=neidhardt_drel,
-        #                                gc_ratio=gc_ratio,
-        #                                chromosome_len=chromosome_len,
-        #                                dna_dict=dna_nucleotides)
-        # TODO: Implement DNA with chromosome len increase
+
 
     def recalculate_dna(self, dna_ggdw):
         #0. DNA, metabolites and reactions to update
@@ -262,13 +258,16 @@ class TransModel(MEModel):
         # ppi = self.essentials['ppi']
         # A = self.dna_nucleotides['a']
         # T = self.dna_nucleotides['t']
-        C = self.dna_nucleotides['c']
-        G = self.dna_nucleotides['g']
+        # C = self.dna_nucleotides['c']
+        # G = self.dna_nucleotides['g']
 
         #1. Find the DNA-based vectors
-        dna_vectors = [x for x in self.vectors if not x.integrated
+        dna_vectors = [x for x in self.vectors.values() if not x.is_integrated
                                                and isinstance(x.sequence.alphabet,
                                                                     DNAAlphabet)]
+
+        if len(dna_vectors) == 0:
+            return None
 
         #2. update the GC ratio
         # 1 ppi per bp, double stranded
@@ -290,7 +289,7 @@ class TransModel(MEModel):
         #3. Update ATGC stoichiometries
         dna_formation_reaction.add_metabolites({
             v: -1 * new_chromosome_len * (new_gc if k.lower() in 'gc' else 1 - new_gc)
-            for k, v in model.dna_nucleotides.items()
+            for k, v in self.dna_nucleotides.items()
         }, combine = False)
 
         ##. Redefine the DNA weight constraint
@@ -298,8 +297,12 @@ class TransModel(MEModel):
         dna.gc_ratio = new_gc
         define_dna_weight_constraint(self, dna, dna_ggdw, new_gc, new_chromosome_len)
 
+        # Mark the vectors as integrated
+        for vector in dna_vectors:
+            vector.integrate()
+
 class Vector:
-    def __init__(self, sequence, genes, reactions,
+    def __init__(self, id_, sequence, genes, reactions,
                  mrna_dict=None,
                  coupling_dict=None,
                  rnap=None,
@@ -315,6 +318,7 @@ class Vector:
         :param rnap:
         :param ribosome:
         """
+        self.id = id_
         self.sequence = self.check_sequence(sequence)
         self.genes = genes
         self.rnap = rnap
@@ -324,7 +328,7 @@ class Vector:
         self.mrna_dict = mrna_dict if mrna_dict is not None else dict()
         self.coupling_dict = coupling_dict if coupling_dict is not None else dict()
 
-        self._integrated = False
+        self._is_integrated = False
 
     def check_sequence(self):
         """
@@ -340,10 +344,11 @@ class Vector:
 
         :return:
         """
-        self._integrated  = True
+        self._is_integrated  = True
 
-    def integrated(self):
-        return self._integrated
+    @property
+    def is_integrated(self):
+        return self._is_integrated
 
     def build_default_mrna(self, kdeg, ids=None, force=False):
         """

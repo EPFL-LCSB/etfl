@@ -204,7 +204,8 @@ gene_list = [ALS,AR]
 
 plasmid_seq = pET + fwd_als + ALS.sequence + rev_als + fwd_ar + AR.sequence + rev_ar
 
-my_plasmid = Plasmid(sequence = plasmid_seq,
+my_plasmid = Plasmid(id_ = 'pET-Ar-ALS',
+                     sequence = plasmid_seq,
                      genes = gene_list,
                      reactions = reaction_list,
                      coupling_dict = coupling_dict)
