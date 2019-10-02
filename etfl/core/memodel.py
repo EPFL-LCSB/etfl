@@ -31,7 +31,7 @@ from .reactions import EnzymaticReaction, ProteinComplexation, \
     TranslationReaction, TranscriptionReaction, DegradationReaction, DNAFormation
 from .expression import build_trna_charging, enzymes_to_gpr_no_stoichiometry, \
     make_stoich_from_aa_sequence, make_stoich_from_nt_sequence, \
-    degrade_peptide, degrade_mrna
+    degrade_peptide, degrade_mrna, _extract_trna_from_reaction
 from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,\
     BackwardCatalyticConstraint, EnzymeMassBalance, \
     rRNAMassBalance, mRNAMassBalance, tRNAMassBalance, DNAMassBalance, \
@@ -482,7 +482,7 @@ class MEModel(LCSBModel, Model):
                                                         h
                                                         )
 
-        self._extract_trna_from_reaction(aa_stoichiometry, rxn)
+        _extract_trna_from_reaction(aa_stoichiometry, rxn)
 
         rxn.add_metabolites(aa_stoichiometry, rescale=True)
 
@@ -493,22 +493,6 @@ class MEModel(LCSBModel, Model):
         # Add ribosome as necessary enzyme
         rxn.gene_reaction_rule = enzymes_to_gpr_no_stoichiometry(rxn)
         self.translation_reactions += [rxn]
-
-    def _extract_trna_from_reaction(self, aa_stoichiometry, rxn):
-        """
-        Read a stoichiometry dictionary, and replaces free aminoacids with tRNAs
-
-        :param aa_stoichiometry: the stoichiometry dict to edit
-        :type aa_stoichiometry: (dict) {:class:`cobra.core.Metabolite`: Number}
-        :param rxn: the reaction whose stoichiometry is inspected
-        :type rxn: :class:`cobra.core.Reaction`
-        :return:
-        """
-        # Extract the tRNAs, since they will be used for a different mass balance
-        # in self.add_trna_mass_balances
-        for met, stoich in list(aa_stoichiometry.items()):
-            if isinstance(met, tRNA):
-                rxn.trna_stoich[met.id] = aa_stoichiometry.pop(met)
 
     def _add_gene_transcription_reaction(self, gene):
         """

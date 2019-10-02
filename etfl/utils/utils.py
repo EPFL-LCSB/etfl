@@ -1,3 +1,4 @@
+from ..core.expression import _extract_trna_from_reaction, make_stoich_from_aa_sequence
 from ..core.reactions import EnzymaticReaction, TranslationReaction, TranscriptionReaction
 from ..core.genes import ExpressedGene
 

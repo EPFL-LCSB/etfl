@@ -26,7 +26,7 @@ from .reactions import EnzymaticReaction, ProteinComplexation, \
     TranslationReaction, TranscriptionReaction, DegradationReaction, DNAFormation
 from .expression import build_trna_charging, enzymes_to_gpr_no_stoichiometry, \
     make_stoich_from_aa_sequence, make_stoich_from_nt_sequence, \
-    degrade_peptide, degrade_mrna
+    degrade_peptide, degrade_mrna, _extract_trna_from_reaction
 from ..optim.constraints import SOS1Constraint, InterpolationConstraint, \
     mRNADegradation, EnzymeDegradation
 from ..optim.variables import BinaryActivator, InterpolationVariable, DNAVariable, \
@@ -75,7 +75,7 @@ def add_dummy_expression(model, aa_ratios, dummy_gene, dummy_peptide, dummy_prot
     translation_mets[model.metabolites.get_by_id(h)] = 2 * peptide_length
     # Do not forget to extract the tRNAs from the stoichiometry, since they
     # get diluted
-    model._extract_trna_from_reaction(translation_mets, dummy_translation)
+    _extract_trna_from_reaction(translation_mets, dummy_translation)
     dummy_translation.add_metabolites(translation_mets, rescale=True)
     dummy_translation.add_peptide(dummy_peptide)
     dummy_complexation.add_peptides({dummy_peptide: -1})
