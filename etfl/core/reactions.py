@@ -38,7 +38,8 @@ class ExpressionReaction(Reaction):
 
         # new._model = reaction._model
         # new.notes = reaction.notes
-        new.add_metabolites(reaction.metabolites)
+        # We need not rescale the initial metabolites
+        new.add_metabolites(reaction.metabolites, rescale=False)
         new.gene_reaction_rule = reaction.gene_reaction_rule
         return new
 
@@ -84,44 +85,6 @@ class EnzymaticReaction(ExpressionReaction):
         self.enzymes = DictList()
         if enzymes:
             self.add_enzymes(enzymes)
-
-
-    @classmethod
-    def from_reaction(cls,reaction, gene_id = None, enzymes = None, scaled=False):
-        """
-        This method clones a cobra.Reaction object into a transcription reaction,
-        and attaches enzymes to it
-
-        :param reaction: the reaction to reproduce
-        :type reaction: cobra.Reaction
-        :param enzymes: a(n iterable of the) enzyme(s) to be attached to the reaction
-        :return: an EnzymaticReaction object
-        """
-        if gene_id is not None:
-            # it's a transcription or translation reaction
-            new =  cls( id = reaction.id,
-                        name= reaction.name,
-                        gene_id= gene_id,
-                        subsystem= reaction.subsystem,
-                        lower_bound= reaction.lower_bound,
-                        upper_bound= reaction.upper_bound,
-                        enzymes= enzymes,
-                        scaled=scaled)
-        else:
-            new =  cls( id = reaction.id,
-                        name= reaction.name,
-                        subsystem= reaction.subsystem,
-                        lower_bound= reaction.lower_bound,
-                        upper_bound= reaction.upper_bound,
-                        enzymes= enzymes,
-                        scaled=scaled)
-
-        # new._model = reaction._model
-        # new.notes = reaction.notes
-        new.add_metabolites(reaction.metabolites, rescale = False)
-        new.gene_reaction_rule = reaction.gene_reaction_rule
-        return new
-
 
     def add_enzymes(self, enzymes):
         """`
