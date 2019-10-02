@@ -11,11 +11,13 @@ def replace_by_enzymatic_reaction(model, reaction_id, enzymes, scaled):
     return enz_rxn
 
 
-def replace_by_translation_reaction(model, reaction_id, gene_id, enzymes, scaled):
+def replace_by_translation_reaction(model, reaction_id, gene_id, enzymes,
+                                    trna_stoich, scaled):
     rxn  = model.reactions.get_by_id(reaction_id)
     enz_rxn = TranslationReaction.from_reaction(reaction=rxn,
                                                 gene_id=gene_id,
                                                 enzymes=enzymes,
+                                                trna_stoich=trna_stoich,
                                                 scaled=scaled)
     _replace_by_me_reaction(model, rxn, enz_rxn)
     return enz_rxn

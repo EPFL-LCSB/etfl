@@ -31,9 +31,7 @@ from ..core.reactions import TranslationReaction, TranscriptionReaction, \
 from ..core.thermomemodel import ThermoMEModel
 from ..optim.utils import rebuild_constraint, rebuild_variable
 from ..optim.variables import tRNAVariable, GrowthRate
-from ..utils.utils import replace_by_enzymatic_reaction, \
-    replace_by_translation_reaction, replace_by_transcription_reaction, \
-    replace_by_reaction_subclass, replace_by_me_gene
+from ..utils.utils import replace_by_reaction_subclass, replace_by_me_gene
 
 SOLVER_DICT = {
     'optlang.gurobi_interface':'optlang-gurobi',
@@ -388,6 +386,7 @@ def _add_me_reaction_info(rxn, rxn_dict):
     if isinstance(rxn, TranslationReaction):
         rxn_dict['kind'] = 'TranslationReaction'
         rxn_dict['gene_id'] = rxn.gene.id
+        rxn_dict['trna_stoich'] = rxn.trna_stoich
     # Transcription Reactions
     elif isinstance(rxn, TranscriptionReaction):
         rxn_dict['kind'] = 'TranscriptionReaction'
@@ -559,9 +558,14 @@ def init_me_model_from_dict(new, obj):
     # Recover the gene sequences
     find_genes_from_dict(new, obj)
 
-
     # Populate mRNAs
     new.add_mrnas([mrna_from_dict(x) for x in obj['mrnas']], add_degradation=False)
+
+    # recover tRNAs
+    try:
+        rebuild_trna(new, obj)
+    except KeyError:
+        pass
 
     # Populate EnzymaticReaction and TranslationReaction
     find_enzymatic_reactions_from_dict(new, obj)
@@ -570,12 +574,6 @@ def init_me_model_from_dict(new, obj):
     find_complexation_reactions_from_dict(new, obj)
     find_dna_formation_reaction_from_dict(new, obj)
     # link_enzyme_complexation(new, obj)
-
-    # recover tRNAs
-    try:
-        rebuild_trna(new, obj)
-    except KeyError:
-        pass
 
     # Finally, add degradations
     find_degradation_reactions_from_dict(new, obj)
@@ -716,8 +714,10 @@ def find_enzymatic_reactions_from_dict(new, obj):
             else:
                 scaled = False
             enzymes = [new.enzymes.get_by_id(x) for x in rxn_dict['enzymes']]
-            replace_by_enzymatic_reaction(new, rxn_dict['id'],
-                                          enzymes,
+            replace_by_reaction_subclass(new,
+                                          kind=EnzymaticReaction,
+                                          reaction_id=rxn_dict['id'],
+                                          enzymes=enzymes,
                                           scaled=scaled)
 
 
@@ -729,11 +729,18 @@ def find_translation_reactions_from_dict(new, obj):
                 scaled = rxn_dict['scaled']
             else:
                 scaled = False
+            if 'trna_stoich' in rxn_dict:
+                trna_stoich = rxn_dict['trna_stoich']
+            else:
+                trna_stoich = None
+
             enzymes = new.ribosome.values()
-            enz_rxn = replace_by_translation_reaction(new,
+            enz_rxn = replace_by_reaction_subclass(new,
+                                                      kind = TranslationReaction,
                                                       reaction_id=rxn_dict['id'],
                                                       gene_id=rxn_dict['gene_id'],
                                                       scaled=scaled,
+                                                      trna_stoich=trna_stoich,
                                                       enzymes=enzymes)
             new_transl_rxns.append(enz_rxn)
     new.translation_reactions += new_transl_rxns
@@ -748,7 +755,8 @@ def find_transcription_reactions_from_dict(new, obj):
             else:
                 scaled = False
             enzymes = new.rnap.values()
-            enz_rxn = replace_by_transcription_reaction(new,
+            enz_rxn = replace_by_reaction_subclass(new,
+                                                   kind=TranscriptionReaction,
                                                         reaction_id=rxn_dict['id'],
                                                         gene_id=rxn_dict['gene_id'],
                                                         scaled=scaled,

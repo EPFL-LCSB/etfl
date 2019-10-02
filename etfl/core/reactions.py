@@ -153,14 +153,17 @@ class TranslationReaction(EnzymaticReaction):
     Class describing translation - Assembly of amino acids into peptides
     """
 
-    def __init__(self, id, name, gene_id, enzymes, **kwargs):
+    def __init__(self, id, name, gene_id, enzymes, trna_stoich=None, **kwargs):
         EnzymaticReaction.__init__(self,
                                    id=id,
                                    name=name,
                                    enzymes=enzymes,
                                    **kwargs)
         self._gene_id = gene_id
-        self.trna_stoich = defaultdict(int)
+        if trna_stoich is None:
+            self.trna_stoich = defaultdict(int)
+        else:
+            self.trna_stoich = trna_stoich
 
     @property
     def gene(self):
