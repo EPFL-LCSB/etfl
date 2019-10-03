@@ -59,10 +59,13 @@ class ExpressedGene(Gene):
     def copy_number(self, value):
         # TODO: Make this a setter that rewrites the adequate constraints
         if value != self._copy_number:
-            raise NotImplementedError()
-            # Delete corresponding polymerase constraint
-
-            # Rebuild new polymerase constraint
+            if self.model is None:
+                # Easy
+                self._copy_number = value
+            else:
+                # We need to make the model change the RNAP allocation
+                self._copy_number = value
+                self.model.edit_gene_copy_number(self.id)
         else:
             # Nothing to do here :)
             pass

@@ -94,6 +94,7 @@ class TransModel(MEModel):
         self._has_transcription_changed = False
         self._has_translation_changed = False
         self.vectors = dict()
+        self.vector_copy_number = dict()
 
     def __getattr__(self,attr):
         """
@@ -109,6 +110,7 @@ class TransModel(MEModel):
                    copy_number=1):
 
         self.vectors[vector.id] = vector
+        self.vector_copy_number[vector.id] = copy_number
 
         self.add_reactions(vector.reactions)
 
@@ -127,9 +129,28 @@ class TransModel(MEModel):
         self.add_nucleotide_sequences({g.id:g.sequence for g in vector.genes})
         self.express_genes(vector.genes)
 
-        mrna_dict = vector.mrna_dict
+        # Add the mRNAs
+        self.add_mrnas(vector.mrna_dict.values())
 
-        self.add_mrnas(mrna_dict.values())
+        #
+
+        # Constraint the polysomes and RNAP allocation
+        for g in vector.genes:
+            m = self.mrnas.get_by_id(g.id)
+
+            the_transcription = self.get_transcription(m.id)
+            self.apply_rnap_catalytic_constraint(the_transcription,
+                                                 queue=False)
+
+            the_translation = self.get_translation(m.id)
+            self.apply_ribosomal_catalytic_constraint(the_translation)
+
+            self.regenerate_variables()
+            self.regenerate_constraints()
+
+            self._constrain_polysome(m)
+            self._constrain_polymerase(g)
+
 
         self.add_enzymatic_coupling(vector.coupling_dict)
 
@@ -278,9 +299,11 @@ class TransModel(MEModel):
         wt_chromosome_len = dna.len
         wt_gc = dna.gc_ratio
 
-        vector_dna_len = sum([len(x.sequence) for x in dna_vectors])
-        vector_gc = sum([1 for vector in dna_vectors
-                         for l in vector.sequence if l.lower() in 'gc'])\
+        vector_dna_len = sum([len(v.sequence)*self.vector_copy_number[v.id]
+                              for v in dna_vectors])
+        vector_gc = sum([self.vector_copy_number [v.id]
+                         for v in dna_vectors
+                         for l in v.sequence if l.lower() in 'gc'])\
                     /vector_dna_len
 
         new_chromosome_len = wt_chromosome_len + vector_dna_len

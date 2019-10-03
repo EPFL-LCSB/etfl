@@ -15,8 +15,8 @@ from etfl.core.genes import ExpressedGene
 from etfl.core.rna import mRNA
 from etfl.core.enzyme import Enzyme
 from etfl.tests.small_model import create_etfl_model
-
 from etfl.data.ecoli import kdeg_enz, kdeg_mrna, get_average_kcat
+from etfl.analysis.summary import print_standard_sol
 
 from cobra.core import Metabolite, Reaction
 
@@ -25,7 +25,7 @@ from utils import read_seq
 # E. coli
 
 model = load_json_model('../../tutorials/models/'
-                        'iJO1366_vEFL_v_0.10_431_enz_128_bins__20190930_140304.json')
+                        'iJO1366_vEFL_v_0.10_431_enz_128_bins__20191003_100718.json')
 
 # model = create_etfl_model(0,1)
 # model = create_etfl_model(0,0)
@@ -204,7 +204,7 @@ gene_list = [ALS,AR]
 
 plasmid_seq = pET + fwd_als + ALS.sequence + rev_als + fwd_ar + AR.sequence + rev_ar
 
-my_plasmid = Plasmid(id_ = 'pET-Ar-ALS',
+my_plasmid = Plasmid(id_ = 'pET-AR-ALS',
                      sequence = plasmid_seq,
                      genes = gene_list,
                      reactions = reaction_list,
@@ -216,9 +216,11 @@ my_plasmid.build_default_mrna(kdeg_mrna)
 #####################
 
 transmodel = TransModel(model, inplace = True)
-transmodel.add_vector(my_plasmid, copy_number = 1)
+transmodel.add_vector(my_plasmid, copy_number = 5)
 
 
 # Check antibiotic resistance is expressed ?
 
 
+transmodel.optimize()
+print_standard_sol(transmodel)

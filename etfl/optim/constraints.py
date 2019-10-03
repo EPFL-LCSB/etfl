@@ -136,8 +136,27 @@ class TotalEnzyme(TotalCapacity):
 
 
 class ExpressionCoupling(GeneConstraint):
+    """
+    Add the coupling between mRNA availability and ribosome charging
+    The number of ribosomes assigned to a mRNA species is lower than
+    the number of such mRNA times the max number of ribosomes that can sit
+    on the mRNA:
+    [RPi] <= loadmax_i*[mRNAi]
+    """
 
     prefix = 'EX_'
+
+
+class RNAPAllocation(GeneConstraint):
+    """
+    Add the coupling between DNA availability and RNAP charging
+    The number of RNAP assigned to a gene locus is lower than
+    the number of such loci times the max number of RNAP that can sit
+    on the locus:
+    [RNAPi] <= loadmax_i*[# of loci]*[DNA]
+    """
+
+    prefix = 'RA_'
 
 
 class EnzymeRatio(ModelConstraint):

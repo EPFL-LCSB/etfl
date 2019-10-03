@@ -38,7 +38,7 @@ from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,
     GrowthCoupling, TotalCapacity, ExpressionCoupling, EnzymeRatio, \
     GrowthChoice, EnzymeDegradation, mRNADegradation,\
     LinearizationConstraint, SynthesisConstraint, SOS1Constraint,\
-    InterpolationConstraint
+    InterpolationConstraint, RNAPAllocation
 from ..optim.variables import ModelVariable, GrowthActivation, \
     EnzymeVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, \
     FreeRibosomes, BinaryActivator, InterpolationVariable, DNAVariable, \
@@ -127,6 +127,7 @@ class MEModel(LCSBModel, Model):
         self.complexation_reactions = DictList()
         self.degradation_reactions = DictList()
 
+        self.dna = None
         self.ribosome = dict()
         self.rnap = dict()
         self._Rf = dict()
@@ -1197,14 +1198,18 @@ class MEModel(LCSBModel, Model):
         self._populate_ribosomes()
         self._push_queue()
 
-        # self._constrain_polymerases()
-        self._constrain_polysomes()
+        for the_mrna in tqdm(self.mrnas, desc='populating expression'):
+            self._constrain_polysome(the_mrna)
+
+        if self.dna is not None:
+            for the_gene in tqdm(self.genes, desc='constraining transcription'):
+                self._constrain_polymerase(the_gene)
 
         self._push_queue()
         self.regenerate_variables()
         self.regenerate_constraints()
 
-    def _constrain_polysomes(self):
+    def _constrain_polysome(self, the_mrna):
         """
         Add the coupling between mRNA availability and ribosome charging
         The number of ribosomes assigned to a mRNA species is lower than
@@ -1225,50 +1230,49 @@ class MEModel(LCSBModel, Model):
         :return:
         """
         ribo_footprint_size = 60  # [bp] see docstring
-        for the_mrna in tqdm(self.mrnas, desc='populating expression'):
-            # Get the synthesis_flux
-            syn_id = self._get_transcription_name(the_mrna.id)
-            syn = self.transcription_reactions.get_by_id(syn_id)
+        rib_usage_vars = self.get_variables_of_type(RibosomeUsage)
+        # Get the synthesis_flux
+        syn_id = self._get_transcription_name(the_mrna.id)
+        syn = self.transcription_reactions.get_by_id(syn_id)
 
-            # TODO: Move this to another function
-            # Add the mass balance constraint for the mrna
-            self.add_mass_balance_constraint(syn, the_mrna, queue=True)
+        # TODO: Move this to another function
+        # Add the mass balance constraint for the mrna
+        self.add_mass_balance_constraint(syn, the_mrna, queue=True)
 
-            # Get the ribosomes assigned to this translation
-            RPi_hat = getattr(self, camel2underscores(RibosomeUsage.__name__)) \
-                .get_by_id(the_mrna.id)
+        # Get the ribosomes assigned to this translation
+        RPi_hat = rib_usage_vars.get_by_id(the_mrna.id)
 
-            # Get the mRNA concentration
-            mrna_hat = the_mrna.scaled_concentration
+        # Get the mRNA concentration
+        mrna_hat = the_mrna.scaled_concentration
 
-            polysome_size = len(the_mrna.gene.rna) / ribo_footprint_size
+        polysome_size = len(the_mrna.gene.rna) / ribo_footprint_size
 
-            # σ_m is the mRNA scaling factor,
-            # σ_r is the ribosome scaling factor
-            # [RPi] <= Lmrna/Lrib * [mRNAi]
-            # [RPi]_hat  <= Lmrna/Lrib * σ_m/σ_r * [mRNAi]_hat
-            #
+        # σ_m is the mRNA scaling factor,
+        # σ_r is the ribosome scaling factor
+        # [RPi] <= Lmrna/Lrib * [mRNAi]
+        # [RPi]_hat  <= Lmrna/Lrib * σ_m/σ_r * [mRNAi]_hat
+        #
 
-            # nondimensionalized:
-            scaling_factor = the_mrna.scaling_factor / RPi_hat.scaling_factor
-            expression_coupling = RPi_hat \
-                                  - polysome_size * scaling_factor * mrna_hat
-            # expression_coupling = RPi_hat - polysome_size * mrna_hat
+        # nondimensionalized:
+        scaling_factor = the_mrna.scaling_factor / RPi_hat.scaling_factor
+        expression_coupling = RPi_hat \
+                              - polysome_size * scaling_factor * mrna_hat
+        # expression_coupling = RPi_hat - polysome_size * mrna_hat
 
-            # Add expression coupling
-            self.add_constraint(kind=ExpressionCoupling,
-                                hook=the_mrna,
-                                expr=expression_coupling,
-                                queue=True,
-                                ub=0)
+        # Add expression coupling
+        self.add_constraint(kind=ExpressionCoupling,
+                            hook=the_mrna.gene,
+                            expr=expression_coupling,
+                            queue=True,
+                            ub=0)
 
-    def _constrain_polymerases(self):
+    def _constrain_polymerase(self, the_gene):
         """
         Add the coupling between DNA availability and RNAP charging
         The number of RNAP assigned to a gene locus is lower than
         the number of such loci times the max number of RNAP that can sit
         on the locus:
-        [RMi] <= loadmax_i*[# of loci]
+        [RNAPi] <= loadmax_i*[# of loci]*[DNA]
 
         loadmax is : len(nucleotide chain)/size(RNAP)
 
@@ -1277,13 +1281,86 @@ class MEModel(LCSBModel, Model):
         BNID    107873
         Range 	~40 Nucleotides
 
-        hence:
-        [RPi] <= L_nt/RNAP_footprint * [mRNA]
+        Hence:
+        [RNAPi] <= loadmax_i*[# of loci]*[DNA]
 
         :return:
         """
-        raise NotImplementedError()
 
+        rnap_usage_vars = self.get_variables_of_type(RNAPUsage)
+
+        if not the_gene in rnap_usage_vars:
+            self.logger.debug('Gene {} has no RNAPUsage var. '
+                              'No RNAP allocation constraint added.'
+                              .format(the_gene.id))
+            return None
+
+        rnap_alloc = self._get_rnap_allocation_expression(the_gene)
+
+        # Add expression coupling
+        self.add_constraint(kind=RNAPAllocation,
+                            hook=the_gene,
+                            expr=rnap_alloc,
+                            queue=True,
+                                ub=0)
+
+    def _get_rnap_allocation_expression(self, the_gene):
+        """
+        Given a gene and the appropritate RNAP Usage variable, returns the
+        expression of the RNAP allocation constraint
+
+        :param the_gene:
+        :param RNAPi_hat:
+        :return:
+        """
+        rnap_usage_vars = self.get_variables_of_type(RNAPUsage)
+
+        # Get the RNAP assigned to this transcription
+        RNAPi_hat = rnap_usage_vars.get_by_id(the_gene.id)
+
+        # Get the number of loci
+        n_loci = the_gene.copy_number
+
+        rnap_footprint_size = 40  # [bp] see docstring of ```_constrain_polymerases'''
+        loadmax = len(the_gene.sequence) / rnap_footprint_size
+
+        # σ_dna is the DNA scaling factor,
+        # σ_rp is the RNAP scaling factor
+        # [RNAPi]      <= Lgene/Lrnap              * n_loci * [DNA]
+        # [RNAPi]_hat  <= Lgene/Lrnap * σ_dna/σ_rp * n_loci * [DNA]_hat
+        #
+        # Non-dimensionalized
+
+        scaling_factor = self.dna.scaling_factor / RNAPi_hat.scaling_factor
+
+        rnap_alloc = RNAPi_hat - loadmax * scaling_factor * n_loci
+
+        return rnap_alloc
+
+    def edit_gene_copy_number(self, gene_id):
+        """
+        Edits the RNAP allocation constraints if the copy number of a gene
+        changes.
+
+        :param gene_id:
+        :return:
+        """
+        the_gene = self.genes.get_by_id(gene_id)
+
+        rnap_alloc = self.get_constraints_of_type(RNAPAllocation)
+        rnap_usage = self.get_variable_of_type(RNAPUsage)
+        if self.id in rnap_alloc and self.id in rnap_usage:
+            # We need to edit the variable
+            # Modify the polymerase constraint
+            cons = rnap_alloc.get_by_id(self.id)
+            new_expr = self._get_rnap_allocation_expression(the_gene)
+            cons.change_expr(new_expr)
+            self.logger.debug('Changed RNAP allocation for gene {}'.format(gene_id))
+        else:
+            # There is no variable, maybe the allocation constraints
+            # have not been made yet.
+            # self.model._add_rnap_allocation(rnap_usage, self)
+            pass
 
     def _get_transcription_name(self, the_mrna_id):
         """
