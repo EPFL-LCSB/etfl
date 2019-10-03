@@ -1219,16 +1219,18 @@ class MEModel(LCSBModel, Model):
         nucleotide ≈0.3 nm, BNID 103777), equivalent to ≈20 aa."
         "http://book.bionumbers.org/how-many-proteins-are-made-per-mrna-molecule/"
 
-        hence:
+        Hence:
         [RPi] <= L_nt/Ribo_footprint * [mRNA]
 
         :return:
         """
-        ribo_footprint_size = 60  # see docstring
+        ribo_footprint_size = 60  # [bp] see docstring
         for the_mrna in tqdm(self.mrnas, desc='populating expression'):
             # Get the synthesis_flux
             syn_id = self._get_transcription_name(the_mrna.id)
             syn = self.transcription_reactions.get_by_id(syn_id)
+
+            # TODO: Move this to another function
             # Add the mass balance constraint for the mrna
             self.add_mass_balance_constraint(syn, the_mrna, queue=True)
 
@@ -1249,9 +1251,9 @@ class MEModel(LCSBModel, Model):
 
             # nondimensionalized:
             scaling_factor = the_mrna.scaling_factor / RPi_hat.scaling_factor
-            # expression_coupling = RPi_hat \
-            #                       - polysome_size * scaling_factor * mrna_hat
-            expression_coupling = RPi_hat - polysome_size * mrna_hat
+            expression_coupling = RPi_hat \
+                                  - polysome_size * scaling_factor * mrna_hat
+            # expression_coupling = RPi_hat - polysome_size * mrna_hat
 
             # Add expression coupling
             self.add_constraint(kind=ExpressionCoupling,
