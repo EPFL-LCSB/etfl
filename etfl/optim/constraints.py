@@ -118,7 +118,7 @@ class GrowthCoupling(ReactionConstraint):
     prefix = 'GC_'
 
 
-class TotalCapacity(EnzymeConstraint):
+class TotalCapacity(ModelConstraint):
     """
     Class to represent the total capacity of constraint of a species, e.g
     Ribosome or RNA

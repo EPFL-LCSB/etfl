@@ -34,20 +34,38 @@ class Macromolecule(Species, ABC):
 
     @property
     def concentration(self):
+        """
+        Concentration variable of the macromolecule in the cell.
+        :return:
+        """
         return self.scaling_factor * self.scaled_concentration
 
 
     @property
     def scaled_concentration(self):
+        """
+        Scaled concentration (scaling_factor*conc). If the scaling factor is the
+        molecular weight, then this is similar to the mass fraction of the
+        macromolecule in the cell, in g/gDW.
+        :return:
+        """
         return self.variable
 
     @property
     def X(self):
+        """
+        Value of the concentration after optimization.
+        :return:
+        """
         return self.scaling_factor * self.scaled_X
 
 
     @property
     def scaled_X(self):
+        """
+        Value of the scaled concentration (mass ratio) after optimization.
+        :return:
+        """
         return self.variable.primal
 
     @property

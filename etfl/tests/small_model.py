@@ -17,6 +17,8 @@ from pytfa.io import        load_thermoDB,                    \
                             read_compartment_data, apply_compartment_data
 from ..core.memodel import MEModel
 from ..core.thermomemodel import ThermoMEModel
+from ..core.allocation import add_dna_mass_requirement, \
+    add_protein_mass_requirement, add_rna_mass_requirement
 from ..optim.config import standard_solver_config
 
 
@@ -263,16 +265,15 @@ def create_etfl_model(has_thermo, has_neidhardt,
         kdeg_enz,  peptide_length_avg   = get_enz_metrics()
         neidhardt_mu, neidhardt_rrel, neidhardt_prel, neidhardt_drel = get_neidhardt_data()
 
-        ecoli.add_interpolation_variables()
         ecoli.add_dummies(nt_ratios=nt_ratios,
                           mrna_kdeg=kdeg_mrna,
                           mrna_length=mrna_length_avg,
                           aa_ratios=aa_ratios,
                           enzyme_kdeg=kdeg_enz,
                           peptide_length=peptide_length_avg)
-        ecoli.add_protein_mass_requirement(neidhardt_mu, neidhardt_prel)
-        ecoli.add_rna_mass_requirement(neidhardt_mu, neidhardt_rrel)
-        ecoli.add_dna_mass_requirement(mu_values=neidhardt_mu,
+        add_protein_mass_requirement(ecoli,neidhardt_mu, neidhardt_prel)
+        add_rna_mass_requirement(ecoli,neidhardt_mu, neidhardt_rrel)
+        add_dna_mass_requirement(ecoli,mu_values=neidhardt_mu,
                                        dna_rel=neidhardt_drel,
                                        gc_ratio=gc_ratio,
                                        chromosome_len=chromosome_len,
