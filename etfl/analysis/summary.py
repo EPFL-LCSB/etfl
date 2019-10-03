@@ -54,3 +54,16 @@ def get_ntp_consumption(model, solution = None):
          return pd.DataFrame(usage, index=ntp_ids, columns=['ntp_usage'])
 
 
+def print_standard_sol(model):
+    print('Objective            : {}'.format(model.solution.objective_value))
+    try:
+        print(' - Glucose uptake    : {}'.format(model.reactions.EX_glc__D_e.flux))
+    except KeyError:
+        pass
+    print(' - Growth            : {}'.format(model.growth_reaction.flux))
+    print(' - Ribosomes produced: {}'.format(model.ribosome['rib'].X))
+    print(' - RNAP produced     : {}'.format(model.rnap['rnap'].X))
+    try:
+        print(' - DNA produced      : {}'.format(model.dna.X))
+    except AttributeError:
+        pass

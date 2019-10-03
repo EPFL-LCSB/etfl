@@ -29,10 +29,12 @@ from etfl.data.ecoli import   get_model, get_thermo_data, get_coupling_dict, \
                         get_essentials, get_average_kcat
 
 from etfl.optim.config import standard_solver_config
+from etfl.analysis.summary import print_standard_sol
 
 from optlang.exceptions import SolverError
 
 from multiprocessing import Pool
+
 
 # Run model gen in parallel ?
 PARALLEL = False # True
@@ -260,15 +262,7 @@ def create_model(has_thermo, has_expression, has_allocation,
     final_model.growth_reaction.lower_bound = 0
     # apply_bounds(ecoli, original_bounds)
     solution = final_model.optimize()
-    print('Objective            : {}'.format(final_model.solution.objective_value))
-    print(' - Glucose uptake    : {}'.format(final_model.reactions.EX_glc__D_e.flux))
-    print(' - Growth            : {}'.format(final_model.growth_reaction.flux))
-    print(' - Ribosomes produced: {}'.format(final_model.ribosome['rib'].X))
-    print(' - RNAP produced     : {}'.format(final_model.rnap['rnap'].X))
-    try:
-        print(' - DNA produced      : {}'.format(final_model.solution.raw.DN_DNA))
-    except AttributeError:
-        pass
+    print_standard_sol(final_model)
 
     filepath = 'models/{}'.format(final_model.name)
     save_json_model(final_model, filepath)
@@ -276,6 +270,7 @@ def create_model(has_thermo, has_expression, has_allocation,
     final_model.logger.info('Build complete for model {}'.format(final_model.name))
 
     return final_model
+
 
 if __name__ == '__main__':
 
