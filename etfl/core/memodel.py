@@ -16,7 +16,7 @@ import pandas as pd
 import sympy
 from cobra import Model, Reaction, Gene
 from cobra.core import Solution, DictList
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from Bio.SeqUtils import molecular_weight
 
 from tqdm import tqdm
@@ -128,10 +128,10 @@ class MEModel(LCSBModel, Model):
         self.degradation_reactions = DictList()
 
         self.dna = None
-        self.ribosome = dict()
-        self.rnap = dict()
-        self._Rf = dict()
-        self._RNAPf = dict()
+        self.ribosome = OrderedDict()
+        self.rnap = OrderedDict()
+        self._Rf = OrderedDict()
+        self._RNAPf = OrderedDict()
 
     @property
     def mu(self):
@@ -1544,8 +1544,7 @@ class MEModel(LCSBModel, Model):
         Adds Free and Total ribosome variables to the models
         :return:
         """
-
-        # Free ribosomes
+        # Free RNAP
         self._RNAPf[the_rnap.id] = self.add_variable(FreeRibosomes,
                                     the_rnap,
                                     lb=0,
@@ -1577,7 +1576,7 @@ class MEModel(LCSBModel, Model):
         """
 
         if ribosome.id in self.ribosome:
-            raise KeyError('A ribosome with this id ({}) alread exists in '
+            raise KeyError('A ribosome with this id ({}) already exists in '
                            'the model'.format(ribosome.id))
         else:
             self.ribosome[ribosome.id] = ribosome
