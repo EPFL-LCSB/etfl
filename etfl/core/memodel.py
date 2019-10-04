@@ -1462,15 +1462,7 @@ class MEModel(LCSBModel, Model):
 
         self.regenerate_variables()
 
-        all_rnap_usage = self.get_variables_of_type(RNAPUsage)
-        sum_RMs = symbol_sum([x.unscaled for x in all_rnap_usage])
-
-        # The total RNAP capacity constraint looks like
-        # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
-        usage = sum_RMs \
-                + sum([x.unscaled for x in self.RNAPf.values()]) \
-                - sum([x.concentration for x in self.rnap.values()])
-        usage /= min([x.scaling_factor for x in self.rnap.values()])
+        usage = self._get_rnap_total_capacity()
 
         # usage = (sum_RMs + self.RNAPf[this_rnap.id].unscaled - this_rnap.concentration) / \
         #         this_rnap.scaling_factor
@@ -1487,6 +1479,17 @@ class MEModel(LCSBModel, Model):
         # update variable and constraints attributes
         self.regenerate_constraints()
         self.regenerate_variables()
+
+    def _get_rnap_total_capacity(self):
+        all_rnap_usage = self.get_variables_of_type(RNAPUsage)
+        sum_RMs = symbol_sum([x.unscaled for x in all_rnap_usage])
+        # The total RNAP capacity constraint looks like
+        # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
+        usage = sum_RMs \
+                + sum([x.unscaled for x in self.RNAPf.values()]) \
+                - sum([x.concentration for x in self.rnap.values()])
+        usage /= min([x.scaling_factor for x in self.rnap.values()])
+        return usage
 
     def apply_rnap_catalytic_constraint(self, reaction, queue):
         """

@@ -15,7 +15,8 @@ from etfl.core.genes import ExpressedGene
 from etfl.core.rna import mRNA
 from etfl.core.enzyme import Enzyme
 from etfl.tests.small_model import create_etfl_model
-from etfl.data.ecoli import kdeg_enz, kdeg_mrna, get_average_kcat
+from etfl.data.ecoli import kdeg_enz, kdeg_mrna, get_average_kcat, get_rnap, \
+    get_nt_sequences
 from etfl.analysis.summary import print_standard_sol
 
 from cobra.core import Metabolite, Reaction
@@ -200,15 +201,30 @@ coupling_dict = {'ALS':[ALS_enz], 'AR':[AR_enz], 'BDH':[BDH_enz]}
 # Plasmid #
 ###########
 
-gene_list = [ALS,AR]
+rnap = get_rnap()
+rnap.id = 'plasmid_rnap'
 
-plasmid_seq = pET + fwd_als + ALS.sequence + rev_als + fwd_ar + AR.sequence + rev_ar
+nt_seq_ecoli = get_nt_sequences()
+rnap_genes = list()
+for g in rnap.composition:
+    this_gene = ExpressedGene(id='PLASMID_'+g,
+                              name='{}, Plasmid',
+                              sequence = nt_seq_ecoli[g])
+    rnap_genes.append(this_gene)
+
+gene_list = [ALS,AR] + rnap_genes
+
+plasmid_seq = pET \
+              + fwd_als + ALS.sequence + rev_als \
+              + fwd_ar + AR.sequence + rev_ar \
+              + ''.join(str(g.sequence) for g in rnap_genes)
 
 my_plasmid = Plasmid(id_ = 'pET-AR-ALS',
                      sequence = plasmid_seq,
                      genes = gene_list,
                      reactions = reaction_list,
-                     coupling_dict = coupling_dict)
+                     coupling_dict = coupling_dict,
+                     rnap = rnap)
 my_plasmid.build_default_mrna(kdeg_mrna)
 
 #####################

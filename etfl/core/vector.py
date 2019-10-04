@@ -16,7 +16,8 @@ from .allocation import MRNA_WEIGHT_CONS_ID, PROT_WEIGHT_CONS_ID, \
     DNA_WEIGHT_VAR_ID, DNA_FORMATION_RXN_ID,\
     define_prot_weight_constraint, define_mrna_weight_constraint, \
     define_dna_weight_constraint
-from ..optim.constraints import tRNAMassBalance, InterpolationConstraint
+from ..optim.constraints import tRNAMassBalance, InterpolationConstraint, \
+    TotalCapacity, EnzymeRatio
 from ..optim.variables import InterpolationVariable
 
 from Bio.Seq import Seq
@@ -182,6 +183,18 @@ class TransModel(MEModel):
         :param rnap:
         :return:
         """
+        #TODO: Clean this up
+        try:
+            free_rnap_ratio = rnap.free_ratio
+        except AttributeError:
+            # Get it from the current free ratio constraint
+            rnap_id = list(self.rnap.keys())[0]
+            cons = self.get_constraints_of_type(EnzymeRatio).get_by_id(rnap_id)
+            rnap_tot_var = self.rnap[rnap_id].variable
+            free_rnap_ratio = \
+                cons.constraint.get_linear_coefficients([rnap_tot_var])[rnap_tot_var]
+
+        # This adds the RNAP as an enzyme, and also enforces its free ratio
         self.add_rnap(rnap, free_ratio=free_rnap_ratio)
 
         self._has_transcription_changed = True
@@ -201,7 +214,7 @@ class TransModel(MEModel):
 
         pass
 
-    def recompute_transcription(self):
+    def recompute_translation(self):
         """
 
         :return:
@@ -217,20 +230,18 @@ class TransModel(MEModel):
 
         pass
 
-    def recompute_translation(self):
+    def recompute_transcription(self):
         """
 
         :return:
         """
 
-        #1.1 Remove transcription catalytic constraints
+        #1.1 Find the RNAP capacity constraint
+        cons = self.get_constraints_of_type(TotalCapacity).get_by_id('rnap')
 
-        #1.2 Apply new transcription catalytic constraints
-
-        #2.1 Remove former RNAP balance
-
-        #2.2 Apply new RNAP balance
-        pass
+        #1.2 Edit the RNAP capacity constraint
+        new_total_capacity = self._get_rnap_total_capacity()
+        cons.change_expr(new_total_capacity)
 
     def recompute_allocation(self):
         """
