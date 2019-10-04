@@ -139,7 +139,7 @@ def _generic_fix_integers(model):
 
     return continuous_model
 
-def rebuild_variable(classname, model, this_id, lb, ub, queue=True):
+def rebuild_variable(classname, model, this_id, lb, ub, scaling_factor, queue=True):
     """
     Rebuilds a variable from a classname and link it to the model
 
@@ -158,6 +158,7 @@ def rebuild_variable(classname, model, this_id, lb, ub, queue=True):
                                 hook=hook,
                                 ub=ub,
                                 lb=lb,
+                                scaling_factor=scaling_factor,
                                 queue=queue)
 
     elif classname in METABOLITE_VARIABLE_SUBCLASSES:
@@ -167,6 +168,7 @@ def rebuild_variable(classname, model, this_id, lb, ub, queue=True):
                                 hook=hook,
                                 ub=ub,
                                 lb=lb,
+                                scaling_factor=scaling_factor,
                                 queue=queue)
 
     elif classname in ENZYME_VARIABLE_SUBCLASSES:
@@ -176,6 +178,7 @@ def rebuild_variable(classname, model, this_id, lb, ub, queue=True):
                                 hook=hook,
                                 ub=ub,
                                 lb=lb,
+                                scaling_factor=scaling_factor,
                                 queue=queue)
 
     elif classname in GENE_VARIABLE_SUBCLASSES:
@@ -185,6 +188,7 @@ def rebuild_variable(classname, model, this_id, lb, ub, queue=True):
                                 hook=hook,
                                 ub=ub,
                                 lb=lb,
+                                scaling_factor=scaling_factor,
                                 queue=queue)
 
     elif classname in MODEL_VARIABLE_SUBCLASSES:
@@ -195,6 +199,7 @@ def rebuild_variable(classname, model, this_id, lb, ub, queue=True):
                                 id_=this_id,
                                 ub=ub,
                                 lb=lb,
+                                scaling_factor=scaling_factor,
                                 queue=queue)
 
     else:

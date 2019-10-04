@@ -468,8 +468,12 @@ def model_from_dict(obj, solver=None):
         classname = the_var_dict['kind']
         lb = the_var_dict['lb']
         ub = the_var_dict['ub']
+        try: #Backward compat
+            scaling_factor = the_var_dict['scaling_factor']
+        except KeyError:
+            scaling_factor = 1
 
-        rebuild_variable(classname, new, this_id, lb, ub)
+        rebuild_variable(classname, new, this_id, lb, ub, scaling_factor)
 
     new._push_queue()
 
@@ -496,7 +500,7 @@ def model_from_dict(obj, solver=None):
 
     # Mu variable handle for ME-models
     if obj['kind'] in ['ThermoMEModel','MEModel']:
-        new._mu = new.get_variables_of_type(GrowthRate).get_by_id('total')
+        prostprocess_me(new)
 
     try:
         rebuild_obj_from_dict(new, obj['objective'])
