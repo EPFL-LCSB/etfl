@@ -191,8 +191,14 @@ class TransModel(MEModel):
             rnap_id = list(self.rnap.keys())[0]
             cons = self.get_constraints_of_type(EnzymeRatio).get_by_id(rnap_id)
             rnap_tot_var = self.rnap[rnap_id].variable
-            free_rnap_ratio = \
+            # The Enzyme Ratio constraint looks like
+            # [E_free] - ρ*[E_tot] = 0,
+            # which is equivalent to
+            # [E_free] = ρ*[E_tot]
+            # So the linear coeff will be negative
+            free_rnap_ratio = abs( 
                 cons.constraint.get_linear_coefficients([rnap_tot_var])[rnap_tot_var]
+                                    )
 
         # This adds the RNAP as an enzyme, and also enforces its free ratio
         self.add_rnap(rnap, free_ratio=free_rnap_ratio)
