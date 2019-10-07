@@ -1333,7 +1333,8 @@ class MEModel(LCSBModel, Model):
 
         scaling_factor = self.dna.scaling_factor / RNAPi_hat.scaling_factor
 
-        rnap_alloc = RNAPi_hat - loadmax * scaling_factor * n_loci
+        rnap_alloc = RNAPi_hat \
+                     - loadmax * n_loci * scaling_factor * self.dna.scaled_concentration
 
         return rnap_alloc
 
@@ -1348,7 +1349,7 @@ class MEModel(LCSBModel, Model):
         the_gene = self.genes.get_by_id(gene_id)
 
         rnap_alloc = self.get_constraints_of_type(RNAPAllocation)
-        rnap_usage = self.get_variable_of_type(RNAPUsage)
+        rnap_usage = self.get_variables_of_type(RNAPUsage)
         if self.id in rnap_alloc and self.id in rnap_usage:
             # We need to edit the variable
             # Modify the polymerase constraint
