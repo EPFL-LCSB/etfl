@@ -1434,7 +1434,10 @@ class MEModel(LCSBModel, Model):
 
         # Let us not forget the degradation
         self._add_enzyme_degradation(rnap, scaled=True)
-        self.init_rnap_variables(rnap, free_ratio=free_ratio)
+        self._add_rnap_free_ratio(rnap, free_ratio=free_ratio)
+
+        #Finally add the mass balance.
+        self.add_mass_balance_constraint(rnap.complexation, rnap)
 
 
     def _populate_rnap(self):
@@ -1451,8 +1454,9 @@ class MEModel(LCSBModel, Model):
 
         # Create the mass balance constraint
         # 1 -> Write the RNAP mass balance
-        for this_rnap in self.rnap.values():
-            self.add_mass_balance_constraint(this_rnap.complexation, this_rnap)
+        # for this_rnap in self.rnap.values():
+        #     self.add_mass_balance_constraint(this_rnap.complexation, this_rnap)
+        # UPDATE: We now do this in add_rnap :)
 
         # 2 -> Parametrize all the transcription reactions with RNAP vmax
         for trans_rxn in self.transcription_reactions:
@@ -1543,7 +1547,7 @@ class MEModel(LCSBModel, Model):
 
 
 
-    def init_rnap_variables(self, the_rnap, free_ratio):
+    def _add_rnap_free_ratio(self, the_rnap, free_ratio):
         """
         Adds Free and Total ribosome variables to the models
         :return:
@@ -1612,7 +1616,10 @@ class MEModel(LCSBModel, Model):
         # Let us not forget the degradation
         self._add_enzyme_degradation(ribosome, scaled=True)
 
-        self.init_ribosome_variables(ribosome, free_ratio=free_ratio)
+        self._add_ribosome_free_ratio(ribosome, free_ratio=free_ratio)
+
+        #Finally, we add the mass balance
+        self.add_mass_balance_constraint(ribosome.complexation,ribosome)
 
     def add_rrnas_to_rib_assembly(self, ribosome):
         """
@@ -1653,12 +1660,11 @@ class MEModel(LCSBModel, Model):
         self.rrnas += rrnas
 
 
-    def init_ribosome_variables(self, ribosome, free_ratio):
+    def _add_ribosome_free_ratio(self, ribosome, free_ratio):
         """
         Adds Free and Total ribosome variables to the models
         :return:
         """
-
         # Free ribosomes
         self._Rf[ribosome.id] = self.add_variable(FreeRibosomes,
                                     ribosome,
@@ -1705,8 +1711,9 @@ class MEModel(LCSBModel, Model):
             #                     - self.mu             * Rt
 
             # Create the mass balance constraint
-            self.add_mass_balance_constraint(this_rib.complexation,
-                                             this_rib)
+            # UPDATE: We now do this in add_rnap :)
+            # self.add_mass_balance_constraint(this_rib.complexation,
+            #                                  this_rib)
 
         # 2 -> Parametrize all the translation reactions with ribosomal vmax
         for trans_rxn in self.translation_reactions:
