@@ -243,16 +243,8 @@ def create_etfl_model(has_thermo, has_neidhardt,
                            )
     ecoli.add_mrnas(mrna_dict.values())
 
-    ecoli.add_ribosome(rib,free_ratio=0.2)
-    # http://bionumbers.hms.harvard.edu/bionumber.aspx?id=102348&ver=1&trm=rna%20polymerase%20half%20life&org=
-    # Name          Fraction of active RNA Polymerase
-    # Bionumber ID  102348
-    # Value 	    0.17-0.3 unitless
-    # Source        Bremer, H., Dennis, P. P. (1996) Modulation of chemical composition and other parameters of the cell by growth rate.
-    #               Neidhardt, et al. eds. Escherichia coli and Salmonella typhimurium: Cellular
-    #                       and Molecular Biology, 2nd ed. chapter 97 Table 1
-
-    ecoli.add_rnap(rnap, free_ratio=0.75)
+    ecoli.add_ribosome(rib,0.2)
+    ecoli.add_rnap(rnap,0.75)
 
     ecoli.build_expression()
     ecoli.add_enzymatic_coupling(coupling_dict)

@@ -101,7 +101,7 @@ def add_dummy_protein(model, dummy_peptide, enzyme_kdeg):
                            kcat=0,
                            composition=[dummy_peptide.id],
                            kdeg=enzyme_kdeg)
-    model.add_enzymes([dummy_protein])
+    model.add_enzymes([dummy_protein], prep = False)
     return dummy_protein
 
 

@@ -41,7 +41,7 @@ from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,
     InterpolationConstraint, RNAPAllocation
 from ..optim.variables import ModelVariable, GrowthActivation, \
     EnzymeVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, \
-    FreeRibosomes, BinaryActivator, InterpolationVariable, DNAVariable, \
+    FreeEnzyme, BinaryActivator, InterpolationVariable, DNAVariable, \
     GrowthRate, GenericVariable
 
 from .allocation import add_dummy_expression,add_dummy_mrna,add_dummy_peptide,\
@@ -130,8 +130,8 @@ class MEModel(LCSBModel, Model):
         self.dna = None
         self.ribosome = OrderedDict()
         self.rnap = OrderedDict()
-        self._Rf = OrderedDict()
-        self._RNAPf = OrderedDict()
+
+        self.coupling_dict = dict()
 
     @property
     def mu(self):
@@ -615,7 +615,7 @@ class MEModel(LCSBModel, Model):
         :type coupling_dict: {str:list(Enzyme)}
         :return:
         """
-        self.coupling_dict = coupling_dict
+        self.coupling_dict.update(coupling_dict)
         self.add_enzymes(coupling_dict.values())
 
         # /!\ We modify the reaction list
@@ -656,12 +656,6 @@ class MEModel(LCSBModel, Model):
         :return:
         """
 
-        complexation = self.add_complexation_from_enzymes(reaction.enzymes)
-
-        # Why is that happening ?
-        if not complexation:
-            return None
-
         v_max_fwd = dict()
         v_max_bwd = dict()
 
@@ -669,12 +663,7 @@ class MEModel(LCSBModel, Model):
         fwd_variable = reaction.forward_variable
         bwd_variable = reaction.reverse_variable
 
-        zipped_prot_isoz = self.match_enzymes_to_complexes(reaction.enzymes,
-                                                               complexation)
-
-        protein2isozyme_dict = dict(zipped_prot_isoz)
-
-        for e, (enz, comp) in enumerate(protein2isozyme_dict.items()):
+        for e, enz in enumerate(reaction.enzymes):
             # If the enzymes has the same kcat for both directions
             # v_fwd  <= kcat_fwd [E]
             # v_fwd - kcat_fwd [E] <= 0
@@ -682,17 +671,12 @@ class MEModel(LCSBModel, Model):
             v_max_fwd[e] = enz.kcat_fwd * enz.concentration
             v_max_bwd[e] = enz.kcat_bwd * enz.concentration
 
-            # Cannot queue, if the same enzyme is to be added twice
-            self.add_mass_balance_constraint(comp, enz, queue=False)
-
-            comp.enzyme = enz
-            enz.complexation = comp
-
-        k_f = max([x.kcat_fwd for x in protein2isozyme_dict])
-        k_b = max([x.kcat_bwd for x in protein2isozyme_dict])
+        # Formulating the scaling factor on the max kcat
+        k_f = max([x.kcat_fwd for x in reaction.enzymes])
+        k_b = max([x.kcat_bwd for x in reaction.enzymes])
         # k_f = np.median([x.kcat_fwd for x in self.enzymes])
         # k_b = np.median([x.kcat_bwd for x in self.enzymes])
-        E_m = max([x.scaling_factor for x in protein2isozyme_dict])
+        E_m = max([x.scaling_factor for x in reaction.enzymes])
 
         # v_fwd <= sum(kcat_i*E_i)
         # for all i, E_i <= E_max (= 1g/gDW)
@@ -860,7 +844,7 @@ class MEModel(LCSBModel, Model):
         return ga_vars
 
 
-    def add_complexation_from_enzymes(self,enzymes):
+    def _prep_enzyme_variables(self, enzyme):
         """
         Reads Enzyme.composition to find complexation reaction from enzyme information
 
@@ -869,79 +853,71 @@ class MEModel(LCSBModel, Model):
         :return:
         """
 
-        complexation = []
+        #1. Complexation
 
-        for e,this_isozyme in enumerate(enzymes):
-            # Does this enzyme already have a complexation reaction ?
-            # This happens if an enzyme is used in several reactions
-            if this_isozyme.complexation is not None:
-                complexation += [this_isozyme.complexation]
-            else:
-                if not this_isozyme.composition:
-                    self.logger.warning('Enzyme {} has no composition'
-                                        .format(this_isozyme.id))
-                    continue
+        # Does this enzyme already have a complexation reaction ?
+        # This happens if an enzyme is used in several reactions
+        if enzyme.complexation is not None:
+            complexation = enzyme.complexation
+        else:
+            complexation = self.make_enzyme_complexation(enzyme)
 
-                this_id = '{}_complex_{}'.format(this_isozyme.id,e)
-                this_name = '{} Complexation {}'.format(this_isozyme.id,e)
+        enzyme.init_variable()
 
+        #2. Also add degradation
+        self._add_enzyme_degradation(enzyme, scaled=True, queue=True)
 
-                this_complexation = ProteinComplexation(id = this_id,
-                                                        name = this_name,
-                                                        target=this_isozyme,
-                                                        # upper_bound=1,
-                                                        scaled=True)
+        #3. Finally make the mass balance
+        # Cannot queue, if the same enzyme is to be added twice
+        self.add_mass_balance_constraint(complexation, enzyme, queue=False)
 
-                try:
-                    peptides = {self.peptides.get_by_id(k):-v \
-                                for k,v in this_isozyme.composition.items()}
-                except KeyError:
-                    missing_genes = '.'.join(this_isozyme.composition.keys())
-                    self.logger.warning('No nucleotide sequence found for '
-                                        'some of these genes {}'.format(missing_genes))
-                    return None
+    def make_enzyme_complexation(self, enzyme):
+        """
+        Makes the complexation reaction and attached it to its enzyme
 
-                self.add_reactions([this_complexation])
-                this_complexation.add_peptides(peptides)
+        :param enzyme:
+        :return:
+        """
+        if not enzyme.composition:
+            self.logger.warning('Enzyme {} has no composition'
+                                .format(enzyme.id))
+            return None
 
-                complexation += [this_complexation]
-                this_isozyme.init_variable()
+        this_id = '{}_complex'.format(enzyme.id)
+        this_name = '{} Complexation'.format(enzyme.id)
+        complexation = ProteinComplexation(id=this_id,
+                                                name=this_name,
+                                                target=enzyme,
+                                                # upper_bound=1,
+                                                scaled=True)
 
-                # also add degradation
-                self._add_enzyme_degradation(this_isozyme, scaled=True, queue=True)
+        try:
+            peptides = {self.peptides.get_by_id(k): -v \
+                        for k, v in enzyme.composition.items()}
+        except KeyError:
+            missing_genes = '.'.join(enzyme.composition.keys())
+            self.logger.warning('No nucleotide sequence found for '
+                                'some of these genes {}'.format(missing_genes))
+            return None
 
-                # Add it to a specific index
-                self.complexation_reactions += [this_complexation]
-        # self._push_queue()
+        self.add_reactions([complexation])
+
+        complexation.add_peptides(peptides)
+
+        # Post processing
+        self.complexation_reactions+= [complexation]
+        enzyme.complexation = complexation
 
         return complexation
 
-    def match_enzymes_to_complexes(self, enzymes, complexes):
-        """
-        Peptides are assembled into enzymes. This function maps the peptides
-        assembly reactions with the enzymes they make up.
-
-        :param enzymes: List of Enzyme
-        :param complexes: List of ComplexationReaction
-        :return:
-        """
-        #TODO: Implement this better
-        # if only one prot, replicate it with similar kdeg and kcat
-        if   len(enzymes) == len(complexes):
-            return zip(enzymes, complexes)
-        elif len(enzymes) == 1:
-            # enzyme_list = self.replicate_enzyme(enzymes[0], len(complexes))
-            # return zip(enzyme_list, complexes)
-            return zip(enzymes,[complexes[0]])
-        else:
-            raise NotImplementedError
-
-
-    def add_enzymes(self, enzyme_list):
+    def add_enzymes(self, enzyme_list, prep = True):
         """
         Adds an Enzyme object, or iterable of Enzyme objects, to the model
         :param enzyme_list:
         :type enzyme_list:Iterable(Enzyme) or Enzyme
+        :param prep: whether or not to add complexation, degradation, and mass
+            balance constraints (needs to be overridden for dummies for example)
+        :type prep: Boolean
         :return:
         """
         if not hasattr(enzyme_list, '__iter__'):
@@ -951,6 +927,7 @@ class MEModel(LCSBModel, Model):
         if len(enzyme_list) == 0:
             return None
 
+        # unpacking
         if not isinstance(enzyme_list[0],Enzyme):
             enzyme_list = [x for item in enzyme_list for x in item]
 
@@ -973,6 +950,10 @@ class MEModel(LCSBModel, Model):
             enz._model = self
 
         self.enzymes += enzyme_list
+
+        if prep:
+            for enz in tqdm(enzyme_list, desc='enz. vars'):
+                self._prep_enzyme_variables(enz)
 
 
     def add_mrnas(self, mrna_list, add_degradation=True):
@@ -1052,33 +1033,10 @@ class MEModel(LCSBModel, Model):
         enzyme_list = [x for x in enzyme_list if x.id not in self.enzymes]
 
         for enz in enzyme_list:
+            self.remove_reactions(enz.degradation)
+            self.remove_reactions(enz.complexation)
             self.enzymes.pop(enz.id)
 
-    def replicate_enzyme(self, enzyme, n_replicates):
-        """
-        Replicates an enzyme n_replicates times, with similar kcat and kdeg.
-        Useful for isozymes
-
-        :param enzyme:
-        :type enzyme: Enzyme
-        :param n_replicates:
-        :type n_replicates: int
-        :return:
-        """
-        self.remove_enzymes([enzyme])
-
-        new_enzymes = list()
-        for e in range(n_replicates):
-            new_enz = Enzyme(id =enzyme.id + '_{}'.format(e),
-                             kcat_fwd = enzyme.kcat_fwd,
-                             kcat_bwd = enzyme.kcat_bwd,
-                             kdeg = enzyme.kdeg,
-                             # name = enzyme.name + ' - Replicate {}'.format(e)
-                             )
-            new_enzymes.append(new_enz)
-
-        self.add_enzymes(new_enzymes)
-        return new_enzymes
 
     def _add_enzyme_degradation(self, enzyme, scaled=True, queue=False):
         """
@@ -1399,7 +1357,7 @@ class MEModel(LCSBModel, Model):
         """
         return self.reactions.get_by_id(self._get_transcription_name(the_peptide_id))
 
-    def add_rnap(self, rnap, free_ratio = 0.8):
+    def add_rnap(self, rnap, free_ratio=0):
         """
         Adds the RNA Polymerase used by the model.
 
@@ -1416,28 +1374,8 @@ class MEModel(LCSBModel, Model):
 
         self.add_enzymes(rnap)
 
-        # 0 -> We still need to add the virtual complexation of RNA Polymerases:
-        peptide_stoich = defaultdict(int)
-        for rprot_id in rnap.composition:
-            peptide_stoich[self.peptides.get_by_id(rprot_id)] -= 1
-
-        complexation = ProteinComplexation(id='{}_complex'.format(rnap.id),
-                                           name='RNA Polymerase complexation',
-                                           target=rnap,
-                                           scaled=True)
-
-        self.add_reactions([complexation])
-        complexation.add_peptides(peptide_stoich)
-
-        self.complexation_reactions += [complexation]
-        rnap.init_variable()
-
-        # Let us not forget the degradation
-        self._add_enzyme_degradation(rnap, scaled=True)
-        self._add_rnap_free_ratio(rnap, free_ratio=free_ratio)
-
-        #Finally add the mass balance.
-        self.add_mass_balance_constraint(rnap.complexation, rnap)
+        if free_ratio > 0:
+            self._add_free_enzyme_ratio(rnap, free_ratio)
 
 
     def _populate_rnap(self):
@@ -1488,10 +1426,12 @@ class MEModel(LCSBModel, Model):
     def _get_rnap_total_capacity(self):
         all_rnap_usage = self.get_variables_of_type(RNAPUsage)
         sum_RMs = symbol_sum([x.unscaled for x in all_rnap_usage])
+        free_rnap = [self.get_variables_of_type(FreeEnzyme).get_by_id(x)
+                     for x in self.rnap]
         # The total RNAP capacity constraint looks like
         # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
         usage = sum_RMs \
-                + sum([x.unscaled for x in self.RNAPf.values()]) \
+                + sum([x.unscaled for x in free_rnap]) \
                 - sum([x.concentration for x in self.rnap.values()])
         usage /= min([x.scaling_factor for x in self.rnap.values()])
         return usage
@@ -1547,34 +1487,40 @@ class MEModel(LCSBModel, Model):
 
 
 
-    def _add_rnap_free_ratio(self, the_rnap, free_ratio):
+    def _add_free_enzyme_ratio(self, enzyme, free_ratio):
         """
-        Adds Free and Total ribosome variables to the models
+        Adds free enzyme variables to the models
+        /!\ A total capacity constraint still needs to be added
+        # TODO: Make that more user friendly
         :return:
         """
-        # Free RNAP
-        self._RNAPf[the_rnap.id] = self.add_variable(FreeRibosomes,
-                                    the_rnap,
-                                    lb=0,
-                                    ub=1,
-                                    scaling_factor = the_rnap.scaling_factor)
 
-        # Add constraint on availability of free ribosomes
-        # Rf and Rt are both concentrations
-        expr = self.RNAPf[the_rnap.id] - free_ratio * the_rnap.variable #scaled
-        self.add_constraint(EnzymeRatio,
-                            hook=self,
+        # Safety_check:
+        if isinstance(enzyme, Enzyme):
+            enzyme = self.enzymes.get_by_id(enzyme.id)
+        elif isinstance(enzyme, str):
+            enzyme = self.enzymes.get_by_id(enzyme)
+        else:
+            raise TypeError("`enzyme' should be an enzyme object or an ID")
+
+        # Free enzyme
+        free_enz = \
+            self.add_variable(kind=FreeEnzyme,
+                              hook=enzyme,
+                              lb=0,
+                              ub=1,
+                              scaling_factor = enzyme.scaling_factor)
+
+        # Add constraint on availability of free enzymes
+        expr = free_enz - free_ratio * enzyme.variable #scaled
+        self.add_constraint(kind=EnzymeRatio,
+                            hook=enzyme,
                             expr=expr,
-                            id_=the_rnap.id,
                             lb=0,
                             ub=0)
 
-    @property
-    def RNAPf(self):
-        return self._RNAPf
 
-
-    def add_ribosome(self, ribosome, free_ratio = 0.2):
+    def add_ribosome(self, ribosome, free_ratio):
         """
         Adds the ribosome used by the model.
 
@@ -1591,35 +1537,8 @@ class MEModel(LCSBModel, Model):
 
         self.add_enzymes(ribosome)
 
-        # 0 -> We still need to add the virtual complexation of ribosomes:
-        # it will be the same for all the translations of the model, so we can
-        # call it from the ribosomal protein translation for example
-
-        rprot_stoich = defaultdict(int)
-
-        # Peptides
-        for rprot_id in ribosome.composition:
-            rprot_stoich[self.peptides.get_by_id(rprot_id)] -= 1
-
-
-        complexation = ProteinComplexation(id='rib_complex',
-                                           name='Ribosome complexation',
-                                           target = ribosome,
-                                           scaled=True)
-        self.add_reactions([complexation])
-        complexation.add_peptides(rprot_stoich)
-
-        # Add it to a specific index
-        self.complexation_reactions += [complexation]
-        ribosome.init_variable()
-
-        # Let us not forget the degradation
-        self._add_enzyme_degradation(ribosome, scaled=True)
-
-        self._add_ribosome_free_ratio(ribosome, free_ratio=free_ratio)
-
-        #Finally, we add the mass balance
-        self.add_mass_balance_constraint(ribosome.complexation,ribosome)
+        if free_ratio > 0:
+            self._add_free_enzyme_ratio(ribosome, free_ratio)
 
     def add_rrnas_to_rib_assembly(self, ribosome):
         """
@@ -1660,35 +1579,9 @@ class MEModel(LCSBModel, Model):
         self.rrnas += rrnas
 
 
-    def _add_ribosome_free_ratio(self, ribosome, free_ratio):
-        """
-        Adds Free and Total ribosome variables to the models
-        :return:
-        """
-        # Free ribosomes
-        self._Rf[ribosome.id] = self.add_variable(FreeRibosomes,
-                                    ribosome,
-                                    lb=0,
-                                    ub=1,
-                                    scaling_factor = ribosome.scaling_factor)
-
-        # Add constraint on availability of free ribosomes
-        # Rf and Rt are both concentrations
-        expr = self.Rf[ribosome.id] - free_ratio * ribosome.variable #scaled
-        self.add_constraint(EnzymeRatio,
-                            hook=self,
-                            expr=expr,
-                            id_=ribosome.id,
-                            lb=0,
-                            ub=0)
-
-
     @property
     def Rt(self):
         return self.ribosome
-    @property
-    def Rf(self):
-        return self._Rf
 
     def _populate_ribosomes(self):
         """
@@ -1722,6 +1615,8 @@ class MEModel(LCSBModel, Model):
         # 3 -> Add ribosomal capacity constraint
         self.regenerate_variables()
 
+        free_ribosome = [self.get_variables_of_type(FreeEnzyme).get_by_id(x)
+                     for x in self.ribosome]
         # CATCH : This is summing ~1500+ variable objects, and for a reason
         # sympy does not like it. Let's cut it in smaller chunks and sum
         # afterwards
@@ -1734,7 +1629,7 @@ class MEModel(LCSBModel, Model):
         # The total RNAP capacity constraint looks like
         # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
         ribo_usage = sum_RPs \
-                + sum([x.unscaled for x in self.Rf.values()]) \
+                + sum([x.unscaled for x in free_ribosome]) \
                 - sum([x.concentration for x in self.ribosome.values()])
         ribo_usage /= min([x.scaling_factor for x in self.ribosome.values()])
         # For nondimensionalization

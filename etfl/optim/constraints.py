@@ -159,7 +159,7 @@ class RNAPAllocation(GeneConstraint):
     prefix = 'RA_'
 
 
-class EnzymeRatio(ModelConstraint):
+class EnzymeRatio(EnzymeConstraint):
     """
     Represents the availability of free enzymes, e.g ribosomes (non bound)
     R_free = 0.2*R_total

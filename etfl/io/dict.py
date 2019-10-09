@@ -30,7 +30,7 @@ from ..core.reactions import TranslationReaction, TranscriptionReaction, \
     ExpressionReaction, DNAFormation
 from ..core.thermomemodel import ThermoMEModel
 from ..optim.utils import rebuild_constraint, rebuild_variable
-from ..optim.variables import tRNAVariable, GrowthRate, FreeRibosomes
+from ..optim.variables import tRNAVariable, GrowthRate, FreeEnzyme
 from ..utils.utils import replace_by_reaction_subclass, replace_by_me_gene
 
 SOLVER_DICT = {
@@ -513,9 +513,6 @@ def model_from_dict(obj, solver=None):
 
 def prostprocess_me(new):
     new._mu = new.get_variables_of_type(GrowthRate).get_by_id('total')
-    free_enz = new.get_variables_of_type(FreeRibosomes)
-    new._RNAPf = {x: free_enz.get_by_id(x) for x in new.rnap}
-    new._Rf = {x: free_enz.get_by_id(x) for x in new.ribosome}
 
 
 def init_me_model_from_dict(new, obj):
@@ -541,7 +538,7 @@ def init_me_model_from_dict(new, obj):
 
     # Populate enzymes
     # new.coupling_dict = rebuild_coupling_dict(new, obj['coupling_dict'])
-    new.add_enzymes([enzyme_from_dict(x) for x in obj['enzymes']])
+    new.add_enzymes([enzyme_from_dict(x) for x in obj['enzymes']], prep=False)
 
     # Make RNAP
     new_rnap = rnap_from_dict(obj['rnap'])

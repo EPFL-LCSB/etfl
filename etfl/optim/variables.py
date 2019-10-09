@@ -138,12 +138,12 @@ class RNAPUsage(GeneVariable):
     prefix = 'RM_'
 
 
-class FreeRibosomes(EnzymeVariable):
+class FreeEnzyme(EnzymeVariable):
     """
     Class to represent the ribosomes that are affected to producing the enzyme
     for a reaction
     """
-    prefix = 'RF_'
+    prefix = 'EF_'
 
 
 class CatalyticActivator(ReactionVariable,BinaryVariable):
