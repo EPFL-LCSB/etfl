@@ -14,6 +14,7 @@ ME-related Reaction subclasses and methods definition
 import pandas as pd
 import numpy as np
 from tqdm import tqdm
+from warnings import warn
 
 from ..optim.variables import EnzymeRef, mRNARef, EnzymeVariable, mRNAVariable, \
     LinearizationVariable
