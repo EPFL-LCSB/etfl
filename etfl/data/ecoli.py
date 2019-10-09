@@ -604,7 +604,7 @@ def get_aggregated_coupling_dict(model, coupling_dict = dict()):
 
             cleaned_cplx_name = clean_string(this_complex_name)
 
-            new_enzyme = Enzyme('{}_{}'.format(x.id,cleaned_cplx_name),
+            new_enzyme = Enzyme('{}_{}_{}'.format(x.id,cleaned_cplx_name,e),
                                 name='{}_{}: {}'.format(x.id, e, this_complex_name),
                                 kcat=kcat,
                                 kdeg=kdeg_enz,
