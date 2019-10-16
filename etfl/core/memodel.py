@@ -301,10 +301,11 @@ class MEModel(LCSBModel, Model):
         add_interpolation_variables(self)
 
         # Create a dummy gene and override the sequences with input data
+        dummy_sequence = 'N'*mrna_length
         dummy_gene = ExpressedGene(id='dummy_gene',
                                    name='Dummy Gene',
-                                   sequence='')
-        dummy_gene._rna = 'N'*mrna_length
+                                   sequence=dummy_sequence)
+        dummy_gene._rna = dummy_sequence
         dummy_gene._peptide = 'X'*peptide_length
 
         self.add_genes([dummy_gene])
