@@ -361,7 +361,7 @@ def update_medium(t, Xi, Si, dmodel, medium_fun, timestep):
 
     return X,S
 
-def compute_center(dmodel, provided_solution=None):
+def compute_center(dmodel, provided_solution=None, revert_changes=True):
     """
     Fixes growth to be above computed lower bound, finds chebyshev center,
     resets the model, returns solution data
@@ -403,8 +403,9 @@ def compute_center(dmodel, provided_solution=None):
         dmodel.optimize()
         chebyshev_sol = dmodel.solution
 
-    dmodel.growth_reaction.lower_bound = prev_lb
-    dmodel.objective = prev_obj
+    if revert_changes:
+        dmodel.growth_reaction.lower_bound = prev_lb
+        dmodel.objective = prev_obj
     return chebyshev_sol
 
 
