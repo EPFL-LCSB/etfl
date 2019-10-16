@@ -17,7 +17,8 @@ import yaml
 import sys
 
 from utils import read_config
-from vector import get_bdo_plasmid
+from vector import get_bdo_plasmid, get_debug_plasmid
+import analysis
 
 if len(sys.argv)<=1:
     raise ValueError('Please provide a YAML configuration file')
@@ -26,7 +27,8 @@ else:
 
 print('Using configuration file: {}'.format(CONFIG))
 
-vec_dict={'plasmid_pET-AR-ALS':get_bdo_plasmid}
+vec_dict={'plasmid_pET-AR-ALS':get_bdo_plasmid,
+          'debug':get_debug_plasmid}
 
 if __name__ == '__main__':
     config = read_config(CONFIG)
@@ -57,10 +59,20 @@ if __name__ == '__main__':
     transmodel.optimize()
     print_standard_sol(transmodel)
 
-    for analysis,arguments in config['analysis']:
+    outputs = dict()
+
+    if 'chebyshev' in config['analysis']:
+        arguments = config['analysis'].pop('chebyshev')
+        arguments['model'] = transmodel
+        # arguments['tag'] = config['tag']
+        outputs['chebyshev'] = analysis.chebyshev(**arguments)
+
+    for analysis_str,arguments in config['analysis'].items():
         if arguments != False:
+            if arguments == True:
+                arguments = dict()
             arguments['model'] = transmodel
             arguments['tag'] = config['tag']
-            analysis(**arguments)
+            outputs[analysis_str] = getattr(analysis, analysis_str)(**arguments)
 
         # Check antibiotic resistance is expressed ?
