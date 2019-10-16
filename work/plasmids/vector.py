@@ -9,6 +9,66 @@ from utils import read_seq
 
 from cobra.core import Metabolite, Reaction
 
+def get_debug_plasmid(model, has_rnap=False):
+
+    h2o_c = model.metabolites.h2o_c
+    h2o_e = model.metabolites.h2o_e
+
+    # CO2 Exchange
+    h2o_tpp = Reaction(id='h2otpp', name='H2O Exchange')
+    h2o_tpp.add_metabolites({
+        h2o_c:  1,
+        h2o_e: -1,
+    })
+
+    reaction_list = [h2o_tpp]
+
+    #############
+    #   Genes   #
+    #############
+
+    DBG = ExpressedGene(id='DBG_gene',
+                        name='Debug synthase',
+                        sequence='AATTTCGGTTGA'.lower())
+
+    #############
+    #  Enzymes  #
+    #############
+
+    DBG_enz = Enzyme(
+        id='DBG',
+        kcat=65 * 3600,
+        kdeg=kdeg_enz,
+        composition={'DBG_gene': 3}
+    )
+
+    ############
+    # Coupling #
+    ############
+
+    coupling_dict = {'h2otpp': [DBG_enz]}
+
+    ###########
+    # Plasmid #
+    ###########
+
+    if 1:
+        rnap_genes = []
+        rnap = None
+
+    gene_list = [DBG] + rnap_genes
+
+    plasmid_seq = DBG.sequence
+
+    my_plasmid = Plasmid(id_='debug',
+                         sequence=plasmid_seq,
+                         genes=gene_list,
+                         reactions=reaction_list,
+                         coupling_dict=coupling_dict,
+                         rnap=rnap)
+    my_plasmid.build_default_mrna(kdeg_mrna)
+
+    return my_plasmid
 
 def get_bdo_plasmid(model, has_rnap=False):
 
