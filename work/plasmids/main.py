@@ -30,14 +30,22 @@ print('Using configuration file: {}'.format(CONFIG))
 vec_dict={'plasmid_pET-AR-ALS':get_bdo_plasmid,
           'debug':get_debug_plasmid}
 
+def write_conf(model, conf):
+    filename = 'outputs/' + conf['tag'] + '/config.yaml'
+    conf['objective'] = model.objective.expression
+    with open(filename,'w') as fid:
+        yaml.dump(config, fid)
+
+
+
 if __name__ == '__main__':
     config = read_config(CONFIG)
 
     if config['model'] != 'debug':
-        model = load_json_model(config['model'])
+        model = load_json_model(config['model'],solver=config['options']['solver'])
     else:
         from etfl.tests.small_model import create_etfl_model
-        model = create_etfl_model(0,1)
+        model = create_etfl_model(0,1, solver=config['options']['solver'])
 
     standard_solver_config(model)
     model.solver.configuration.verbosity = config['options']['verbose']
@@ -76,3 +84,4 @@ if __name__ == '__main__':
             outputs[analysis_str] = getattr(analysis, analysis_str)(**arguments)
 
         # Check antibiotic resistance is expressed ?
+    write_conf(transmodel, config)

@@ -13,14 +13,21 @@ analysis:
   export_fluxes: yes
   binding_constraints:
     epsilon: 1.0e-8
+  export_slacks:
+    constraint_types:
+      - ForwardCatalyticConstraint
+      - BackwardCatalyticConstraint
+      - SynthesisConstraint
+      - RNAPAllocation
+      - ExpressionCoupling
   # Perform Chebyshev centering ?
-  # chebyshev:
-  #   chebyshev_include:
-  #     - ForwardCatalyticConstraint
-  #     - BackwardCatalyticConstraint
-  #     - RNAPAllocation
-  #     - ExpressionCoupling
-  #   inplace: false
+  chebyshev:
+    chebyshev_include:
+      - CatalyticConstraint
+      - RNAPAllocation
+      - ExpressionCoupling
+    inplace: true
 options:
   verbose: false
   inplace: true
+  solver: gurobi
