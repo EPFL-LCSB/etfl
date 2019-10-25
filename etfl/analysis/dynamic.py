@@ -361,12 +361,14 @@ def update_medium(t, Xi, Si, dmodel, medium_fun, timestep):
 
     return X,S
 
-def compute_center(dmodel, provided_solution=None, revert_changes=True):
+def compute_center(dmodel, objective,
+                   provided_solution=None, revert_changes=True):
     """
     Fixes growth to be above computed lower bound, finds chebyshev center,
     resets the model, returns solution data
 
     :param dmodel:
+    :param objective: the radius to maximize
     :return:
     """
 
@@ -386,12 +388,13 @@ def compute_center(dmodel, provided_solution=None, revert_changes=True):
 
     fix_growth(dmodel, the_solution)
 
+    dmodel.objective = objective #dmodel.chebyshev_radius.radius.variable
     try:
-        dmodel.objective = dmodel.chebyshev_radius.radius.variable
         dmodel.optimize()
         chebyshev_sol = dmodel.solution
 
-        release_growth(dmodel)
+        if revert_changes:
+            release_growth(dmodel)
     except AttributeError: #does not solve
         dmodel.logger.warning('Chebyshev solution at fixed growth solution '
                               'not found - relaxing integers and solving '
@@ -475,7 +478,9 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
 
     # We want to compute the center under the constraint of the growth at the
     # initial solution.
-    chebyshev_sol = compute_center(dmodel,provided_solution=initial_solution)
+    chebyshev_sol = compute_center(dmodel,
+                                   objective = dmodel.chebyshev_radius.radius.variable,
+                                   provided_solution=initial_solution)
 
     # Only now do we add the dynamic variable constraints.
     add_dynamic_variables_constraints(dmodel, timestep, dynamic_constraints)
