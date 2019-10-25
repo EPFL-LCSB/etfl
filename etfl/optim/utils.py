@@ -455,8 +455,10 @@ def safe_optim(model):
 
 def get_binding_constraints(model, epsilon):
 
-    if model.problem.__name__ == 'optlang.gurobi_interface':
+    if is_gurobi(model):
         return {kind:[c.name
                                for c in these_cons
                                if c.constraint._internal_constraint.Slack <= epsilon]
                 for kind,these_cons in model._cons_kinds.items()}
+    else:
+        raise(NotImplementedError)
