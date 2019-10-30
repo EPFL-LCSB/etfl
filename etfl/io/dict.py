@@ -12,6 +12,9 @@ from collections import OrderedDict, defaultdict
 
 from tqdm import tqdm
 
+from Bio.Seq import Seq
+from Bio.Alphabet import DNAAlphabet, RNAAlphabet, ProteinAlphabet
+
 import cobra.io.dict as cbd
 from cobra.exceptions import SolverNotFound
 from optlang.util import expr_to_json, parse_expr
@@ -892,8 +895,8 @@ def find_genes_from_dict(new, obj):
             g = replace_by_me_gene(new, gene_dict['id'], str(sequence))
             if key == 'expressed_genes':
                 # Newer models
-                g._rna            = gene_dict['rna']
-                g._peptide        = gene_dict['peptide']
+                g._rna            = Seq(gene_dict['rna'], alphabet=RNAAlphabet())
+                g._peptide        = Seq(gene_dict['peptide'], alphabet=ProteinAlphabet())
                 g._copy_number    = gene_dict['copy_number']
                 g._transcribed_by = [new.enzymes.get_by_id(e)
                                      for e in gene_dict['transcribed_by']] \
