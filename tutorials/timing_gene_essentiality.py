@@ -2,6 +2,7 @@ import cobra.io.json
 import pytfa.io.json
 from etfl.io.json import load_json_model
 from etfl.optim.config import standard_solver_config, gene_ko_config
+import optlang
 
 import numpy as np
 
@@ -92,7 +93,10 @@ def ko_etfl(model):
     model.solver.configuration.timeout = 14400
 
     model.growth_reaction.lower_bound = 0.1*max_growth
-    model.objective = 0 # Gene essentiality is a feasibility problem
+    # Gene essentiality is a feasibility problem
+    # /!\ Also, integer 0 will get the reaction number 0 !
+    # We need to use optlang's symbolic 0
+    model.objective = optlang.symbolics.Zero
 
 
     for g in tqdm(model.genes):
