@@ -785,6 +785,54 @@ def get_atp_synthase_coupling(atps_name):
 
     return {atps_name:[atp_synthase]}
 
+def get_dna_polymerase(dna_pol_name='DNAPol3'):
+    """
+    https://en.wikipedia.org/wiki/DNA_polymerase_III_holoenzyme
+
+    The replisome is composed of the following:
+
+    2 DNA Pol III enzymes, each comprising α, ε and θ subunits. (It has been proven that there is a third copy of Pol III at the replisome.[1])
+        the α subunit (encoded by the dnaE gene) has the polymerase activity.
+        the ε subunit (dnaQ) has 3'→5' exonuclease activity.
+        the θ subunit (holE) stimulates the ε subunit's proofreading.
+    2 β units (dnaN) which act as sliding DNA clamps, they keep the polymerase bound to the DNA.
+    2 τ units (dnaX) which act to dimerize two of the core enzymes (α, ε, and θ subunits).
+    1 γ unit (also dnaX) which acts as a clamp loader for the lagging strand Okazaki fragments, helping the two β subunits to form a unit and bind to DNA. The γ unit is made up of 5 γ subunits which include 3 γ subunits, 1 δ subunit (holA), and 1 δ' subunit (holB). The δ is involved in copying of the lagging strand.
+    Χ (holC) and Ψ (holD) which form a 1:1 complex and bind to γ or τ. X can also mediate the switch from RNA primer to DNA.[2]
+    :return:
+    """
+
+    # DNA POLYMERASE III HOLOENZYME: Structure and Function of a Chromosomal Replicating Machine
+    # Annual Review of Biochemistry
+    # Vol. 64:171-200 (Volume publication date July 1995)
+    # https://doi.org/10.1146/annurev.bi.64.070195.001131
+
+    ktrans = 1000 * 3600
+
+    composition = {
+        # 2 DNA Pol III Enzymes
+        'b0184':2, #dnaE
+        'b0215':2, #dnaQ
+        'b1842':2, #holE
+        # Beta sliding clamp units and Tau scaffold
+        'b3701': 2*2,  # dnaN, Beta clamps
+        'b0470': 3,  # dnaX, 2 tau units and 1 gamma unit
+        'b0640': 1,  # holA, Delta subunit
+        'b1099': 1,  # holB, Delta prime subunit
+        'b4259': 1,  # holC, Xi subunit
+        'b4372': 1,  # holD, Psi subunit
+
+    }
+
+    dna_polymerase = Enzyme(dna_pol_name,
+                        name='DNA Polymerase 3',
+                        kcat_fwd=ktrans,
+                        kcat_bwd=ktrans,
+                        kdeg=kdeg_enz,
+                        composition=composition)
+
+    return dna_polymerase
+
 
 def get_transporters_coupling(model, additional_enz):
 
