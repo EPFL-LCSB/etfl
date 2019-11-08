@@ -86,26 +86,35 @@ def make_plasmid(gene_list):
 class TransModel(MEModel):
 
     def __init__(self, me_model, inplace = True):
+        """
+        Hack to subclass instantiated object:
+        https://stackoverflow.com/questions/33463232/subclassing-in-python-of-instantiated-superclass
+
+        :param me_model:
+        :param inplace:
+        """
         if not inplace:
             new = me_model.copy()
+            self.__dict__ = new.__dict__
         else:
-            new = me_model
+            # new = me_model
+            self.__dict__ = me_model.__dict__
 
-        self._me_model = new
+        # self._me_model = new
         self._has_transcription_changed = False
         self._has_translation_changed = False
         self.vectors = dict()
         self.vector_copy_number = dict()
 
-    def __getattr__(self,attr):
-        """
-        Hack to subclass instantiated object:
-        https://stackoverflow.com/questions/33463232/subclassing-in-python-of-instantiated-superclass
-
-        :param attr:
-        :return:
-        """
-        return getattr(self._me_model,attr)
+    # def __getattr__(self,attr):
+    #     """
+    #     Hack to subclass instantiated object:
+    #     https://stackoverflow.com/questions/33463232/subclassing-in-python-of-instantiated-superclass
+    #
+    #     :param attr:
+    #     :return:
+    #     """
+    #     return getattr(self._me_model,attr)
 
     def add_vector(self, vector,
                    copy_number=1):
