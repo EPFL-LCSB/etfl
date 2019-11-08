@@ -47,7 +47,7 @@ class ExpressedGene(Gene):
         self._rna = ''
         self._peptide = ''
 
-        self._copy_number = copy_number
+        self._copy_number = int(copy_number)
         self._transcribed_by = transcribed_by
         self._translated_by = translated_by
 
@@ -61,10 +61,10 @@ class ExpressedGene(Gene):
         if value != self._copy_number:
             if self.model is None:
                 # Easy
-                self._copy_number = value
+                self._copy_number = int(value)
             else:
                 # We need to make the model change the RNAP allocation
-                self._copy_number = value
+                self._copy_number = int(value)
                 self.model.edit_gene_copy_number(self.id)
         else:
             # Nothing to do here :)

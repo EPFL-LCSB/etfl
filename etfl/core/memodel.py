@@ -301,10 +301,11 @@ class MEModel(LCSBModel, Model):
         add_interpolation_variables(self)
 
         # Create a dummy gene and override the sequences with input data
+        dummy_sequence = 'N'*mrna_length
         dummy_gene = ExpressedGene(id='dummy_gene',
                                    name='Dummy Gene',
-                                   sequence='')
-        dummy_gene._rna = 'N'*mrna_length
+                                   sequence=dummy_sequence)
+        dummy_gene._rna = dummy_sequence
         dummy_gene._peptide = 'X'*peptide_length
 
         self.add_genes([dummy_gene])
@@ -433,7 +434,7 @@ class MEModel(LCSBModel, Model):
             if isinstance(gene, str):
                 the_gene = self.genes.get_by_id(gene)
             else:
-                the_gene = gene
+                the_gene = self.genes.get_by_id(gene.id)
 
             if not isinstance(the_gene, ExpressedGene):
                 continue
@@ -1308,10 +1309,10 @@ class MEModel(LCSBModel, Model):
 
         rnap_alloc = self.get_constraints_of_type(RNAPAllocation)
         rnap_usage = self.get_variables_of_type(RNAPUsage)
-        if self.id in rnap_alloc and self.id in rnap_usage:
+        if gene_id in rnap_alloc and gene_id in rnap_usage:
             # We need to edit the variable
             # Modify the polymerase constraint
-            cons = rnap_alloc.get_by_id(self.id)
+            cons = rnap_alloc.get_by_id(gene_id)
             new_expr = self._get_rnap_allocation_expression(the_gene)
             cons.change_expr(new_expr)
             self.logger.debug('Changed RNAP allocation for gene {}'.format(gene_id))
@@ -1615,23 +1616,7 @@ class MEModel(LCSBModel, Model):
         # 3 -> Add ribosomal capacity constraint
         self.regenerate_variables()
 
-        free_ribosome = [self.get_variables_of_type(FreeEnzyme).get_by_id(x)
-                     for x in self.ribosome]
-        # CATCH : This is summing ~1500+ variable objects, and for a reason
-        # sympy does not like it. Let's cut it in smaller chunks and sum
-        # afterwards
-        # sum_RPs = sum(self.get_variables_of_type(RibosomeUsage))
-        all_ribosome_usage = self.get_variables_of_type(RibosomeUsage)
-
-        # sum_RPs = chunk_sum(all_ribosome_usage)
-        sum_RPs = symbol_sum([x.unscaled for x in all_ribosome_usage])
-
-        # The total RNAP capacity constraint looks like
-        # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
-        ribo_usage = sum_RPs \
-                + sum([x.unscaled for x in free_ribosome]) \
-                - sum([x.concentration for x in self.ribosome.values()])
-        ribo_usage /= min([x.scaling_factor for x in self.ribosome.values()])
+        ribo_usage = self._get_rib_total_capacity()
         # For nondimensionalization
         # ribo_usage = (sum_RPs + self.Rf.unscaled - self.ribosome.concentration) \
         #              / self.ribosome.scaling_factor
@@ -1649,6 +1634,23 @@ class MEModel(LCSBModel, Model):
         self.regenerate_constraints()
         self.regenerate_variables()
 
+    def _get_rib_total_capacity(self):
+        free_ribosome = [self.get_variables_of_type(FreeEnzyme).get_by_id(x)
+                         for x in self.ribosome]
+        # CATCH : This is summing ~1500+ variable objects, and for a reason
+        # sympy does not like it. Let's cut it in smaller chunks and sum
+        # afterwards
+        # sum_RPs = sum(self.get_variables_of_type(RibosomeUsage))
+        all_ribosome_usage = self.get_variables_of_type(RibosomeUsage)
+        # sum_RPs = chunk_sum(all_ribosome_usage)
+        sum_RPs = symbol_sum([x.unscaled for x in all_ribosome_usage])
+        # The total RNAP capacity constraint looks like
+        # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
+        ribo_usage = sum_RPs \
+                     + sum([x.unscaled for x in free_ribosome]) \
+                     - sum([x.concentration for x in self.ribosome.values()])
+        ribo_usage /= min([x.scaling_factor for x in self.ribosome.values()])
+        return ribo_usage
 
     def apply_ribosomal_catalytic_constraint(self, reaction):
         """

@@ -9,6 +9,7 @@
 Utility functions
 """
 
+import yaml
 
 def read_seq(filename):
     with open(filename,'r') as fid:
@@ -18,3 +19,10 @@ def read_seq(filename):
                    if not x.isdigit()])
 
     return seq
+
+def read_config(yaml_file):
+    with open(yaml_file, 'rb') as f:
+        conf = yaml.load(f.read(), Loader=yaml.SafeLoader)  # load the config file
+    return conf
+
+

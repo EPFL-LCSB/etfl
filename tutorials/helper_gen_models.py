@@ -26,7 +26,7 @@ from etfl.data.ecoli import   get_model, get_thermo_data, get_coupling_dict, \
                         get_mrna_metrics, get_enz_metrics, \
                         remove_from_biomass_equation, get_ecoli_gen_stats, \
                         get_lloyd_coupling_dict, get_transporters_coupling, \
-                        get_essentials, get_average_kcat
+                        get_essentials, get_average_kcat, get_dna_polymerase
 
 from etfl.optim.config import standard_solver_config
 from etfl.analysis.summary import print_standard_sol
@@ -207,8 +207,8 @@ def create_model(has_thermo, has_expression, has_allocation,
                            rna_nucleotides_mp = rna_nucleotides_mp
                            )
     ecoli.add_mrnas(mrna_dict.values())
-    ecoli.add_ribosome(rib,free_ratio=free_rib_ratio)
-    ecoli.add_rnap(rnap, free_ratio=free_rnap_ratio)
+    ecoli.add_ribosome(rib, free_rib_ratio)
+    ecoli.add_rnap(rnap, free_rnap_ratio)
 
     ecoli.build_expression()
     ecoli.add_enzymatic_coupling(coupling_dict)
@@ -234,6 +234,9 @@ def create_model(has_thermo, has_expression, has_allocation,
                                        gc_ratio=gc_ratio,
                                        chromosome_len=chromosome_len,
                                        dna_dict=dna_nucleotides)
+
+        dna_pol = get_dna_polymerase()
+        ecoli.add_enzymatic_coupling({'DNA_formation':[dna_pol,]})
 
     # Need to put after, because dummy has to be taken into account if used.
     ecoli.populate_expression()
