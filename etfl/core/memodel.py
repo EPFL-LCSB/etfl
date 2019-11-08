@@ -434,7 +434,7 @@ class MEModel(LCSBModel, Model):
             if isinstance(gene, str):
                 the_gene = self.genes.get_by_id(gene)
             else:
-                the_gene = gene
+                the_gene = self.genes.get_by_id(gene.id)
 
             if not isinstance(the_gene, ExpressedGene):
                 continue
@@ -1309,10 +1309,10 @@ class MEModel(LCSBModel, Model):
 
         rnap_alloc = self.get_constraints_of_type(RNAPAllocation)
         rnap_usage = self.get_variables_of_type(RNAPUsage)
-        if self.id in rnap_alloc and self.id in rnap_usage:
+        if gene_id in rnap_alloc and gene_id in rnap_usage:
             # We need to edit the variable
             # Modify the polymerase constraint
-            cons = rnap_alloc.get_by_id(self.id)
+            cons = rnap_alloc.get_by_id(gene_id)
             new_expr = self._get_rnap_allocation_expression(the_gene)
             cons.change_expr(new_expr)
             self.logger.debug('Changed RNAP allocation for gene {}'.format(gene_id))

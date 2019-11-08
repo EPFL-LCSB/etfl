@@ -16,11 +16,12 @@ from abc import ABC, abstractmethod, abstractproperty
 
 
 class Macromolecule(Species, ABC):
-    def __init__(self, id=None, kdeg=0, *args, **kwargs):
+    def __init__(self, id=None, kdeg=0, scaling_factor = None, *args, **kwargs):
         Species.__init__(self, id = id, *args, **kwargs)
 
         self.kdeg = kdeg
         self.degradation = None
+        self._scaling_factor = scaling_factor
 
     @abstractmethod
     def init_variable(self, queue=False):
@@ -95,4 +96,7 @@ class Macromolecule(Species, ABC):
 
     @property
     def scaling_factor(self):
-        return 1/self.molecular_weight
+        # Calculate it only once
+        if self._scaling_factor is None:
+            self._scaling_factor = 1/self.molecular_weight
+        return self._scaling_factor
