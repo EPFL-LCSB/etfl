@@ -15,7 +15,7 @@ from .allocation import MRNA_WEIGHT_CONS_ID, PROT_WEIGHT_CONS_ID, \
     DNA_WEIGHT_CONS_ID, MRNA_WEIGHT_VAR_ID, PROT_WEIGHT_VAR_ID, \
     DNA_WEIGHT_VAR_ID, DNA_FORMATION_RXN_ID,\
     define_prot_weight_constraint, define_mrna_weight_constraint, \
-    define_dna_weight_constraint
+    define_dna_weight_constraint, get_dna_synthesis_mets
 from ..optim.constraints import tRNAMassBalance, InterpolationConstraint, \
     TotalCapacity, EnzymeRatio
 from ..optim.variables import InterpolationVariable
@@ -130,17 +130,20 @@ class TransModel(MEModel):
         if vector.ribosome is not None:
             self.add_vector_ribosome(vector.ribosome)
 
-        # Edit the gene copy number by the number of plasmids.
-        for g in vector.genes:
-            g.copy_number *= copy_number
-
         self.add_genes(vector.genes)
+
         # This adds the peptides as well:
         self.add_nucleotide_sequences({g.id:g.sequence for g in vector.genes})
+        # Edit the gene copy number by the number of plasmids.
+        # TODO: make this more robust / Edit add_nt_seq to include gene copy #
+        for g in vector.genes:
+            self.genes.get_by_id(g.id).copy_number = g.copy_number * copy_number
+
         self.express_genes(vector.genes)
 
         # Add the mRNAs
         self.add_mrnas(vector.mrna_dict.values())
+        self._push_queue()
 
         #
 
@@ -167,13 +170,12 @@ class TransModel(MEModel):
         # recompute mRNA-dependent constraints
         self.recompute_trna_balances()
 
-        if self._has_transcription_changed:
-            self.recompute_transcription()
-        if self._has_translation_changed:
-            self.recompute_translation()
+        self.recompute_transcription()
+        self.recompute_translation()
 
         # This needs to account for new DNA
         self.recompute_allocation()
+        self._push_queue()
 
     def recompute_trna_balances(self):
 
@@ -212,10 +214,6 @@ class TransModel(MEModel):
         # This adds the RNAP as an enzyme, and also enforces its free ratio
         self.add_rnap(rnap, free_ratio=free_rnap_ratio)
 
-        self._has_transcription_changed = True
-
-        pass
-
     def add_vector_ribosome(self, ribosome):
         """
         Adds the vector's ribosome to the ribosome pool of the cell
@@ -225,25 +223,19 @@ class TransModel(MEModel):
         """
         self.add_ribosome(ribosome, free_ratio=free_rib_ratio)
 
-        self._has_translation_changed = True
-
-        pass
-
     def recompute_translation(self):
         """
 
         :return:
         """
 
-        #1.1 Remove translation catalytic constraints
+        for rib_id in self.ribosome:
+            #1.1 Find the RNAP capacity constraint
+            cons = self.get_constraints_of_type(TotalCapacity).get_by_id(rib_id)
 
-        #1.2 Apply new translation catalytic constraints
-
-        #2.1 Remove former ribosome balance
-
-        #2.2 Apply new ribosome balance
-
-        pass
+            #1.2 Edit the RNAP capacity constraint
+            new_total_capacity = self._get_rib_total_capacity()
+            cons.change_expr(new_total_capacity)
 
     def recompute_transcription(self):
         """
@@ -251,12 +243,15 @@ class TransModel(MEModel):
         :return:
         """
 
-        #1.1 Find the RNAP capacity constraint
-        cons = self.get_constraints_of_type(TotalCapacity).get_by_id('rnap')
+        # TODO: No need to recompute for the one we just added.
+        # Keep tabs ? use an except list
+        for rnap_id in self.rnap:
+            # 1.1 Find the RNAP capacity constraint
+            cons = self.get_constraints_of_type(TotalCapacity).get_by_id(rnap_id)
 
-        #1.2 Edit the RNAP capacity constraint
-        new_total_capacity = self._get_rnap_total_capacity()
-        cons.change_expr(new_total_capacity)
+            # 1.2 Edit the RNAP capacity constraint
+            new_total_capacity = self._get_rnap_total_capacity()
+            cons.change_expr(new_total_capacity)
 
     def recompute_allocation(self):
         """
@@ -336,10 +331,9 @@ class TransModel(MEModel):
         new_gc = (wt_chromosome_len * wt_gc + vector_dna_len * vector_gc) / new_chromosome_len
 
         #3. Update ATGC stoichiometries
-        dna_formation_reaction.add_metabolites({
-            v: -1 * new_chromosome_len * (new_gc if k.lower() in 'gc' else 1 - new_gc)
-            for k, v in self.dna_nucleotides.items()
-        }, combine = False)
+        ppi = self.essentials['ppi']
+        mets = get_dna_synthesis_mets(self, new_chromosome_len, new_gc, ppi)
+        dna_formation_reaction.add_metabolites(mets, combine = False)
 
         ##. Redefine the DNA weight constraint
         dna.len = new_chromosome_len
