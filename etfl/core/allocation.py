@@ -399,12 +399,7 @@ def add_dna_mass_requirement(model, mu_values, dna_rel, gc_ratio,
                                  scaled=True)
     model.add_reactions([dna_formation])
 
-    # In this formulation, we make 1 unit of the whole chromosome with NTPs
-    g = gc_ratio
-    mets = {v: -1 * chromosome_len * (g if k.lower() in 'gc' else 1 - g)
-            for k, v in model.dna_nucleotides.items()}
-    # Don't forget to release ppi (2 ppi per bp)
-    mets[ppi] = 2 * chromosome_len
+    mets = get_dna_synthesis_mets(model, chromosome_len, gc_ratio, ppi)
 
     dna_formation.add_metabolites(mets)
 
@@ -441,6 +436,16 @@ def add_dna_mass_requirement(model, mu_values, dna_rel, gc_ratio,
 
     model.regenerate_variables()
     model.regenerate_constraints()
+
+
+def get_dna_synthesis_mets(model, chromosome_len, gc_ratio, ppi):
+    # In this formulation, we make 1 unit of the whole chromosome with NTPs
+    g = gc_ratio
+    mets = {v: -1 * chromosome_len * (g if k.lower() in 'gc' else 1 - g)
+            for k, v in model.dna_nucleotides.items()}
+    # Don't forget to release ppi (2 ppi per bp)
+    mets[ppi] = 2 * chromosome_len
+    return mets
 
 
 def define_dna_weight_constraint(model, dna, dna_ggdw, gc_content, chromosome_len):

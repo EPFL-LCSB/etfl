@@ -1616,23 +1616,7 @@ class MEModel(LCSBModel, Model):
         # 3 -> Add ribosomal capacity constraint
         self.regenerate_variables()
 
-        free_ribosome = [self.get_variables_of_type(FreeEnzyme).get_by_id(x)
-                     for x in self.ribosome]
-        # CATCH : This is summing ~1500+ variable objects, and for a reason
-        # sympy does not like it. Let's cut it in smaller chunks and sum
-        # afterwards
-        # sum_RPs = sum(self.get_variables_of_type(RibosomeUsage))
-        all_ribosome_usage = self.get_variables_of_type(RibosomeUsage)
-
-        # sum_RPs = chunk_sum(all_ribosome_usage)
-        sum_RPs = symbol_sum([x.unscaled for x in all_ribosome_usage])
-
-        # The total RNAP capacity constraint looks like
-        # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
-        ribo_usage = sum_RPs \
-                + sum([x.unscaled for x in free_ribosome]) \
-                - sum([x.concentration for x in self.ribosome.values()])
-        ribo_usage /= min([x.scaling_factor for x in self.ribosome.values()])
+        ribo_usage = self._get_rib_total_capacity()
         # For nondimensionalization
         # ribo_usage = (sum_RPs + self.Rf.unscaled - self.ribosome.concentration) \
         #              / self.ribosome.scaling_factor
@@ -1650,6 +1634,23 @@ class MEModel(LCSBModel, Model):
         self.regenerate_constraints()
         self.regenerate_variables()
 
+    def _get_rib_total_capacity(self):
+        free_ribosome = [self.get_variables_of_type(FreeEnzyme).get_by_id(x)
+                         for x in self.ribosome]
+        # CATCH : This is summing ~1500+ variable objects, and for a reason
+        # sympy does not like it. Let's cut it in smaller chunks and sum
+        # afterwards
+        # sum_RPs = sum(self.get_variables_of_type(RibosomeUsage))
+        all_ribosome_usage = self.get_variables_of_type(RibosomeUsage)
+        # sum_RPs = chunk_sum(all_ribosome_usage)
+        sum_RPs = symbol_sum([x.unscaled for x in all_ribosome_usage])
+        # The total RNAP capacity constraint looks like
+        # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
+        ribo_usage = sum_RPs \
+                     + sum([x.unscaled for x in free_ribosome]) \
+                     - sum([x.concentration for x in self.ribosome.values()])
+        ribo_usage /= min([x.scaling_factor for x in self.ribosome.values()])
+        return ribo_usage
 
     def apply_ribosomal_catalytic_constraint(self, reaction):
         """
