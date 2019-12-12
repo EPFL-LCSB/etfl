@@ -45,7 +45,12 @@ from ..optim.variables import ModelVariable, GrowthActivation, \
     GrowthRate, GenericVariable
 
 from .allocation import add_dummy_expression,add_dummy_mrna,add_dummy_peptide,\
-    add_dummy_protein, add_interpolation_variables
+    add_dummy_protein, add_interpolation_variables, \
+    MRNA_WEIGHT_CONS_ID, PROT_WEIGHT_CONS_ID, \
+    MRNA_WEIGHT_VAR_ID, PROT_WEIGHT_VAR_ID, \
+    DNA_WEIGHT_CONS_ID, DNA_WEIGHT_VAR_ID, DNA_FORMATION_RXN_ID, \
+    define_prot_weight_constraint, define_mrna_weight_constraint, \
+    define_dna_weight_constraint, get_dna_synthesis_mets
 
 from pytfa.core.model import LCSBModel
 from pytfa.optim.reformulation import petersen_linearization
@@ -569,6 +574,7 @@ class MEModel(LCSBModel, Model):
             charged_stoichs = [translation.trna_stoich[charged_trna.id] for
                                translation in self.translation_reactions]
 
+            # ys are negative because charged tRNAs are consumed in translation
             v_tsl_c = symbol_sum(
                 [x * y
                  for x, y in zip(charged_stoichs, translation_fluxes)])
@@ -1297,6 +1303,77 @@ class MEModel(LCSBModel, Model):
 
         return rnap_alloc
 
+    def add_sigma_factor(self, rnap_id, sigma_factor, holoenzyme):
+        """
+        Transforms the model to take sigma factor activation of the RNAP into
+        account
+
+        :param rnap_id: the ID of the RNAP (should be included in the model)
+        :param sigma_factor: {<rnap_id> : (sigma_factor_object, holoenzyme_object)}
+        :param holoenzyme: {<rnap_id> : (sigma_factor_object, holoenzyme_object)}
+        :return:
+        """
+
+        #1. Get the proper rnap
+        rnap = self.rnap[rnap_id]
+
+        #2. Add holoenzyme and sigma factor to the model
+        self.add_enzymes([sigma_factor, holoenzyme])
+        self._push_queue()
+
+        #3. Add rnap + sigma -> rnap reaction
+        # rnap_activation = EnzymaticReaction(id='rnap_activation',
+        #                                     name='RNAP_activation')
+        # self.add_reaction(rnap_activation)
+        # v_holo = rnap_activation.forward_variable - rnap_activation.reverse_variable
+        # Remove metabolites from the existing complexation reaction
+        holoenzyme.complexation.add_metabolites({k:-v for k,v in
+                                                 holoenzyme.complexation.metabolites.items()},
+                                                rescale=False)
+        v_holo = holoenzyme.complexation.net
+
+        # Consumes one sigma
+        sigma_mb = self.enzyme_mass_balance.get_by_id(sigma_factor.id)
+        sigma_mb.change_expr(sigma_mb.expr - v_holo)
+
+        # Consumes one RNAP
+        rnap_mb = self.enzyme_mass_balance.get_by_id(rnap_id)
+        rnap_mb.change_expr(rnap_mb.expr - v_holo)
+
+        # Makes one holoenzyme
+        # holo_mb = self.enzyme_mass_balance.get_by_id(holoenzyme.id)
+        # holo_mb.change_expr(rnap_mb.expr + v_holo)
+
+        # #4. Make holoenzyme total equal to the sum of bound RNAP_l
+        #
+        # all_rnap_usage = self.get_variables_of_type(RNAPUsage)
+        # sum_RMs = symbol_sum([x.unscaled for x in all_rnap_usage])
+        # expr = sum_RMs - holoenzyme.concentration
+        # expr /= holoenzyme.scaling_factor
+        #
+        # self.add_constraint(kind=TotalCapacity,
+        #                     hook=self,
+        #                     id_=holoenzyme.id,
+        #                     expr=expr,
+        #                     lb=0,
+        #                     ub=0,
+        #                     )
+
+        #4. Replace RNAP variableby holo-RNAP in the total capacity constraint,
+        all_total_capa = self.get_constraints_of_type(TotalCapacity)
+        the_cons = all_total_capa.get_by_id(rnap_id)
+
+        subs_dict = {rnap.variable:holoenzyme.variable}
+        the_cons.change_expr(the_cons.expr.subs(subs_dict))
+
+        # self.rnap[holoenzyme.id] = holoenzyme
+        # self.rnap.pop(rnap_id)
+
+        self.recompute_transcription()
+        self.recompute_translation()
+        self.recompute_allocation()
+
+
     def edit_gene_copy_number(self, gene_id):
         """
         Edits the RNAP allocation constraints if the copy number of a gene
@@ -1321,6 +1398,72 @@ class MEModel(LCSBModel, Model):
             # have not been made yet.
             # self.model._add_rnap_allocation(rnap_usage, self)
             pass
+
+    def recompute_translation(self):
+        """
+
+        :return:
+        """
+
+        for rib_id in self.ribosome:
+            #1.1 Find the RNAP capacity constraint
+            cons = self.get_constraints_of_type(TotalCapacity).get_by_id(rib_id)
+
+            #1.2 Edit the RNAP capacity constraint
+            new_total_capacity = self._get_rib_total_capacity()
+            cons.change_expr(new_total_capacity)
+
+    def recompute_transcription(self):
+        """
+
+        :return:
+        """
+
+        # TODO: No need to recompute for the one we just added.
+        # Keep tabs ? use an except list
+        for rnap_id in self.rnap:
+            # 1.1 Find the RNAP capacity constraint
+            cons = self.get_constraints_of_type(TotalCapacity).get_by_id(rnap_id)
+
+            # 1.2 Edit the RNAP capacity constraint
+            new_total_capacity = self._get_rnap_total_capacity()
+            cons.change_expr(new_total_capacity)
+
+    def recompute_allocation(self):
+        """
+
+        :return:
+        """
+
+        #0. Does the model have allocation constraints ?
+        interpolation_constraints = self.get_constraints_of_type(InterpolationConstraint)
+        interpolation_variables = self.get_variables_of_type(InterpolationVariable)
+        if not interpolation_constraints:
+            return None
+
+
+        #1. Remove previous allocation constraints
+
+        # mRNA
+        mrna_weight_def_cons = interpolation_constraints.get_by_id(MRNA_WEIGHT_CONS_ID)
+        mrna_weight_var = interpolation_variables.get_by_id(MRNA_WEIGHT_VAR_ID)
+
+        # Proteins
+        prot_weight_def_cons = interpolation_constraints.get_by_id(PROT_WEIGHT_CONS_ID)
+        prot_weight_var = interpolation_variables.get_by_id(PROT_WEIGHT_VAR_ID)
+
+        #DNA
+        dna_weight_def_cons  = interpolation_constraints.get_by_id(DNA_WEIGHT_CONS_ID)
+        dna_weight_var = interpolation_variables.get_by_id(DNA_WEIGHT_VAR_ID)
+
+        for the_cons in [mrna_weight_def_cons, prot_weight_def_cons, dna_weight_def_cons]:
+            self.remove_constraint(the_cons)
+
+        #2. Apply new allocation constraints
+        define_prot_weight_constraint(self,prot_weight_var)
+        define_mrna_weight_constraint(self,mrna_weight_var)
+
+        self.recalculate_dna(dna_weight_var)
 
     def _get_transcription_name(self, the_mrna_id):
         """
