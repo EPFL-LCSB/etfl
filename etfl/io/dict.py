@@ -403,6 +403,10 @@ def _add_me_reaction_info(rxn, rxn_dict):
         rxn_dict['gene_id'] = None
         rxn_dict['macromolecule'] = rxn.macromolecule.id
         rxn_dict['macromolecule_kind'] = rxn.macromolecule.__class__.__name__
+    #DNAFormation
+    if isinstance(rxn, DNAFormation):
+        rxn_dict['kind'] = 'DNAFormation'
+        rxn_dict['enzymes'] = [x.id for x in rxn.enzymes]
     # Enzymatic Reactions
     elif isinstance(rxn, EnzymaticReaction):
         rxn_dict['kind'] = 'EnzymaticReaction'
@@ -410,9 +414,6 @@ def _add_me_reaction_info(rxn, rxn_dict):
     # Generic Reaction
     else:
         rxn_dict['kind'] = 'Reaction'
-
-    if isinstance(rxn, DNAFormation):
-        rxn_dict['kind'] = 'DNAFormation'
 
 def _add_thermo_reaction_info(rxn, rxn_dict):
     if hasattr(rxn, 'thermo'):
@@ -826,14 +827,20 @@ def find_dna_formation_reaction_from_dict(new, obj):
     new_rxns = list()
     for rxn_dict in obj['reactions']:
         # TODO: CLEANUP
-        if rxn_dict['id'] == DNA_FORMATION_RXN_ID:
-        # if rxn_dict['kind'] == 'DNAFormation':
+        # if rxn_dict['id'] == DNA_FORMATION_RXN_ID:
+        if rxn_dict['kind'] == 'DNAFormation':
             dna = new.dna
+            enzymes = [new.enzymes.get_by_id(x) for x in rxn_dict['enzymes']]
+            if 'scaled' in rxn_dict:
+                scaled = rxn_dict['scaled']
+            else:
+                scaled = False
             new_rxn = replace_by_reaction_subclass(new,
                                                    kind = DNAFormation,
                                                    reaction_id=rxn_dict['id'],
-                                                   scaled=rxn_dict['scaled'],
+                                                   scaled=scaled,
                                                    dna=dna,
+                                                   enzymes=enzymes,
                                                    mu_sigma=new._mu_range[-1])
             new_rxns.append(new_rxn)
 
