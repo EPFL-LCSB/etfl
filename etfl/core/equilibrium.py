@@ -4,6 +4,7 @@ from ..optim.variables import RNAPUsage, FreeEnzyme, BinaryActivator, \
 from ..optim.constraints import GeneConstraint, EnzymeRatio,\
     LinearizationConstraint
 from pytfa.optim.reformulation import petersen_linearization
+from numpy import mean, median
 
 
 class RNAPBindingEquilibrium(GeneConstraint):
@@ -59,13 +60,17 @@ def add_rnap_binding_equilibrium_constraints(model, the_rnap, Kb):
     """
 
     # #1. Find if there is a ratio constraint on the RNAP - this is incompatible
-    # all_ratio_cons = model.get_constraints_of_type(EnzymeRatio)
-    #
-    # for rnap_id in model.rnap:
-    #     try:
-    #         model.remove_constraint(all_ratio_cons.get_by_id(rnap_id))
-    #     except KeyError:
-    #         pass
+    all_ratio_cons = model.get_constraints_of_type(EnzymeRatio)
+
+    for rnap_id in model.rnap:
+        try:
+            cons = all_ratio_cons.get_by_id(rnap_id)
+            # Make equality into inequality
+            # 1.0*EF_rnap - 0.75*EZ_rnap == 0 --> >= 0
+            cons.constraint.ub = None
+            # model.remove_constraint(cons)
+        except KeyError:
+            pass
 
     #2. Create the linearized bilinear product delta_u*RNAP_F
 
@@ -84,7 +89,7 @@ def add_rnap_binding_equilibrium_constraints(model, the_rnap, Kb):
     free_rnap_times_gene_conc = sum(zs[delta_u]*dna_hat[delta_u] for delta_u in zs)
 
     sorted_dna_conc = sorted(dna_hat.values())
-    dna_hat_resolution = max([x-y for x,y in zip(sorted_dna_conc[1:], sorted_dna_conc[:-1])])
+    dna_hat_resolution = median([x-y for x,y in zip(sorted_dna_conc[1:], sorted_dna_conc[:-1])])
 
 
     all_rnap_usage = model.get_variables_of_type(RNAPUsage)
@@ -105,16 +110,17 @@ def add_rnap_binding_equilibrium_constraints(model, the_rnap, Kb):
 
         expr = Kb * RNAP_l - copy_number * free_rnap_times_gene_conc
 
-        # scaling
-        # expr *= model.dna.scaling_factor
+        # scaling by ~1/1e-7
+        sigma = the_rnap.scaling_factor
+        expr /= sigma
 
         #3.3 Add it to the model
 
         model.add_constraint(kind=RNAPBindingEquilibrium,
                              hook=the_gene,
                              expr=expr,
-                             ub= copy_number*dna_hat_resolution/2,
-                             lb=-copy_number*dna_hat_resolution/2,
+                             ub= copy_number*dna_hat_resolution/(2*sigma),
+                             lb=-copy_number*dna_hat_resolution/(2*sigma),
                              queue=True)
     model._push_queue()
     model.regenerate_constraints()
