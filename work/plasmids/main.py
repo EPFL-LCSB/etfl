@@ -73,11 +73,17 @@ if __name__ == '__main__':
     # BNID 	103590
     #          ecoli density is ~ 1.2
     #    mol/L * L/kg   * kg/g * g/gDW
-    Kb = 1e-9 * 1/1.2 * 1000 * 1/0.5
+    Kb = 550e-9 * 1/1.2 * 1000 * 1/0.5
     add_rnap_binding_equilibrium_constraints(model,
                                              the_rnap=model.rnap['rnap'],
                                              Kb=Kb)
 
+    # Sigma factor
+    from etfl.data.ecoli import get_sigma_70
+    sigma, holo = get_sigma_70(model.rnap['rnap'])
+    model.add_sigma_factor('rnap', sigma, holo)
+
+    1/0
 
     transmodel = TransModel(model, inplace = config['options']['inplace'])
     transmodel.add_vector(my_plasmid, copy_number = copy_number)

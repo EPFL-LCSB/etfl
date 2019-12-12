@@ -84,19 +84,19 @@ def simulate(available_uptake, model, variables, warm_start=None):
            'mrna_ratio':mrna_ratio
            }
 
-    fix_growth(model, model.solution)
-
-    for var in variables:
-        model.objective = model.variables.get(var)
-
-        lb, ub = _va_sim(model)
-
-        ret[var + '_lb'] = lb.objective_value
-        ret[var + '_ub'] = ub.objective_value
+    # fix_growth(model, model.solution)
+    #
+    # for var in variables:
+    #     model.objective = model.variables.get(var)
+    #
+    #     lb, ub = _va_sim(model)
+    #
+    #     ret[var + '_lb'] = lb.objective_value
+    #     ret[var + '_ub'] = ub.objective_value
+    # release_growth(model)
 
     print(pd.Series(ret))
 
-    release_growth(model)
     # apply_warm_start(model, growth_solution)
 
     return pd.Series(ret)
@@ -128,11 +128,15 @@ if __name__ == '__main__':
 
     }
 
-    models = {k:load_json_model('models/'+v,solver=solver) for k,v in model_files.items()}
+    models = {k:load_json_model('models/current_best/'+v,solver=solver) for k,
+                                                                          v in model_files.items()}
     data = {}
 
     for name,model in models.items():
-        growth_uptake_config(model)
+        model.solver.configuration.timeout = 18000
+        model.solver.configuration.tolerances.optimality = 1e-4
+        model.solver.problem.Params.MIPFocus = 0
+        # growth_uptake_config(model)
         model.warm_start = None
         model.logger.info('Simulating ...')
         start = time()

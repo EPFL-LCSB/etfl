@@ -26,7 +26,9 @@ transporter_genes = pd.read_csv(pjoin(data_folder,'transporters_kcats.csv'),
 dnapol3_genes = pd.read_csv(pjoin(data_folder,'dnapol3_genes.csv'),
                                header=None)
 
-all_b_genes = pd.concat([all_b_genes, rnap_genes, rrna_genes, rpeptide_genes, transporter_genes])
+more_genes = pd.Series(['eco:b3067',]) #sigma factor 70
+
+all_b_genes = pd.concat([all_b_genes, rnap_genes, rrna_genes, rpeptide_genes, transporter_genes, more_genes])
 all_b_genes.drop_duplicates(inplace=True)
 
 

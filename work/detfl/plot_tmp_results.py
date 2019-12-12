@@ -53,8 +53,9 @@ glc_enzymes = ['EZ_'+ x for x in [
                                   'GLCDpp_GLUCDEHYDROG_MONOMER_mod_pqq',
                                   'GLCDpp_G6437_MONOMER_mod_ca2_mod_pqq',
                                   'GLCabcpp_ABC_18_CPLX',
-                                  'GLCptspp_CPLX_164',
                                   'GLCptspp_CPLX_157',
+                                  'GLCptspp_CPLX_164',
+                                  'GLCptspp_CPLX_165',
                                   'GLCt2pp_GALP_MONOMER',
                                   ]] + ['total']
 

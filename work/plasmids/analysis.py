@@ -44,21 +44,32 @@ def chebyshev(model, chebyshev_include, inplace=True, big_m=1000):
             include_list = get_cons_var_classes(new, ['ForwardCatalyticConstraint', 'BackwardCatalyticConstraint'],
                                                 type = 'cons')
             this_r_id = 'catalytic'
+            scaling_factor=1#172*3600
         elif this_cons_type =='ExpressionCoupling':
             # chebyshev_variables = new.get_variables_of_type(mRNAVariable)
             # chebyshev_variables = new.get_variables_of_type(RibosomeUsage)
             # vars = get_variables(new, chebyshev_variables)
             include_list = get_cons_var_classes(new, [this_cons_type], type='cons')
             this_r_id = 'translation'
+            scaling_factor = 1#50
         elif this_cons_type =='RNAPAllocation':
             # chebyshev_variables = new.get_variables_of_type(DNAVariable)
             # chebyshev_variables = new.get_variables_of_type(RNAPUsage)
             # vars = get_variables(new, chebyshev_variables)
             include_list = get_cons_var_classes(new, [this_cons_type], type='cons')
             this_r_id = 'transcription'
+            scaling_factor = 1
+        elif this_cons_type =='SynthesisConstraint':
+            # chebyshev_variables = new.get_variables_of_type(DNAVariable)
+            # chebyshev_variables = new.get_variables_of_type(RNAPUsage)
+            # vars = get_variables(new, chebyshev_variables)
+            include_list = get_cons_var_classes(new, [this_cons_type], type='cons')
+            this_r_id = 'synthesis'
+            scaling_factor = 1
         else:
             include_list = get_cons_var_classes(new, [this_cons_type], type='cons')
             this_r_id = this_cons_type
+            scaling_factor = 1
 
 
         r = chebyshev_transform(model=new,
@@ -66,11 +77,13 @@ def chebyshev(model, chebyshev_include, inplace=True, big_m=1000):
                                 # vars=vars,
                                 include_list=include_list,
                                 exclude_list=list(),
-                                radius_id=this_r_id)
+                                radius_id=this_r_id, # if commented, all the radii will have
+                                # the same name, hence it will be the same var
+                                scaling_factor=scaling_factor)
         radii.append(r)
 
     regularisation =  0.001*new.enzymes.dummy_enzyme.scaled_concentration
-    cheby_obj = sum(radii) + regularisation
+    cheby_obj = sum(radii) #+ regularisation
 
     # We want to compute the center under the constraint of the growth at the
     # initial solution.
@@ -103,7 +116,7 @@ def export_peptides(model, tag, solution=None):
 
     data = solution.raw
     enz_data = data[enz_var_ids]
-    enz_data.name = tag
+    enz_data.columns = [tag]
 
     pep_data = enzymes_to_peptides_conc(model=model, enzyme_conc=enz_data)
     pep_data = pd.DataFrame.from_dict(pep_data, orient='index')

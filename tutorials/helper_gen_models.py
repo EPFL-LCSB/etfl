@@ -58,6 +58,12 @@ def apply_bounds(model, bounds):
         rxn.lower_bound = bounds.loc[rid].min()
         rxn.upper_bound = bounds.loc[rid].max()
 
+# Free RNAP ratio should be around 0.7
+# https://www.sciencedirect.com/science/article/pii/S0300908403001056?via%3Dihub
+# Biochimie
+# Volume 85, Issue 6, June 2003, Pages 597-609
+# Free RNA polymerase and modeling global transcription in Escherichia coli
+# H Bremer, P Dennis, M Ehrenberg
 
 def create_model(has_thermo, has_expression, has_allocation, 
 				kcat_mode='kmax',
@@ -181,6 +187,7 @@ def create_model(has_thermo, has_expression, has_allocation,
     mrna_dict = get_mrna_dict(ecoli)
     nt_sequences = get_nt_sequences()
     rnap = get_rnap()
+    # rnap.kcat_fwd *= 0.5
     rib = get_rib()
 
     # Remove nucleotides and amino acids from biomass reaction as they will be
