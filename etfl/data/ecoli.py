@@ -949,7 +949,7 @@ def get_rnap():
     :return:
     """
 
-    rnap_genes = ['b3295','b3649','b3987','b3988']
+    rnap_genes = {'b3295':2,'b3649':1,'b3987':1,'b3988':1}
     rnap = RNAPolymerase(id='rnap',
                          name='RNA Polymerase',
                          ktrans = ktrans*3600,
@@ -959,3 +959,30 @@ def get_rnap():
 
 
     return rnap
+
+def get_sigma_70(rnap):
+    """
+    # RNAP
+
+    b3067: rpoD
+    :return:
+    """
+
+    sigma_genes = {'b3067':1,}
+    sigma70 = Enzyme(id='sigma70',
+                             name='Sigma Factor 70 kDa',
+                             kcat = 1, #Not defined
+                             kdeg = kdeg_enz,
+                             composition = sigma_genes)
+
+    holo_comp = rnap.composition.copy()
+    holo_comp.update(sigma_genes)
+
+    holo_rnap = RNAPolymerase(id='holo' + rnap.id,
+                             name=str(rnap.name) + ' Holoenzyme',
+                             ktrans = rnap.ktrans,
+                             kdeg = kdeg_enz,
+                             composition = holo_comp)
+
+
+    return sigma70, holo_rnap
