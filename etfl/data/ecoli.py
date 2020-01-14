@@ -949,7 +949,7 @@ def get_rnap():
     :return:
     """
 
-    rnap_genes = ['b3295','b3649','b3987','b3988']
+    rnap_genes = {'b3295':2,'b3649':1,'b3987':1,'b3988':1}
     rnap = RNAPolymerase(id='rnap',
                          name='RNA Polymerase',
                          ktrans = ktrans*3600,
@@ -959,3 +959,62 @@ def get_rnap():
 
 
     return rnap
+
+def get_sigma_70(rnap):
+    """
+    # RNAP
+
+    b3067: rpoD
+    :return:
+    """
+
+    sigma_genes = {'b3067':1,}
+    sigma70 = Enzyme(id='sigma70',
+                             name='Sigma Factor 70 kDa',
+                             kcat = 1, #Not defined
+                             kdeg = kdeg_enz,
+                             composition = sigma_genes)
+
+    holo_comp = rnap.composition.copy()
+    holo_comp.update(sigma_genes)
+
+    holo_rnap = RNAPolymerase(id='holo' + rnap.id,
+                             name=str(rnap.name) + ' Holoenzyme',
+                             ktrans = rnap.ktrans,
+                             kdeg = kdeg_enz,
+                             composition = holo_comp)
+
+
+    return sigma70, holo_rnap
+
+def read_growth_dependant_rnap_alloc():
+    """
+    Read table with data on Π, the fraction of RNAP holoenzyme. We define Π:
+    Π = holoRNAP / RNAP_total = holoRNAP / (holoRNAP + RNAP_free)
+    :return:
+    """
+    Pi = pd.read_csv(pjoin(data_dir,'neidhardt_tab3_active_rnap.csv'),
+                     header = 1, index_col=0)
+    Pi = Pi.drop('/h', axis=1)
+
+    return Pi/100
+
+def get_growth_dependant_transformed_rnap_alloc():
+    """
+    We are given the active RNAP ratio Π, which we approximate to be
+
+    Π = holoRNAP / RNAP_total = holoRNAP / (holoRNAP + RNAP_free)
+
+    For our calculations, we are interested in q = holoRNAP / RNAP_free
+
+    Π = holoRNAP / (holoRNAP + RNAP_free)
+    <=> 1/Π       = 1 + 1/q
+    <=> 1/Π - 1   =     1/q
+    <=> Π/(1 - Π) = q
+
+    :return:
+    """
+    Pi = read_growth_dependant_rnap_alloc()
+    q = Pi / (1-Pi)
+    mus = [float(x) for x in q.columns]
+    return mus, q.to_numpy()[0]

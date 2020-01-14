@@ -223,14 +223,7 @@ def add_protein_mass_requirement(model, mu_values, p_rel):
     :return:
     """
 
-    activation_vars = model.get_variables_of_type(BinaryActivator)
-
-    model_mus = [x[0] for x in model.mu_bins]
-    p_hat = np.interp(x=model_mus,
-                      xp=mu_values,
-                      fp=p_rel)
-
-    p_ref = symbol_sum([x * y for x, y in zip(p_hat, activation_vars)])
+    p_hat, p_ref = interpolate_growth_data(model, p_rel, mu_values)
 
     # For legibility
     prot_ggdw = model.add_variable(kind=InterpolationVariable, hook=model,
@@ -239,13 +232,14 @@ def add_protein_mass_requirement(model, mu_values, p_rel):
                                   ub=1,  # can't have more prot than cell mass
                                   )
 
-    epsilon = max(abs(np.diff(p_hat)))
+    # epsilon = max(abs(np.diff(p_hat)))
+    epsilon = np.std(p_hat)
 
     define_prot_weight_constraint(model, prot_ggdw)
     apply_prot_weight_constraint(model, p_ref, prot_ggdw, epsilon)
 
-    model.interpolation_protein = p_hat
-    model._interpolation_protein_tolerance = epsilon
+    # model.interpolation_protein = p_hat
+    # model._interpolation_protein_tolerance = epsilon
 
     model.regenerate_variables()
     model.regenerate_constraints()
@@ -299,14 +293,7 @@ def add_rna_mass_requirement(model, mu_values, rna_rel):
     :return:
     """
 
-    activation_vars = model.get_variables_of_type(BinaryActivator)
-
-    model_mus = [x[0] for x in model.mu_bins]
-    m_hat = np.interp(x=model_mus,
-                      xp=mu_values,
-                      fp=rna_rel)
-
-    m_ref = symbol_sum([x * y for x, y in zip(m_hat, activation_vars)])
+    m_hat, m_ref = interpolate_growth_data(model, rna_rel, mu_values)
 
     # For legibility
     mrna_ggdw = model.add_variable(kind=InterpolationVariable,
@@ -316,13 +303,15 @@ def add_rna_mass_requirement(model, mu_values, rna_rel):
                                   ub=1,  # can't have more rna than cell mass
                                   )
 
-    epsilon = max(abs(np.diff(m_hat)))
+    # epsilon = max(abs(np.diff(m_hat)))
+    epsilon = np.std(m_hat)
+
 
     define_mrna_weight_constraint(model, mrna_ggdw)
     apply_mrna_weight_constraint(model, m_ref, mrna_ggdw, epsilon)
 
-    model.interpolation_mrna = m_hat
-    model._interpolation_mrna_tolerance = epsilon
+    # model.interpolation_mrna = m_hat
+    # model._interpolation_mrna_tolerance = epsilon
 
     model.regenerate_variables()
     model.regenerate_constraints()
@@ -378,14 +367,7 @@ def add_dna_mass_requirement(model, mu_values, dna_rel, gc_ratio,
     model.dna_nucleotides = dna_dict
 
     # Get mu interpolation
-    activation_vars = model.get_variables_of_type(BinaryActivator)
-
-    model_mus = [x[0] for x in model.mu_bins]
-    m_hat = np.interp(x=model_mus,
-                      xp=mu_values,
-                      fp=dna_rel)
-
-    m_ref = symbol_sum([x * y for x, y in zip(m_hat, activation_vars)])
+    d_hat, d_ref = interpolate_growth_data(model, dna_rel, mu_values)
 
     # Add DNA variable:
 
@@ -419,9 +401,10 @@ def add_dna_mass_requirement(model, mu_values, dna_rel, gc_ratio,
     define_dna_weight_constraint(model, dna, dna_ggdw, gc_ratio, chromosome_len)
 
     # DNA_ggdw = DNA_ref
-    mass_coupling_expr = dna_ggdw - m_ref
+    mass_coupling_expr = dna_ggdw - d_ref
 
-    epsilon = max(abs(np.diff(m_hat)))
+    # epsilon = max(abs(np.diff(d_hat)))
+    epsilon = np.std(d_hat)
 
     model.add_constraint(kind=InterpolationConstraint,
                         hook=model,
@@ -431,11 +414,31 @@ def add_dna_mass_requirement(model, mu_values, dna_rel, gc_ratio,
                         ub=epsilon,
                         )
 
-    model.interpolation_dna = m_hat
-    model._interpolation_dna_tolerance = epsilon
+    # model.interpolation_dna = d_hat
+    # model._interpolation_dna_tolerance = epsilon
 
     model.regenerate_variables()
     model.regenerate_constraints()
+
+
+def interpolate_growth_data(model, x, mu_values):
+    """
+    
+    :param model: 
+    :param x: 
+    :param mu_values: 
+    :return: interpolated_values, interpolated_variable: The set of values taken
+            and an expression of the piecewise interpolation function, function
+            of the interpolation variables.
+    """
+    activation_vars = model.get_variables_of_type(BinaryActivator)
+    model_mus = [x[0] for x in model.mu_bins]
+    interpolated_values = np.interp(x=model_mus,
+                      xp=mu_values,
+                      fp=x)
+    interpolated_variable = symbol_sum([x * y for x, y in
+                                        zip(interpolated_values, activation_vars)])
+    return interpolated_values, interpolated_variable
 
 
 def get_dna_synthesis_mets(model, chromosome_len, gc_ratio, ppi):

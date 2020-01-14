@@ -198,22 +198,6 @@ class GrowthChoice(ModelConstraint):
     prefix = 'GR_'
 
 
-class LinearizationConstraint(ModelConstraint):
-    """
-    Class to represent a variable attached to a reaction
-    """
-    @staticmethod
-    def from_constraints(cons, model):
-        return LinearizationConstraint(
-            name = cons.name,
-            expr = cons.expr,
-            model = model,
-            ub = cons.ub,
-            lb = cons.lb,
-        )
-
-    prefix = 'LC_'
-
 class SOS1Constraint(ModelConstraint):
     """
     Class to represent SOS 1 constraint

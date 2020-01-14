@@ -107,14 +107,6 @@ class BackwardEnzyme(EnzymeVariable):
     prefix = 'BE_'
 
 
-class LinearizationVariable(ModelVariable):
-    """
-    Class to represent the product mu*[E] when performin linearization of the
-    model
-    """
-    prefix = 'LZ_'
-
-
 class DNAVariable(ModelVariable):
     """
     Class to represent DNA in the model

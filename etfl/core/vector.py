@@ -187,109 +187,6 @@ class TransModel(MEModel):
         #2. Remake tRNA balances
         self.add_trna_mass_balances()
 
-    def add_vector_RNAP(self, rnap):
-        """
-        Adds the vector's RNAP to the RNAP pool of the cell
-
-        :param rnap:
-        :return:
-        """
-        #TODO: Clean this up
-        try:
-            free_rnap_ratio = rnap.free_ratio
-        except AttributeError:
-            # Get it from the current free ratio constraint
-            rnap_id = list(self.rnap.keys())[0]
-            cons = self.get_constraints_of_type(EnzymeRatio).get_by_id(rnap_id)
-            rnap_tot_var = self.rnap[rnap_id].variable
-            # The Enzyme Ratio constraint looks like
-            # [E_free] - ρ*[E_tot] = 0,
-            # which is equivalent to
-            # [E_free] = ρ*[E_tot]
-            # So the linear coeff will be negative
-            free_rnap_ratio = abs( 
-                cons.constraint.get_linear_coefficients([rnap_tot_var])[rnap_tot_var]
-                                    )
-
-        # This adds the RNAP as an enzyme, and also enforces its free ratio
-        self.add_rnap(rnap, free_ratio=free_rnap_ratio)
-
-    def add_vector_ribosome(self, ribosome):
-        """
-        Adds the vector's ribosome to the ribosome pool of the cell
-
-        :param rnap:
-        :return:
-        """
-        self.add_ribosome(ribosome, free_ratio=free_rib_ratio)
-
-    def recompute_translation(self):
-        """
-
-        :return:
-        """
-
-        for rib_id in self.ribosome:
-            #1.1 Find the RNAP capacity constraint
-            cons = self.get_constraints_of_type(TotalCapacity).get_by_id(rib_id)
-
-            #1.2 Edit the RNAP capacity constraint
-            new_total_capacity = self._get_rib_total_capacity()
-            cons.change_expr(new_total_capacity)
-
-    def recompute_transcription(self):
-        """
-
-        :return:
-        """
-
-        # TODO: No need to recompute for the one we just added.
-        # Keep tabs ? use an except list
-        for rnap_id in self.rnap:
-            # 1.1 Find the RNAP capacity constraint
-            cons = self.get_constraints_of_type(TotalCapacity).get_by_id(rnap_id)
-
-            # 1.2 Edit the RNAP capacity constraint
-            new_total_capacity = self._get_rnap_total_capacity()
-            cons.change_expr(new_total_capacity)
-
-    def recompute_allocation(self):
-        """
-
-        :return:
-        """
-
-        #0. Does the model have allocation constraints ?
-        interpolation_constraints = self.get_constraints_of_type(InterpolationConstraint)
-        interpolation_variables = self.get_variables_of_type(InterpolationVariable)
-        if not interpolation_constraints:
-            return None
-
-
-        #1. Remove previous allocation constraints
-
-        # mRNA
-        mrna_weight_def_cons = interpolation_constraints.get_by_id(MRNA_WEIGHT_CONS_ID)
-        mrna_weight_var = interpolation_variables.get_by_id(MRNA_WEIGHT_VAR_ID)
-
-        # Proteins
-        prot_weight_def_cons = interpolation_constraints.get_by_id(PROT_WEIGHT_CONS_ID)
-        prot_weight_var = interpolation_variables.get_by_id(PROT_WEIGHT_VAR_ID)
-
-        #DNA
-        dna_weight_def_cons  = interpolation_constraints.get_by_id(DNA_WEIGHT_CONS_ID)
-        dna_weight_var = interpolation_variables.get_by_id(DNA_WEIGHT_VAR_ID)
-
-        for the_cons in [mrna_weight_def_cons, prot_weight_def_cons, dna_weight_def_cons]:
-            self.remove_constraint(the_cons)
-
-        #2. Apply new allocation constraints
-        define_prot_weight_constraint(self,prot_weight_var)
-        define_mrna_weight_constraint(self,mrna_weight_var)
-
-        self.recalculate_dna(dna_weight_var)
-
-
     def recalculate_dna(self, dna_ggdw):
         #0. DNA, metabolites and reactions to update
         dna = self.dna
@@ -343,6 +240,43 @@ class TransModel(MEModel):
         # Mark the vectors as integrated
         for vector in dna_vectors:
             vector.integrate()
+
+    def add_vector_RNAP(self, rnap):
+        """
+        Adds the vector's RNAP to the RNAP pool of the cell
+
+        :param rnap:
+        :return:
+        """
+        #TODO: Clean this up
+        try:
+            free_rnap_ratio = rnap.free_ratio
+        except AttributeError:
+            # Get it from the current free ratio constraint
+            rnap_id = list(self.rnap.keys())[0]
+            cons = self.get_constraints_of_type(EnzymeRatio).get_by_id(rnap_id)
+            rnap_tot_var = self.rnap[rnap_id].variable
+            # The Enzyme Ratio constraint looks like
+            # [E_free] - ρ*[E_tot] = 0,
+            # which is equivalent to
+            # [E_free] = ρ*[E_tot]
+            # So the linear coeff will be negative
+            free_rnap_ratio = abs( 
+                cons.constraint.get_linear_coefficients([rnap_tot_var])[rnap_tot_var]
+                                    )
+
+        # This adds the RNAP as an enzyme, and also enforces its free ratio
+        self.add_rnap(rnap, free_ratio=free_rnap_ratio)
+
+    def add_vector_ribosome(self, ribosome):
+        """
+        Adds the vector's ribosome to the ribosome pool of the cell
+
+        :param rnap:
+        :return:
+        """
+        self.add_ribosome(ribosome, free_ratio=free_rib_ratio)
+
 
 class Vector:
     def __init__(self, id_, sequence, genes, reactions,

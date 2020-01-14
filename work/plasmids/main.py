@@ -14,6 +14,9 @@ from etfl.optim.config import standard_solver_config
 from etfl.analysis.summary import print_standard_sol
 from etfl.core.vector import TransModel
 from etfl.core.equilibrium import add_rnap_binding_equilibrium_constraints
+from etfl.data.ecoli import get_growth_dependant_transformed_rnap_alloc
+from etfl.core.equilibrium import add_sigma_factor
+
 import yaml
 import sys
 
@@ -73,11 +76,21 @@ if __name__ == '__main__':
     # BNID 	103590
     #          ecoli density is ~ 1.2
     #    mol/L * L/kg   * kg/g * g/gDW
-    Kb = 1e-9 * 1/1.2 * 1000 * 1/0.5
+    Kb = 550e-9 * 1/1.2 * 1000 * 1/0.5
     add_rnap_binding_equilibrium_constraints(model,
                                              the_rnap=model.rnap['rnap'],
                                              Kb=Kb)
 
+    # Sigma factor
+    from etfl.data.ecoli import get_sigma_70
+    sigma, holo = get_sigma_70(model.rnap['rnap'])
+
+    Kb_sigma = 1e-9 * 1/1.2 * 1000 * 1/0.5
+    transformed_rnap_alloc = get_growth_dependant_transformed_rnap_alloc()
+    add_sigma_factor(model, 'rnap', sigma, holo, transformed_rnap_alloc, Kb_sigma)
+
+    model.optimize()
+    print_standard_sol(model)
 
     transmodel = TransModel(model, inplace = config['options']['inplace'])
     transmodel.add_vector(my_plasmid, copy_number = copy_number)

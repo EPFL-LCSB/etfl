@@ -36,19 +36,25 @@ from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,
     BackwardCatalyticConstraint, EnzymeMassBalance, \
     rRNAMassBalance, mRNAMassBalance, tRNAMassBalance, DNAMassBalance, \
     GrowthCoupling, TotalCapacity, ExpressionCoupling, EnzymeRatio, \
-    GrowthChoice, EnzymeDegradation, mRNADegradation,\
-    LinearizationConstraint, SynthesisConstraint, SOS1Constraint,\
+    GrowthChoice, EnzymeDegradation, mRNADegradation, \
+    SynthesisConstraint, SOS1Constraint,\
     InterpolationConstraint, RNAPAllocation
 from ..optim.variables import ModelVariable, GrowthActivation, \
-    EnzymeVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, \
+    EnzymeVariable, RibosomeUsage, RNAPUsage, \
     FreeEnzyme, BinaryActivator, InterpolationVariable, DNAVariable, \
     GrowthRate, GenericVariable
 
 from .allocation import add_dummy_expression,add_dummy_mrna,add_dummy_peptide,\
-    add_dummy_protein, add_interpolation_variables
+    add_dummy_protein, add_interpolation_variables, \
+    MRNA_WEIGHT_CONS_ID, PROT_WEIGHT_CONS_ID, \
+    MRNA_WEIGHT_VAR_ID, PROT_WEIGHT_VAR_ID, \
+    DNA_WEIGHT_CONS_ID, DNA_WEIGHT_VAR_ID, DNA_FORMATION_RXN_ID, \
+    define_prot_weight_constraint, define_mrna_weight_constraint, \
+    define_dna_weight_constraint, get_dna_synthesis_mets
 
 from pytfa.core.model import LCSBModel
-from pytfa.optim.reformulation import petersen_linearization
+from pytfa.optim.reformulation import linearize_product
+from pytfa.optim import LinearizationConstraint
 from pytfa.optim.utils import chunk_sum, symbol_sum
 from pytfa.utils.logger import get_bistream_logger
 from pytfa.utils.str import camel2underscores
@@ -569,6 +575,7 @@ class MEModel(LCSBModel, Model):
             charged_stoichs = [translation.trna_stoich[charged_trna.id] for
                                translation in self.translation_reactions]
 
+            # ys are negative because charged tRNAs are consumed in translation
             v_tsl_c = symbol_sum(
                 [x * y
                  for x, y in zip(charged_stoichs, translation_fluxes)])
@@ -623,7 +630,7 @@ class MEModel(LCSBModel, Model):
         # self.add_gene_reactions()
 
         # Generic reactions <-> Enzymes coupling
-        for rid in tqdm(self.coupling_dict, desc='cat. constraints'):
+        for rid in tqdm(coupling_dict, desc='cat. constraints'):
             r = self.reactions.get_by_id(rid)
 
             if isinstance(r, EnzymaticReaction) and r.id in coupling_dict:
@@ -782,9 +789,6 @@ class MEModel(LCSBModel, Model):
 
         E = macromolecule.variable
 
-        # z = lambda_i * E_hat <= 1
-        ub = 1
-
         # ga_i is a binary variable for the binary expansion f the fraction on N
         # of the max growth rate
         ga_vars = self.get_ordered_ga_vars()
@@ -798,34 +802,7 @@ class MEModel(LCSBModel, Model):
 
         for i, ga_i in enumerate(ga_vars):
             # Linearization step for ga_i * [E]
-            z_name = '__MUL__'.join([ga_i.name, E.name])
-            # Add the variables
-            model_z_i = self.add_variable(kind=LinearizationVariable,
-                                          hook=self,
-                                          id_=z_name,
-                                          lb=0,
-                                          ub=ub,
-                                          queue=False)
-
-            # z_i, cons = glovers_linearization(b = ga_i, fy=E, L=E.lb, U=E.ub, z=model_z_i)
-            z_i, new_constraints = petersen_linearization(b=ga_i, x=E, M=E.ub,
-                                                          z=model_z_i)
-
-            # Add the constraints:
-            for cons in new_constraints:
-                # Do not forget to substitute the sympy symbol in the constraint
-                # with a variable  !
-                # new_expression = cons.expression.subs(z_i, model_z_i.variable)
-                # EDIT: Not anymore needed if we supply the variable
-
-                self.add_constraint(kind=LinearizationConstraint,
-                                    hook=self,
-                                    id_=cons.name,
-                                    expr=cons.expression,
-                                    # expr=new_expression,
-                                    ub=cons.ub,
-                                    lb=cons.lb,
-                                    queue=queue)
+            model_z_i = linearize_product(model = self, b = ga_i, x=E, queue=queue)
 
             out_expr += (2 ** i) * self.mu_approx_resolution * model_z_i
 
@@ -1321,6 +1298,74 @@ class MEModel(LCSBModel, Model):
             # have not been made yet.
             # self.model._add_rnap_allocation(rnap_usage, self)
             pass
+
+    def recompute_translation(self):
+        """
+
+        :return:
+        """
+
+        for rib_id in self.ribosome:
+            #1.1 Find the RNAP capacity constraint
+            cons = self.get_constraints_of_type(TotalCapacity).get_by_id(rib_id)
+
+            #1.2 Edit the RNAP capacity constraint
+            new_total_capacity = self._get_rib_total_capacity()
+            cons.change_expr(new_total_capacity)
+
+    def recompute_transcription(self):
+        """
+
+        :return:
+        """
+
+        # TODO: No need to recompute for the one we just added.
+        # Keep tabs ? use an except list
+        for rnap_id in self.rnap:
+            # 1.1 Find the RNAP capacity constraint
+            cons = self.get_constraints_of_type(TotalCapacity).get_by_id(rnap_id)
+
+            # 1.2 Edit the RNAP capacity constraint
+            new_total_capacity = self._get_rnap_total_capacity()
+            cons.change_expr(new_total_capacity)
+
+    def recompute_allocation(self):
+        """
+
+        :return:
+        """
+
+        #0. Does the model have allocation constraints ?
+        interpolation_constraints = self.get_constraints_of_type(InterpolationConstraint)
+        interpolation_variables = self.get_variables_of_type(InterpolationVariable)
+        if not interpolation_constraints:
+            return None
+
+
+        #1. Remove previous allocation constraints
+
+        # mRNA
+        mrna_weight_def_cons = interpolation_constraints.get_by_id(MRNA_WEIGHT_CONS_ID)
+        mrna_weight_var = interpolation_variables.get_by_id(MRNA_WEIGHT_VAR_ID)
+
+        # Proteins
+        prot_weight_def_cons = interpolation_constraints.get_by_id(PROT_WEIGHT_CONS_ID)
+        prot_weight_var = interpolation_variables.get_by_id(PROT_WEIGHT_VAR_ID)
+
+        #DNA
+        dna_weight_def_cons  = interpolation_constraints.get_by_id(DNA_WEIGHT_CONS_ID)
+        dna_weight_var = interpolation_variables.get_by_id(DNA_WEIGHT_VAR_ID)
+
+        for the_cons in [mrna_weight_def_cons, prot_weight_def_cons, dna_weight_def_cons]:
+            self.remove_constraint(the_cons)
+
+        #2. Apply new allocation constraints
+        define_prot_weight_constraint(self,prot_weight_var)
+        define_mrna_weight_constraint(self,mrna_weight_var)
+
+        chromosome_len = self.dna.len
+        gc_content= self.dna.gc_ratio
+        define_dna_weight_constraint(self, self.dna, dna_weight_var, gc_content, chromosome_len)
 
     def _get_transcription_name(self, the_mrna_id):
         """

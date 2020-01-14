@@ -48,10 +48,12 @@ def summarize_model(model,time_data,groups,
 
     summary_plots['growth'] = make_growth_plot(model,time_data)
 
+    summary_plots['mass_ratios'] = plot_mass(model,time_data)
+
     if model is not None:
         summary_plots['subsystems'] = plot_subsystems(model,time_data)
 
-    output_folder = join(output_path,model_tag)#+'_'+get_timestr())
+    output_folder = join(output_path)#,model_tag)#+'_'+get_timestr())
 
     if not exists(output_folder):
         makedirs(output_folder)
@@ -241,6 +243,40 @@ def plot_subsystems(model,time_data,compact=True):
 
     return p
 
+def plot_mass(model,time_data):
+
+    # p = bp.figure(width=1000)
+
+    t = time_data.loc['t']
+    # prot_mass = time_data.loc['IV_prot_ggdw']
+    # mrna_mass = time_data.loc['IV_mrna_ggdw']
+    # dna_mass  = time_data.loc['IV_dna_ggdw']
+    ys = time_data.loc[['IV_prot_ggdw','IV_mrna_ggdw','IV_dna_ggdw']]
+
+    # colors = Category10[3]
+    #
+    # last_y = 0*t
+    # times = list(t) + list(t[::-1])
+    # legend_it = []
+
+    p = plot_lines(t, ys, title = 'Mass ratios',
+                   total=True)
+
+    # for e,data in enumerate([prot_mass,mrna_mass,dna_mass]):
+    #     this_y = data + last_y
+    #     ys = list(this_y) + list(last_y[::-1])
+    #     c = p.patch(x = times, y = ys, color = colors[e])#, legend = sub)
+    #     legend_it.append((data.name, [c]))
+    #     last_y = this_y
+    #
+    # p.legend.location = 'top_left'
+    # legend = Legend(items=legend_it[::-1], location=(0, 0))
+    #
+    # p.add_layout(legend, 'right')
+
+    return p
+
+
 def get_enzymes_of_subsystem(model, subsystem):
     reactions = [x for x in model.reactions if subsystem.lower() in x.subsystem.lower()]
 
@@ -253,7 +289,7 @@ def get_enzymes_of_subsystem(model, subsystem):
 if __name__ == '__main__':
 
     if not exists('plots'):
-        makedirs('plots')
+        makedirs('plots/tmp')
 
     # time_data_path = 'data/detfl_cheby_monod_vETFL_vmax_mixed_expc_lcts2_with_degradation.csv'
     time_data_path = 'data/detfl_cheby_monod_vETFL_vmax_mixed_ini_lcts2_with_degradation.csv'
@@ -292,5 +328,5 @@ if __name__ == '__main__':
               'glc_fluxes': glc_fluxes,
               'lcts_fluxes': lcts_fluxes,
               'species': species}
-    summarize_model(model, time_data, groups, output_path='plots',
+    summarize_model(model, time_data, groups, output_path='plots/tmp',
                     model_tag=model_tag)

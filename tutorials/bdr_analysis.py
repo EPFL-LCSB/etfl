@@ -27,7 +27,9 @@ expression_reaction_classes = [ProteinComplexation, DegradationReaction,
                                TranscriptionReaction, TranslationReaction]
 
 iJO1366 = cobra.io.load_json_model('iJO1366_with_xrefs.json')
-fva_fba = flux_variability_analysis(iJO1366)
+sol = iJO1366.optimize()
+fo = 0.796/sol.objective_value # the minimal growth of the tfa model
+fva_fba = flux_variability_analysis(iJO1366, fraction_of_optimum=fo)
 reaction_list = fva_fba[fva_fba['minimum'] * fva_fba['maximum'] < 0].index
 
 
