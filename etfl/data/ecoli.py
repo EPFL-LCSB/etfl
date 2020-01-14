@@ -986,3 +986,35 @@ def get_sigma_70(rnap):
 
 
     return sigma70, holo_rnap
+
+def read_growth_dependant_rnap_alloc():
+    """
+    Read table with data on Π, the fraction of RNAP holoenzyme. We define Π:
+    Π = holoRNAP / RNAP_total = holoRNAP / (holoRNAP + RNAP_free)
+    :return:
+    """
+    Pi = pd.read_csv(pjoin(data_dir,'neidhardt_tab3_active_rnap.csv'),
+                     header = 1, index_col=0)
+    Pi = Pi.drop('/h', axis=1)
+
+    return Pi/100
+
+def get_growth_dependant_transformed_rnap_alloc():
+    """
+    We are given the active RNAP ratio Π, which we approximate to be
+
+    Π = holoRNAP / RNAP_total = holoRNAP / (holoRNAP + RNAP_free)
+
+    For our calculations, we are interested in q = holoRNAP / RNAP_free
+
+    Π = holoRNAP / (holoRNAP + RNAP_free)
+    <=> 1/Π       = 1 + 1/q
+    <=> 1/Π - 1   =     1/q
+    <=> Π/(1 - Π) = q
+
+    :return:
+    """
+    Pi = read_growth_dependant_rnap_alloc()
+    q = Pi / (1-Pi)
+    mus = [float(x) for x in q.columns]
+    return mus, q.to_numpy()[0]
