@@ -16,8 +16,8 @@ import numpy as np
 from tqdm import tqdm
 from warnings import warn
 
-from ..optim.variables import EnzymeRef, mRNARef, EnzymeVariable, mRNAVariable, \
-    LinearizationVariable
+from ..optim.variables import EnzymeRef, mRNARef, EnzymeVariable, mRNAVariable
+from pytfa.optim import LinearizationVariable
 from ..optim.constraints import EnzymeDeltaPos, EnzymeDeltaNeg, \
     mRNADeltaPos, mRNADeltaNeg
 from ..optim.utils import fix_growth, release_growth, \
