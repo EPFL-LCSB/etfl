@@ -36,11 +36,11 @@ from ..optim.constraints import CatalyticConstraint, ForwardCatalyticConstraint,
     BackwardCatalyticConstraint, EnzymeMassBalance, \
     rRNAMassBalance, mRNAMassBalance, tRNAMassBalance, DNAMassBalance, \
     GrowthCoupling, TotalCapacity, ExpressionCoupling, EnzymeRatio, \
-    GrowthChoice, EnzymeDegradation, mRNADegradation,\
-    LinearizationConstraint, SynthesisConstraint, SOS1Constraint,\
+    GrowthChoice, EnzymeDegradation, mRNADegradation, \
+    SynthesisConstraint, SOS1Constraint,\
     InterpolationConstraint, RNAPAllocation
 from ..optim.variables import ModelVariable, GrowthActivation, \
-    EnzymeVariable, LinearizationVariable, RibosomeUsage, RNAPUsage, \
+    EnzymeVariable, RibosomeUsage, RNAPUsage, \
     FreeEnzyme, BinaryActivator, InterpolationVariable, DNAVariable, \
     GrowthRate, GenericVariable
 
@@ -53,7 +53,8 @@ from .allocation import add_dummy_expression,add_dummy_mrna,add_dummy_peptide,\
     define_dna_weight_constraint, get_dna_synthesis_mets
 
 from pytfa.core.model import LCSBModel
-from pytfa.optim.reformulation import petersen_linearization
+from pytfa.optim.reformulation import linearize_product
+from pytfa.optim import LinearizationConstraint
 from pytfa.optim.utils import chunk_sum, symbol_sum
 from pytfa.utils.logger import get_bistream_logger
 from pytfa.utils.str import camel2underscores
@@ -629,7 +630,7 @@ class MEModel(LCSBModel, Model):
         # self.add_gene_reactions()
 
         # Generic reactions <-> Enzymes coupling
-        for rid in tqdm(self.coupling_dict, desc='cat. constraints'):
+        for rid in tqdm(coupling_dict, desc='cat. constraints'):
             r = self.reactions.get_by_id(rid)
 
             if isinstance(r, EnzymaticReaction) and r.id in coupling_dict:
@@ -788,9 +789,6 @@ class MEModel(LCSBModel, Model):
 
         E = macromolecule.variable
 
-        # z = lambda_i * E_hat <= 1
-        ub = 1
-
         # ga_i is a binary variable for the binary expansion f the fraction on N
         # of the max growth rate
         ga_vars = self.get_ordered_ga_vars()
@@ -804,34 +802,7 @@ class MEModel(LCSBModel, Model):
 
         for i, ga_i in enumerate(ga_vars):
             # Linearization step for ga_i * [E]
-            z_name = '__MUL__'.join([ga_i.name, E.name])
-            # Add the variables
-            model_z_i = self.add_variable(kind=LinearizationVariable,
-                                          hook=self,
-                                          id_=z_name,
-                                          lb=0,
-                                          ub=ub,
-                                          queue=False)
-
-            # z_i, cons = glovers_linearization(b = ga_i, fy=E, L=E.lb, U=E.ub, z=model_z_i)
-            z_i, new_constraints = petersen_linearization(b=ga_i, x=E, M=E.ub,
-                                                          z=model_z_i)
-
-            # Add the constraints:
-            for cons in new_constraints:
-                # Do not forget to substitute the sympy symbol in the constraint
-                # with a variable  !
-                # new_expression = cons.expression.subs(z_i, model_z_i.variable)
-                # EDIT: Not anymore needed if we supply the variable
-
-                self.add_constraint(kind=LinearizationConstraint,
-                                    hook=self,
-                                    id_=cons.name,
-                                    expr=cons.expression,
-                                    # expr=new_expression,
-                                    ub=cons.ub,
-                                    lb=cons.lb,
-                                    queue=queue)
+            model_z_i = linearize_product(model = self, b = ga_i, x=E, queue=queue)
 
             out_expr += (2 ** i) * self.mu_approx_resolution * model_z_i
 
@@ -1303,77 +1274,6 @@ class MEModel(LCSBModel, Model):
 
         return rnap_alloc
 
-    def add_sigma_factor(self, rnap_id, sigma_factor, holoenzyme):
-        """
-        Transforms the model to take sigma factor activation of the RNAP into
-        account
-
-        :param rnap_id: the ID of the RNAP (should be included in the model)
-        :param sigma_factor: {<rnap_id> : (sigma_factor_object, holoenzyme_object)}
-        :param holoenzyme: {<rnap_id> : (sigma_factor_object, holoenzyme_object)}
-        :return:
-        """
-
-        #1. Get the proper rnap
-        rnap = self.rnap[rnap_id]
-
-        #2. Add holoenzyme and sigma factor to the model
-        self.add_enzymes([sigma_factor, holoenzyme])
-        self._push_queue()
-
-        #3. Add rnap + sigma -> rnap reaction
-        # rnap_activation = EnzymaticReaction(id='rnap_activation',
-        #                                     name='RNAP_activation')
-        # self.add_reaction(rnap_activation)
-        # v_holo = rnap_activation.forward_variable - rnap_activation.reverse_variable
-        # Remove metabolites from the existing complexation reaction
-        holoenzyme.complexation.add_metabolites({k:-v for k,v in
-                                                 holoenzyme.complexation.metabolites.items()},
-                                                rescale=False)
-        v_holo = holoenzyme.complexation.net
-
-        # Consumes one sigma
-        sigma_mb = self.enzyme_mass_balance.get_by_id(sigma_factor.id)
-        sigma_mb.change_expr(sigma_mb.expr - v_holo)
-
-        # Consumes one RNAP
-        rnap_mb = self.enzyme_mass_balance.get_by_id(rnap_id)
-        rnap_mb.change_expr(rnap_mb.expr - v_holo)
-
-        # Makes one holoenzyme
-        # holo_mb = self.enzyme_mass_balance.get_by_id(holoenzyme.id)
-        # holo_mb.change_expr(rnap_mb.expr + v_holo)
-
-        # #4. Make holoenzyme total equal to the sum of bound RNAP_l
-        #
-        # all_rnap_usage = self.get_variables_of_type(RNAPUsage)
-        # sum_RMs = symbol_sum([x.unscaled for x in all_rnap_usage])
-        # expr = sum_RMs - holoenzyme.concentration
-        # expr /= holoenzyme.scaling_factor
-        #
-        # self.add_constraint(kind=TotalCapacity,
-        #                     hook=self,
-        #                     id_=holoenzyme.id,
-        #                     expr=expr,
-        #                     lb=0,
-        #                     ub=0,
-        #                     )
-
-        #4. Replace RNAP variableby holo-RNAP in the total capacity constraint,
-        all_total_capa = self.get_constraints_of_type(TotalCapacity)
-        the_cons = all_total_capa.get_by_id(rnap_id)
-
-        subs_dict = {rnap.variable:holoenzyme.variable}
-        the_cons.change_expr(the_cons.expr.subs(subs_dict))
-
-        # self.rnap[holoenzyme.id] = holoenzyme
-        # self.rnap.pop(rnap_id)
-
-        self.recompute_transcription()
-        self.recompute_translation()
-        self.recompute_allocation()
-
-
     def edit_gene_copy_number(self, gene_id):
         """
         Edits the RNAP allocation constraints if the copy number of a gene
@@ -1463,7 +1363,9 @@ class MEModel(LCSBModel, Model):
         define_prot_weight_constraint(self,prot_weight_var)
         define_mrna_weight_constraint(self,mrna_weight_var)
 
-        self.recalculate_dna(dna_weight_var)
+        chromosome_len = self.dna.len
+        gc_content= self.dna.gc_ratio
+        define_dna_weight_constraint(self, self.dna, dna_weight_var, gc_content, chromosome_len)
 
     def _get_transcription_name(self, the_mrna_id):
         """
