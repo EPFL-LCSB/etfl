@@ -407,7 +407,7 @@ def _add_me_reaction_info(rxn, rxn_dict):
         rxn_dict['macromolecule'] = rxn.macromolecule.id
         rxn_dict['macromolecule_kind'] = rxn.macromolecule.__class__.__name__
     #DNAFormation
-    if isinstance(rxn, DNAFormation):
+    elif isinstance(rxn, DNAFormation):
         rxn_dict['kind'] = 'DNAFormation'
         rxn_dict['enzymes'] = [x.id for x in rxn.enzymes]
     # Enzymatic Reactions
@@ -793,6 +793,7 @@ def find_complexation_reactions_from_dict(new, obj):
                                                    reaction_id=rxn_dict['id'],
                                                    scaled=scaled,
                                                    target=target)
+            target.complexation = new_rxn
             new_rxns.append(new_rxn)
     new.complexation_reactions += new_rxns
 
