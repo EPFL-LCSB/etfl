@@ -1124,7 +1124,7 @@ class MEModel(LCSBModel, Model):
                             queue=queue)
 
 
-    def populate_expression(self):
+    def populate_expression(self, constrain_polymerases=True):
         """
         Populates RNAP, ribosomes, and their number on their respective templates
 
@@ -1137,7 +1137,7 @@ class MEModel(LCSBModel, Model):
         for the_mrna in tqdm(self.mrnas, desc='populating expression'):
             self._constrain_polysome(the_mrna)
 
-        if self.dna is not None:
+        if self.dna is not None and constrain_polymerases:
             for the_gene in tqdm(self.genes, desc='constraining transcription'):
                 self._constrain_polymerase(the_gene)
 
