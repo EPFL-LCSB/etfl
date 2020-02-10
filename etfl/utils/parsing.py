@@ -64,9 +64,9 @@ def multiple_replace(text, adict, ignore_case = False):
     # the simplest, lambda-based implementation
     # Create a regular expression from all of the dictionary keys
     if ignore_case:
-        regex = re.compile("|".join(map(re.escape, adict.keys(  ))), re.IGNORECASE)
+        regex = re.compile(r'\b' + r'\b|\b'.join(map(re.escape, adict.keys(  ))) + r'\b', re.IGNORECASE)
     else:
-        regex = re.compile("|".join(map(re.escape, adict.keys(  ))))
+        regex = re.compile(r'\b' + r'\b|\b'.join(map(re.escape, adict.keys(  ))) + r'\b')
 
 # For each match, look up the corresponding value in the dictionary
     return regex.sub(lambda match: adict[match.group(0)], text)
