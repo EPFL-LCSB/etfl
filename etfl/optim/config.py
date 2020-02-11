@@ -68,3 +68,21 @@ def growth_uptake_config(model):
         model.solver.problem.Params.BranchDir = 1
         model.solver.problem.Params.Heuristics = 0
         model.solver.problem.Params.AggFill = 5
+
+
+
+def redhuman_config(model):
+    """
+    Solver settings for optimizing growth on human cancer models. Tuned using the
+    grbtune tool on the vETFL model from reduced RECON3.
+
+    :param model:
+    :return:
+    """
+    standard_solver_config(model)
+    if model.solver.interface.__name__ == 'optlang.gurobi_interface':
+        model.solver.problem.Params.SimplexPricing = 2
+        model.solver.problem.Params.BranchDir = 1
+        model.solver.problem.Params.Heuristics = 0
+        model.solver.problem.Params.AggFill = 5
+        model.solver.problem.Params.DegenMoves = 2
