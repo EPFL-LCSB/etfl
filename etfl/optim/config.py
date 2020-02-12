@@ -81,8 +81,7 @@ def redhuman_config(model):
     """
     standard_solver_config(model)
     if model.solver.interface.__name__ == 'optlang.gurobi_interface':
-        model.solver.problem.Params.SimplexPricing = 2
-        model.solver.problem.Params.BranchDir = 1
-        model.solver.problem.Params.Heuristics = 0
-        model.solver.problem.Params.AggFill = 5
-        model.solver.problem.Params.DegenMoves = 2
+        model.solver.problem.Params.NormAdjust = 0
+        model.solver.problem.Params.RINS = 100
+        model.solver.problem.Params.ZeroObjNodes = 2500
+        model.solver.problem.Params.NumericFocus = 3
