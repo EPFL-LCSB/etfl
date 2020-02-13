@@ -259,17 +259,36 @@ class MEModel(LCSBModel, Model):
         :param sequences:
         :return:
         """
-
+        
         for gene_id, seq in sequences.items():
             if gene_id in self.genes:
                 new = replace_by_me_gene(self, gene_id, seq)
-
+                
             else:
                 self.logger.warning('Model has no gene {}, Adding it'.format(gene_id))
                 new = ExpressedGene(id= gene_id, name = gene_id, sequence=seq)
                 self.add_genes([new])
 
             self._make_peptide_from_gene(gene_id)
+            
+            
+    def add_transcription_by(self, transcription_dict):
+        
+        for gene_id, transcripted_by in transcription_dict.items():
+            # transcripted_by is a list of rnap(s)
+            try:
+                self.genes.get_by_id(gene_id).transcribed_by = transcripted_by
+            except KeyError:
+                continue
+            
+    def add_translation_by(self, translation_dict):
+        
+        for gene_id, translated_by in translation_dict.items():
+            # transcripted_by is a list of rnap(s)
+            try:
+                self.genes.get_by_id(gene_id).translated_by = translated_by
+            except KeyError:
+                continue
 
     def _make_peptide_from_gene(self, gene_id):
         free_pep = Peptide(id=gene_id,
@@ -277,6 +296,17 @@ class MEModel(LCSBModel, Model):
                            gene_id=gene_id)
         free_pep._model = self
         self.peptides += [free_pep]
+    
+    def add_peptide_sequences(self, aa_sequences):
+        
+        for pep_id, seq in aa_sequences.items():
+            if pep_id in self.peptides:
+                self.peptides.get_by_id(pep_id).peptide = seq
+            else:
+                self.logger.warning('Model has no peptide {}'.format(pep_id))
+                continue
+
+
 
     def add_dummies(self, nt_ratios, mrna_kdeg, mrna_length, aa_ratios,
                     enzyme_kdeg, peptide_length):
@@ -1405,36 +1435,41 @@ class MEModel(LCSBModel, Model):
 
         self.regenerate_variables()
 
-        usage = self._get_rnap_total_capacity()
-
-        # usage = (sum_RMs + self.RNAPf[this_rnap.id].unscaled - this_rnap.concentration) / \
-        #         this_rnap.scaling_factor
-
-        # Create the capacity constraint
-        self.add_constraint(kind=TotalCapacity,
-                            hook=self,
-                            id_ = 'rnap',
-                            expr=usage,
-                            lb = 0,
-                            ub = 0,
-                            )
+        for rnap_id in self.rnap.keys():
+            usage = self._get_rnap_total_capacity(rnap_id = rnap_id)
+    
+            # usage = (sum_RMs + self.RNAPf[this_rnap.id].unscaled - this_rnap.concentration) / \
+            #         this_rnap.scaling_factor
+    
+            # Create the capacity constraint
+            self.add_constraint(kind=TotalCapacity,
+                                hook=self,
+                                id_ = rnap_id,
+                                expr=usage,
+                                lb = 0,
+                                ub = 0,
+                                )
 
         # update variable and constraints attributes
         self.regenerate_constraints()
         self.regenerate_variables()
 
-    def _get_rnap_total_capacity(self):
+    def _get_rnap_total_capacity(self, rnap_id):
         all_rnap_usage = self.get_variables_of_type(RNAPUsage)
-        sum_RMs = symbol_sum([x.unscaled for x in all_rnap_usage])
-        free_rnap = [self.get_variables_of_type(FreeEnzyme).get_by_id(x)
-                     for x in self.rnap]
+        # only for genes trascribed by this rnap
+        sum_RMs = symbol_sum([x.unscaled for x in all_rnap_usage \
+                             if x.hook.transcribed_by is None \
+                             or rnap_id in x.hook.transcribed_by])
+        free_rnap = [self.get_variables_of_type(FreeEnzyme).get_by_id(rnap_id)]
+        
         # The total RNAP capacity constraint looks like
         # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
         usage = sum_RMs \
                 + sum([x.unscaled for x in free_rnap]) \
-                - sum([x.concentration for x in self.rnap.values()])
-        usage /= min([x.scaling_factor for x in self.rnap.values()])
+                - sum([self.rnap[rnap_id].concentration])
+        usage /= min([self.rnap[rnap_id].scaling_factor])
         return usage
+    
 
     def apply_rnap_catalytic_constraint(self, reaction, queue):
         """
@@ -1615,41 +1650,46 @@ class MEModel(LCSBModel, Model):
         # 3 -> Add ribosomal capacity constraint
         self.regenerate_variables()
 
-        free_ribosome = [self.get_variables_of_type(FreeEnzyme).get_by_id(x)
-                     for x in self.ribosome]
-        # CATCH : This is summing ~1500+ variable objects, and for a reason
-        # sympy does not like it. Let's cut it in smaller chunks and sum
-        # afterwards
-        # sum_RPs = sum(self.get_variables_of_type(RibosomeUsage))
-        all_ribosome_usage = self.get_variables_of_type(RibosomeUsage)
-
-        # sum_RPs = chunk_sum(all_ribosome_usage)
-        sum_RPs = symbol_sum([x.unscaled for x in all_ribosome_usage])
-
-        # The total RNAP capacity constraint looks like
-        # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
-        ribo_usage = sum_RPs \
-                + sum([x.unscaled for x in free_ribosome]) \
-                - sum([x.concentration for x in self.ribosome.values()])
-        ribo_usage /= min([x.scaling_factor for x in self.ribosome.values()])
-        # For nondimensionalization
-        # ribo_usage = (sum_RPs + self.Rf.unscaled - self.ribosome.concentration) \
-        #              / self.ribosome.scaling_factor
-
-        # Create the capacity constraint
-        self.add_constraint(kind=TotalCapacity,
-                            hook=self,
-                            id_='rib',
-                            expr=ribo_usage,
-                            lb = 0,
-                            ub = 0,
-                            )
+        
+        for rib_id in self.ribosome.keys():
+            # CATCH : This is summing ~1500+ variable objects, and for a reason
+            # sympy does not like it. Let's cut it in smaller chunks and sum
+            # afterwards
+            # sum_RPs = sum(self.get_variables_of_type(RibosomeUsage))
+            ribo_usage = self._get_rib_total_capacity(rib_id = rib_id)
+            # For nondimensionalization
+            # ribo_usage = (sum_RPs + self.Rf.unscaled - self.ribosome.concentration) \
+            #              / self.ribosome.scaling_factor
+    
+            # Create the capacity constraint
+            self.add_constraint(kind=TotalCapacity,
+                                hook=self,
+                                id_=rib_id,
+                                expr=ribo_usage,
+                                lb = 0,
+                                ub = 0,
+                                )
 
         # update variable and constraints attributes
         self.regenerate_constraints()
         self.regenerate_variables()
 
+    def _get_rib_total_capacity(self, rib_id):
+        all_ribosome_usage = self.get_variables_of_type(RibosomeUsage)
+        # only for genes traslated by this ribosome
+        sum_RPs = symbol_sum([x.unscaled for x in all_ribosome_usage \
+                              if x.hook.translated_by is None \
+                              or rib_id in x.hook.translated_by])
+        free_ribosome = [self.get_variables_of_type(FreeEnzyme).get_by_id(rib_id)]
 
+        # The total RNAP capacity constraint looks like
+        # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
+        usage = sum_RPs \
+                + sum([x.unscaled for x in free_ribosome]) \
+                - sum([self.ribosome[rib_id].concentration])
+        usage /= min([self.ribosome[rib_id].scaling_factor])
+        return usage
+    
     def apply_ribosomal_catalytic_constraint(self, reaction):
         """
         Given a translation reaction, apply the constraint that links it with
