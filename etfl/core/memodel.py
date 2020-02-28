@@ -259,7 +259,6 @@ class MEModel(LCSBModel, Model):
         :param sequences:
         :return:
         """
-        
         for gene_id, seq in sequences.items():
             if gene_id in self.genes:
                 new = replace_by_me_gene(self, gene_id, seq)
@@ -274,20 +273,22 @@ class MEModel(LCSBModel, Model):
             
     def add_transcription_by(self, transcription_dict):
         
-        for gene_id, transcripted_by in transcription_dict.items():
-            # transcripted_by is a list of rnap(s)
+        for gene_id, transcribed_by in transcription_dict.items():
+            # transcribed_by is a list of rnap(s)
             try:
-                self.genes.get_by_id(gene_id).transcribed_by = transcripted_by
+                self.genes.get_by_id(gene_id).transcribed_by = transcribed_by
             except KeyError:
+                # the gene is not in the model
                 continue
             
     def add_translation_by(self, translation_dict):
         
         for gene_id, translated_by in translation_dict.items():
-            # transcripted_by is a list of rnap(s)
+            # translated_by is a list of rnap(s)
             try:
                 self.genes.get_by_id(gene_id).translated_by = translated_by
             except KeyError:
+                # the gene is not in the model
                 continue
 
     def _make_peptide_from_gene(self, gene_id):
@@ -1456,7 +1457,7 @@ class MEModel(LCSBModel, Model):
 
     def _get_rnap_total_capacity(self, rnap_id):
         all_rnap_usage = self.get_variables_of_type(RNAPUsage)
-        # only for genes trascribed by this rnap
+        # only for genes trascribed by this rnap or the genes without any assigned rnap
         sum_RMs = symbol_sum([x.unscaled for x in all_rnap_usage \
                              if x.hook.transcribed_by is None \
                              or rnap_id in x.hook.transcribed_by])
@@ -1466,8 +1467,8 @@ class MEModel(LCSBModel, Model):
         # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
         usage = sum_RMs \
                 + sum([x.unscaled for x in free_rnap]) \
-                - sum([self.rnap[rnap_id].concentration])
-        usage /= min([self.rnap[rnap_id].scaling_factor])
+                - self.rnap[rnap_id].concentration
+        usage /= self.rnap[rnap_id].scaling_factor
         return usage
     
 
@@ -1676,7 +1677,7 @@ class MEModel(LCSBModel, Model):
 
     def _get_rib_total_capacity(self, rib_id):
         all_ribosome_usage = self.get_variables_of_type(RibosomeUsage)
-        # only for genes traslated by this ribosome
+        # only for genes traslated by this ribosome the genes without any assigned ribosome
         sum_RPs = symbol_sum([x.unscaled for x in all_ribosome_usage \
                               if x.hook.translated_by is None \
                               or rib_id in x.hook.translated_by])
@@ -1686,8 +1687,8 @@ class MEModel(LCSBModel, Model):
         # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
         usage = sum_RPs \
                 + sum([x.unscaled for x in free_ribosome]) \
-                - sum([self.ribosome[rib_id].concentration])
-        usage /= min([self.ribosome[rib_id].scaling_factor])
+                - self.ribosome[rib_id].concentration
+        usage /= self.ribosome[rib_id].scaling_factor
         return usage
     
     def apply_ribosomal_catalytic_constraint(self, reaction):

@@ -14,7 +14,7 @@ ME-related Reaction subclasses and methods definition
 from cobra import Gene
 from Bio.Seq import Seq
 from Bio.Alphabet import DNAAlphabet, RNAAlphabet, ProteinAlphabet
-from etfl.optim.constraints import SynthesisConstraint
+from ..optim.constraints import SynthesisConstraint
 
 
 def make_sequence(sequence, seq_type):
@@ -77,22 +77,21 @@ class ExpressedGene(Gene):
 
     @transcribed_by.setter
     def transcribed_by(self,value):
-        # TODO: Make this a setter that rewrites the adequate constraints
         if value != self._transcribed_by:
             if self.model is None:
                 # Easy
                 self._transcribed_by = value
             else:
-                # We need to make the model change the corresponding cstr
                 mod_id = self.id + '_transcription'
-                Cstr = self.model.get_constraints_of_type(SynthesisConstraint)
-                cstr_exist = 1
+                cstr = self.model.get_constraints_of_type(SynthesisConstraint)
+                cstr_exist = True # an indicator to show if the gene is transcribed
                 try:
-                    Cstr.get_by_id(mod_id)
+                    cstr.get_by_id(mod_id)
                 except KeyError:
-                    cstr_exist = 0
+                    cstr_exist = False
                 if cstr_exist:
                     # trancription constraint already exists
+                    # TODO: We need to make the model change the corresponding constraints
                     raise NotImplementedError()
                 else:
                     self._transcribed_by = value
@@ -106,7 +105,6 @@ class ExpressedGene(Gene):
 
     @translated_by.setter
     def translated_by(self,value):
-        # TODO: Make this a setter that rewrites the adequate constraints
         if value != self._translated_by:
             if self.model is None:
                 # Easy
@@ -114,14 +112,15 @@ class ExpressedGene(Gene):
             else:
                 # We need to make the model change the corresponding cstr
                 mod_id = self.id + '_translation'
-                Cstr = self.model.get_constraints_of_type(SynthesisConstraint)
-                cstr_exist = 1
+                cstr = self.model.get_constraints_of_type(SynthesisConstraint)
+                cstr_exist = True # an indicator to show if the gene is translated
                 try:
-                    Cstr.get_by_id(mod_id)
+                    cstr.get_by_id(mod_id)
                 except KeyError:
-                    cstr_exist = 0
+                    cstr_exist = False
                 if cstr_exist:
-                    # trancription constraint already exists
+                    # translation constraint already exists
+                    # TODO: We need to make the model change the corresponding constraints
                     raise NotImplementedError()
                 else:
                     self._translated_by = value
