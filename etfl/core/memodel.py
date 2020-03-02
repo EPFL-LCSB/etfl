@@ -405,7 +405,7 @@ class MEModel(LCSBModel, Model):
 
         atp = self.essentials['atp']
         amp = self.essentials['amp']
-        ppi = self.essentials['gtp']
+        ppi = self.essentials['ppi']
         h2o = self.essentials['h2o']
         h = self.essentials['h']
 
