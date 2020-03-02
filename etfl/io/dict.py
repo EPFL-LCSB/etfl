@@ -32,6 +32,7 @@ from ..core.reactions import TranslationReaction, TranscriptionReaction, \
     EnzymaticReaction, ProteinComplexation, DegradationReaction, \
     ExpressionReaction, DNAFormation
 from ..core.thermomemodel import ThermoMEModel
+from ..core.allocation import DNA_FORMATION_RXN_ID
 from ..optim.utils import rebuild_constraint, rebuild_variable
 from ..optim.variables import tRNAVariable, GrowthRate, FreeEnzyme
 from ..utils.utils import replace_by_reaction_subclass, replace_by_me_gene
@@ -417,11 +418,12 @@ def _add_me_reaction_info(rxn, rxn_dict):
     elif isinstance(rxn, EnzymaticReaction):
         rxn_dict['kind'] = 'EnzymaticReaction'
         rxn_dict['enzymes'] = [x.id for x in rxn.enzymes]
-    elif isinstance(rxn, DNAFormation):
-        rxn_dict['kind'] = 'DNAFormation'
     # Generic Reaction
     else:
         rxn_dict['kind'] = 'Reaction'
+
+    if isinstance(rxn, DNAFormation):
+        rxn_dict['kind'] = 'DNAFormation'
 
 def _add_thermo_reaction_info(rxn, rxn_dict):
     if hasattr(rxn, 'thermo'):
@@ -834,7 +836,9 @@ def find_degradation_reactions_from_dict(new, obj):
 def find_dna_formation_reaction_from_dict(new, obj):
     new_rxns = list()
     for rxn_dict in obj['reactions']:
-        if rxn_dict['kind'] == 'DNAFormation':
+        # TODO: CLEANUP
+        if rxn_dict['id'] == DNA_FORMATION_RXN_ID:
+        # if rxn_dict['kind'] == 'DNAFormation':
             dna = new.dna
             new_rxn = replace_by_reaction_subclass(new,
                                                    kind = DNAFormation,
@@ -903,9 +907,11 @@ def find_genes_from_dict(new, obj):
             g = replace_by_me_gene(new, gene_dict['id'], str(sequence))
             if key == 'expressed_genes':
                 # Newer models
+
                 g._rna            = Seq(gene_dict['rna'], alphabet=RNAAlphabet())
                 g._peptide        = Seq(gene_dict['peptide'], alphabet=ProteinAlphabet())
-                g._copy_number    = gene_dict['copy_number']
+                g._copy_number    = int(gene_dict['copy_number'])
+      
                 g._transcribed_by = [new.enzymes.get_by_id(e)
                                      for e in gene_dict['transcribed_by']] \
                                      if gene_dict['transcribed_by'] else None

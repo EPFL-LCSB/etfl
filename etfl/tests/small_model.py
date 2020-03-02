@@ -38,11 +38,11 @@ CPLEX = 'optlang-cplex'
 GUROBI = 'optlang-gurobi'
 GLPK = 'optlang-glpk'
 
-solver = GLPK
+DEFAULT_SOLVER = GLPK
 aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides = get_monomers_dict()
 essentials = get_essentials()
 
-def create_fba_model(solver = GLPK):
+def create_fba_model(solver = DEFAULT_SOLVER):
 
     # g6p_c = cobra.Metabolite(id = 'g6p_c', formula = 'C6H13O9P')
     # f6p_c = cobra.Metabolite(id = 'f6p_c', formula = 'C6H13O9P')
@@ -125,6 +125,7 @@ def create_etfl_model(has_thermo, has_neidhardt,
                       n_mu_bins = 64,
                       mu_max = 3,
                       optimize = True,
+                      solver=DEFAULT_SOLVER,
                       ):
     #------------------------------------------------------------
     # Initialisation

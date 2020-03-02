@@ -332,10 +332,11 @@ class MEModel(LCSBModel, Model):
         add_interpolation_variables(self)
 
         # Create a dummy gene and override the sequences with input data
+        dummy_sequence = 'N'*mrna_length
         dummy_gene = ExpressedGene(id='dummy_gene',
                                    name='Dummy Gene',
-                                   sequence='')
-        dummy_gene._rna = 'N'*mrna_length
+                                   sequence=dummy_sequence)
+        dummy_gene._rna = dummy_sequence
         dummy_gene._peptide = 'X'*peptide_length
 
         self.add_genes([dummy_gene])
@@ -464,7 +465,7 @@ class MEModel(LCSBModel, Model):
             if isinstance(gene, str):
                 the_gene = self.genes.get_by_id(gene)
             else:
-                the_gene = gene
+                the_gene = self.genes.get_by_id(gene.id)
 
             if not isinstance(the_gene, ExpressedGene):
                 continue
@@ -1339,10 +1340,10 @@ class MEModel(LCSBModel, Model):
 
         rnap_alloc = self.get_constraints_of_type(RNAPAllocation)
         rnap_usage = self.get_variables_of_type(RNAPUsage)
-        if self.id in rnap_alloc and self.id in rnap_usage:
+        if gene_id in rnap_alloc and gene_id in rnap_usage:
             # We need to edit the variable
             # Modify the polymerase constraint
-            cons = rnap_alloc.get_by_id(self.id)
+            cons = rnap_alloc.get_by_id(gene_id)
             new_expr = self._get_rnap_allocation_expression(the_gene)
             cons.change_expr(new_expr)
             self.logger.debug('Changed RNAP allocation for gene {}'.format(gene_id))
@@ -1650,7 +1651,6 @@ class MEModel(LCSBModel, Model):
 
         # 3 -> Add ribosomal capacity constraint
         self.regenerate_variables()
-
         
         for rib_id in self.ribosome.keys():
             # CATCH : This is summing ~1500+ variable objects, and for a reason
@@ -1681,12 +1681,12 @@ class MEModel(LCSBModel, Model):
         sum_RPs = symbol_sum([x.unscaled for x in all_ribosome_usage \
                               if x.hook.translated_by is None \
                               or rib_id in x.hook.translated_by])
-        free_ribosome = [self.get_variables_of_type(FreeEnzyme).get_by_id(rib_id)]
+        free_ribosome = self.get_variables_of_type(FreeEnzyme).get_by_id(rib_id)
 
         # The total RNAP capacity constraint looks like
         # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
         usage = sum_RPs \
-                + sum([x.unscaled for x in free_ribosome]) \
+                + free_ribosome.unscaled \
                 - self.ribosome[rib_id].concentration
         usage /= self.ribosome[rib_id].scaling_factor
         return usage
