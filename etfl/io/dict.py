@@ -55,10 +55,18 @@ def expressed_gene_to_dict(gene):
     obj['rna'] = str(gene.rna)
     obj['peptide'] = str(gene.peptide)
     obj['copy_number'] = str(gene.copy_number)
-    obj['transcribed_by'] = [x.id for x in gene.transcribed_by] \
-        if gene.transcribed_by is not None else None
-    obj['translated_by'] = [x.id for x in gene.translated_by]\
-        if gene.translated_by is not None else None
+    try:
+        obj['transcribed_by'] = [x.id for x in gene.transcribed_by] \
+            if gene.transcribed_by is not None else None
+    except AttributeError:
+        obj['transcribed_by'] = [x for x in gene.transcribed_by] \
+            if gene.transcribed_by is not None else None
+    try:
+        obj['translated_by'] = [x.id for x in gene.translated_by]\
+            if gene.translated_by is not None else None
+    except AttributeError:
+        obj['translated_by'] = [x for x in gene.translated_by] \
+            if gene.translated_by is not None else None            
 
     return obj
 
@@ -542,7 +550,7 @@ def init_me_model_from_dict(new, obj):
     new.growth_reaction = obj['growth_reaction']
 
     # Populate enzymes
-    # new.coupling_dict = rebuild_coupling_dict(new, obj['coupling_dict'])
+    # new.coupling_dict = rebuild_coupling_dict(, obj['coupling_dict'])
     new.add_enzymes([enzyme_from_dict(x) for x in obj['enzymes']], prep=False)
 
     # Make RNAP
@@ -903,7 +911,7 @@ def find_genes_from_dict(new, obj):
                 g._rna            = Seq(gene_dict['rna'], alphabet=RNAAlphabet())
                 g._peptide        = Seq(gene_dict['peptide'], alphabet=ProteinAlphabet())
                 g._copy_number    = int(gene_dict['copy_number'])
-
+      
                 g._transcribed_by = [new.enzymes.get_by_id(e)
                                      for e in gene_dict['transcribed_by']] \
                                      if gene_dict['transcribed_by'] else None
