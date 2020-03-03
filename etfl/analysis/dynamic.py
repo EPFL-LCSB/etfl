@@ -22,6 +22,7 @@ from ..optim.constraints import EnzymeDeltaPos, EnzymeDeltaNeg, \
     mRNADeltaPos, mRNADeltaNeg
 from ..optim.utils import fix_growth, release_growth, \
                             get_active_growth_bounds, safe_optim
+from .summary import print_standard_sol
 
 import operator
 
@@ -413,10 +414,7 @@ def compute_center(dmodel, objective,
 
 
 def show_initial_solution(model, solution):
-    print('Objective            : {}'.format(solution.objective_value))
-    print(' - Growth            : {}'.format(solution.raw.loc[model.growth_reaction.id]))
-    print(' - Ribosomes produced: {}'.format(solution.raw.loc[model.ribosome.variable.name]))
-    print(' - RNAP produced: {}'.format(solution.raw.loc[model.rnap.variable.name]))
+    print_standard_sol(model,solution)
 
 
 BIGM=1000
