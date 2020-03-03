@@ -54,6 +54,11 @@ from pytfa.utils.logger import get_bistream_logger
 from pytfa.utils.str import camel2underscores
 from pytfa.optim.utils import copy_solver_configuration
 
+def id_maker_rib_rnap(the_set):
+        # for a set of ribosomes or RNAPs makes an id
+        id_ = ''.join([x for x in the_set])
+        return id_
+
 
 class MEModel(LCSBModel, Model):
     def __init__(self, model=Model(), name = None,
@@ -1435,40 +1440,95 @@ class MEModel(LCSBModel, Model):
         # 3 -> Add RNAP capacity constraint
 
         self.regenerate_variables()
-
-        for rnap_id in self.rnap.keys():
-            usage = self._get_rnap_total_capacity(rnap_id = rnap_id)
+        
+        transcription_dict = self._sort_rnap_assignment()
+        gene_list_tot = [] # we need to have a list of all genes
+        for the_combination, gene_list in transcription_dict.items():
+            # CATCH : This is summing ~1500+ variable objects, and for a reason
+            # sympy does not like it. Let's cut it in smaller chunks and sum
+            # afterwards
+            # sum_RPs = sum(self.get_variables_of_type(RibosomeUsage))
+            
+            for gene_id in gene_list:
+                if gene_id not in gene_list_tot:
+                    gene_list_tot.append(gene_id)
+            
+            if len(the_combination) != len(self.rnap.keys()):
+                # at least one of the rnaps isn't assigned to these genes
+                # per each such combination adds an inequality to make sure
+                # that at least we have enough rnap for these genes
+                # For nondimensionalization
+                # usage = (sum_RMs + self.RNAPf[this_rnap.id].unscaled - this_rnap.concentration) / \
+                #         this_rnap.scaling_factor
+        
+                # Create the capacity constraint
+                usage = self._get_rnap_total_capacity(rnap_ids = the_combination,
+                                                      genes = gene_list)
     
-            # usage = (sum_RMs + self.RNAPf[this_rnap.id].unscaled - this_rnap.concentration) / \
-            #         this_rnap.scaling_factor
-    
-            # Create the capacity constraint
-            self.add_constraint(kind=TotalCapacity,
-                                hook=self,
-                                id_ = rnap_id,
-                                expr=usage,
-                                lb = 0,
-                                ub = 0,
-                                )
+            
+                self.add_constraint(kind=TotalCapacity,
+                                    hook=self,
+                                    id_ = id_maker_rib_rnap(the_combination),
+                                    expr=usage,
+                                    lb = -self.big_M,
+                                    ub = 0,
+                                    )
+        # Finally add an equlaity constraint to make sure that rnaps
+        # assigned to all the genes is equal to sum of all rnap usages
+        rnap_set = frozenset([x for x in self.rnap.keys()]) # a set of rnap ids
+        usage = self._get_rnap_total_capacity(rnap_ids = rnap_set,
+                                                      genes = gene_list_tot)
+        self.add_constraint(kind=TotalCapacity,
+                            hook=self,
+                            id_=id_maker_rib_rnap(rnap_set),
+                            expr=usage,
+                            lb = 0,
+                            ub = 0,
+                            )
 
         # update variable and constraints attributes
         self.regenerate_constraints()
         self.regenerate_variables()
-
-    def _get_rnap_total_capacity(self, rnap_id):
+        
+    def _sort_rnap_assignment(self):
+        # a function to sort genes based on their type of rnap assignment
+        # 2 types exist: None or at least one rnap assigned to this gene
         all_rnap_usage = self.get_variables_of_type(RNAPUsage)
-        # only for genes trascribed by this rnap or the genes without any assigned rnap
+        rnap_set = frozenset([x for x in self.rnap.keys()]) # a set of rnap ids
+        transcription_dict = dict() # a dict to keep different types; the keys are rnap sets and values are genes
+        for var in all_rnap_usage:
+            if var.hook.transcribed_by is None:
+                # the 1st type which is handeled by assigning all rnaps to this gene
+                this_type = rnap_set
+                try:
+                    transcription_dict[this_type].append(var.hook.id)
+                except KeyError:
+                    # the first time encountering this type
+                    transcription_dict[this_type] = [var.hook.id]
+            else:
+                # the 2nd type  
+                this_type = frozenset(var.hook.transcribed_by)
+                try:
+                    transcription_dict[this_type].append(var.hook.id)
+                except KeyError:
+                    # the first time encountering this type
+                    transcription_dict[this_type] = [var.hook.id]
+        return transcription_dict
+
+    def _get_rnap_total_capacity(self, rnap_ids, genes):
+        all_rnap_usage = self.get_variables_of_type(RNAPUsage)
+        # only for genes trascribed by thiscombination of rnaps 
         sum_RMs = symbol_sum([x.unscaled for x in all_rnap_usage \
-                             if x.hook.transcribed_by is None \
-                             or rnap_id in x.hook.transcribed_by])
-        free_rnap = [self.get_variables_of_type(FreeEnzyme).get_by_id(rnap_id)]
+                             if x.hook.id in genes])
+        free_rnap = [self.get_variables_of_type(FreeEnzyme).get_by_id(rnap_id) \
+                         for rnap_id in rnap_ids]
         
         # The total RNAP capacity constraint looks like
         # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
         usage = sum_RMs \
                 + sum([x.unscaled for x in free_rnap]) \
-                - self.rnap[rnap_id].concentration
-        usage /= self.rnap[rnap_id].scaling_factor
+                - sum([self.rnap[rnap_id].concentration for rnap_id in rnap_ids])
+        usage /= min([self.rnap[rnap_id].scaling_factor for rnap_id in rnap_ids])
         return usage
     
 
@@ -1651,44 +1711,92 @@ class MEModel(LCSBModel, Model):
         # 3 -> Add ribosomal capacity constraint
         self.regenerate_variables()
 
-        
-        for rib_id in self.ribosome.keys():
+        translation_dict = self._sort_rib_assignment()
+        gene_list_tot = [] # we need to have a list of all genes
+        for the_combination, gene_list in translation_dict.items():
             # CATCH : This is summing ~1500+ variable objects, and for a reason
             # sympy does not like it. Let's cut it in smaller chunks and sum
             # afterwards
             # sum_RPs = sum(self.get_variables_of_type(RibosomeUsage))
-            ribo_usage = self._get_rib_total_capacity(rib_id = rib_id)
-            # For nondimensionalization
-            # ribo_usage = (sum_RPs + self.Rf.unscaled - self.ribosome.concentration) \
-            #              / self.ribosome.scaling_factor
-    
-            # Create the capacity constraint
-            self.add_constraint(kind=TotalCapacity,
-                                hook=self,
-                                id_=rib_id,
-                                expr=ribo_usage,
-                                lb = 0,
-                                ub = 0,
-                                )
+            
+            for gene_id in gene_list:
+                if gene_id not in gene_list_tot:
+                    gene_list_tot.append(gene_id)
+            
+            if len(the_combination) != len(self.ribosome.keys()):
+                # at least one of the ribosomes isn't assigned to these genes
+                # per each such combination adds an inequality to make sure
+                # that at least we have enough ribosome for these genes
+                # For nondimensionalization
+                # ribo_usage = (sum_RPs + self.Rf.unscaled - self.ribosome.concentration) \
+                #              / self.ribosome.scaling_factor
+        
+                # Create the capacity constraint
+                ribo_usage = self._get_rib_total_capacity(rib_ids = the_combination,
+                                                      genes = gene_list)
+                self.add_constraint(kind=TotalCapacity,
+                                    hook=self,
+                                    id_=id_maker_rib_rnap(the_combination),
+                                    expr=ribo_usage,
+                                    lb = -self.big_M,
+                                    ub = 0,
+                                    )
+        # Finally add an equlaity constraint to make sure that ribosomes
+        # assigned to all the genes is equal to sum of all ribosome usages
+        rib_set = frozenset([x for x in self.ribosome.keys()]) # a set of rib ids
+        ribo_usage = self._get_rib_total_capacity(rib_ids = rib_set,
+                                                      genes = gene_list_tot)
+        self.add_constraint(kind=TotalCapacity,
+                            hook=self,
+                            id_=id_maker_rib_rnap(rib_set),
+                            expr=ribo_usage,
+                            lb = 0,
+                            ub = 0,
+                            )
 
         # update variable and constraints attributes
         self.regenerate_constraints()
         self.regenerate_variables()
-
-    def _get_rib_total_capacity(self, rib_id):
+        
+    def _sort_rib_assignment(self):
+        # a function to sort genes based on their type of ribosome assignment
+        # 2 types exist: None or at least one ribosome assigned to this gene
         all_ribosome_usage = self.get_variables_of_type(RibosomeUsage)
-        # only for genes traslated by this ribosome the genes without any assigned ribosome
+        rib_set = frozenset([x for x in self.ribosome.keys()]) # a set of rib ids
+        translation_dict = dict() # a dict to keep different types; the keys are ribosome sets and values are genes
+        for var in all_ribosome_usage:
+            if var.hook.translated_by is None:
+                # the 1st type which is handeled by assigning all ribosomes to this gene
+                this_type = rib_set
+                try:
+                    translation_dict[this_type].append(var.hook.id)
+                except KeyError:
+                    # the first time encountering this type
+                    translation_dict[this_type] = [var.hook.id]
+            else:
+                # the 2nd type  
+                this_type = frozenset(var.hook.translated_by)
+                try:
+                    translation_dict[this_type].append(var.hook.id)
+                except KeyError:
+                    # the first time encountering this type
+                    translation_dict[this_type] = [var.hook.id]
+        return translation_dict
+
+    def _get_rib_total_capacity(self, rib_ids, genes):
+        all_ribosome_usage = self.get_variables_of_type(RibosomeUsage)
+        # only for genes traslated by this combination of ribosomes
         sum_RPs = symbol_sum([x.unscaled for x in all_ribosome_usage \
-                              if x.hook.translated_by is None \
-                              or rib_id in x.hook.translated_by])
-        free_ribosome = [self.get_variables_of_type(FreeEnzyme).get_by_id(rib_id)]
+                              if x.hook.id in genes])
+        free_ribosome = [self.get_variables_of_type(FreeEnzyme).get_by_id(rib_id) \
+                         for rib_id in rib_ids]
 
         # The total RNAP capacity constraint looks like
         # ΣRMi + Σ(free RNAPj) = Σ(Total RNAPj)
         usage = sum_RPs \
                 + sum([x.unscaled for x in free_ribosome]) \
-                - self.ribosome[rib_id].concentration
-        usage /= self.ribosome[rib_id].scaling_factor
+                - sum([self.ribosome[rib_id].concentration for rib_id in rib_ids])
+        usage /= min([self.ribosome[rib_id].scaling_factor for rib_id in rib_ids])
         return usage
     
     def apply_ribosomal_catalytic_constraint(self, reaction):
@@ -1757,7 +1865,6 @@ class MEModel(LCSBModel, Model):
         gene._model = self
         self.genes.append(gene)
 
-
     #-------------------------------------------------------------------------#
 
     def sanitize_varnames(self):
@@ -1823,3 +1930,4 @@ class MEModel(LCSBModel, Model):
         copy_solver_configuration(self, new)
 
         return new
+    
