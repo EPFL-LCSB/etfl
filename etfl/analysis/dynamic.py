@@ -449,7 +449,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
     # the feasible space at all steps
 
     if chebyshev_exclude is None:
-        from ..optim.variables import LinearizationVariable
+        from pytfa.optim.variables import LinearizationVariable
         chebyshev_exclude = []#\
         # [LinearizationVariable,
         #                  EnzymeDeltaNeg,
