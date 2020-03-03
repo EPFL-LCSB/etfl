@@ -542,8 +542,9 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
 
         try:
             # Uptake bounds have been set, reference state applied, we can now
-            # copute the center
-            the_solution = compute_center(dmodel)
+            # compute the center
+            the_solution = compute_center(dmodel,
+                                          objective = dmodel.chebyshev_radius.radius.variable)
         except AttributeError:
             print('############################')
             print('### Crashed at t={},k={}'.format(t,k))
