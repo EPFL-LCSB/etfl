@@ -421,16 +421,32 @@ BIGM=1000
 
 def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
                      uptake_enz,
-                     S0, X0, inplace=False, initial_solution = None,
+                     S0, X0,
+                     step_fun=None,
+                     inplace=False, initial_solution = None,
                      chebyshev_bigm=BIGM, chebyshev_variables=None,
                      chebyshev_exclude=None, chebyshev_include=None,
                      dynamic_constraints=DEFAULT_DYNAMIC_CONS):
     """
 
-    :param model:
+    :param model: the model to simulate
+    :param timestep: the time between each step of the integration
+    :param tfinal: The stopping time
+    :param uptake_fun: Functions that regulate the uptakes (Michaelis Menten etc.)
+    :param medium_fun: Functions that regulates the medium concentrations
+                        (switches, bubbling diffusion, etc...)
+    :param uptake_enz: If specified, will use the enzyme kcats for the uptake functions
+    :param S0: Initial concentrations
+    :param X0: Initial amount of cells
+    :param step_fun: Function for additional operations on the model at each
+                        time step (extra kinetics, etc ...)
+    :param inplace:
     :param initial_solution:
-    :param timestep:
-    :param tfinal:
+    :param chebyshev_bigm:
+    :param chebyshev_variables:
+    :param chebyshev_exclude:
+    :param chebyshev_include:
+    :param dynamic_constraints:
     :return:
     """
 
@@ -557,6 +573,9 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
         # Medium update after consumption has happened
         X,S= update_medium(t,X,S,model,medium_fun,timestep)
         obs_values = update_sol(t,X,S,dmodel,obs_values, colname)
+
+        if step_fun is not None:
+            step_fun(model, S, X, the_solution)
 
         current_solution = the_solution
 
