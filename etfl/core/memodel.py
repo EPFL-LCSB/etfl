@@ -1037,13 +1037,23 @@ class MEModel(LCSBModel, Model):
 
         complex_dict = enzyme.complexation.metabolites
         deg_stoich = defaultdict(int)
-        for peptide, stoich in complex_dict.items():
-            the_pep = self.peptides.get_by_id(peptide.id)
-            degradation_mets = degrade_peptide(the_pep,
-                                               self.aa_dict,
-                                               h2o)
-            for k,v in degradation_mets.items():
-                deg_stoich[k]+=-1*v*stoich # stoich is negative
+        for element, stoich in complex_dict.items():
+            if isinstance(element, Peptide):
+                the_pep = self.peptides.get_by_id(element.id)
+                degradation_mets = degrade_peptide(the_pep,
+                                                   self.aa_dict,
+                                                   h2o)
+                for k,v in degradation_mets.items():
+                    deg_stoich[k]+=-1*v*stoich # stoich is negative
+                else:
+                    continue
+                    #TODO: this happens when the complexation has metabolites,
+                    # like ATP and ADP for Phosphorylated compounds.
+                    # The degradation will look like it is replenishing ATP
+                    # reserves in that case. Probably this should be different.
+                    # deg_stoich[element] += -1 * stoich
+                    self.logger.warning('Enzyme degradation with a metabolite: {} '
+                                        'is neglected'.format(element.id))
 
         self._make_degradation_reaction(deg_stoich,
                                         enzyme,
