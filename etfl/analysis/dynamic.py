@@ -26,7 +26,8 @@ from .summary import print_standard_sol
 
 import operator
 
-from pytfa.analysis.chebyshev import chebyshev_center
+from pytfa.analysis.chebyshev import chebyshev_center,get_variables,\
+    get_cons_var_classes,chebyshev_transform
 
 from collections import defaultdict
 
@@ -441,7 +442,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
     :param step_fun: Function for additional operations on the model at each
                         time step (extra kinetics, etc ...)
     :param inplace:
-    :param initial_solution:
+    :param initial_solution: Used for setting growth rate lower bound
     :param chebyshev_bigm:
     :param chebyshev_variables:
     :param chebyshev_exclude:
@@ -459,42 +460,52 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
 
     the_obj = dmodel.objective.expression
 
-    # Add chebyshev center transformation to stay in an approximate center of
-    # the feasible space at all steps
+    if chebyshev_include != False:
 
-    if chebyshev_exclude is None:
-        from pytfa.optim.variables import LinearizationVariable
-        chebyshev_exclude = []#\
-        # [LinearizationVariable,
-        #                  EnzymeDeltaNeg,
-        #                  EnzymeDeltaPos,
-        #                  mRNADeltaNeg,
-        #                  mRNADeltaPos]
+        # Add chebyshev center transformation to stay in an approximate center of
+        # the feasible space at all steps
 
-    if chebyshev_include is None:
-        chebyshev_include = list()
+        if chebyshev_exclude is None:
+            from pytfa.optim.variables import LinearizationVariable
+            chebyshev_exclude = []#\
+            # [LinearizationVariable,
+            #                  EnzymeDeltaNeg,
+            #                  EnzymeDeltaPos,
+            #                  mRNADeltaNeg,
+            #                  mRNADeltaPos]
 
-    if chebyshev_variables is None:
-        from ..optim.variables import mRNAVariable, EnzymeVariable
-        chebyshev_variables =  dmodel.get_variables_of_type(mRNAVariable)
-        chebyshev_variables += dmodel.get_variables_of_type(EnzymeVariable)
+        if chebyshev_include is None:
+            chebyshev_include = list()
+
+        if chebyshev_variables is None:
+            from ..optim.variables import mRNAVariable, EnzymeVariable
+            chebyshev_variables =  dmodel.get_variables_of_type(mRNAVariable)
+            chebyshev_variables += dmodel.get_variables_of_type(EnzymeVariable)
 
 
-    chebyshev_center(dmodel, chebyshev_variables,
-                     inplace=True,
-                     big_m=chebyshev_bigm,
-                     include=chebyshev_include,
-                     exclude=chebyshev_exclude)
+        # Add the chebyshev var to the model
+        # Faster implementation as chebyshev_center has one extra optim
+        vars = get_variables(dmodel, chebyshev_variables)
+        include_list = get_cons_var_classes(dmodel, chebyshev_include, type = 'cons')
+        exclude_list = get_cons_var_classes(dmodel, chebyshev_exclude, type = 'cons')
 
-    # Revert to the previous objective, as chebyshev_center sets it to maximize
-    # the radius
-    dmodel.objective = the_obj
+        r = chebyshev_transform(model=dmodel,
+                                vars=vars,
+                                include_list=include_list,
+                                exclude_list=exclude_list,
+                                big_m=chebyshev_bigm)
 
-    # We want to compute the center under the constraint of the growth at the
-    # initial solution.
-    chebyshev_sol = compute_center(dmodel,
-                                   objective = dmodel.chebyshev_radius.radius.variable,
-                                   provided_solution=initial_solution)
+        # Revert to the previous objective, as chebyshev_center sets it to maximize
+        # the radius
+        dmodel.objective = the_obj
+
+        # We want to compute the center under the constraint of the growth at the
+        # initial solution.
+        ini_sol = compute_center(dmodel,
+                                       objective = dmodel.chebyshev_radius.radius.variable,
+                                       provided_solution=initial_solution)
+    else:
+        ini_sol = dmodel.optimize()
 
     # Only now do we add the dynamic variable constraints.
     add_dynamic_variables_constraints(dmodel, timestep, dynamic_constraints)
@@ -515,7 +526,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
     #     current_solution = initial_solution
 
     # Prepare variables for the loop
-    current_solution = chebyshev_sol
+    current_solution = ini_sol
 
     var_solutions = pd.DataFrame()
     obs_values = pd.DataFrame()
@@ -559,8 +570,12 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
         try:
             # Uptake bounds have been set, reference state applied, we can now
             # compute the center
-            the_solution = compute_center(dmodel,
-                                          objective = dmodel.chebyshev_radius.radius.variable)
+            if chebyshev_include != False:
+                the_solution = compute_center(dmodel,
+                                              objective = dmodel.chebyshev_radius.radius.variable)
+            else:
+                the_solution = model.optimize()
+
         except AttributeError:
             print('############################')
             print('### Crashed at t={},k={}'.format(t,k))
@@ -575,7 +590,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
         obs_values = update_sol(t,X,S,dmodel,obs_values, colname)
 
         if step_fun is not None:
-            step_fun(model, S, X, the_solution)
+            step_fun(model, t, S, X, the_solution, timestep)
 
         current_solution = the_solution
 
