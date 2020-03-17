@@ -270,7 +270,17 @@ def add_dynamic_variables_constraints(dmodel, timestep, dynamic_constraints):
                                   )
 
 
-def apply_ref_state(dmodel, solution, timestep, has_mrna, has_enzymes):
+def apply_ref_state(dmodel, solution, timestep, has_mrna, has_enzymes, mode='backward'):
+    """
+
+    :param dmodel:
+    :param solution:
+    :param timestep:
+    :param has_mrna:
+    :param has_enzymes:
+    :param mode: `forward' or `backward' for the integration scheme
+    :return:
+    """
 
     enz_ref  = dmodel.get_variables_of_type(EnzymeRef)
     mrna_ref = dmodel.get_variables_of_type(mRNARef)
@@ -285,19 +295,24 @@ def apply_ref_state(dmodel, solution, timestep, has_mrna, has_enzymes):
         for enz in dmodel.enzymes:
             # the_rhs = enz_rhs.get_by_id(enz.id)
             the_ref = enz_ref.get_by_id(enz.id)
-            # E0 = solution.loc[enz.variable.name]
-            # the_value = E0
-
-            # We use:
-            # E0 = vsyn/(kdeg+mu)
-            # E0_hat*σ_m = vsyn_hat*σ_v / (kdeg+mu)
-            # E0_hat = vsyn_hat/(kdeg+mu) *σ_v/σ_m
-            # To quantify the error on E (mu_lb. mu_ub)
-            # vsyn_hat/(kdeg + mu_lb) *σ_v/σ_m <= E0_hat <= vsyn_hat/(kdeg + mu_ub) * σ_v/σ_m
-            vsyn = solution.loc[enz.complexation.id]
-            sigma= enz.complexation.scaling_factor / enz.scaling_factor
-            the_lb = vsyn/(enz.kdeg + mu_ub) * sigma
-            the_ub = vsyn/(enz.kdeg + mu_lb) * sigma
+            if mode.lower().startswith('forward'):
+                E0 = solution.loc[enz.variable.name]
+                the_value = E0
+                the_lb = the_value
+                the_ub = the_value
+            elif mode.lower().startswith('backward'):
+                # We use:
+                # E0 = vsyn/(kdeg+mu)
+                # E0_hat*σ_m = vsyn_hat*σ_v / (kdeg+mu)
+                # E0_hat = vsyn_hat/(kdeg+mu) *σ_v/σ_m
+                # To quantify the error on E (mu_lb. mu_ub)
+                # vsyn_hat/(kdeg + mu_lb) *σ_v/σ_m <= E0_hat <= vsyn_hat/(kdeg + mu_ub) * σ_v/σ_m
+                vsyn = solution.loc[enz.complexation.id]
+                sigma= enz.complexation.scaling_factor / enz.scaling_factor
+                the_lb = vsyn/(enz.kdeg + mu_ub) * sigma
+                the_ub = vsyn/(enz.kdeg + mu_lb) * sigma
+            else:
+                AttributeError('mode must be forward or backward')
 
             try:
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
@@ -313,20 +328,26 @@ def apply_ref_state(dmodel, solution, timestep, has_mrna, has_enzymes):
         for mrna in dmodel.mrnas:
             # the_rhs = mrna_rhs.get_by_id(mrna.id)
             the_ref = mrna_ref.get_by_id(mrna.id)
-            # F0 = solution.loc[mrna.variable.name]
-
-            # We use:
-            # F0 = vsyn/(kdeg+mu)
-            # F0_hat*σ_m = vsyn_hat*σ_v / (kdeg+mu)
-            # F0_hat = vsyn_hat/(kdeg+mu) *σ_v/σ_m
-            # To quantify the error on F (mu_lb. mu_ub)
-            # vsyn_hat/(kdeg + mu_lb) *σ_v/σ_m <= F0_hat <= vsyn_hat/(kdeg + mu_ub) * σ_v/σ_m
-            # Do not forget to scale!
-            transcription = dmodel.get_transcription(mrna)
-            vsyn = solution.loc[transcription.id]
-            sigma= transcription.scaling_factor / mrna.scaling_factor
-            the_lb = vsyn/(mrna.kdeg + mu_ub) * sigma
-            the_ub = vsyn/(mrna.kdeg + mu_lb) * sigma
+            if mode.lower().startswith('forward'):
+                F0 = solution.loc[mrna.variable.name]
+                the_value = F0
+                the_lb = the_value
+                the_ub = the_value
+            elif mode.lower().startswith('backward'):
+                # We use:
+                # F0 = vsyn/(kdeg+mu)
+                # F0_hat*σ_m = vsyn_hat*σ_v / (kdeg+mu)
+                # F0_hat = vsyn_hat/(kdeg+mu) *σ_v/σ_m
+                # To quantify the error on F (mu_lb. mu_ub)
+                # vsyn_hat/(kdeg + mu_lb) *σ_v/σ_m <= F0_hat <= vsyn_hat/(kdeg + mu_ub) * σ_v/σ_m
+                # Do not forget to scale!
+                transcription = dmodel.get_transcription(mrna)
+                vsyn = solution.loc[transcription.id]
+                sigma= transcription.scaling_factor / mrna.scaling_factor
+                the_lb = vsyn/(mrna.kdeg + mu_ub) * sigma
+                the_ub = vsyn/(mrna.kdeg + mu_lb) * sigma
+            else:
+                AttributeError('mode must be forward or backward')
 
             try:
                 # the_rhs.variable.ub = max(0,the_value + epsilon)
@@ -427,7 +448,8 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
                      inplace=False, initial_solution = None,
                      chebyshev_bigm=BIGM, chebyshev_variables=None,
                      chebyshev_exclude=None, chebyshev_include=None,
-                     dynamic_constraints=DEFAULT_DYNAMIC_CONS):
+                     dynamic_constraints=DEFAULT_DYNAMIC_CONS,
+                     mode='backward'):
     """
 
     :param model: the model to simulate
@@ -448,6 +470,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
     :param chebyshev_exclude:
     :param chebyshev_include:
     :param dynamic_constraints:
+    :param mode: `forward' or `backward' for the Euler integration scheme
     :return:
     """
 
@@ -542,7 +565,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
     for  k, t in tqdm(enumerate(times), total=len(times)):
 
         # Apply the current reference solution to the model
-        apply_ref_state(dmodel, current_solution.raw, timestep, has_mrna, has_enzymes)
+        apply_ref_state(dmodel, current_solution.raw, timestep, has_mrna, has_enzymes, mode=mode)
 
         # For each uptake flux, edit the boundaries according to its kinetic laws
         for uptake_flux, kinfun in uptake_fun.items():
@@ -574,7 +597,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
                 the_solution = compute_center(dmodel,
                                               objective = dmodel.chebyshev_radius.radius.variable)
             else:
-                the_solution = model.optimize()
+                the_solution = dmodel.optimize()
 
         except AttributeError:
             print('############################')
@@ -586,11 +609,11 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
         colname = 't_{}'.format(k)
         var_solutions[colname] = the_solution.raw.copy()
         # Medium update after consumption has happened
-        X,S= update_medium(t,X,S,model,medium_fun,timestep)
+        X,S= update_medium(t,X,S,dmodel,medium_fun,timestep)
         obs_values = update_sol(t,X,S,dmodel,obs_values, colname)
 
         if step_fun is not None:
-            step_fun(model, t, S, X, the_solution, timestep)
+            step_fun(dmodel, t, S, X, the_solution, timestep)
 
         current_solution = the_solution
 
