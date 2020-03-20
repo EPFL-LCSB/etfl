@@ -424,6 +424,7 @@ def compute_center(dmodel, objective,
                               'with growth lb')
         # We relax the integer bounds and try solving anyway with just the lb
         epsilon = dmodel.solver.configuration.tolerances.feasibility
+        # epsilon = dmodel.mu_approx_resolution/2
         release_growth(dmodel)
         dmodel.growth_reaction.lower_bound = mu_lb - 1*epsilon
         dmodel.optimize()
@@ -554,13 +555,19 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
     var_solutions = pd.DataFrame()
     obs_values = pd.DataFrame()
 
-    times = np.arange(0,tfinal,timestep)
+    times = np.arange(timestep,tfinal,timestep)
     S = S0
     X = X0
     # dmodel.optimize()
 
     show_initial_solution(dmodel, current_solution)
     dmodel.initial_solution = current_solution
+
+    # First point
+    colname = 't_0'
+    var_solutions[colname] = current_solution.raw.copy()
+    # Medium update after consumption has happened
+    obs_values = update_sol(0, X0, S0, dmodel, obs_values, colname)
 
     for  k, t in tqdm(enumerate(times), total=len(times)):
 
@@ -580,7 +587,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
                 # Sum the max catalytic rate (Vmax) of the enzymes
                 these_uptake_enz = [enz for x in uptake_enz[uptake_flux]
                                     for enz in dmodel.reactions.get_by_id(x).enzymes]
-                vmax = sum([x.kcat_fwd * x.scaling_factor * dmodel.solution.raw[x.variable.name]
+                vmax = sum([x.kcat_fwd * x.scaling_factor * current_solution.raw[x.variable.name]
                             for x in these_uptake_enz])
 
                 lb = vmax * kinfun(S[uptake_flux])
@@ -606,7 +613,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
             return wrap_time_sol(var_solutions, obs_values)
 
         # Housekeeping
-        colname = 't_{}'.format(k)
+        colname = 't_{}'.format(k+1)
         var_solutions[colname] = the_solution.raw.copy()
         # Medium update after consumption has happened
         X,S= update_medium(t,X,S,dmodel,medium_fun,timestep)
