@@ -60,7 +60,6 @@ def get_uptake_funs():
 
 def prepare_model(in_model, v0, S0, uptake_fun):
     """
-    Minimize glucose enzymes on glycerol uptake
     :param in_model:
     :return:
     """
@@ -89,6 +88,12 @@ def prepare_model(in_model, v0, S0, uptake_fun):
 
 def get_medium_funs(config):
 
+
+    try:
+        mode = config['simulation']['mode']
+    except KeyError:
+        mode = 'batch'
+
     timestep = config['simulation']['timestep']
 
     epsilon = timestep / 100
@@ -98,7 +103,7 @@ def get_medium_funs(config):
     kla_o2 = 7.5  # h^-1
 
     S0_glc = config['assumptions']['S0']['EX_glc__D_e']  # mmol/L
-    S1_glc = 10  # mmol/L
+    S1_glc = 1  # mmol/L
 
     if has_lcts:
         S0_lac = config['assumptions']['S0']['EX_lcts_e']  # mmol/L
@@ -113,11 +118,19 @@ def get_medium_funs(config):
 
     glc_fun = lambda t, S, S0=S0_glc, S1=S1_glc: \
         max(S, 0)
+
+    glc_constant = lambda t, S, S0=S0_glc: S0
+    glc_switch1  = lambda t, S, S0=S1_glc: S0 if t > 0.5 else 0
+
     # S + S1 if abs(t - 1) <= timestep+epsilon and S <= S0 else max(S, 0)
     # S1 if t > 1  else S0
 
     lac_fun = lambda t, S, S0=S0_lac, S1=S1_lac: \
         max(S, 0)
+
+    lac_constant = lambda t, S, S0=S0_lac, S1=S1_lac: S0
+    lac_switch1  = lambda t, S, S0=S0_lac: 0 if t > 0.5 else S0
+
 
     o2_fun = lambda t, S, S0=S0_o2, S1=S1_o2: \
         S0  # if t > 1  else S0
@@ -128,15 +141,38 @@ def get_medium_funs(config):
     # Integrated linearization of the diffusion over dt
     # o2_diff = lambda t, S, S0=S0_o2, kla=kla_o2: max(S0 - (S0 - S) * exp(-kla * timestep), 0)
     o2_diff = lambda t, S, S0=S0_o2, kla=kla_o2: max(S + kla * (S0 - S) * timestep, 0)
+    o2_constant = lambda t, S, S0=S0_o2: S0
 
     ac_fun = lambda t, S: max(S, 0)
 
-    medium_funs = {
-        'EX_glc__D_e': glc_fun,
-        'EX_lcts_e': lac_fun,
-        'EX_o2_e': o2_diff,
-        'EX_ac_e': ac_fun,
-    }
+    if mode == 'batch':
+        medium_funs = {
+            'EX_glc__D_e': glc_fun,
+            'EX_lcts_e': lac_fun,
+            'EX_o2_e': o2_diff,
+            'EX_ac_e': ac_fun,
+        }
+    elif mode == 'chemostat_lcts':
+        medium_funs = {
+            'EX_glc__D_e': glc_fun,
+            'EX_lcts_e': lac_constant,
+            'EX_o2_e': o2_constant,
+            'EX_ac_e': ac_fun,
+        }
+    elif mode == 'chemostat_glc':
+        medium_funs = {
+            'EX_glc__D_e': glc_constant,
+            'EX_lcts_e': lac_fun,
+            'EX_o2_e': o2_constant,
+            'EX_ac_e': ac_fun,
+        }
+    elif mode == 'switch1':
+        medium_funs = {
+            'EX_glc__D_e': glc_switch1,
+            'EX_lcts_e': lac_switch1,
+            'EX_o2_e': o2_constant,
+            'EX_ac_e': ac_fun,
+        }
 
     return  medium_funs
 
