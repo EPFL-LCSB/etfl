@@ -311,7 +311,7 @@ def create_simple_dynamic_model():
     bio  = Metabolite('biomass')
 
     glc_yield = 1
-    lcts_yield = 0.7
+    lcts_yield = 0.95
 
     n_glc_C  = 6 #  number of carbons in glucose
     n_lcts_C = 12 # number of carbons in lactose
@@ -370,7 +370,7 @@ def create_simple_dynamic_model():
     model.add_constraint(kind=TotalCapacity,
                          hook=model,
                          id_='total_E',
-                         expr = Eg.variable + 2*El.variable,
+                         expr = Eg.variable + 3*El.variable,
                          lb=0.1,
                          ub=0.1)
     model.add_constraint(kind=EnzymeMassBalance,
