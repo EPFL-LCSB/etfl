@@ -1,0 +1,43 @@
+model: '../../tutorials/models/SlackModel iJO1366_vETFL__tp_v_0.11_441_enz_128_bins__20200309_134205.json'
+#model: debug
+tag: 'vETFL_v_0.11_enjalbert'
+simulation:
+  timestep: 0.15
+  tfinal: 10
+  mode: 'succurro'
+assumptions:
+  v0:
+    EX_o2_e: -11.5 # mmol/gDW/h
+    EX_glc__D_e: -10 # mmol/gDW/h
+    EX_ac_e: 0 # mmol/L
+  upper_bounds:
+    EX_ac_e: 10
+  S0:
+#    EX_o2_e: 0.21 # mmol/L
+    EX_glc__D_e: 15 # mmol/L
+    EX_ac_e: 0 # mmol/L
+  X0: 2.7e-3 # gDW/L
+  uptake_enz:
+#    EX_ac_e:
+#      - ACt4pp
+#      - ACt2rpp
+    EX_glc__D_e:
+      - GLCDpp
+      - GLCabcpp
+      - GLCptspp
+      - GLCt2pp
+
+options:
+  verbose: false
+  inplace: true
+  chebyshev_include:
+    - ForwardCatalyticConstraint
+    - BackwardCatalyticConstraint
+#    - EnzymeDeltaPos
+#    - EnzymeDeltaNeg
+#    - ExpressionCoupling
+  constraints:
+    mRNA_degradation: no
+    mRNA_synthesis  : no
+    enzyme_degradation: yes
+    enzyme_synthesis: no

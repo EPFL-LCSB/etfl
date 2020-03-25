@@ -54,11 +54,13 @@ def get_uptake_funs():
     uptake_funs['EX_o2_e'] = lambda x: VmaxO2 * x /(KmO2 + x)
 
     # Acetate
-    uptake_funs['EX_ac_e'] = lambda x: 15 if x>0 else 0
+    fix_ac = lambda x: 15 if x>0 else 0
+    succurro = lambda x: 10 * x /(0.01 + x)
+    uptake_funs['EX_ac_e'] = succurro
 
     return uptake_funs
 
-def prepare_model(in_model, v0, S0, uptake_fun):
+def prepare_model(in_model, config, uptake_fun):
     """
     :param in_model:
     :return:
@@ -69,6 +71,11 @@ def prepare_model(in_model, v0, S0, uptake_fun):
     # 'h_p + lcts_c --> h_c + lcts_p'),
     # We set it to 0, since we will not produce lactose,
     # and do not have any enzyme related to it
+
+    v0  = config['assumptions']['v0']
+    S0  = config['assumptions']['S0']
+    ubs = config['assumptions']['upper_bounds']
+
     try:
         model.reactions.LCTSt3ipp.lower_bound = 0
     except AttributeError:
@@ -80,6 +87,14 @@ def prepare_model(in_model, v0, S0, uptake_fun):
         except KeyError: # For debug models
             model.logger.warning('Reaction {} not in model - could not '
                                  'initialize flux'.format(rxn_id))
+
+    for rxn_id,ub in ubs.items():
+        try:
+            model.reactions.get_by_id(rxn_id).upper_bound = ub
+        except KeyError: # For debug models
+            model.logger.warning('Reaction {} not in model - could not '
+                                 'set upper bound'.format(rxn_id))
+
 
     sol_ini = in_model.optimize()
 
@@ -97,18 +112,23 @@ def get_medium_funs(config):
     timestep = config['simulation']['timestep']
 
     epsilon = timestep / 100
-
-    S0_o2 = config['assumptions']['S0']['EX_o2_e']  # mmol/L
-    S1_o2 = 0.21  # mmol/L
+    try:
+        S0_o2 = config['assumptions']['S0']['EX_o2_e']  # mmol/L
+        S1_o2 = 0.21  # mmol/L
+    except KeyError:
+        print('No o2 S0 found')
+        S0_o2 = 0
+        S1_o2 = 0
     kla_o2 = 7.5  # h^-1
 
     S0_glc = config['assumptions']['S0']['EX_glc__D_e']  # mmol/L
     S1_glc = 1  # mmol/L
 
-    if has_lcts:
+    try:
         S0_lac = config['assumptions']['S0']['EX_lcts_e']  # mmol/L
         S1_lac = 10  # mmol/L
-    else:
+    except KeyError:
+        print('No lactose S0 found')
         S0_lac = 0
         S1_lac = 0
 
@@ -129,7 +149,7 @@ def get_medium_funs(config):
         max(S, 0)
 
     lac_constant = lambda t, S, S0=S0_lac, S1=S1_lac: S0
-    lac_switch1  = lambda t, S, S0=S0_lac: 0 if t > 0.5 else S0
+    lac_switch1  = lambda t, S, S0=S0_lac: max(S,0) if t > 0.5 else S0
 
 
     o2_fun = lambda t, S, S0=S0_o2, S1=S1_o2: \
@@ -173,6 +193,21 @@ def get_medium_funs(config):
             'EX_o2_e': o2_constant,
             'EX_ac_e': ac_fun,
         }
+    elif mode == 'succurro':
+        medium_funs = {
+            'EX_glc__D_e': glc_fun,
+            'EX_lcts_e': lac_fun,
+            'EX_o2_e': o2_constant,
+            'EX_ac_e': ac_fun,
+        }
+    elif mode == 'varma':
+        medium_funs = {
+            'EX_glc__D_e': glc_fun,
+            'EX_lcts_e': lac_fun,
+            'EX_o2_e': o2_constant,
+            'EX_ac_e': ac_fun,
+        }
+
 
     return  medium_funs
 
@@ -181,6 +216,7 @@ if __name__ == '__main__':
     config = read_config(CONFIG)
 
     has_lcts = 'EX_lcts_e' in config['assumptions']['S0']
+    has_o2   = 'EX_o2_e'   in config['assumptions']['S0']
 
     medium_funs = get_medium_funs(config)
     uptake_funs = get_uptake_funs()
@@ -188,6 +224,10 @@ if __name__ == '__main__':
     if not has_lcts:
         medium_funs.pop('EX_lcts_e')
         uptake_funs.pop('EX_lcts_e')
+
+    if not has_o2:
+        medium_funs.pop('EX_o2_e')
+        uptake_funs.pop('EX_o2_e')
 
     if config['model'] != 'debug':
         model = load_json_model(config['model'])
@@ -199,8 +239,7 @@ if __name__ == '__main__':
     model.solver.configuration.verbosity = 0
 
     ini_sol = prepare_model(model,
-                            v0=config['assumptions']['v0'],
-                            S0=config['assumptions']['S0'],
+                            config,
                             uptake_fun = uptake_funs)
 
     time_data = run_detfl(model=model,
