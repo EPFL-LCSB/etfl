@@ -59,7 +59,7 @@ def summarize_model(model,time_data,groups,
         makedirs(output_folder)
 
     bp.curdoc().clear()
-    bp.output_file(join(output_folder,'summary.html'))
+    bp.output_file(join(output_folder,'summary.html'), title = model_tag)
 
     for p in summary_plots.values():
         p.output_backend = backend
