@@ -56,7 +56,8 @@ def get_uptake_funs():
     # Acetate
     fix_ac = lambda x: 15 if x>0 else 0
     succurro = lambda x: 10 * x /(0.01 + x)
-    uptake_funs['EX_ac_e'] = succurro
+    succurro_v2 = lambda x: 3 * x /(0.01 + x)
+    uptake_funs['EX_ac_e'] = succurro_v2
 
     return uptake_funs
 

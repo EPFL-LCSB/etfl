@@ -1,8 +1,8 @@
-model: '../../tutorials/models/SlackModel iJO1366_vETFL__tp_v_0.11_441_enz_128_bins__20200309_134205.json'
+model: '../../tutorials/models/SlackModel iJO1366_vETFL__tp_v_0.11_447_enz_128_bins__20200326_174551.json'
 #model: debug
 tag: 'vETFL_varma'
 simulation:
-  timestep: 0.15
+  timestep: 0.3
   tfinal: 8
   mode: 'varma'
 assumptions:

@@ -4,15 +4,38 @@ from bokeh.models import ColumnDataSource, LinearAxis, Range1d
 from bokeh.palettes import viridis
 from bokeh.transform import linear_cmap
 import pandas as pd
+import numpy as np
 
 from os.path import join
 
+from scipy import signal
+
 data_folder = 'data'
 plots_folder = 'plots'
-my_data_folder = join('outputs','tmp')
+# my_data_folder = join('outputs','tmp')
+my_data_folder_enj   = join('outputs', 'vETFL_enjalbert_20200326_110952')
+my_data_folder_varma = join('outputs', 'vETFL_varma_20200326_153723')
 
-T_OFFSET_ENJ2VAR = 4
-T_OFFSET_ME2VAR = 2
+def _resample(t,x,delta_t,num=50):
+    new_t = np.arange(t.min(),t.max(),delta_t)
+    x_hat,t_hat = signal.resample(x,num,new_t)
+    return x_hat,t_hat
+
+def _get_offset(source,target,y_col,target_y_col='biomass'):
+    #TODO: make time-aware
+    dx = np.mean(np.diff(source.t.values))
+    source_hat,_ = _resample(source.t,source[y_col],dx)
+    target_hat,_ = _resample(target.t,target[target_y_col],dx)
+    shift = (np.argmax(signal.correlate(source_hat, target_hat)) - len(target_hat)) * dx
+    return shift
+
+def get_avg_offset(source,target,biomass_col='biomass'):
+    o_ac  = _get_offset(source,target,'ac')
+    o_glc = _get_offset(source,target,'glc')
+    o_bio = _get_offset(source,target,biomass_col)
+
+    return np.mean([o_ac,o_glc,o_bio])
+
 
 def get_varma_data():
     varma_ac  = pd.read_csv(join(data_folder, 'varma7_ac.csv'), header=0)
@@ -33,24 +56,39 @@ def get_varma_data():
     centered_dat['glc'] = varma_glc['glc']
     centered_dat['biomass'] = varma_bio['biomass']
 
+    centered_dat['t'] -= centered_dat[centered_dat['glc']<=1]['t'].iloc[0]
+
     return centered_dat
 
 def get_enjalbert_data():
     raw_dat  = pd.read_csv(join(data_folder, 'fig2_fromEnjalbert2015.csv'), header=0)
     raw_dat.columns = ['tmin','t','od600','od600_std','glc','glc_std','ac','ac_std']
-    raw_dat['t'] += T_OFFSET_ENJ2VAR
+    # raw_dat['t'] -= get_avg_offset(raw_dat,varma,'od600')
+    raw_dat['t'] -= raw_dat[raw_dat['glc']<=1]['t'].iloc[0]
     return raw_dat
 
-def get_my_data():
-    # raw_data = pd.read_csv(join(my_data_folder,'solution.csv'),header=0,index_col=0)
-    raw_data = pd.read_csv(join(my_data_folder,'tmp_detfl.csv'),header=0,index_col=0)
-    out = raw_data.loc[['t','S_EX_glc__D_e','S_EX_ac_e','X']].T
-    out['t'] += T_OFFSET_ME2VAR
+def get_my_varma():
+    raw_data = pd.read_csv(join(my_data_folder_varma, 'solution.csv'), header=0, index_col=0)
+    # raw_data = pd.read_csv(join('outputs','tmp','tmp_detfl.csv'),header=0,index_col=0)
+    out = raw_data.loc[['t','S_EX_glc__D_e','S_EX_ac_e','X','mu']].T
+    out.columns = ['t','glc','ac','X','mu']
+    # out['t'] -= get_avg_offset(out,varma,'X')
+    out['t'] -= out[out['glc']<=1]['t'].iloc[0]
     return out
 
-varma = get_varma_data()
+def get_my_enj():
+    raw_data = pd.read_csv(join(my_data_folder_enj, 'solution.csv'), header=0, index_col=0)
+    # raw_data = pd.read_csv('tmp_detfl.csv',header=0,index_col=0)
+    out = raw_data.loc[['t','S_EX_glc__D_e','S_EX_ac_e','X','mu']].T
+    out.columns = ['t','glc','ac','X','mu']
+    # out['t'] -= get_avg_offset(out,varma,'X')
+    out['t'] -= out[out['glc']<=1]['t'].iloc[0]
+    return out
+
+varma     = get_varma_data()
 enjalbert = get_enjalbert_data()
-detfl = get_my_data()
+my_enj    = get_my_enj()
+my_varma  = get_my_varma()
 
 bp.output_file(join(plots_folder,'exp_acetate.html'))
 
@@ -60,42 +98,62 @@ def plot_varma(p,x,y,**kwargs):
 def plot_enjalbert(p,x,y,**kwargs):
     p.square(x=x,y=y,size=7,line_width=3,fill_alpha=0,color='green',**kwargs)
 
-def plot_me(p,x,y,**kwargs):
+def plot_my_enj(p, x, y, **kwargs):
     p.cross(x=x,y=y,size=7,line_width=3,fill_alpha=0,color='red',**kwargs)
 
-p1 = bp.figure()
+def plot_my_varma(p, x, y, **kwargs):
+    p.x(x=x,y=y,size=7,line_width=3,fill_alpha=0,color='red',**kwargs)
 
-plot_varma    (p1, x=varma['t']    ,y=varma['ac']    )
-plot_enjalbert(p1, x=enjalbert['t'],y=enjalbert['ac'])
-plot_me       (p1, x=detfl['t']    ,y=detfl['S_EX_ac_e'])
-p1.xaxis.axis_label = 't [h]'
-p1.yaxis.axis_label = 'Acetate [mmol/(gDW)]'
+def plot_exp(p, x, y, **kwargs):
+    p.x(x=x, y=y, size=7, line_width=3, fill_alpha=0, color='black', **kwargs)
+def plot_sim(p,x,y,**kwargs):
+    p.line(x=x,y=y,line_width=3, color='black',**kwargs)
 
-p2 = bp.figure()
+def plot_conc(exp_dataset, sim_dataset, exp_label):
 
-plot_varma    (p2, x=varma['t']    ,y=varma['glc']    )
-plot_enjalbert(p2, x=enjalbert['t'],y=enjalbert['glc'])
-plot_me       (p2, x=detfl['t']    ,y=detfl['S_EX_glc__D_e'])
-p2.xaxis.axis_label = 't [h]'
-p2.yaxis.axis_label = 'Glucose [mmol/(gDW)]'
+    p_ac = bp.figure(height = 300, width = 800)
+    plot_exp(p_ac, x=exp_dataset['t'], y=exp_dataset['ac'],legend_label=exp_label + ' dataset')
+    plot_sim(p_ac, x=sim_dataset['t'], y=sim_dataset['ac'],legend_label='simulated')
+    p_ac.xaxis.axis_label = 't [h]'
+    p_ac.yaxis.axis_label = 'Acetate [mmol/(L)]'
 
-p3 = bp.figure()
+    p_glc = bp.figure(height = 300, width = 800)
+    plot_exp(p_glc, x=exp_dataset['t'], y=exp_dataset['glc'],legend_label=exp_label + ' dataset')
+    plot_sim(p_glc, x=sim_dataset['t'], y=sim_dataset['glc'],legend_label='simulated')
+    p_glc.xaxis.axis_label = 't [h]'
+    p_glc.yaxis.axis_label = 'Glucose [mmol/(L)]'
 
-plot_varma(p3,x=varma['t'],y=varma['biomass'])
-plot_me   (p3,x=detfl['t'],y=detfl['X'])
+    return p_ac,p_glc
 
-p3.y_range.start = 0
-p3.y_range.end = 1.05 * varma['biomass'].max()
+def plot_biomass(exp_dataset, sim_dataset, exp_label, biomass_col, is_OD = False):
+    from plotting import make_growth_plot
 
-# Setting the second y axis range name and range
-p3.extra_y_ranges = {"enjalbert": Range1d(start=0, end=1.05 * enjalbert['od600'].max())}
+    p = make_growth_plot(None,sim_dataset.T)
 
-# Adding the second axis to the plot.
-p3.add_layout(LinearAxis(y_range_name="enjalbert",
-                       axis_label='OD600'), 'right')
+    if is_OD:
+        # Setting the second y axis range name and range
+        # p.extra_y_ranges = {'od_range': Range1d(start=0, end=1.05 * exp_dataset[biomass_col].max())}
+        # # Adding the second axis to the plot.
+        # p.add_layout(LinearAxis(y_range_name='od_range',
+        #                          axis_label='OD'), 'right')
+        # plot_exp(p, x=exp_dataset['t'], y=exp_dataset[biomass_col],legend_label=exp_label+' dataset',y_range_name='od_range')
+        # p.y_range.start = 0
+        # p.y_range.end = 1.05 * exp_dataset[biomass_col].max()
 
-plot_enjalbert(p3, x=enjalbert['t'],y=enjalbert['od600'],y_range_name='enjalbert')
-p3.xaxis.axis_label = 't [h]'
-p3.yaxis.axis_label = 'Cells [g/L]'
+        # Instead, we rescale the OD:
+        new_y = exp_dataset[biomass_col]
+        new_y *= (sim_dataset['X'].max() - sim_dataset['X'].min()) / (new_y.max() - new_y.min())
+        plot_exp(p, x=exp_dataset['t'], y=new_y                   ,legend_label=exp_label + ' dataset (rescaled)')
+    else:
+        plot_exp(p, x=exp_dataset['t'], y=exp_dataset[biomass_col],legend_label=exp_label + ' dataset')
 
-bp.show(column([p1,p2,p3]))
+    return p
+
+
+p_ac_varma, p_glc_varma = plot_conc(varma,my_varma,'Varma')
+p_ac_enj, p_glc_enj = plot_conc(enjalbert,my_enj,'Enjalbert')
+
+p_bio_varma = plot_biomass(varma    ,my_varma,'Varma'    ,biomass_col='biomass',is_OD=False)
+p_bio_enj   = plot_biomass(enjalbert,my_enj  ,'Enjalbert',biomass_col='od600'  ,is_OD=True )
+
+bp.show(column([p_ac_varma, p_glc_varma, p_ac_enj, p_glc_enj, p_bio_varma, p_bio_enj]))
