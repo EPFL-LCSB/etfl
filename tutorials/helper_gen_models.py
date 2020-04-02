@@ -37,7 +37,7 @@ from multiprocessing import Pool
 
 
 # Run model gen in parallel ?
-PARALLEL = False # True
+PARALLEL = False
 
 data_dir = '../organism_data/info_ecoli'
 
@@ -284,8 +284,12 @@ def create_model(has_thermo, has_expression, has_allocation,
 
 if __name__ == '__main__':
 
-    lloyd_enz = ['G1PPpp', 'GLCDpp', 'GLCabcpp', 'GLCptspp', 'GLCt2pp', 'TREHpp',
-                 'LACZpp', 'LCTSt3ipp', 'LCTStpp']
+    lloyd_enz = ['G1PPpp', 'GLCDpp', 'GLCabcpp', 'GLCptspp', 'GLCt2pp',
+                 'LACZpp', 'LCTSt3ipp', 'LCTStpp','LACZ',
+                 # 'ACt4pp','ACt2rpp',
+                 'GALKr','GALt2pp','GALabcpp',
+                 'ICL','MALS','PPCK','PPS','PGMT',
+                 ]
 
     models = dict()
 
@@ -295,19 +299,23 @@ if __name__ == '__main__':
     #                          'has_thermo':False,
     #                          'has_allocation':False,
     #                          'has_allocation':False,
-    #                          'kcat_mode':'kmax'}
+    #                          'kcat_mode':'kmax',
+    #                          'name_suffix':'v_0.11'}
     # model_calls[ 'ETFL' ] = {'has_expression':True,
     #                          'has_thermo':True,
     #                          'has_allocation':False,
-    #                          'kcat_mode':'kmax'}
+    #                          'kcat_mode':'kmax',
+    #                          'name_suffix':'v_0.11'}
     # model_calls['vEFL'  ] = {'has_expression':True,
     #                          'has_thermo':False,
     #                          'has_allocation':True,
-    #                          'kcat_mode':'kmax'}
+    #                          'kcat_mode':'kmax',
+    #                          'name_suffix':'v_0.11'}
     # model_calls['vETFL' ] = {'has_expression':True,
     #                          'has_thermo':True,
     #                          'has_allocation':True,
-    #                          'kcat_mode':'kmax'}
+    #                          'kcat_mode':'kmax',
+    #                          'name_suffix':'v_0.11'}
     # model_calls['vETFL65' ] = {'has_expression':True,
     #                            'has_thermo':True,
     #                            'has_allocation':True,
@@ -328,12 +336,12 @@ if __name__ == '__main__':
     #                                     'infer_missing_enz':True,
     #                                     'name_suffix':'infer_mean_kcat'}
 
-
-    model_calls['vEFL'  ] = {'has_expression':True,
-                             'has_thermo':False,
-                             'has_allocation':True,
-                             'kcat_mode':'kmax',
-                             'name_suffix': 'v_0.10'}
+    model_calls['vETFL_tp' ] = {'has_expression':True,
+                                'has_thermo':True,
+                                'has_allocation':True,
+                                'kcat_mode':'kmax',
+                                'name_suffix':'_tp_v_0.11',
+                                'additional_enz':lloyd_enz}
 
     if not PARALLEL:
         for mid,mc in model_calls.items():
