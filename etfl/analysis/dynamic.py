@@ -583,7 +583,7 @@ def run_dynamic_etfl(model, timestep, tfinal, uptake_fun, medium_fun,
 
             # If a set of enzymes is specified for the uptake, limit it with
             # the catalytic capacity of the enzymes at their current concentration
-            if uptake_flux in uptake_enz:
+            if uptake_enz is not None and uptake_flux in uptake_enz:
                 # Sum the max catalytic rate (Vmax) of the enzymes
                 these_uptake_enz = [enz for x in uptake_enz[uptake_flux]
                                     for enz in dmodel.reactions.get_by_id(x).enzymes]
