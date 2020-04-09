@@ -55,6 +55,6 @@ class DNA(Macromolecule):
         mg = molecular_weight('G', seq_type='DNA') / 1000  # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
 
         #         [     g.mmol(bp)^-1        * mmol(bp)/mmol(dna) ] ^ -1
-        return 1 / ((1 - g) * (ma + mt) + g * (mc + mg)) * self.len
+        return ((1 - g) * (ma + mt) + g * (mc + mg)) * self.len
 
 
