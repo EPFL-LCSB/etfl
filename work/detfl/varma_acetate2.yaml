@@ -1,17 +1,17 @@
-model: '../../tutorials/models/SlackModel iJO1366_vETFL__tp_v_0.11_447_enz_128_bins__20200326_174551.json'
+model: '../../tutorials/models/SlackModel iJO1366_vETFL__tp_v_0.11_448_enz_128_bins__20200327_082534.json'
 #model: debug
 tag: 'vETFL_varma'
 simulation:
-  timestep: 0.3
-  tfinal: 8
+  timestep: 0.1
+  tfinal: 10
   mode: 'varma'
 assumptions:
   v0:
     EX_o2_e: -15 # mmol/gDW/h
-    EX_glc__D_e: -10.5 # mmol/gDW/h
+    EX_glc__D_e: -10 # mmol/gDW/h
     EX_ac_e: 0 # mmol/L
   upper_bounds:
-    EX_ac_e: 10
+    EX_ac_e: 5
   S0:
 #    EX_o2_e: 0.21 # mmol/L
     EX_glc__D_e: 10.6 # mmol/L
@@ -21,12 +21,10 @@ assumptions:
 #    EX_ac_e:
 #      - ACt4pp
 #      - ACt2rpp
-    EX_glc__D_e:
-      - GLCDpp
-      - GLCabcpp
-      - GLCptspp
-      - GLCt2pp
-
+#    EX_glc__D_e:
+#      - GLCabcpp
+#      - GLCptspp
+#      - GLCt2pp
 options:
   verbose: false
   inplace: true

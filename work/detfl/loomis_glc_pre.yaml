@@ -1,8 +1,8 @@
 model: '../../tutorials/models/SlackModel iJO1366_vETFL__tp_v_0.11_448_enz_128_bins__20200327_082534.json'
 tag: 'vETFL_diaux_loomis_glc_precult'
 simulation:
-  timestep: 0.15
-  tfinal: 4
+  timestep: 0.1
+  tfinal: 6
 assumptions:
   v0:
     EX_o2_e: -15 # mmol/gDW/h
@@ -14,7 +14,7 @@ assumptions:
   S0:
 #    EX_o2_e: 0.21 # mmol/L
     EX_glc__D_e: 1 # mmol/L
-    EX_lcts_e: 10 # mmol/L
+    EX_lcts_e: 2 # mmol/L
     EX_ac_e: 0 # mmol/L
   X0: 0.02
   uptake_enz:

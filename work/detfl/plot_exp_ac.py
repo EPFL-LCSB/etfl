@@ -3,18 +3,28 @@ from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, LinearAxis, Range1d
 from bokeh.palettes import viridis
 from bokeh.transform import linear_cmap
+from bokeh.io import export_svgs
 import pandas as pd
 import numpy as np
 
 from os.path import join
+from os import makedirs
 
 from scipy import signal
 
 data_folder = 'data'
 plots_folder = 'plots'
-# my_data_folder = join('outputs','tmp')
-my_data_folder_enj   = join('outputs', 'vETFL_enjalbert_20200326_110952')
-my_data_folder_varma = join('outputs', 'vETFL_varma_20200326_153723')
+subplots_folder = join(plots_folder, 'exp_acetate_sub')
+makedirs(subplots_folder,exist_ok=True)
+
+# my_data_folder_enj   = join('outputs', 'vETFL_enjalbert_vmax_20200330_134009') #1
+# my_data_folder_enj   = join('outputs', 'vETFL_enjalbert_vmax_20200330_083510') #2
+my_data_folder_enj   = join('outputs', 'vETFL_enjalbert_20200407_210513') #new
+# my_data_folder_varma = join('outputs', 'vETFL_varma_20200331_224535') #1
+# my_data_folder_varma = join('outputs', 'vETFL_varma_vmax_20200330_131840') #2
+my_data_folder_varma = join('outputs', 'vETFL_varma_20200407_190236') #new
+
+BACKEND = 'svg'
 
 def _resample(t,x,delta_t,num=50):
     new_t = np.arange(t.min(),t.max(),delta_t)
@@ -40,23 +50,28 @@ def get_avg_offset(source,target,biomass_col='biomass'):
 def get_varma_data():
     varma_ac  = pd.read_csv(join(data_folder, 'varma7_ac.csv'), header=0)
     varma_ac. columns = ['t', 'ac']
+    varma_ac = varma_ac.iloc[varma_ac['t'].sort_values().index]
 
     varma_glc = pd.read_csv(join(data_folder, 'varma7_gl.csv'), header=0)
     varma_glc.columns = ['t', 'glc']
+    varma_glc = varma_glc.iloc[varma_glc['t'].sort_values().index]
+
 
     varma_bio = pd.read_csv(join(data_folder, 'varma7_bm.csv'), header=0)
     varma_bio.columns = ['t', 'biomass']
+    varma_bio = varma_bio.iloc[varma_bio['t'].sort_values().index]
+
 
     centered_t = pd.concat([varma_bio['t'],varma_glc['t'],varma_ac['t']],axis=1).mean(axis=1)
 
-    centered_dat = pd.DataFrame(columns = ['t','ac','glc','X'])
+    centered_dat = pd.DataFrame(columns = ['t','ac','glc','biomass'])
 
     centered_dat['t']   = centered_t
     centered_dat['ac']  = varma_ac['ac']
     centered_dat['glc'] = varma_glc['glc']
     centered_dat['biomass'] = varma_bio['biomass']
 
-    centered_dat['t'] -= centered_dat[centered_dat['glc']<=1]['t'].iloc[0]
+    centered_dat['t'] -= centered_dat[centered_dat['glc']<=centered_dat['glc'].max()*0.37]['t'].iloc[0]
 
     return centered_dat
 
@@ -64,25 +79,26 @@ def get_enjalbert_data():
     raw_dat  = pd.read_csv(join(data_folder, 'fig2_fromEnjalbert2015.csv'), header=0)
     raw_dat.columns = ['tmin','t','od600','od600_std','glc','glc_std','ac','ac_std']
     # raw_dat['t'] -= get_avg_offset(raw_dat,varma,'od600')
-    raw_dat['t'] -= raw_dat[raw_dat['glc']<=1]['t'].iloc[0]
+    raw_dat['t'] -= raw_dat[raw_dat['glc']<=raw_dat['glc'].max()*0.37]['t'].iloc[0]
     return raw_dat
 
 def get_my_varma():
     raw_data = pd.read_csv(join(my_data_folder_varma, 'solution.csv'), header=0, index_col=0)
+    # raw_data = pd.read_csv(join('tmp_detfl.csv'),header=0,index_col=0)
     # raw_data = pd.read_csv(join('outputs','tmp','tmp_detfl.csv'),header=0,index_col=0)
     out = raw_data.loc[['t','S_EX_glc__D_e','S_EX_ac_e','X','mu']].T
     out.columns = ['t','glc','ac','X','mu']
     # out['t'] -= get_avg_offset(out,varma,'X')
-    out['t'] -= out[out['glc']<=1]['t'].iloc[0]
+    out['t'] -= out[out['glc']<=out['glc'].max()*0.37]['t'].iloc[0]
     return out
 
 def get_my_enj():
     raw_data = pd.read_csv(join(my_data_folder_enj, 'solution.csv'), header=0, index_col=0)
-    # raw_data = pd.read_csv('tmp_detfl.csv',header=0,index_col=0)
+    # raw_data = pd.read_csv(join('outputs','tmp','tmp_detfl.csv'),header=0,index_col=0)
     out = raw_data.loc[['t','S_EX_glc__D_e','S_EX_ac_e','X','mu']].T
     out.columns = ['t','glc','ac','X','mu']
     # out['t'] -= get_avg_offset(out,varma,'X')
-    out['t'] -= out[out['glc']<=1]['t'].iloc[0]
+    out['t'] -= out[out['glc']<=out['glc'].max()*0.37]['t'].iloc[0]
     return out
 
 varma     = get_varma_data()
@@ -105,7 +121,7 @@ def plot_my_varma(p, x, y, **kwargs):
     p.x(x=x,y=y,size=7,line_width=3,fill_alpha=0,color='red',**kwargs)
 
 def plot_exp(p, x, y, **kwargs):
-    p.x(x=x, y=y, size=7, line_width=3, fill_alpha=0, color='black', **kwargs)
+    p.x(x=x, y=y, size=7, line_width=2, fill_alpha=0, color='black', **kwargs)
 def plot_sim(p,x,y,**kwargs):
     p.line(x=x,y=y,line_width=3, color='black',**kwargs)
 
@@ -122,6 +138,9 @@ def plot_conc(exp_dataset, sim_dataset, exp_label):
     plot_sim(p_glc, x=sim_dataset['t'], y=sim_dataset['glc'],legend_label='simulated')
     p_glc.xaxis.axis_label = 't [h]'
     p_glc.yaxis.axis_label = 'Glucose [mmol/(L)]'
+
+    p_ac .output_backend = BACKEND
+    p_glc.output_backend = BACKEND
 
     return p_ac,p_glc
 
@@ -147,6 +166,8 @@ def plot_biomass(exp_dataset, sim_dataset, exp_label, biomass_col, is_OD = False
     else:
         plot_exp(p, x=exp_dataset['t'], y=exp_dataset[biomass_col],legend_label=exp_label + ' dataset')
 
+    p.output_backend = BACKEND
+
     return p
 
 
@@ -156,4 +177,7 @@ p_ac_enj, p_glc_enj = plot_conc(enjalbert,my_enj,'Enjalbert')
 p_bio_varma = plot_biomass(varma    ,my_varma,'Varma'    ,biomass_col='biomass',is_OD=False)
 p_bio_enj   = plot_biomass(enjalbert,my_enj  ,'Enjalbert',biomass_col='od600'  ,is_OD=True )
 
-bp.show(column([p_ac_varma, p_glc_varma, p_ac_enj, p_glc_enj, p_bio_varma, p_bio_enj]))
+to_show = column([p_ac_varma, p_glc_varma, p_ac_enj, p_glc_enj, p_bio_varma, p_bio_enj])
+export_svgs(to_show, filename = join(subplots_folder,'plot.svg'))
+
+bp.show(to_show)
