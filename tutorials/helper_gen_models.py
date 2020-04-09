@@ -300,22 +300,22 @@ if __name__ == '__main__':
     #                          'has_allocation':False,
     #                          'has_allocation':False,
     #                          'kcat_mode':'kmax',
-    #                          'name_suffix':'v_0.11'}
+    #                          'name_suffix':'v_0.12'}
     # model_calls[ 'ETFL' ] = {'has_expression':True,
     #                          'has_thermo':True,
     #                          'has_allocation':False,
     #                          'kcat_mode':'kmax',
-    #                          'name_suffix':'v_0.11'}
+    #                          'name_suffix':'v_0.12'}
     # model_calls['vEFL'  ] = {'has_expression':True,
     #                          'has_thermo':False,
     #                          'has_allocation':True,
     #                          'kcat_mode':'kmax',
-    #                          'name_suffix':'v_0.11'}
+    #                          'name_suffix':'v_0.12'}
     # model_calls['vETFL' ] = {'has_expression':True,
     #                          'has_thermo':True,
     #                          'has_allocation':True,
     #                          'kcat_mode':'kmax',
-    #                          'name_suffix':'v_0.11'}
+    #                          'name_suffix':'v_0.12'}
     # model_calls['vETFL65' ] = {'has_expression':True,
     #                            'has_thermo':True,
     #                            'has_allocation':True,
@@ -340,7 +340,7 @@ if __name__ == '__main__':
                                 'has_thermo':True,
                                 'has_allocation':True,
                                 'kcat_mode':'kmax',
-                                'name_suffix':'_tp_v_0.11',
+                                'name_suffix':'_tp_v_0.12',
                                 'additional_enz':lloyd_enz}
 
     if not PARALLEL:
