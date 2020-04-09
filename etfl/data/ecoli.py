@@ -318,9 +318,14 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id,
 
     expression_mets = list(nt_dict.values()) + list(aa_dict.values())
 
+    # For ATP correction (see lower)
+    n_aa = 0
+
     for m,stoich in model.growth_reaction.metabolites.items():
         if m.id in expression_mets:
             mets_to_rm[m] = -1*stoich
+            if m.id in aa_dict.values():
+                n_aa += stoich
 
     model.growth_reaction.add_metabolites(mets_to_rm)
 
@@ -335,6 +340,15 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id,
     h2o = model.metabolites.get_by_id(h2o_id)
     h = model.metabolites.get_by_id(h_id)
     atp_recovery = model.growth_reaction.metabolites[adp]
+
+    # Omid's calculations:
+    # There is also ATP used for generating the GTP for the synthesis of peptides
+    # 2 GTP per aminoacid attached, 1 ATP per GTP
+    # We need to compute how much aminoacid are consumed
+    # We get it from the removal of the aminoacid earlier in the function
+
+    atp_recovery += 2*n_aa # n_pep is <= 0, we remove here the ATP used for peptide synthesis
+
     model.growth_reaction.add_metabolites({atp:-1*atp_recovery})
 
 
