@@ -98,7 +98,7 @@ The software in this repository is put under an APACHE-2.0 licensing scheme - pl
    :target: https://travis-ci.org/EPFL-LCSB/etfl
 .. |Codecov| image:: https://img.shields.io/codecov/c/github/EPFL-LCSB/etfl.svg
    :target: https://codecov.io/gh/EPFL-LCSB/etfl
-.. |Codacy branch grade| image:: https://img.shields.io/codacy/grade/46bab484396946a8be07a82276f3e9dc/master.svg
+.. |Codacy branch grade| image:: https://img.shields.io/codacy/grade/57efd28bef86473a8075fde96e132c28
    :target: https://www.codacy.com/app/realLCSB/etfl
 .. |doi| image:: https://zenodo.org/badge/DOI/10.1038/s41467-019-13818-7.svg
     :target: https://doi.org/10.1038/s41467-019-13818-7
