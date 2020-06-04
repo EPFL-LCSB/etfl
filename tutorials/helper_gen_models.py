@@ -196,12 +196,7 @@ def create_model(has_thermo, has_expression, has_allocation,
     remove_from_biomass_equation(model = ecoli,
                                  nt_dict = rna_nucleotides,
                                  aa_dict = aa_dict,
-                                 atp_id=essentials['atp'],
-                                 adp_id=essentials['adp'],
-                                 pi_id=essentials['pi'],
-                                 h2o_id=essentials['h2o'],
-                                 h_id=essentials['h'],
-                                 )
+                                 essentials_dict=essentials)
 
     ##########################
     ##    MODEL CREATION    ##
@@ -295,46 +290,46 @@ if __name__ == '__main__':
 
     # Models defined by Thermo - Expression - Neidhardt
     model_calls = dict()
-    # model_calls[ 'EFL'  ] = {'has_expression':True,
-    #                          'has_thermo':False,
-    #                          'has_allocation':False,
-    #                          'has_allocation':False,
-    #                          'kcat_mode':'kmax',
-    #                          'name_suffix':'v_0.12'}
-    # model_calls[ 'ETFL' ] = {'has_expression':True,
-    #                          'has_thermo':True,
-    #                          'has_allocation':False,
-    #                          'kcat_mode':'kmax',
-    #                          'name_suffix':'v_0.12'}
-    # model_calls['vEFL'  ] = {'has_expression':True,
-    #                          'has_thermo':False,
-    #                          'has_allocation':True,
-    #                          'kcat_mode':'kmax',
-    #                          'name_suffix':'v_0.12'}
-    # model_calls['vETFL' ] = {'has_expression':True,
-    #                          'has_thermo':True,
-    #                          'has_allocation':True,
-    #                          'kcat_mode':'kmax',
-    #                          'name_suffix':'v_0.12'}
-    # model_calls['vETFL65' ] = {'has_expression':True,
-    #                            'has_thermo':True,
-    #                            'has_allocation':True,
-    #                            # 'kcat_mode':65*3600}
-    #                            'kcat_mode':171.7*3600,
-    #                            'name_suffix':'mean_kcat'}
-    # model_calls['vETFL_infer' ]   = {   'has_expression':True,
-    #                                     'has_thermo':True,
-    #                                     'has_allocation':True,
-    #                                     'kcat_mode':'kmax',
-    #                                     'infer_missing_enz':True,
-    #                                'name_suffix':'infer'}
-    # model_calls['vETFL65_infer' ] = {   'has_expression':True,
-    #                                     'has_thermo':True,
-    #                                     'has_allocation':True,
-    # #                                     # 'kcat_mode': 65*3600,
-    #                                     'kcat_mode': 171.7*3600,
-    #                                     'infer_missing_enz':True,
-    #                                     'name_suffix':'infer_mean_kcat'}
+    model_calls[ 'EFL'  ] = {'has_expression':True,
+                             'has_thermo':False,
+                             'has_allocation':False,
+                             'has_allocation':False,
+                             'kcat_mode':'kmax',
+                             'name_suffix':'v_0.12'}
+    model_calls[ 'ETFL' ] = {'has_expression':True,
+                             'has_thermo':True,
+                             'has_allocation':False,
+                             'kcat_mode':'kmax',
+                             'name_suffix':'v_0.12'}
+    model_calls['vEFL'  ] = {'has_expression':True,
+                             'has_thermo':False,
+                             'has_allocation':True,
+                             'kcat_mode':'kmax',
+                             'name_suffix':'v_0.12'}
+    model_calls['vETFL' ] = {'has_expression':True,
+                             'has_thermo':True,
+                             'has_allocation':True,
+                             'kcat_mode':'kmax',
+                             'name_suffix':'v_0.12'}
+    model_calls['vETFL65' ] = {'has_expression':True,
+                               'has_thermo':True,
+                               'has_allocation':True,
+                               # 'kcat_mode':65*3600}
+                               'kcat_mode':171.7*3600,
+                               'name_suffix':'mean_kcat'}
+    model_calls['vETFL_infer' ]   = {   'has_expression':True,
+                                        'has_thermo':True,
+                                        'has_allocation':True,
+                                        'kcat_mode':'kmax',
+                                        'infer_missing_enz':True,
+                                   'name_suffix':'infer'}
+    model_calls['vETFL65_infer' ] = {   'has_expression':True,
+                                        'has_thermo':True,
+                                        'has_allocation':True,
+    #                                     # 'kcat_mode': 65*3600,
+                                        'kcat_mode': 171.7*3600,
+                                        'infer_missing_enz':True,
+                                        'name_suffix':'infer_mean_kcat'}
 
     model_calls['vETFL_tp' ] = {'has_expression':True,
                                 'has_thermo':True,
