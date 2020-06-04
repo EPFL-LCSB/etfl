@@ -14,6 +14,12 @@ AXIS_FONT_SIZE = "25pt"
 LEGEND_FONT_SIZE = "25pt"
 LINE_WIDTH = 6
 
+colorblind4 = ['#D81B60',
+               '#1E88E5',
+               '#FFC107',
+               '#004D40',
+               ]
+
 def get_mrna_total(time_data, mrnas):
     return time_data.loc[[x.variable.name * x.scaling_factor
                           for x in mrnas]].sum()

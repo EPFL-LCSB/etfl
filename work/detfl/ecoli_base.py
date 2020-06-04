@@ -19,9 +19,9 @@ def get_uptake_funs():
 
     # Glucose:
 
-    # Vmax0 = 10 # mmol/(h.mmol[E]) Mahadevan et al. 2002
+    Vmax0 = 10 # mmol/(h.mmol[E]) Mahadevan et al. 2002
     # Vmax0 = 15 # mmol/(h.mmol[E])
-    Vmax0 = 1
+    # Vmax0 = 1
     Km0 = 0.015 # mM, Mahadevan et al. 2002, Wong et al. 1997
 
     uptake_funs['EX_glc__D_e'] = lambda x: Vmax0 * x / (Km0 + x)

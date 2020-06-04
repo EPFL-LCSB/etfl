@@ -19,10 +19,12 @@ makedirs(subplots_folder,exist_ok=True)
 
 # my_data_folder_enj   = join('outputs', 'vETFL_enjalbert_vmax_20200330_134009') #1
 # my_data_folder_enj   = join('outputs', 'vETFL_enjalbert_vmax_20200330_083510') #2
-my_data_folder_enj   = join('outputs', 'vETFL_enjalbert_20200407_210513') #new
+# my_data_folder_enj   = join('outputs', 'vETFL_enjalbert_20200407_210513') #new
+my_data_folder_enj   = join('outputs', 'vETFL_enjalbert_20200414_182924') #new
 # my_data_folder_varma = join('outputs', 'vETFL_varma_20200331_224535') #1
 # my_data_folder_varma = join('outputs', 'vETFL_varma_vmax_20200330_131840') #2
-my_data_folder_varma = join('outputs', 'vETFL_varma_20200407_190236') #new
+# my_data_folder_varma = join('outputs', 'vETFL_varma_20200407_190236') #new
+my_data_folder_varma = join('outputs', 'vETFL_varma_20200414_152012') #new
 
 BACKEND = 'svg'
 
