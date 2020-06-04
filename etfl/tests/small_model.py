@@ -225,12 +225,7 @@ def create_etfl_model(has_thermo, has_neidhardt,
     remove_from_biomass_equation(model = ecoli,
                                  nt_dict = rna_nucleotides,
                                  aa_dict = aa_dict,
-                                 atp_id=essentials['atp'],
-                                 adp_id=essentials['adp'],
-                                 pi_id=essentials['pi'],
-                                 h2o_id=essentials['h2o'],
-                                 h_id=essentials['h'],
-                                 )
+                                 essentials_dict=essentials)
 
     ##########################
     ##    MODEL CREATION    ##
