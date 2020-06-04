@@ -1045,15 +1045,15 @@ class MEModel(LCSBModel, Model):
                                                    h2o)
                 for k,v in degradation_mets.items():
                     deg_stoich[k]+=-1*v*stoich # stoich is negative
-                else:
-                    continue
-                    #TODO: this happens when the complexation has metabolites,
-                    # like ATP and ADP for Phosphorylated compounds.
-                    # The degradation will look like it is replenishing ATP
-                    # reserves in that case. Probably this should be different.
-                    # deg_stoich[element] += -1 * stoich
-                    self.logger.warning('Enzyme degradation with a metabolite: {} '
-                                        'is neglected'.format(element.id))
+            else:
+                continue
+                #TODO: this happens when the complexation has metabolites,
+                # like ATP and ADP for Phosphorylated compounds.
+                # The degradation will look like it is replenishing ATP
+                # reserves in that case. Probably this should be different.
+                # deg_stoich[element] += -1 * stoich
+                self.logger.warning('Enzyme degradation with a metabolite: {} '
+                                    'is neglected'.format(element.id))
 
         self._make_degradation_reaction(deg_stoich,
                                         enzyme,

@@ -305,8 +305,7 @@ def get_monomers_dict():
     return aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides
 
 
-def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id,
-                                 h2o_id, h_id, pi_id):
+def remove_from_biomass_equation(model, nt_dict, aa_dict, essentials_dict):
 
     # According to discussions, should only remove GAM
 
@@ -334,11 +333,13 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id,
     # biomass reaction:
     # -54.119975 atp_c + .... --> 53.95 adp_c
 
-    atp = model.metabolites.get_by_id(atp_id)
-    adp = model.metabolites.get_by_id(adp_id)
-    pi  = model.metabolites.get_by_id(pi_id)
-    h2o = model.metabolites.get_by_id(h2o_id)
-    h = model.metabolites.get_by_id(h_id)
+    atp = model.metabolites.get_by_id(essentials_dict['atp'])
+    adp = model.metabolites.get_by_id(essentials_dict['adp'])
+    amp = model.metabolites.get_by_id(essentials_dict['amp'])
+    pi  = model.metabolites.get_by_id(essentials_dict['pi'])
+    ppi  = model.metabolites.get_by_id(essentials_dict['ppi'])
+    h2o = model.metabolites.get_by_id(essentials_dict['h2o'])
+    h = model.metabolites.get_by_id(essentials_dict['h'])
     atp_recovery = model.growth_reaction.metabolites[adp]
 
     # Omid's calculations:
@@ -347,9 +348,35 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id,
     # We need to compute how much aminoacid are consumed
     # We get it from the removal of the aminoacid earlier in the function
 
-    atp_recovery += 2*n_aa # n_pep is <= 0, we remove here the ATP used for peptide synthesis
+    # n_aa is <= 0, we remove here the ATP used for peptide synthesis
+    # We add back ATP at the ADP previous level
+    # Remove 2 ATP per aa polymerised into a peptide
+    # +1 for tRNA charging : AA + uncharged_tRNA + ATP + 2 H2O -> charged_tRNA + AMP + PPI + 2H+
 
-    model.growth_reaction.add_metabolites({atp:-1*atp_recovery})
+    # model.growth_reaction.add_metabolites({atp: -1*atp_recovery - 3*n_aa ,
+    #                                        h2o: -4*n_aa, # h2o consumed less (n_aa is negative),
+    #                                        adp: 2 * n_aa,
+    #                                        amp: 1 * n_aa,
+    #                                        pi: 2*n_aa,
+    #                                        ppi: 1*n_aa,
+    #                                        h: 4*n_aa,
+    #                                        })
+    # model.growth_reaction.add_metabolites({atp: -1*atp_recovery - 2*n_aa ,
+    #                                        h2o: -2*n_aa, # h2o consumed less (n_aa is negative),
+    #                                        adp: 2 * n_aa,
+    #                                        amp: 0 * n_aa,
+    #                                        pi: 2*n_aa,
+    #                                        ppi: 0*n_aa,
+    #                                        h: 2*n_aa,
+    #                                        })
+    model.growth_reaction.add_metabolites({atp: -1*atp_recovery - 3*n_aa ,
+                                           h2o: -2*n_aa, # h2o consumed less (n_aa is negative),
+                                           adp: 2 * n_aa,
+                                           amp: 0 * n_aa,
+                                           pi: 2*n_aa,
+                                           ppi: 0*n_aa,
+                                           h: 2*n_aa,
+                                           })
 
 
 
