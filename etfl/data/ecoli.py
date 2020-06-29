@@ -317,7 +317,7 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, essentials_dict):
 
     expression_mets = list(nt_dict.values()) + list(aa_dict.values())
 
-    # For ATP correction (see lower)
+    # For ATP correction (see below)
     n_aa = 0
 
     for m,stoich in model.growth_reaction.metabolites.items():
@@ -361,15 +361,7 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, essentials_dict):
     #                                        ppi: 1*n_aa,
     #                                        h: 4*n_aa,
     #                                        })
-    # model.growth_reaction.add_metabolites({atp: -1*atp_recovery - 2*n_aa ,
-    #                                        h2o: -2*n_aa, # h2o consumed less (n_aa is negative),
-    #                                        adp: 2 * n_aa,
-    #                                        amp: 0 * n_aa,
-    #                                        pi: 2*n_aa,
-    #                                        ppi: 0*n_aa,
-    #                                        h: 2*n_aa,
-    #                                        })
-    model.growth_reaction.add_metabolites({atp: -1*atp_recovery - 3*n_aa ,
+    model.growth_reaction.add_metabolites({atp: -1*atp_recovery - 2*n_aa ,
                                            h2o: -2*n_aa, # h2o consumed less (n_aa is negative),
                                            adp: 2 * n_aa,
                                            amp: 0 * n_aa,
@@ -377,6 +369,14 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, essentials_dict):
                                            ppi: 0*n_aa,
                                            h: 2*n_aa,
                                            })
+    # model.growth_reaction.add_metabolites({atp: -1*atp_recovery - 3*n_aa ,
+    #                                        h2o: -2*n_aa, # h2o consumed less (n_aa is negative),
+    #                                        adp: 2 * n_aa,
+    #                                        amp: 0 * n_aa,
+    #                                        pi: 2*n_aa,
+    #                                        ppi: 0*n_aa,
+    #                                        h: 2*n_aa,
+    #                                        })
 
 
 
