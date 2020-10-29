@@ -1,4 +1,4 @@
-model: '../../tutorials/models/SlackModel iJO1366_vETFL__tp_v_0.12_448_enz_128_bins__20200412_075023.json'
+model: '../../tutorials/models/thesis/SlackModel iJO1366_vETFL__tp_v_0.12_448_enz_128_bins__20200611_124756.json'
 tag: 'vETFL_diaux_loomis_glc_precult'
 simulation:
   timestep: 0.1

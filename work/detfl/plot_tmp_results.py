@@ -97,6 +97,11 @@ glc_pathway_enz = ['EZ_' + x for x in ['HEX1_GLUCOKIN_MONOMER_0',
                                        'GLCt2pp_GALP_MONOMER',
                                        ]] + ['total']
 
+lacz_pathway_enz = ['EZ_' + x for x in [
+                                          'LACZpp_EG12013_MONOMER',
+                                          'LACZ_BETAGALACTOSID_CPLX_mod_mg2',
+                                       ]] + ['total']
+
 leloir_pathway = ['PGMT',
                   'UDPG4E',
                   'UGLT',
@@ -116,8 +121,8 @@ glc_pathway = ['HEX1',
 
 
 groups = {'fluxes':fluxes,
-          'glc_enzymes':glc_enzymes,
-          'lcts_enzymes':lcts_enzymes,
+          # 'glc_enzymes':glc_enzymes,
+          # 'lcts_enzymes':lcts_enzymes,
           # 'gal_enzymes':gal_enzymes,
           # 'ac_enzymes':ac_enzymes,
           'glc_fluxes':glc_fluxes,
@@ -125,8 +130,9 @@ groups = {'fluxes':fluxes,
           'gal_fluxes':gal_fluxes,
           'ac_fluxes':ac_fluxes,
           'species':species,
-          'leloir_pathway_enz':leloir_pathway_enz,
           'glc_pathway_enz':glc_pathway_enz,
+          'leloir_pathway_enz':leloir_pathway_enz,
+          'lacz_pathway_enz':lacz_pathway_enz,
           'leloir_pathway':leloir_pathway,
           'glc_pathway':glc_pathway,
           # 'ACKr_checkpoint':ackr_checkpoint,

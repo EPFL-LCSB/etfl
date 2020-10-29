@@ -1,7 +1,7 @@
 import pandas as pd
 
 import bokeh.plotting as bp
-from bokeh.layouts import column
+from bokeh.layouts import column, gridplot
 from bokeh.palettes import Category10, magma, plasma
 from bokeh.models import Legend, Range1d, LinearAxis
 
@@ -46,11 +46,12 @@ def summarize_model(model,time_data,groups,
         cleaned_groups[key] = [x for x in varnames if x in time_data.index or x == 'total']
 
     groups = cleaned_groups
+    total_groups = {k:v for k,v in groups.items() if 'total' in v and 'pathway_enz' in k}
 
     for key,data_type in groups.items():
         summary_plots[key] = make_summary_plots(model,time_data,key,data_type)
 
-        detailed_plots[key] = make_detailed_plots(model,time_data,data_type)
+        detailed_plots[key] = make_detailed_plots(model,time_data,data_type,backend)
 
     summary_plots['growth'] = make_growth_plot(model,time_data)
 
@@ -58,6 +59,8 @@ def summarize_model(model,time_data,groups,
 
     if model is not None:
         summary_plots['subsystems'] = plot_subsystems(model,time_data)
+
+    summary_plots['total'] = make_total_plot(model, time_data, total_groups)
 
     output_folder = join(output_path)#,model_tag)#+'_'+get_timestr())
 
@@ -76,8 +79,19 @@ def summarize_model(model,time_data,groups,
         bp.curdoc().clear()
         bp.output_file(join(output_folder,'{}.html'.format(key)))
         for p in this_dp.children:
-            p.output_backend = backend
+            try:
+                p.output_backend = backend
+            except AttributeError:
+                # Fails for gridplots
+                pass
+                # from bokeh.layouts import GridBox
+                # if isinstance(p,GridBox):
+                #     p.children[0][0].output_backend = backend
+                # else: # Toolbox bar etc..
+                #     pass
         bp.show(this_dp)
+
+
 
 def make_summary_plots(model, time_data, key, data_type, total=False):
 
@@ -95,7 +109,24 @@ def make_summary_plots(model, time_data, key, data_type, total=False):
 
     return p
 
-def make_detailed_plots(model, time_data, data_type):
+def make_total_plot(model, time_data, total_groups):
+
+    t = time_data.loc['t']
+    tot_y = pd.DataFrame(columns = t.index)
+
+    for e,(groupname,vars) in enumerate(total_groups.items()):
+        ys = pd.DataFrame.from_dict(
+            {the_var:get_y(the_var, time_data) for the_var in vars},
+            orient='index')
+        tot_y.loc[groupname] = ys.sum()
+
+    p = plot_lines(t, tot_y, title='')
+    return p
+
+
+
+
+def make_detailed_plots(model, time_data, data_type, backend):
 
     t = time_data.loc['t']
 
@@ -104,9 +135,18 @@ def make_detailed_plots(model, time_data, data_type):
         #is there a reverse var ?
         y = get_y(the_var, time_data)
 
-        p.append(plot_line(t,y,the_var))
+        this_p = plot_line(t,y,enhance_varnames(the_var))
+        p.append(this_p)
 
-    return column(p)
+        this_p.xaxis.axis_label = 'time [h]'
+        if the_var.startswith('EZ_'):
+            this_p.yaxis.axis_label = 'Enzyme mass [g/gDW]'
+
+            # return column(p)
+    for this_p in p:
+        this_p.output_backend = backend
+
+    return gridplot(p, ncols=3)
 
 def make_growth_plot(model,time_data):
     t = time_data.loc['t']
@@ -162,7 +202,7 @@ def plot_line(t,y,label, color = 'black'):
 
 def enhance_varnames(s):
     """ Removes pieces of varnames to make them more legible"""
-    return s.replace('EZ_','').replace('_MONOMER','')
+    return s.replace('EZ_','').replace('_MONOMER',''.split('_mod_')[0])
 
 def plot_lines(t,ys,title, total = False):
 
