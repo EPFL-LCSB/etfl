@@ -2,6 +2,7 @@ import cobra.io.json
 import pytfa.io.json
 from etfl.io.json import load_json_model
 from etfl.optim.config import standard_solver_config, gene_ko_config
+import optlang
 
 import numpy as np
 
@@ -96,6 +97,7 @@ def ko_etfl(model):
     # /!\ Also, integer 0 will get the reaction number 0 !
     # We need to use optlang's symbolic 0
     model.objective = optlang.symbolics.Zero
+
 
     for g in tqdm(model.genes):
         with model as model:
