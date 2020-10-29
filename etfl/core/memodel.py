@@ -483,11 +483,11 @@ class MEModel(LCSBModel, Model):
         aa_stoichiometry = make_stoich_from_aa_sequence(gene.peptide,
                                                         self.aa_dict,
                                                         self.trna_dict,
-                                                        gtp,
-                                                        gdp,
-                                                        pi,
-                                                        h2o,
-                                                        h
+                                                        gtp=gtp,
+                                                        gdp=gdp,
+                                                        pi=pi,
+                                                        h2o=h2o,
+                                                        h=h
                                                         )
 
         _extract_trna_from_reaction(aa_stoichiometry, rxn)
@@ -1118,7 +1118,11 @@ class MEModel(LCSBModel, Model):
 
         # Assignment to model must be done before since met dict kas string keys
         self.add_reactions([reaction])
-        self.degradation_reactions += [reaction]
+        try:
+            self.degradation_reactions += [reaction]
+        except ValueError as e:
+            self.logger.warn(e)
+
         reaction.add_metabolites(deg_stoich, rescale = True)
         # Couple with the expression constraint v_deg = k_deg [E]
         # Scaled into v_deg_hat = E_hat
