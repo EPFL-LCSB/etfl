@@ -21,13 +21,13 @@ from ..optim.constraints import tRNAMassBalance, InterpolationConstraint, \
 from ..optim.variables import InterpolationVariable
 
 from Bio.Seq import Seq
-from Bio.Alphabet import DNAAlphabet, RNAAlphabet
+# from Bio.Alphabet import DNAAlphabet, RNAAlphabet
 
 
 SEQ_TYPE_ERROR = "Vector type ot recognized. Should be among " \
                  "plasmid, viral_dna, viral_rna"
 
-def check_seq_type(sequence, vector_type):
+def check_seq_type(sequence, vector_type, is_dna):
     """
     Checks the sequence matches the type of the vector
 
@@ -41,7 +41,7 @@ def check_seq_type(sequence, vector_type):
     l_vector_type = vector_type.lower()
 
     if isinstance(sequence, str):
-        typed_sequence = make_seq(sequence, l_vector_type)
+        typed_sequence = make_seq(sequence)#, l_vector_type)
     elif isinstance(sequence, Seq):
         typed_sequence = sequence
     else:
@@ -49,11 +49,11 @@ def check_seq_type(sequence, vector_type):
                         'string or a Bio.Seq')
 
     if l_vector_type == 'plasmid':
-        assert(isinstance(sequence.alphabet, DNAAlphabet))
+        assert(is_dna)
     elif 'viral' in l_vector_type and 'rna' in l_vector_type:
-        assert(isinstance(sequence.alphabet, RNAAlphabet))
+        assert(not is_dna)
     elif 'viral' in l_vector_type and 'dna' in l_vector_type:
-        assert(isinstance(sequence.alphabet, DNAAlphabet))
+        assert(is_dna)
     else:
         raise ArgumentError(SEQ_TYPE_ERROR)
 
@@ -61,15 +61,16 @@ def check_seq_type(sequence, vector_type):
     return typed_sequence
 
 
-def make_seq(sequence, l_vector_type):
-    if l_vector_type == 'plasmid':
-        typed_sequence = Seq(sequence, alphabet=DNAAlphabet)
-    elif 'viral' in l_vector_type and 'rna' in l_vector_type:
-        typed_sequence = Seq(sequence, alphabet=RNAAlphabet)
-    elif 'viral' in l_vector_type and 'dna' in l_vector_type:
-        typed_sequence = Seq(sequence, alphabet=DNAAlphabet)
-    else:
-        raise ArgumentError(SEQ_TYPE_ERROR)
+def make_seq(sequence):#, l_vector_type):
+    typed_sequence = Seq(sequence)#
+    # if l_vector_type == 'plasmid':
+    #     typed_sequence = Seq(sequence, alphabet=DNAAlphabet)
+    # elif 'viral' in l_vector_type and 'rna' in l_vector_type:
+    #     typed_sequence = Seq(sequence, alphabet=RNAAlphabet)
+    # elif 'viral' in l_vector_type and 'dna' in l_vector_type:
+    #     typed_sequence = Seq(sequence, alphabet=DNAAlphabet)
+    # else:
+    #     raise ArgumentError(SEQ_TYPE_ERROR)
     return typed_sequence
 
 
@@ -201,9 +202,9 @@ class TransModel(MEModel):
         # G = self.dna_nucleotides['g']
 
         #1. Find the DNA-based vectors
-        dna_vectors = [x for x in self.vectors.values() if not x.is_integrated
-                                               and isinstance(x.sequence.alphabet,
-                                                                    DNAAlphabet)]
+        dna_vectors = [x for x in self.vectors.values() if not x.is_integrated if x.is_dna]
+                                               # and isinstance(x.sequence.alphabet,
+                                               #                      DNAAlphabet)]
 
         if len(dna_vectors) == 0:
             return None
@@ -280,22 +281,26 @@ class TransModel(MEModel):
 
 class Vector:
     def __init__(self, id_, sequence, genes, reactions,
+                 is_dna=True,
                  mrna_dict=None,
                  coupling_dict=None,
                  rnap=None,
-                 ribosome=None):
+                 ribosome=None,
+                 ):
         """
         TODO: Explain in details
 
         :param sequence:
         :param genes:
         :param reactions:
+        :param is_dna: specify if the vector is DNA-based
         :param mrna_dict:
         :param coupling_dict:
         :param rnap:
         :param ribosome:
         """
         self.id = id_
+        self.is_dna = is_dna
         self.sequence = self.check_sequence(sequence)
         self.genes = genes
         self.rnap = rnap
@@ -307,12 +312,12 @@ class Vector:
 
         self._is_integrated = False
 
-    def check_sequence(self):
+    def check_sequence(self, sequence):
         """
         To be defined in subclasses, check wehther RNA, DNA vector
         :return:
         """
-        raise NotImplementedError
+        return None
 
     def integrate(self):
         """
@@ -361,21 +366,58 @@ class Vector:
 
 class Plasmid(Vector):
     def check_sequence(self, sequence):
-        return check_seq_type(sequence, vector_type='plasmid')
-
-    def integrate(self):
-        pass
+        return check_seq_type(sequence, vector_type='plasmid', is_dna=self.is_dna)
+    #
+    # def integrate(self):
+    #     pass
+    def __init__(self, id_, sequence, genes, reactions,
+                 mrna_dict=None,
+                 coupling_dict=None,
+                 rnap=None,
+                 ribosome=None,
+                 ):
+        Vector.__init__(self, id_, sequence, genes, reactions,
+                        is_dna=True,
+                        mrna_dict=mrna_dict,
+                        coupling_dict=coupling_dict,
+                        rnap=rnap,
+                        ribosome=ribosome,
+                         )
 
 class ViralDNA(Vector):
     def check_sequence(self, sequence):
-        return check_seq_type(sequence, vector_type='viral_dna')
-
-    def integrate(self):
-        pass
+        return check_seq_type(sequence, vector_type='viral_dna', is_dna=self.is_dna)
+    #
+    # def integrate(self):
+    #     pass
+    def __init__(self, id_, sequence, genes, reactions,
+                 mrna_dict=None,
+                 coupling_dict=None,
+                 rnap=None,
+                 ribosome=None,
+                 ):
+        Vector.__init__(self, id_, sequence, genes, reactions,
+                    is_dna=True,
+                    mrna_dict=mrna_dict,
+                    coupling_dict=coupling_dict,
+                    rnap=rnap,
+                    ribosome=ribosome,
+                    )
 
 class ViralRNA(Vector):
     def check_sequence(self, sequence):
-        return check_seq_type(sequence, vector_type='viral_rna')
+        return check_seq_type(sequence, vector_type='viral_rna', is_dna=self.is_dna)
 
-    def integrate(self):
-        pass
+    def __init__(self, id_, sequence, genes, reactions,
+                 mrna_dict=None,
+                 coupling_dict=None,
+                 rnap=None,
+                 ribosome=None,
+                 ):
+        Vector.__init__(self, id_, sequence, genes, reactions,
+                    is_dna=False,
+                    mrna_dict=mrna_dict,
+                    coupling_dict=coupling_dict,
+                    rnap=rnap,
+                    ribosome=ribosome,
+                    )

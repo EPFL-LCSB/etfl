@@ -13,10 +13,10 @@ ME-related Reaction subclasses and methods definition
 
 from cobra import Gene
 from Bio.Seq import Seq
-from Bio.Alphabet import DNAAlphabet, RNAAlphabet, ProteinAlphabet
+# from Bio.Alphabet import DNAAlphabet, RNAAlphabet, ProteinAlphabet
 
 
-def make_sequence(sequence, seq_type):
+def make_sequence(sequence):#, seq_type):
     """
     seq_type must be an instance of DNAAphabet(), RNAAlphabet, or ProteinAlphabet
     :param sequence:
@@ -24,9 +24,9 @@ def make_sequence(sequence, seq_type):
     :return:
     """
     if isinstance(sequence, str):
-        typed_sequence = Seq(sequence, seq_type())
+        typed_sequence = Seq(sequence)#, seq_type())
     elif isinstance(sequence, Seq):
-        assert (isinstance(sequence.alphabet, seq_type))
+        # assert (isinstance(sequence.alphabet, seq_type))
         typed_sequence = sequence
     else:
         raise TypeError('The type of the sequence argument should be either '
@@ -43,7 +43,7 @@ class ExpressedGene(Gene):
                  translated_by=None,
                  *args, **kwargs):
         Gene.__init__(self, id, name, *args, **kwargs)
-        self.sequence = make_sequence(sequence, DNAAlphabet)
+        self.sequence = make_sequence(sequence)#, DNAAlphabet)
         self._rna = ''
         self._peptide = ''
 
@@ -98,7 +98,7 @@ class ExpressedGene(Gene):
 
     @rna.setter
     def rna(self,value):
-        self._rna=make_sequence(value,RNAAlphabet)
+        self._rna=make_sequence(value)#,RNAAlphabet)
 
     @property
     def peptide(self):
@@ -106,13 +106,13 @@ class ExpressedGene(Gene):
             # Translation table 11 is for bacteria
             the_pep = self.rna.translate(to_stop = False, table = 11)
             the_pep = str(the_pep).replace('*','')
-            self._peptide = make_sequence(the_pep, ProteinAlphabet)
+            self._peptide = make_sequence(the_pep)#, ProteinAlphabet)
 
         return self._peptide
 
     @peptide.setter
     def peptide(self,value):
-        self._peptide=make_sequence(value,ProteinAlphabet)
+        self._peptide=make_sequence(value)#,ProteinAlphabet)
 
     @staticmethod
     def from_gene(gene, sequence):

@@ -222,7 +222,7 @@ def add_sigma_factor(model, rnap_id, sigma_factor, holoenzyme,
                          hook=holoenzyme,
                          expr=holo_free_expr/free_rnap.scaling_factor, #for scaling
                          ub=0,
-                         lb=0mem    ,
+                         lb=0,
                          queue=True
                          )
 
