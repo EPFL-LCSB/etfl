@@ -118,7 +118,7 @@ class GrowthCoupling(ReactionConstraint):
     prefix = 'GC_'
 
 
-class TotalCapacity(EnzymeConstraint):
+class TotalCapacity(ModelConstraint):
     """
     Class to represent the total capacity of constraint of a species, e.g
     Ribosome or RNA
@@ -136,11 +136,30 @@ class TotalEnzyme(TotalCapacity):
 
 
 class ExpressionCoupling(GeneConstraint):
+    """
+    Add the coupling between mRNA availability and ribosome charging
+    The number of ribosomes assigned to a mRNA species is lower than
+    the number of such mRNA times the max number of ribosomes that can sit
+    on the mRNA:
+    [RPi] <= loadmax_i*[mRNAi]
+    """
 
     prefix = 'EX_'
 
 
-class EnzymeRatio(ModelConstraint):
+class RNAPAllocation(GeneConstraint):
+    """
+    Add the coupling between DNA availability and RNAP charging
+    The number of RNAP assigned to a gene locus is lower than
+    the number of such loci times the max number of RNAP that can sit
+    on the locus:
+    [RNAPi] <= loadmax_i*[# of loci]*[DNA]
+    """
+
+    prefix = 'RA_'
+
+
+class EnzymeRatio(EnzymeConstraint):
     """
     Represents the availability of free enzymes, e.g ribosomes (non bound)
     R_free = 0.2*R_total
@@ -178,22 +197,6 @@ class GrowthChoice(ModelConstraint):
 
     prefix = 'GR_'
 
-
-class LinearizationConstraint(ModelConstraint):
-    """
-    Class to represent a variable attached to a reaction
-    """
-    @staticmethod
-    def from_constraints(cons, model):
-        return LinearizationConstraint(
-            name = cons.name,
-            expr = cons.expr,
-            model = model,
-            ub = cons.ub,
-            lb = cons.lb,
-        )
-
-    prefix = 'LC_'
 
 class SOS1Constraint(ModelConstraint):
     """

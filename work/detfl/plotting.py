@@ -1,7 +1,7 @@
 import pandas as pd
 
 import bokeh.plotting as bp
-from bokeh.layouts import column
+from bokeh.layouts import column, gridplot
 from bokeh.palettes import Category10, magma, plasma
 from bokeh.models import Legend, Range1d, LinearAxis
 
@@ -13,6 +13,12 @@ from pytfa.utils.logger import get_timestr
 AXIS_FONT_SIZE = "25pt"
 LEGEND_FONT_SIZE = "25pt"
 LINE_WIDTH = 6
+
+colorblind4 = ['#D81B60',
+               '#1E88E5',
+               '#FFC107',
+               '#004D40',
+               ]
 
 def get_mrna_total(time_data, mrnas):
     return time_data.loc[[x.variable.name * x.scaling_factor
@@ -40,24 +46,29 @@ def summarize_model(model,time_data,groups,
         cleaned_groups[key] = [x for x in varnames if x in time_data.index or x == 'total']
 
     groups = cleaned_groups
+    total_groups = {k:v for k,v in groups.items() if 'total' in v and 'pathway_enz' in k}
 
     for key,data_type in groups.items():
         summary_plots[key] = make_summary_plots(model,time_data,key,data_type)
 
-        detailed_plots[key] = make_detailed_plots(model,time_data,data_type)
+        detailed_plots[key] = make_detailed_plots(model,time_data,data_type,backend)
 
     summary_plots['growth'] = make_growth_plot(model,time_data)
+
+    summary_plots['mass_ratios'] = plot_mass(model,time_data)
 
     if model is not None:
         summary_plots['subsystems'] = plot_subsystems(model,time_data)
 
-    output_folder = join(output_path,model_tag)#+'_'+get_timestr())
+    summary_plots['total'] = make_total_plot(model, time_data, total_groups)
+
+    output_folder = join(output_path)#,model_tag)#+'_'+get_timestr())
 
     if not exists(output_folder):
         makedirs(output_folder)
 
     bp.curdoc().clear()
-    bp.output_file(join(output_folder,'summary.html'))
+    bp.output_file(join(output_folder,'summary.html'), title = model_tag)
 
     for p in summary_plots.values():
         p.output_backend = backend
@@ -68,8 +79,19 @@ def summarize_model(model,time_data,groups,
         bp.curdoc().clear()
         bp.output_file(join(output_folder,'{}.html'.format(key)))
         for p in this_dp.children:
-            p.output_backend = backend
+            try:
+                p.output_backend = backend
+            except AttributeError:
+                # Fails for gridplots
+                pass
+                # from bokeh.layouts import GridBox
+                # if isinstance(p,GridBox):
+                #     p.children[0][0].output_backend = backend
+                # else: # Toolbox bar etc..
+                #     pass
         bp.show(this_dp)
+
+
 
 def make_summary_plots(model, time_data, key, data_type, total=False):
 
@@ -87,7 +109,24 @@ def make_summary_plots(model, time_data, key, data_type, total=False):
 
     return p
 
-def make_detailed_plots(model, time_data, data_type):
+def make_total_plot(model, time_data, total_groups):
+
+    t = time_data.loc['t']
+    tot_y = pd.DataFrame(columns = t.index)
+
+    for e,(groupname,vars) in enumerate(total_groups.items()):
+        ys = pd.DataFrame.from_dict(
+            {the_var:get_y(the_var, time_data) for the_var in vars},
+            orient='index')
+        tot_y.loc[groupname] = ys.sum()
+
+    p = plot_lines(t, tot_y, title='')
+    return p
+
+
+
+
+def make_detailed_plots(model, time_data, data_type, backend):
 
     t = time_data.loc['t']
 
@@ -96,9 +135,18 @@ def make_detailed_plots(model, time_data, data_type):
         #is there a reverse var ?
         y = get_y(the_var, time_data)
 
-        p.append(plot_line(t,y,the_var))
+        this_p = plot_line(t,y,enhance_varnames(the_var))
+        p.append(this_p)
 
-    return column(p)
+        this_p.xaxis.axis_label = 'time [h]'
+        if the_var.startswith('EZ_'):
+            this_p.yaxis.axis_label = 'Enzyme mass [g/gDW]'
+
+            # return column(p)
+    for this_p in p:
+        this_p.output_backend = backend
+
+    return gridplot(p, ncols=3)
 
 def make_growth_plot(model,time_data):
     t = time_data.loc['t']
@@ -154,7 +202,7 @@ def plot_line(t,y,label, color = 'black'):
 
 def enhance_varnames(s):
     """ Removes pieces of varnames to make them more legible"""
-    return s.replace('EZ_','').replace('_MONOMER','')
+    return s.replace('EZ_','').replace('_MONOMER',''.split('_mod_')[0])
 
 def plot_lines(t,ys,title, total = False):
 
@@ -241,6 +289,40 @@ def plot_subsystems(model,time_data,compact=True):
 
     return p
 
+def plot_mass(model,time_data):
+
+    # p = bp.figure(width=1000)
+
+    t = time_data.loc['t']
+    # prot_mass = time_data.loc['IV_prot_ggdw']
+    # mrna_mass = time_data.loc['IV_mrna_ggdw']
+    # dna_mass  = time_data.loc['IV_dna_ggdw']
+    ys = time_data.loc[['IV_prot_ggdw','IV_mrna_ggdw','IV_dna_ggdw']]
+
+    # colors = Category10[3]
+    #
+    # last_y = 0*t
+    # times = list(t) + list(t[::-1])
+    # legend_it = []
+
+    p = plot_lines(t, ys, title = 'Mass ratios',
+                   total=True)
+
+    # for e,data in enumerate([prot_mass,mrna_mass,dna_mass]):
+    #     this_y = data + last_y
+    #     ys = list(this_y) + list(last_y[::-1])
+    #     c = p.patch(x = times, y = ys, color = colors[e])#, legend = sub)
+    #     legend_it.append((data.name, [c]))
+    #     last_y = this_y
+    #
+    # p.legend.location = 'top_left'
+    # legend = Legend(items=legend_it[::-1], location=(0, 0))
+    #
+    # p.add_layout(legend, 'right')
+
+    return p
+
+
 def get_enzymes_of_subsystem(model, subsystem):
     reactions = [x for x in model.reactions if subsystem.lower() in x.subsystem.lower()]
 
@@ -253,7 +335,7 @@ def get_enzymes_of_subsystem(model, subsystem):
 if __name__ == '__main__':
 
     if not exists('plots'):
-        makedirs('plots')
+        makedirs('plots/tmp')
 
     # time_data_path = 'data/detfl_cheby_monod_vETFL_vmax_mixed_expc_lcts2_with_degradation.csv'
     time_data_path = 'data/detfl_cheby_monod_vETFL_vmax_mixed_ini_lcts2_with_degradation.csv'
@@ -292,5 +374,5 @@ if __name__ == '__main__':
               'glc_fluxes': glc_fluxes,
               'lcts_fluxes': lcts_fluxes,
               'species': species}
-    summarize_model(model, time_data, groups, output_path='plots',
+    summarize_model(model, time_data, groups, output_path='plots/tmp',
                     model_tag=model_tag)

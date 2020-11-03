@@ -11,6 +11,8 @@ ME-related Reaction subclasses and methods definition
 
 """
 from cobra import Reaction, Metabolite
+
+from ..core.rna import tRNA
 from .rna import tRNA
 from ..utils.parsing import parse_gpr
 
@@ -270,3 +272,44 @@ def is_me_compatible(reaction):
     #     ret = False
 
     return ret
+
+def enzymes_to_gpr(rxn):
+    """
+    Builds a Gene to Protein to Reaction association rules from the enzymes of
+    an enzymatic reaction
+
+    :param rxn:
+    :return:
+    """
+    return ' or '.join([' ( ' + ' and '.join(['{}*{}'.format(v,k)
+                                for v,k in isozyme.composition.items()])  + ' ) '
+                                for isozyme in rxn.enzymes] )
+
+def enzymes_to_gpr_no_stoichiometry(rxn):
+    """
+    Builds a Gene to Protein to Reaction association rules from the enzymes of
+    an enzymatic reaction
+
+    :param rxn:
+    :return:
+    """
+    return ' or '.join([' ( ' + ' and '.join([v
+                                for v in isozyme.composition])  + ' ) '
+                                for isozyme in rxn.enzymes] )
+
+
+def _extract_trna_from_reaction(aa_stoichiometry, rxn):
+    """
+    Read a stoichiometry dictionary, and replaces free aminoacids with tRNAs
+
+    :param aa_stoichiometry: the stoichiometry dict to edit
+    :type aa_stoichiometry: (dict) {:class:`cobra.core.Metabolite`: Number}
+    :param rxn: the reaction whose stoichiometry is inspected
+    :type rxn: :class:`cobra.core.Reaction`
+    :return:
+    """
+    # Extract the tRNAs, since they will be used for a different mass balance
+    # in self.add_trna_mass_balances
+    for met, stoich in list(aa_stoichiometry.items()):
+        if isinstance(met, tRNA):
+            rxn.trna_stoich[met.id] = aa_stoichiometry.pop(met)

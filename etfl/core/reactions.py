@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
 """
 .. module:: ETFL
    :platform: Unix, Windows
@@ -38,11 +38,12 @@ class ExpressionReaction(Reaction):
 
         # new._model = reaction._model
         # new.notes = reaction.notes
-        new.add_metabolites(reaction.metabolites)
+        # We need not rescale the initial metabolites
+        new.add_metabolites(reaction.metabolites, rescale=False)
         new.gene_reaction_rule = reaction.gene_reaction_rule
         return new
 
-    def add_metabolites(self, metabolites, rescale = True):
+    def add_metabolites(self, metabolites, rescale = True, **kwargs):
         """
         We need to override this method if the reaction is scaled
 
@@ -57,10 +58,11 @@ class ExpressionReaction(Reaction):
         """
 
         if not hasattr(self, '_scaled') or not rescale or not self._scaled:
-            Reaction.add_metabolites(self, metabolites)
+            Reaction.add_metabolites(self, metabolites, **kwargs)
         else:
             Reaction.add_metabolites(self, {k:v*self.scaling_factor
-                                        for k,v in metabolites.items()})
+                                        for k,v in metabolites.items()},
+                                     **kwargs)
 
     @property
     def scaling_factor(self):
@@ -83,44 +85,6 @@ class EnzymaticReaction(ExpressionReaction):
         self.enzymes = DictList()
         if enzymes:
             self.add_enzymes(enzymes)
-
-
-    @classmethod
-    def from_reaction(cls,reaction, gene_id = None, enzymes = None, scaled=False):
-        """
-        This method clones a cobra.Reaction object into a transcription reaction,
-        and attaches enzymes to it
-
-        :param reaction: the reaction to reproduce
-        :type reaction: cobra.Reaction
-        :param enzymes: a(n iterable of the) enzyme(s) to be attached to the reaction
-        :return: an EnzymaticReaction object
-        """
-        if gene_id is not None:
-            # it's a transcription or translation reaction
-            new =  cls( id = reaction.id,
-                        name= reaction.name,
-                        gene_id= gene_id,
-                        subsystem= reaction.subsystem,
-                        lower_bound= reaction.lower_bound,
-                        upper_bound= reaction.upper_bound,
-                        enzymes= enzymes,
-                        scaled=scaled)
-        else:
-            new =  cls( id = reaction.id,
-                        name= reaction.name,
-                        subsystem= reaction.subsystem,
-                        lower_bound= reaction.lower_bound,
-                        upper_bound= reaction.upper_bound,
-                        enzymes= enzymes,
-                        scaled=scaled)
-
-        # new._model = reaction._model
-        # new.notes = reaction.notes
-        new.add_metabolites(reaction.metabolites, rescale = False)
-        new.gene_reaction_rule = reaction.gene_reaction_rule
-        return new
-
 
     def add_enzymes(self, enzymes):
         """`
@@ -189,14 +153,17 @@ class TranslationReaction(EnzymaticReaction):
     Class describing translation - Assembly of amino acids into peptides
     """
 
-    def __init__(self, id, name, gene_id, enzymes, **kwargs):
+    def __init__(self, id, name, gene_id, enzymes, trna_stoich=None, **kwargs):
         EnzymaticReaction.__init__(self,
                                    id=id,
                                    name=name,
                                    enzymes=enzymes,
                                    **kwargs)
         self._gene_id = gene_id
-        self.trna_stoich = defaultdict(int)
+        if trna_stoich is None:
+            self.trna_stoich = defaultdict(int)
+        else:
+            self.trna_stoich = trna_stoich
 
     @property
     def gene(self):
@@ -291,14 +258,16 @@ class DegradationReaction(ExpressionReaction):
         return self.macromolecule.kdeg * self.macromolecule.scaling_factor
         # return 1
 
-class DNAFormation(ExpressionReaction):
+class DNAFormation(EnzymaticReaction):
     """
     Describes the assembly of NTPs into DNA
     """
-    def __init__(self, dna, *args, **kwargs):
-        ExpressionReaction.__init__(self, *args, **kwargs)
+    def __init__(self, dna, mu_sigma=1, *args, **kwargs):
+        EnzymaticReaction.__init__(self, *args, **kwargs)
         self.dna = dna
+        # mu_sigma is a scaling factor ~ mu_max (same homogeneity)
+        self.mu_sigma = mu_sigma
 
     @property
     def scaling_factor(self):
-        return self.model._mu_range[-1] * self.dna.scaling_factor
+        return self.mu_sigma * self.dna.scaling_factor

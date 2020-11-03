@@ -35,16 +35,46 @@ def make_subclasses_dict(cls):
     the_dict[cls.__name__] = cls
     return the_dict
 
-REACTION_VARIABLE_SUBCLASSES    = make_subclasses_dict(ReactionVariable)
-REACTION_CONSTRAINT_SUBCLASSES  = make_subclasses_dict(ReactionConstraint)
-METABOLITE_VARIABLE_SUBCLASSES  = make_subclasses_dict(MetaboliteVariable)
-METABOLITE_CONSTRAINT_SUBCLASSES= make_subclasses_dict(MetaboliteConstraint)
-ENZYME_VARIABLE_SUBCLASSES      = make_subclasses_dict(EnzymeVariable)
-ENZYME_CONSTRAINT_SUBCLASSES    = make_subclasses_dict(EnzymeConstraint)
-GENE_VARIABLE_SUBCLASSES        = make_subclasses_dict(GeneVariable)
-GENE_CONSTRAINT_SUBCLASSES      = make_subclasses_dict(GeneConstraint)
-MODEL_VARIABLE_SUBCLASSES       = make_subclasses_dict(ModelVariable)
-MODEL_CONSTRAINT_SUBCLASSES     = make_subclasses_dict(ModelConstraint)
+class SubclassIndexer:
+    def __init__(self):
+        self._cache = dict()
+
+    def __getitem__(self, classtype):
+        return make_subclasses_dict(classtype)
+        # try:
+        #     self._cache[classtype]
+        # except KeyError:
+        #     self._cache[classtype] = make_subclasses_dict(classtype)
+        #     return self._cache[classtype]
+
+    def purge(self):
+        self._cache = dict()
+
+    def refresh(self):
+        self.purge()
+        for cls in self._cache:
+            self._cache[cls] = make_subclasses_dict(cls)
+#     @property
+#     def REACTION_VARIABLE_SUBCLASSES(self):
+#         return make_subclasses_dict(ReactionVariable)
+#
+#     @property
+#     def REACTION_CONSTRAINT_SUBCLASSES(self):
+#         return make_subclasses_dict(ReactionConstraint)
+#
+#     @property
+#     def METABOLITE_VARIABLE_SUBCLASSES(self):
+#         make_subclasses_dict(MetaboliteVariable)
+#
+#     @property
+#     def METABOLITE_CONSTRAINT_SUBCLASSES(self):
+#         make_subclasses_dict(MetaboliteConstraint)
+# ENZYME_VARIABLE_SUBCLASSES      = make_subclasses_dict(EnzymeVariable)
+# ENZYME_CONSTRAINT_SUBCLASSES    = make_subclasses_dict(EnzymeConstraint)
+# GENE_VARIABLE_SUBCLASSES        = make_subclasses_dict(GeneVariable)
+# GENE_CONSTRAINT_SUBCLASSES      = make_subclasses_dict(GeneConstraint)
+# MODEL_VARIABLE_SUBCLASSES       = make_subclasses_dict(ModelVariable)
+# MODEL_CONSTRAINT_SUBCLASSES     = make_subclasses_dict(ModelConstraint)
 
 INTEGER_VARIABLE_TYPES = ('binary','integer')
 
@@ -139,7 +169,7 @@ def _generic_fix_integers(model):
 
     return continuous_model
 
-def rebuild_variable(classname, model, this_id, lb, ub, queue=True):
+def rebuild_variable(classname, model, this_id, lb, ub, scaling_factor, queue=True):
     """
     Rebuilds a variable from a classname and link it to the model
 
@@ -151,50 +181,58 @@ def rebuild_variable(classname, model, this_id, lb, ub, queue=True):
     :param queue:
     :return:
     """
-    if classname in REACTION_VARIABLE_SUBCLASSES:
+
+    subix = SubclassIndexer()
+
+    if classname in subix[ReactionVariable]:
         hook = model.reactions.get_by_id(this_id)
-        this_class = REACTION_VARIABLE_SUBCLASSES[classname]
+        this_class = subix[ReactionVariable][classname]
         nv = model.add_variable(kind=this_class,
                                 hook=hook,
                                 ub=ub,
                                 lb=lb,
+                                scaling_factor=scaling_factor,
                                 queue=queue)
 
-    elif classname in METABOLITE_VARIABLE_SUBCLASSES:
+    elif classname in subix[MetaboliteVariable]:
         hook = model.metabolites.get_by_id(this_id)
-        this_class = METABOLITE_VARIABLE_SUBCLASSES[classname]
+        this_class = subix[MetaboliteVariable][classname]
         nv = model.add_variable(kind=this_class,
                                 hook=hook,
                                 ub=ub,
                                 lb=lb,
+                                scaling_factor=scaling_factor,
                                 queue=queue)
 
-    elif classname in ENZYME_VARIABLE_SUBCLASSES:
+    elif classname in subix[EnzymeVariable]:
         hook = model.enzymes.get_by_id(this_id)
-        this_class = ENZYME_VARIABLE_SUBCLASSES[classname]
+        this_class = subix[EnzymeVariable][classname]
         nv = model.add_variable(kind=this_class,
                                 hook=hook,
                                 ub=ub,
                                 lb=lb,
+                                scaling_factor=scaling_factor,
                                 queue=queue)
 
-    elif classname in GENE_VARIABLE_SUBCLASSES:
+    elif classname in subix[GeneVariable]:
         hook = model.genes.get_by_id(this_id)
-        this_class = GENE_VARIABLE_SUBCLASSES[classname]
+        this_class = subix[GeneVariable][classname]
         nv = model.add_variable(kind=this_class,
                                 hook=hook,
                                 ub=ub,
                                 lb=lb,
+                                scaling_factor=scaling_factor,
                                 queue=queue)
 
-    elif classname in MODEL_VARIABLE_SUBCLASSES:
+    elif classname in subix[ModelVariable]:
         hook = model
-        this_class = MODEL_VARIABLE_SUBCLASSES[classname]
+        this_class = subix[ModelVariable][classname]
         nv = model.add_variable(kind=this_class,
                                 hook=hook,
                                 id_=this_id,
                                 ub=ub,
                                 lb=lb,
+                                scaling_factor=scaling_factor,
                                 queue=queue)
 
     else:
@@ -218,45 +256,48 @@ def rebuild_constraint(classname, model, this_id, new_expr, lb, ub, queue=True):
     :param queue:
     :return:
     """
-    if classname in REACTION_CONSTRAINT_SUBCLASSES:
+
+    subix = SubclassIndexer()
+
+    if classname in subix[ReactionConstraint]:
         hook = model.reactions.get_by_id(this_id)
-        this_class = REACTION_CONSTRAINT_SUBCLASSES[classname]
+        this_class = subix[ReactionConstraint][classname]
         nc = model.add_constraint(kind=this_class, hook=hook,
                                   expr=new_expr,
                                   ub=ub,
                                   lb=lb,
                                   queue=queue)
 
-    elif classname in METABOLITE_CONSTRAINT_SUBCLASSES:
+    elif classname in subix[MetaboliteConstraint]:
         hook = model.metabolites.get_by_id(this_id)
-        this_class = METABOLITE_CONSTRAINT_SUBCLASSES[classname]
+        this_class = subix[MetaboliteConstraint][classname]
         nc = model.add_constraint(kind=this_class, hook=hook,
                                   expr=new_expr,
                                   ub=ub,
                                   lb=lb,
                                   queue=queue)
 
-    elif classname in ENZYME_CONSTRAINT_SUBCLASSES:
+    elif classname in subix[EnzymeConstraint]:
         hook = model.enzymes.get_by_id(this_id)
-        this_class = ENZYME_CONSTRAINT_SUBCLASSES[classname]
+        this_class = subix[EnzymeConstraint][classname]
         nc = model.add_constraint(kind=this_class, hook=hook,
                                   expr=new_expr,
                                   ub=ub,
                                   lb=lb,
                                   queue=queue)
 
-    elif classname in GENE_CONSTRAINT_SUBCLASSES:
+    elif classname in subix[GeneConstraint]:
         hook = model.genes.get_by_id(this_id)
-        this_class = GENE_CONSTRAINT_SUBCLASSES[classname]
+        this_class = subix[GeneConstraint][classname]
         nc = model.add_constraint(kind=this_class, hook=hook,
                                   expr=new_expr,
                                   ub=ub,
                                   lb=lb,
                                   queue=queue)
 
-    elif classname in MODEL_CONSTRAINT_SUBCLASSES:
+    elif classname in subix[ModelConstraint]:
         hook = model
-        this_class = MODEL_CONSTRAINT_SUBCLASSES[classname]
+        this_class = subix[ModelConstraint][classname]
         nc = model.add_constraint(kind=this_class, hook=hook,
                                   expr=new_expr, id_=this_id,
                                   ub=ub,
@@ -450,8 +491,10 @@ def safe_optim(model):
 
 def get_binding_constraints(model, epsilon):
 
-    if model.problem.__name__ == 'optlang.gurobi_interface':
-        return {kind:[c
+    if is_gurobi(model):
+        return {kind:[c.name
                                for c in these_cons
                                if c.constraint._internal_constraint.Slack <= epsilon]
                 for kind,these_cons in model._cons_kinds.items()}
+    else:
+        raise(NotImplementedError)

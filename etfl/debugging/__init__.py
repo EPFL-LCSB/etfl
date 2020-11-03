@@ -1,1 +1,1 @@
-from debugging import *
+from .debugging import *

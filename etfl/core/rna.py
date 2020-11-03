@@ -53,7 +53,9 @@ class RNA(Macromolecule):
     @property
     def molecular_weight(self):
         if not self._molecular_weight_override:
-            return molecular_weight(self.rna) / 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+            return molecular_weight(self.rna, seq_type='RNA') / 1000 # g.mol^-1 ->
+            # kg.mol^-1 (SI) =
+            # g.mmol^-1
         else:
             return self._molecular_weight_override
 

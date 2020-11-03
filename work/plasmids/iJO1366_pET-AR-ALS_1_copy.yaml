@@ -1,0 +1,35 @@
+#model: '../../tutorials/models/iJO1366_vEFL_v_0.10_half_ktrans_431_enz_128_bins__20191111_094532.json'
+model: '../../tutorials/models/iJO1366_vEFL_v_0.10_431_enz_128_bins__20191203_144957.json'
+tag: 'vEFL_BDO_1c_no_RNAP_cheby'
+simulation:
+  copy_number: 1
+  vector: 'plasmid_pET-AR-ALS'
+  add_rnap: no
+assumptions:
+  growth_rate: 'auto'
+analysis:
+  # Export values ?
+  export_peptides: yes
+  export_mrna: yes
+  export_fluxes: yes
+  binding_constraints:
+    epsilon: 1.0e-8
+  export_slacks:
+    constraint_types:
+      - ForwardCatalyticConstraint     
+      - BackwardCatalyticConstraint    
+      - SynthesisConstraint     
+      - RNAPAllocation     
+      - ExpressionCoupling 
+  # Perform Chebyshev centering ?
+#  chebyshev:
+#    chebyshev_include:
+#      - CatalyticConstraint
+#      - RNAPAllocation
+#      - ExpressionCoupling
+#      - SynthesisConstraint
+#    inplace: true
+options:
+  verbose: false
+  inplace: true
+  solver: gurobi

@@ -84,19 +84,19 @@ def simulate(available_uptake, model, variables, warm_start=None):
            'mrna_ratio':mrna_ratio
            }
 
-    fix_growth(model, model.solution)
-
-    for var in variables:
-        model.objective = model.variables.get(var)
-
-        lb, ub = _va_sim(model)
-
-        ret[var + '_lb'] = lb.objective_value
-        ret[var + '_ub'] = ub.objective_value
+    # fix_growth(model, model.solution)
+    #
+    # for var in variables:
+    #     model.objective = model.variables.get(var)
+    #
+    #     lb, ub = _va_sim(model)
+    #
+    #     ret[var + '_lb'] = lb.objective_value
+    #     ret[var + '_ub'] = ub.objective_value
+    # release_growth(model)
 
     print(pd.Series(ret))
 
-    release_growth(model)
     # apply_warm_start(model, growth_solution)
 
     return pd.Series(ret)
@@ -114,25 +114,39 @@ if __name__ == '__main__':
 
     # uptake_range = pd.Series(np.arange(-1,-40, -1))
     # uptake_range = pd.Series(np.arange(-1,-30, -1))
-    uptake_range = pd.Series(np.arange(-1,-20, -1))
+    # uptake_range = pd.Series(np.arange(-5,-20, -1))
+    uptake_range =  pd.concat([pd.Series(np.arange(0,-4,-1/3)), pd.Series(np.arange(-4,-20,-1))])
 
     model_files = {
 
-        'EFL': 'iJO1366_EFL_431_enz_128_bins__20190620_080807.json',
-        'ETFL': 'SlackModel iJO1366_ETFL_431_enz_128_bins__20190701_122635.json',
-        'vEFL': 'iJO1366_vEFL_431_enz_128_bins__20190620_084052.json',
-        'vETFL': 'SlackModel iJO1366_vETFL_431_enz_128_bins__20190701_082518.json',
-        'vETFLmean': 'SlackModel iJO1366_vETFL_mean_kcat_431_enz_128_bins__20190701_070448.json',
-        'vETFL_infer': 'SlackModel iJO1366_vETFL_infer_2084_enz_128_bins__20190624_095428.json',
-        'vETFLmean_infer': 'SlackModel iJO1366_vETFL_infer_mean_kcat_infer_2084_enz_128_bins__20190701_070427.json',
+        'EFL': 'iJO1366_EFL_v_0.12_431_enz_128_bins__20200424_084856.json',
+        'ETFL': 'SlackModel iJO1366_ETFL_v_0.12_431_enz_128_bins__20200424_091552.json',
+        'vEFL': 'iJO1366_vEFL_v_0.12_431_enz_128_bins__20200424_101447.json',
+        'vETFL': 'SlackModel iJO1366_vETFL_v_0.12_431_enz_128_bins__20200424_110656.json',
+        'vETFLmean': 'SlackModel iJO1366_vETFL_mean_kcat_431_enz_128_bins__20200424_124211.json',
+        'vETFL_infer': 'SlackModel iJO1366_vETFL_infer_infer_2084_enz_128_bins__20200424_145634.json',
+        'vETFLmean_infer': 'SlackModel iJO1366_vETFL_infer_mean_kcat_infer_2084_enz_128_bins__20200424_211938.json',
+
+        # Models for the paper
+        # 'EFL': 'iJO1366_EFL_431_enz_128_bins__20190620_080807.json',
+        # 'ETFL': 'SlackModel iJO1366_ETFL_431_enz_128_bins__20190701_122635.json',
+        # 'vEFL': 'iJO1366_vEFL_431_enz_128_bins__20190620_084052.json',
+        # 'vETFL': 'SlackModel iJO1366_vETFL_431_enz_128_bins__20190701_082518.json',
+        # 'vETFLmean': 'SlackModel iJO1366_vETFL_mean_kcat_431_enz_128_bins__20190701_070448.json',
+        # 'vETFL_infer': 'SlackModel iJO1366_vETFL_infer_2084_enz_128_bins__20190624_095428.json',
+        # 'vETFLmean_infer': 'SlackModel iJO1366_vETFL_infer_mean_kcat_infer_2084_enz_128_bins__20190701_070427.json',
 
     }
 
-    models = {k:load_json_model('models/'+v,solver=solver) for k,v in model_files.items()}
+    # models = {k:load_json_model('models/current_best/'+v,solver=solver) for k,v in model_files.items()}
+    models = {k:load_json_model('models/thesis/'+v,solver=solver) for k,v in model_files.items()}
     data = {}
 
     for name,model in models.items():
-        growth_uptake_config(model)
+        model.solver.configuration.timeout = 18000
+        model.solver.configuration.tolerances.optimality = 1e-4
+        model.solver.problem.Params.MIPFocus = 0
+        # growth_uptake_config(model)
         model.warm_start = None
         model.logger.info('Simulating ...')
         start = time()

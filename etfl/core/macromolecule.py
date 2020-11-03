@@ -16,11 +16,12 @@ from abc import ABC, abstractmethod, abstractproperty
 
 
 class Macromolecule(Species, ABC):
-    def __init__(self, id=None, kdeg=0, *args, **kwargs):
+    def __init__(self, id=None, kdeg=0, scaling_factor = None, *args, **kwargs):
         Species.__init__(self, id = id, *args, **kwargs)
 
         self.kdeg = kdeg
         self.degradation = None
+        self._scaling_factor = scaling_factor
 
     @abstractmethod
     def init_variable(self, queue=False):
@@ -34,20 +35,38 @@ class Macromolecule(Species, ABC):
 
     @property
     def concentration(self):
+        """
+        Concentration variable of the macromolecule in the cell.
+        :return:
+        """
         return self.scaling_factor * self.scaled_concentration
 
 
     @property
     def scaled_concentration(self):
+        """
+        Scaled concentration (scaling_factor*conc). If the scaling factor is the
+        molecular weight, then this is similar to the mass fraction of the
+        macromolecule in the cell, in g/gDW.
+        :return:
+        """
         return self.variable
 
     @property
     def X(self):
+        """
+        Value of the concentration after optimization.
+        :return:
+        """
         return self.scaling_factor * self.scaled_X
 
 
     @property
     def scaled_X(self):
+        """
+        Value of the scaled concentration (mass ratio) after optimization.
+        :return:
+        """
         return self.variable.primal
 
     @property
@@ -77,4 +96,7 @@ class Macromolecule(Species, ABC):
 
     @property
     def scaling_factor(self):
-        return 1/self.molecular_weight
+        # Calculate it only once
+        if self._scaling_factor is None:
+            self._scaling_factor = 1/self.molecular_weight
+        return self._scaling_factor

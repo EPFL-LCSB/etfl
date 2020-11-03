@@ -13,6 +13,7 @@ from tqdm import tqdm
 import time
 
 solver = 'optlang-gurobi'
+USE_GPR = False
 #
 # ecoli_fba = cobra.io.json.load_json_model('models/iJO1366_T0E0N0__20180606_121758.json')
 # ecoli_fba.solver = solver
@@ -20,10 +21,10 @@ solver = 'optlang-gurobi'
 # ecoli_tfa.solver = solver
 
 # vETFL
-ecoli = load_json_model('models/SlackModel iJO1366_vETFL_431_enz_128_bins__20190701_082518.json')
+# ecoli = load_json_model('models/SlackModel iJO1366_vETFL_v_0.12_431_enz_128_bins__20200605_083556.json')
+# ecoli = load_json_model('models/SlackModel iJO1366_vETFL_mean_kcat_431_enz_128_bins__20200605_090017.json')
 # vETFL_infer:
-#ecoli = load_json_model('models/SlackModel
-# iJO1366_vETFL_infer_2084_enz_128_bins__20190624_095428.json')
+ecoli = load_json_model('models/SlackModel iJO1366_vETFL_infer_infer_2084_enz_128_bins__20200605_102233.json')
 ecoli.solver = solver
 
 standard_solver_config(ecoli)
@@ -111,6 +112,8 @@ def ko_etfl(model):
                     continue
             else:
                 # default to GPR KO
+                if not USE_GPR:
+                    continue # skip the gene
                 model.genes.get_by_id(g.id).knock_out()
                 ret = safe_optim(model)
 
@@ -136,4 +139,9 @@ values = ko_etfl(ecoli, log_data = log_data)
 
 import pandas as pd
 df = pd.DataFrame.from_dict(values, orient='index')
-df.to_csv('outputs/gene_essentiality_vETFL.csv')
+filename = 'gene_essentiality_vETFL'
+filename += '_gpr' if USE_GPR else ''
+filename += '_mean' if '_mean' in ecoli.name else ''
+filename += '_infer' if '_infer' in ecoli.name else ''
+
+df.to_csv('outputs/{}.csv'.format(filename))

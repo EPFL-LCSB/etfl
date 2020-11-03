@@ -17,6 +17,8 @@ from pytfa.io import        load_thermoDB,                    \
                             read_compartment_data, apply_compartment_data
 from ..core.memodel import MEModel
 from ..core.thermomemodel import ThermoMEModel
+from ..core.allocation import add_dna_mass_requirement, \
+    add_protein_mass_requirement, add_rna_mass_requirement
 from ..optim.config import standard_solver_config
 
 
@@ -36,11 +38,11 @@ CPLEX = 'optlang-cplex'
 GUROBI = 'optlang-gurobi'
 GLPK = 'optlang-glpk'
 
-solver = GLPK
+DEFAULT_SOLVER = GLPK
 aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides = get_monomers_dict()
 essentials = get_essentials()
 
-def create_fba_model(solver = GLPK):
+def create_fba_model(solver = DEFAULT_SOLVER):
 
     # g6p_c = cobra.Metabolite(id = 'g6p_c', formula = 'C6H13O9P')
     # f6p_c = cobra.Metabolite(id = 'f6p_c', formula = 'C6H13O9P')
@@ -123,6 +125,7 @@ def create_etfl_model(has_thermo, has_neidhardt,
                       n_mu_bins = 64,
                       mu_max = 3,
                       optimize = True,
+                      solver=DEFAULT_SOLVER,
                       ):
     #------------------------------------------------------------
     # Initialisation
@@ -222,12 +225,7 @@ def create_etfl_model(has_thermo, has_neidhardt,
     remove_from_biomass_equation(model = ecoli,
                                  nt_dict = rna_nucleotides,
                                  aa_dict = aa_dict,
-                                 atp_id=essentials['atp'],
-                                 adp_id=essentials['adp'],
-                                 pi_id=essentials['pi'],
-                                 h2o_id=essentials['h2o'],
-                                 h_id=essentials['h'],
-                                 )
+                                 essentials_dict=essentials)
 
     ##########################
     ##    MODEL CREATION    ##
@@ -241,16 +239,8 @@ def create_etfl_model(has_thermo, has_neidhardt,
                            )
     ecoli.add_mrnas(mrna_dict.values())
 
-    ecoli.add_ribosome(rib,free_ratio=0.2)
-    # http://bionumbers.hms.harvard.edu/bionumber.aspx?id=102348&ver=1&trm=rna%20polymerase%20half%20life&org=
-    # Name          Fraction of active RNA Polymerase
-    # Bionumber ID  102348
-    # Value 	    0.17-0.3 unitless
-    # Source        Bremer, H., Dennis, P. P. (1996) Modulation of chemical composition and other parameters of the cell by growth rate.
-    #               Neidhardt, et al. eds. Escherichia coli and Salmonella typhimurium: Cellular
-    #                       and Molecular Biology, 2nd ed. chapter 97 Table 1
-
-    ecoli.add_rnap(rnap, free_ratio=0.75)
+    ecoli.add_ribosome(rib,0.2)
+    ecoli.add_rnap(rnap,0.75)
 
     ecoli.build_expression()
     ecoli.add_enzymatic_coupling(coupling_dict)
@@ -263,16 +253,15 @@ def create_etfl_model(has_thermo, has_neidhardt,
         kdeg_enz,  peptide_length_avg   = get_enz_metrics()
         neidhardt_mu, neidhardt_rrel, neidhardt_prel, neidhardt_drel = get_neidhardt_data()
 
-        ecoli.add_interpolation_variables()
         ecoli.add_dummies(nt_ratios=nt_ratios,
                           mrna_kdeg=kdeg_mrna,
                           mrna_length=mrna_length_avg,
                           aa_ratios=aa_ratios,
                           enzyme_kdeg=kdeg_enz,
                           peptide_length=peptide_length_avg)
-        ecoli.add_protein_mass_requirement(neidhardt_mu, neidhardt_prel)
-        ecoli.add_rna_mass_requirement(neidhardt_mu, neidhardt_rrel)
-        ecoli.add_dna_mass_requirement(mu_values=neidhardt_mu,
+        add_protein_mass_requirement(ecoli,neidhardt_mu, neidhardt_prel)
+        add_rna_mass_requirement(ecoli,neidhardt_mu, neidhardt_rrel)
+        add_dna_mass_requirement(ecoli,mu_values=neidhardt_mu,
                                        dna_rel=neidhardt_drel,
                                        gc_ratio=gc_ratio,
                                        chromosome_len=chromosome_len,
@@ -304,6 +293,104 @@ def create_etfl_model(has_thermo, has_neidhardt,
 
     return ecoli
 
+
+def create_simple_dynamic_model():
+    from cobra import Reaction, Metabolite, Model
+
+    from etfl.core import Enzyme, MEModel
+    from etfl.optim.constraints import TotalCapacity, ForwardCatalyticConstraint, EnzymeMassBalance
+
+    glc  = Metabolite('glucose')
+    lcts = Metabolite('lactose')
+    mint = Metabolite('intermediate')
+    bio  = Metabolite('biomass')
+
+    glc_yield = 1
+    lcts_yield = 0.95
+
+    n_glc_C  = 6 #  number of carbons in glucose
+    n_lcts_C = 12 # number of carbons in lactose
+    n_mint_C = 3 # number of carbons in metabolic intermediate (pyr for example)
+
+    ex_glc  = Reaction('EX_glc',  lower_bound = -10)
+    ex_glc. add_metabolites({glc:-1})
+    ex_lcts = Reaction('EX_lcts', lower_bound = -n_glc_C/n_lcts_C * 10)
+    ex_lcts.add_metabolites({lcts:-1})
+
+    glc2mint  = Reaction('glc2mint')
+    glc2mint.add_metabolites({glc :-1,
+                              mint:glc_yield  * n_glc_C /n_mint_C})
+    lcts2mint = Reaction('lcts2mint')
+    lcts2mint.add_metabolites({lcts:-1,
+                               mint:lcts_yield * n_lcts_C/n_mint_C})
+    mint2bio  = Reaction('mint2bio')
+    mint2bio.add_metabolites({mint:-1,
+                              #bio:1
+                              })
+
+    model = Model('smol_model')
+    model = MEModel(model)
+
+    model.add_reactions([glc2mint, lcts2mint, mint2bio, ex_glc, ex_lcts])
+
+    kcat = 10
+    kdeg = 1
+    delta_v_ub = 0.5
+    Eg = Enzyme(id='Eg', kcat=kcat, kdeg=kdeg, composition = {})
+    Eg._scaling_factor = 1
+    Eg.complexation = Reaction('Eg_cplx', upper_bound = delta_v_ub)
+    Eg.degradation  = Reaction('Eg_deg' , upper_bound = delta_v_ub)
+    Eg.complexation.scaling_factor = 1
+    El = Enzyme(id='El', kcat=kcat, kdeg=kdeg, composition = {})
+    El._scaling_factor = 1
+    El.complexation = Reaction('El_cplx', upper_bound = delta_v_ub)
+    El.degradation  = Reaction('El_deg' , upper_bound = delta_v_ub)
+    El.complexation.scaling_factor = 1
+
+    model.add_enzymes([Eg,El], prep = False) # We don't want synthesis et al.
+    model.add_reactions([Eg.complexation, El.complexation, Eg.degradation, El.degradation])
+    Eg.init_variable()
+    El.init_variable()
+
+    # coupling_dict = {glc2mint.id:[Eg], lcts2mint:[El]}
+
+    model.add_constraint(kind=ForwardCatalyticConstraint,
+                         hook=glc2mint,
+                         expr=glc2mint.forward_variable - Eg.kcat_fwd*Eg.variable,
+                         ub=0)
+    model.add_constraint(kind=ForwardCatalyticConstraint,
+                         hook=lcts2mint,
+                         expr=lcts2mint.forward_variable - El.kcat_fwd*El.variable,
+                         ub=0)
+    model.add_constraint(kind=TotalCapacity,
+                         hook=model,
+                         id_='total_E',
+                         expr = Eg.variable + 3*El.variable,
+                         lb=0.1,
+                         ub=0.1)
+    model.add_constraint(kind=EnzymeMassBalance,
+                         hook=Eg,
+                         expr=Eg.complexation.forward_variable - Eg.degradation.forward_variable,
+                         ub=0,lb=0)
+    model.add_constraint(kind=EnzymeMassBalance,
+                         hook=El,
+                         expr=El.complexation.forward_variable - El.degradation.forward_variable,
+                         ub=0,lb=0)
+
+    model.objective = mint2bio
+    model.growth_reaction = mint2bio.id
+
+    model.repair()
+    model.optimize()
+
+    def get_yield():
+        return model.solution.objective_value / (lcts2mint.flux * n_lcts_C + glc2mint.flux * n_glc_C)
+
+    # model.mu_bins = [[x/10,(max(0,x/10-0.05), x/10+0.05)] for x in range(0,100)]
+    model.mu_bins = [[0,(max(0,x/10-0.05), x/10+0.05)] for x in range(0,100)]
+
+    print('Yield:', get_yield())
+    return model
 
 if __name__ == '__main__':
     model = create_etfl_model(False, False)

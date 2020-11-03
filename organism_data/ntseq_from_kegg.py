@@ -19,11 +19,16 @@ rpeptide_genes = pd.read_csv(pjoin(data_folder,'ribosomal_proteins_ecoli.tsv'),
                              delimiter='\t',
                              header=None)[0]
 
-transporter_genes = pd.read_csv(pjoin(data_dir,'transporters_kcats.csv'),
+transporter_genes = pd.read_csv(pjoin(data_folder,'transporters_kcats.csv'),
                                header=0, skiprows=[1,], # Units row
                                index_col=0)['gene']
 
-all_b_genes = pd.concat([all_b_genes, rnap_genes, rrna_genes, rpeptide_genes, transporter_genes])
+dnapol3_genes = pd.read_csv(pjoin(data_folder,'dnapol3_genes.csv'),
+                               header=None)
+
+more_genes = pd.Series(['eco:b3067',]) #sigma factor 70
+
+all_b_genes = pd.concat([all_b_genes, rnap_genes, rrna_genes, rpeptide_genes, transporter_genes, more_genes])
 all_b_genes.drop_duplicates(inplace=True)
 
 

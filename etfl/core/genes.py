@@ -13,17 +13,81 @@ ME-related Reaction subclasses and methods definition
 
 from cobra import Gene
 from Bio.Seq import Seq
-from Bio.Alphabet import DNAAlphabet, ProteinAlphabet
+# from Bio.Alphabet import DNAAlphabet, RNAAlphabet, ProteinAlphabet
+
+
+def make_sequence(sequence):#, seq_type):
+    """
+    seq_type must be an instance of DNAAphabet(), RNAAlphabet, or ProteinAlphabet
+    :param sequence:
+    :param seq_type:
+    :return:
+    """
+    if isinstance(sequence, str):
+        typed_sequence = Seq(sequence)#, seq_type())
+    elif isinstance(sequence, Seq):
+        # assert (isinstance(sequence.alphabet, seq_type))
+        typed_sequence = sequence
+    else:
+        raise TypeError('The type of the sequence argument should be either '
+                        'string or a Bio.Seq')
+
+    return typed_sequence
 
 class ExpressedGene(Gene):
     """
     Subclass to describe reactions that are catalyzed by an enzyme.
     """
-    def __init__(self, id, name, sequence, *args, **kwargs):
+    def __init__(self, id, name, sequence, copy_number=1,
+                 transcribed_by=None,
+                 translated_by=None,
+                 *args, **kwargs):
         Gene.__init__(self, id, name, *args, **kwargs)
-        self.sequence = Seq(sequence, DNAAlphabet())
+        self.sequence = make_sequence(sequence)#, DNAAlphabet)
         self._rna = ''
         self._peptide = ''
+
+        self._copy_number = int(copy_number)
+        self._transcribed_by = transcribed_by
+        self._translated_by = translated_by
+
+    @property
+    def copy_number(self):
+        return self._copy_number
+
+    @copy_number.setter
+    def copy_number(self, value):
+        # TODO: Make this a setter that rewrites the adequate constraints
+        if value != self._copy_number:
+            if self.model is None:
+                # Easy
+                self._copy_number = int(value)
+            else:
+                # We need to make the model change the RNAP allocation
+                self._copy_number = int(value)
+                self.model.edit_gene_copy_number(self.id)
+        else:
+            # Nothing to do here :)
+            pass
+
+    @property
+    def transcribed_by(self):
+        return self._transcribed_by
+
+    @transcribed_by.setter
+    def transcribed_by(self,value):
+        # TODO: Make this a setter that rewrites the adequate constraints
+        raise NotImplementedError()
+
+    @property
+    def translated_by(self):
+        return self._translated_by
+
+    @translated_by.setter
+    def translated_by(self,value):
+        # TODO: Make this a setter that rewrites the adequate constraints
+        raise NotImplementedError()
+
 
     @property
     def rna(self):
@@ -32,15 +96,23 @@ class ExpressedGene(Gene):
 
         return self._rna
 
+    @rna.setter
+    def rna(self,value):
+        self._rna=make_sequence(value)#,RNAAlphabet)
+
     @property
     def peptide(self):
         if not self._peptide:
             # Translation table 11 is for bacteria
             the_pep = self.rna.translate(to_stop = False, table = 11)
             the_pep = str(the_pep).replace('*','')
-            self._peptide = Seq(the_pep, ProteinAlphabet())
+            self._peptide = make_sequence(the_pep)#, ProteinAlphabet)
 
         return self._peptide
+
+    @peptide.setter
+    def peptide(self,value):
+        self._peptide=make_sequence(value)#,ProteinAlphabet)
 
     @staticmethod
     def from_gene(gene, sequence):

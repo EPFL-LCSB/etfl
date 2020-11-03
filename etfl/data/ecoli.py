@@ -305,8 +305,7 @@ def get_monomers_dict():
     return aa_dict, rna_nucleotides, rna_nucleotides_mp, dna_nucleotides
 
 
-def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id,
-                                 h2o_id, h_id, pi_id):
+def remove_from_biomass_equation(model, nt_dict, aa_dict, essentials_dict):
 
     # According to discussions, should only remove GAM
 
@@ -318,9 +317,14 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id,
 
     expression_mets = list(nt_dict.values()) + list(aa_dict.values())
 
+    # For ATP correction (see below)
+    n_aa = 0
+
     for m,stoich in model.growth_reaction.metabolites.items():
         if m.id in expression_mets:
             mets_to_rm[m] = -1*stoich
+            if m.id in aa_dict.values():
+                n_aa += stoich
 
     model.growth_reaction.add_metabolites(mets_to_rm)
 
@@ -329,13 +333,50 @@ def remove_from_biomass_equation(model, nt_dict, aa_dict, atp_id, adp_id,
     # biomass reaction:
     # -54.119975 atp_c + .... --> 53.95 adp_c
 
-    atp = model.metabolites.get_by_id(atp_id)
-    adp = model.metabolites.get_by_id(adp_id)
-    pi  = model.metabolites.get_by_id(pi_id)
-    h2o = model.metabolites.get_by_id(h2o_id)
-    h = model.metabolites.get_by_id(h_id)
+    atp = model.metabolites.get_by_id(essentials_dict['atp'])
+    adp = model.metabolites.get_by_id(essentials_dict['adp'])
+    amp = model.metabolites.get_by_id(essentials_dict['amp'])
+    pi  = model.metabolites.get_by_id(essentials_dict['pi'])
+    ppi  = model.metabolites.get_by_id(essentials_dict['ppi'])
+    h2o = model.metabolites.get_by_id(essentials_dict['h2o'])
+    h = model.metabolites.get_by_id(essentials_dict['h'])
     atp_recovery = model.growth_reaction.metabolites[adp]
-    model.growth_reaction.add_metabolites({atp:-1*atp_recovery})
+
+    # Omid's calculations:
+    # There is also ATP used for generating the GTP for the synthesis of peptides
+    # 2 GTP per aminoacid attached, 1 ATP per GTP
+    # We need to compute how much aminoacid are consumed
+    # We get it from the removal of the aminoacid earlier in the function
+
+    # n_aa is <= 0, we remove here the ATP used for peptide synthesis
+    # We add back ATP at the ADP previous level
+    # Remove 2 ATP per aa polymerised into a peptide
+    # +1 for tRNA charging : AA + uncharged_tRNA + ATP + 2 H2O -> charged_tRNA + AMP + PPI + 2H+
+
+    # model.growth_reaction.add_metabolites({atp: -1*atp_recovery - 3*n_aa ,
+    #                                        h2o: -4*n_aa, # h2o consumed less (n_aa is negative),
+    #                                        adp: 2 * n_aa,
+    #                                        amp: 1 * n_aa,
+    #                                        pi: 2*n_aa,
+    #                                        ppi: 1*n_aa,
+    #                                        h: 4*n_aa,
+    #                                        })
+    model.growth_reaction.add_metabolites({atp: -1*atp_recovery - 2*n_aa ,
+                                           h2o: -2*n_aa, # h2o consumed less (n_aa is negative),
+                                           adp: 2 * n_aa,
+                                           amp: 0 * n_aa,
+                                           pi: 2*n_aa,
+                                           ppi: 0*n_aa,
+                                           h: 2*n_aa,
+                                           })
+    # model.growth_reaction.add_metabolites({atp: -1*atp_recovery - 3*n_aa ,
+    #                                        h2o: -2*n_aa, # h2o consumed less (n_aa is negative),
+    #                                        adp: 2 * n_aa,
+    #                                        amp: 0 * n_aa,
+    #                                        pi: 2*n_aa,
+    #                                        ppi: 0*n_aa,
+    #                                        h: 2*n_aa,
+    #                                        })
 
 
 
@@ -604,7 +645,7 @@ def get_aggregated_coupling_dict(model, coupling_dict = dict()):
 
             cleaned_cplx_name = clean_string(this_complex_name)
 
-            new_enzyme = Enzyme('{}_{}'.format(x.id,cleaned_cplx_name),
+            new_enzyme = Enzyme('{}_{}_{}'.format(x.id,cleaned_cplx_name,e),
                                 name='{}_{}: {}'.format(x.id, e, this_complex_name),
                                 kcat=kcat,
                                 kdeg=kdeg_enz,
@@ -785,6 +826,54 @@ def get_atp_synthase_coupling(atps_name):
 
     return {atps_name:[atp_synthase]}
 
+def get_dna_polymerase(dna_pol_name='DNAPol3'):
+    """
+    https://en.wikipedia.org/wiki/DNA_polymerase_III_holoenzyme
+
+    The replisome is composed of the following:
+
+    2 DNA Pol III enzymes, each comprising α, ε and θ subunits. (It has been proven that there is a third copy of Pol III at the replisome.[1])
+        the α subunit (encoded by the dnaE gene) has the polymerase activity.
+        the ε subunit (dnaQ) has 3'→5' exonuclease activity.
+        the θ subunit (holE) stimulates the ε subunit's proofreading.
+    2 β units (dnaN) which act as sliding DNA clamps, they keep the polymerase bound to the DNA.
+    2 τ units (dnaX) which act to dimerize two of the core enzymes (α, ε, and θ subunits).
+    1 γ unit (also dnaX) which acts as a clamp loader for the lagging strand Okazaki fragments, helping the two β subunits to form a unit and bind to DNA. The γ unit is made up of 5 γ subunits which include 3 γ subunits, 1 δ subunit (holA), and 1 δ' subunit (holB). The δ is involved in copying of the lagging strand.
+    Χ (holC) and Ψ (holD) which form a 1:1 complex and bind to γ or τ. X can also mediate the switch from RNA primer to DNA.[2]
+    :return:
+    """
+
+    # DNA POLYMERASE III HOLOENZYME: Structure and Function of a Chromosomal Replicating Machine
+    # Annual Review of Biochemistry
+    # Vol. 64:171-200 (Volume publication date July 1995)
+    # https://doi.org/10.1146/annurev.bi.64.070195.001131
+
+    ktrans = 1000 * 3600
+
+    composition = {
+        # 2 DNA Pol III Enzymes
+        'b0184':2, #dnaE
+        'b0215':2, #dnaQ
+        'b1842':2, #holE
+        # Beta sliding clamp units and Tau scaffold
+        'b3701': 2*2,  # dnaN, Beta clamps
+        'b0470': 3,  # dnaX, 2 tau units and 1 gamma unit
+        'b0640': 1,  # holA, Delta subunit
+        'b1099': 1,  # holB, Delta prime subunit
+        'b4259': 1,  # holC, Xi subunit
+        'b4372': 1,  # holD, Psi subunit
+
+    }
+
+    dna_polymerase = Enzyme(dna_pol_name,
+                        name='DNA Polymerase 3',
+                        kcat_fwd=ktrans,
+                        kcat_bwd=ktrans,
+                        kdeg=kdeg_enz,
+                        composition=composition)
+
+    return dna_polymerase
+
 
 def get_transporters_coupling(model, additional_enz):
 
@@ -901,7 +990,7 @@ def get_rnap():
     :return:
     """
 
-    rnap_genes = ['b3295','b3649','b3987','b3988']
+    rnap_genes = {'b3295':2,'b3649':1,'b3987':1,'b3988':1}
     rnap = RNAPolymerase(id='rnap',
                          name='RNA Polymerase',
                          ktrans = ktrans*3600,
@@ -911,3 +1000,62 @@ def get_rnap():
 
 
     return rnap
+
+def get_sigma_70(rnap):
+    """
+    # RNAP
+
+    b3067: rpoD
+    :return:
+    """
+
+    sigma_genes = {'b3067':1,}
+    sigma70 = Enzyme(id='sigma70',
+                             name='Sigma Factor 70 kDa',
+                             kcat = 1, #Not defined
+                             kdeg = kdeg_enz,
+                             composition = sigma_genes)
+
+    holo_comp = rnap.composition.copy()
+    holo_comp.update(sigma_genes)
+
+    holo_rnap = RNAPolymerase(id='holo' + rnap.id,
+                             name=str(rnap.name) + ' Holoenzyme',
+                             ktrans = rnap.ktrans,
+                             kdeg = kdeg_enz,
+                             composition = holo_comp)
+
+
+    return sigma70, holo_rnap
+
+def read_growth_dependant_rnap_alloc():
+    """
+    Read table with data on Π, the fraction of RNAP holoenzyme. We define Π:
+    Π = holoRNAP / RNAP_total = holoRNAP / (holoRNAP + RNAP_free)
+    :return:
+    """
+    Pi = pd.read_csv(pjoin(data_dir,'neidhardt_tab3_active_rnap.csv'),
+                     header = 1, index_col=0)
+    Pi = Pi.drop('/h', axis=1)
+
+    return Pi/100
+
+def get_growth_dependant_transformed_rnap_alloc():
+    """
+    We are given the active RNAP ratio Π, which we approximate to be
+
+    Π = holoRNAP / RNAP_total = holoRNAP / (holoRNAP + RNAP_free)
+
+    For our calculations, we are interested in q = holoRNAP / RNAP_free
+
+    Π = holoRNAP / (holoRNAP + RNAP_free)
+    <=> 1/Π       = 1 + 1/q
+    <=> 1/Π - 1   =     1/q
+    <=> Π/(1 - Π) = q
+
+    :return:
+    """
+    Pi = read_growth_dependant_rnap_alloc()
+    q = Pi / (1-Pi)
+    mus = [float(x) for x in q.columns]
+    return mus, q.to_numpy()[0]

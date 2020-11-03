@@ -1,7 +1,8 @@
 import sympy
 
 from ..core.enzyme import Enzyme
-from ..utils.parsing import parse_gpr
+from ..utils.parsing import parse_gpr, simplify_gpr, expand_gpr
+
 
 def infer_enzyme_from_gpr(reaction, default_kcat, default_kdeg):
     new_enzymes = list()
@@ -28,7 +29,7 @@ def compositions_from_gpr(reaction):
 
     model = reaction.model
 
-    this_gpr = reaction.gene_reaction_rule
+    this_gpr = expand_gpr(reaction.gene_reaction_rule)
 
     sym_gpr = parse_gpr(this_gpr)
 
@@ -48,6 +49,7 @@ def compositions_from_gpr(reaction):
     compositions = []
 
     for e, this_isozyme in enumerate(isozymes):
+
         if isinstance(this_isozyme, sympy.And):
             # this is a GPR with several subunits
             peptides = {x.name: 1 \
