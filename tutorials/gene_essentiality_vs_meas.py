@@ -26,9 +26,10 @@ essential_genes = pd.concat([ijo_tn, ijo_fp], axis=0, ignore_index=True)
 
 # etfl_pred = pd.read_csv('outputs/gene_essentiality_vETFL65.csv', index_col = 0)
 # etfl_pred = pd.read_csv('outputs/gene_essentiality_etfl_fast_1366.csv', index_col = 0)
-# etfl_pred = pd.read_csv('outputs/gene_essentiality_vETFL_infer.csv', index_col = 0)
-#etfl_pred = pd.read_csv('outputs/gene_essentiality_vETFL.csv', index_col = 0)
-etfl_pred = pd.read_csv('outputs/gene_essentiality_vETFL_gpr.csv', index_col = 0)
+etfl_pred = pd.read_csv('outputs/gene_essentiality_vETFL_infer.csv', index_col = 0)
+# etfl_pred = pd.read_csv('outputs/gene_essentiality_vETFL.csv', index_col = 0)
+# etfl_pred = pd.read_csv('outputs/gene_essentiality_vETFL_mean.csv', index_col = 0)
+# etfl_pred = pd.read_csv('outputs/gene_essentiality_vETFL_gpr.csv', index_col = 0)
 
 classify = lambda df,x: df>x
 
