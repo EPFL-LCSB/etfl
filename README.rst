@@ -1,8 +1,10 @@
 ETFL
 ====
-|Documentation Status| |Build Status| |Codecov| |Codacy branch grade| |license|
+|Documentation Status| |Build Status| |Codecov| |Codacy branch grade| |license| |doi|
 
 ETFL: A formulation for flux balance models accounting for expression, thermodynamics, and resource allocation constraints
+
+Paper_: Salvy, P., Hatzimanikatis, V. The ETFL formulation allows multi-omics integration in thermodynamics-compliant metabolism and expression models. Nat Commun 11, 30 (2020) doi:10.1038/s41467-019-13818-7
 
 Preprint_ on BioRxiv
 
@@ -82,6 +84,7 @@ License
 
 The software in this repository is put under an APACHE-2.0 licensing scheme - please see the `LICENSE <https://github.com/EPFL-LCSB/etfl/blob/master/LICENSE.txt>`_ file for more details.
 
+.. _Paper: https://www.nature.com/articles/s41467-019-13818-7
 
 .. _Preprint: https://www.biorxiv.org/content/10.1101/590992v1
 
@@ -95,5 +98,7 @@ The software in this repository is put under an APACHE-2.0 licensing scheme - pl
    :target: https://travis-ci.org/EPFL-LCSB/etfl
 .. |Codecov| image:: https://img.shields.io/codecov/c/github/EPFL-LCSB/etfl.svg
    :target: https://codecov.io/gh/EPFL-LCSB/etfl
-.. |Codacy branch grade| image:: https://img.shields.io/codacy/grade/46bab484396946a8be07a82276f3e9dc/master.svg
+.. |Codacy branch grade| image:: https://img.shields.io/codacy/grade/57efd28bef86473a8075fde96e132c28
    :target: https://www.codacy.com/app/realLCSB/etfl
+.. |doi| image:: https://zenodo.org/badge/DOI/10.1038/s41467-019-13818-7.svg
+    :target: https://doi.org/10.1038/s41467-019-13818-7

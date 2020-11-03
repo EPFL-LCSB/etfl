@@ -99,6 +99,7 @@ def ko_etfl(model):
     # We need to use optlang's symbolic 0
     model.objective = optlang.symbolics.Zero
 
+
     for g in tqdm(model.genes):
         with model as model:
 
