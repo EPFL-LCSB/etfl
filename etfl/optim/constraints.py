@@ -145,6 +145,16 @@ class ExpressionCoupling(GeneConstraint):
     """
 
     prefix = 'EX_'
+    
+class MinimalCoupling(GeneConstraint):
+    """
+    Add the minimal activity of ribosome based on the availability of mRNA.
+    We modeled it as a fraction of the maximum loadmax and the fraction depends
+    on the affinity of ribosome to the mRNA:
+    [RPi] >= Fraction*loadmax_i*[mRNAi]
+    """
+
+    prefix = 'MC_'
 
 
 class RNAPAllocation(GeneConstraint):
@@ -157,6 +167,16 @@ class RNAPAllocation(GeneConstraint):
     """
 
     prefix = 'RA_'
+    
+class MinimalAllocation(GeneConstraint):
+    """
+    Add the minimal activity of RNAP based on the availability of gene.
+    We modeled it as a fraction of the maximum loadmax and the fraction depends
+    on the affinity of RNAP to the gene, i.e. the strength of the promoter:
+    [RPi] >= Fraction*loadmax_i*[mRNAi]
+    """
+
+    prefix = 'MA_'
 
 
 class EnzymeRatio(EnzymeConstraint):
@@ -197,6 +217,22 @@ class GrowthChoice(ModelConstraint):
 
     prefix = 'GR_'
 
+
+class LinearizationConstraint(ModelConstraint):
+    """
+    Class to represent a variable attached to a reaction
+    """
+    @staticmethod
+    def from_constraints(cons, model):
+        return LinearizationConstraint(
+            name = cons.name,
+            expr = cons.expr,
+            model = model,
+            ub = cons.ub,
+            lb = cons.lb,
+        )
+
+    prefix = 'LC_'
 
 class SOS1Constraint(ModelConstraint):
     """
@@ -241,3 +277,31 @@ class mRNADeltaNeg(GeneConstraint):
     """
 
     prefix = 'dMN_'
+    
+class ConstantAllocation(ModelConstraint):
+    """
+    Represents a similar share to FBA for RNA and protein
+    """
+    
+    prefix = 'CL_'
+    
+class LipidMassBalance(ModelConstraint):
+    """
+    Class to represent a lipid mass balance constraint
+    """
+
+    prefix = 'LB_'
+    
+class CarbohydrateMassBalance(ModelConstraint):
+    """
+    Class to represent a carbohydrate mass balance constraint
+    """
+
+    prefix = 'CB_'
+    
+class IonMassBalance(ModelConstraint):
+    """
+    Class to represent a ion mass balance constraint
+    """
+
+    prefix = 'IB_'

@@ -59,15 +59,14 @@ def print_standard_sol(model, solution = None, flux_dict = None):
 
     if flux_dict is None:
         flux_dict = {'Growth': model.growth_reaction.id}
-        if 'EX_glc__D_e' in model.reactions:
+        try:
             flux_dict['Glucose uptake'] = 'EX_glc__D_e'
+        except KeyError:
+            pass
 
-    try: width = max([max([len(x) for x in the_dict]) for the_dict in [flux_dict,
+    width = max([max([len(x) for x in the_dict]) for the_dict in [flux_dict,
                                                                  model.ribosome,
                                                                  model.rnap ]])
-    except ValueError: #Happens when dict empty:
-        width = 10
-
     print('{0: <{width}}: {1}'.format('Objective', solution.objective_value,
                                       width=width+3))
     # print()
@@ -90,14 +89,11 @@ def print_standard_sol(model, solution = None, flux_dict = None):
 
 
 def _print_dict_items_vars(solution, the_dict, width):
-    if the_dict:
-        for k, v in the_dict.items():
-            x = solution.raw[v.variable.name] * v.scaling_factor
-            print(' - {0: >{width}}: {1}'.format(k, x, width=width))
-
+    for k, v in the_dict.items():
+        x = solution.raw[v.variable.name] * v.scaling_factor
+        print(' - {0: >{width}}: {1}'.format(k, x, width=width))
 
 def _print_dict_items_fluxes(solution, the_dict, width):
-    if the_dict:
-        for k, v in the_dict.items():
-            x = solution.fluxes[v]
-            print(' - {0: >{width}}: {1}'.format(k, x, width=width))
+    for k, v in the_dict.items():
+        x = solution.fluxes[v]
+        print(' - {0: >{width}}: {1}'.format(k, x, width=width))

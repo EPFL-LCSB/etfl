@@ -38,7 +38,7 @@ setup(name='ETFL',
       packages = find_packages(),
       python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, <4',
       description='Models for Expression and Thermodynamics Flux analysis, built on top of pytfa',
-      keywords=['pytfa','ME models','thermodynamics','flux analysis','expression'],
+      keywords=['pytfa','ME models','thermodynamics','flux analysis'],
 
       license='Apache2',
 

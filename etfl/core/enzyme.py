@@ -15,6 +15,8 @@ from ..optim.variables import EnzymeVariable, ForwardEnzyme, BackwardEnzyme
 from cobra import Species, Metabolite, DictList
 from Bio.SeqUtils import molecular_weight
 from .macromolecule import Macromolecule
+from Bio.Seq import Seq
+from Bio.Alphabet import DNAAlphabet, ProteinAlphabet
 
 
 class Enzyme(Macromolecule):
@@ -68,10 +70,11 @@ class Peptide(Metabolite):
     Subclass to describe peptides resulting from gene translation
     """
 
-    def __init__(self, id=None, gene_id=None, **kwargs):
+    def __init__(self, id=None, gene_id=None, sequence=None, **kwargs):
         Metabolite.__init__(self, id=id, **kwargs)
         self._gene_id = gene_id
         self._molecular_weight_override = 0
+        self._peptide = sequence
 
 
     @property
@@ -85,13 +88,19 @@ class Peptide(Metabolite):
 
     @property
     def peptide(self):
-        return self.gene.peptide
+        if not self._peptide:
+            return self.gene.peptide
+        else:
+            return Seq(self._peptide, ProteinAlphabet())
+        
+    @peptide.setter
+    def peptide(self, value):
+        self._peptide = value
 
     @property
     def molecular_weight(self):
         if not self._molecular_weight_override:
-            return molecular_weight(self.peptide, seq_type='protein') / 1000 # g.mol^-1 ->
-            # kg.mol^-1 (SI) = g.mmol^-1
+            return molecular_weight(self.peptide) / 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
         else:
             return self._molecular_weight_override
 

@@ -14,8 +14,7 @@ can be found at::
 
 We use `optlang`_.
 
-**We recommend you to get a commercial solver, as it has been seen that GLPK's
-lack of parallelism significantly increases solving time**
+**We recommend you to get a commercial solver, as it has been seen that GLPK's lack of parallelism significantly increases solving time**
 
 Cheers,
 

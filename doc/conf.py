@@ -17,38 +17,8 @@
 #
 import os
 import sys
-from os.path import dirname, join
-sys.path.insert(0, os.path.abspath(join('..','etfl')))
+sys.path.insert(0, os.path.abspath('..'))
 
-# In order to build documentation that requires libraries to import
-class Mock(object):
-    def __init__(self, *args, **kwargs):
-        return
-
-    def __call__(self, *args, **kwargs):
-        return Mock()
-
-    @classmethod
-    def __getattr__(cls, name):
-        if name in ('__file__', '__path__'):
-            return '/dev/null'
-        else:
-            return Mock()
-
-
-# These modules should correspond to the importable Python packages.
-MOCK_MODULES = [
-    'cobra',
-    'numpy',
-    'scipy',
-    'pandas',
-    'pytfa',
-    'optlang', 'optlang.interface', 'optlang.symbolics',
-    'yaml',
-]
-
-for mod_name in MOCK_MODULES:
-    sys.modules[mod_name] = Mock()
 
 # -- General configuration ------------------------------------------------
 
@@ -63,12 +33,7 @@ extensions = ['sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
-    'sphinx.ext.mathjax',
-    'autoapi.extension']
-
-# Document Python Code
-autoapi_type = 'python'
-autoapi_dirs = ['../etfl']
+    'sphinx.ext.mathjax']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -200,9 +165,7 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
-        'python': ('https://docs.python.org/3.7', None),
-        'Bio': ('https://biopython.readthedocs.io/en/latest/', None),
-        'pytfa': ('https://pytfa.readthedocs.io/en/latest', None),
+        'python': ('https://docs.python.org/3.4', None),
         'cobra': ('https://cobrapy.readthedocs.io/en/stable', None),
         'optlang': ('https://optlang.readthedocs.io/en/latest', None),
         'sympy': ('http://docs.sympy.org/latest', None)

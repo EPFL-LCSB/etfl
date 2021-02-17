@@ -8,7 +8,6 @@ pymysql
 pytest
 python-libsbml
 scipy
-sklearn
 sqlalchemy
 tabulate
 sphinx
