@@ -926,10 +926,10 @@ def get_rib():
     # Bionumber ID 	105225
     # Value         between 10 aa/sec
     
-    rib_a = Ribosome(id='rib_a', name='Ribosome_A', kribo=8 * 3600, kdeg=kdeg_rib,
+    rib_a = Ribosome(id='rib_a', name='Ribosome_A', kribo=10 * 3600, kdeg=kdeg_rib,
                composition = rpeptide_genes_a, rrna=rrna_genes)
     
-    rib_b = Ribosome(id='rib_b', name='Ribosome_B', kribo=8 * 3600, kdeg=kdeg_rib,
+    rib_b = Ribosome(id='rib_b', name='Ribosome_B', kribo=10 * 3600, kdeg=kdeg_rib,
                composition = rpeptide_genes_b, rrna=rrna_genes)
 
 
@@ -961,7 +961,7 @@ def get_rib_mit():
     """
 
     
-    rib = Ribosome(id='rib_mit', name='mit_Ribosome', kribo=8 * 3600, kdeg=kdeg_rib,
+    rib = Ribosome(id='rib_mit', name='mit_Ribosome', kribo=10 * 3600, kdeg=kdeg_rib,
                composition = rpeptide_genes_mit, rrna=rrna_genes_mit)
 
 
