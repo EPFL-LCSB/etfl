@@ -61,7 +61,7 @@ solver = 'optlang-gurobi'
 glc_uptake = 15.2
 glc_uptake_std = 0.1
 observed_growth_std = 0.01
-observed_growth = 0.2
+observed_growth = 0.4
 
 growth_reaction_id = 'r_4041' #yeast 8 biomass pseudoreaction
 
@@ -182,7 +182,7 @@ def create_model(has_thermo, has_expression, var_allocation,
                                       if 'membrane' in comp]) == 0 else True
             if mem_asscd:
                 cstr_id = 'G_' + rxn_id
-                yeast.remove_constraint(yeast.constraints.get(cstr_id))
+                yeast.remove_constraint(yeast._cons_dict[cstr_id])
 
 
     mrna_dict = get_mrna_dict(yeast)
@@ -355,10 +355,10 @@ if __name__ == '__main__':
                               'has_thermo':False,
                               'var_allocation':False,
                               'kcat_mode':'kmax'}
-    # model_calls[ 'cETFL' ] = {'has_expression':True,
-    #                           'has_thermo':True,
-    #                           'var_allocation':False,
-    #                           'kcat_mode':'kmax'}
+#    model_calls[ 'cETFL' ] = {'has_expression':True,
+#                               'has_thermo':True,
+#                               'var_allocation':False,
+#                               'kcat_mode':'kmax'}
 #    model_calls['vEFL'  ] = {'has_expression':True,
 #                               'has_thermo':False,
 #                               'var_allocation':True,
