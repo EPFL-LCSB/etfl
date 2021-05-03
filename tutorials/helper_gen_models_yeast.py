@@ -61,7 +61,7 @@ solver = 'optlang-gurobi'
 glc_uptake = 15.2
 glc_uptake_std = 0.1
 observed_growth_std = 0.01
-observed_growth = 0.4
+observed_growth = 0.43
 
 growth_reaction_id = 'r_4041' #yeast 8 biomass pseudoreaction
 
@@ -183,6 +183,10 @@ def create_model(has_thermo, has_expression, var_allocation,
             if mem_asscd:
                 cstr_id = 'G_' + rxn_id
                 yeast.remove_constraint(yeast._cons_dict[cstr_id])
+                var_id = 'DG_' + rxn_id
+                yeast.remove_variable(yeast._var_dict[var_id])
+                var_id = 'DGo_' + rxn_id
+                yeast.remove_variable(yeast._var_dict[var_id])
 
 
     mrna_dict = get_mrna_dict(yeast)
