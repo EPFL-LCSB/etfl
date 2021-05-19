@@ -16,7 +16,6 @@ from cobra import Species, Metabolite, DictList
 from Bio.SeqUtils import molecular_weight
 from .macromolecule import Macromolecule
 from Bio.Seq import Seq
-from Bio.Alphabet import DNAAlphabet, ProteinAlphabet
 
 
 class Enzyme(Macromolecule):
@@ -91,7 +90,7 @@ class Peptide(Metabolite):
         if not self._peptide:
             return self.gene.peptide
         else:
-            return Seq(self._peptide, ProteinAlphabet())
+            return Seq(self._peptide)#, ProteinAlphabet())
         
     @peptide.setter
     def peptide(self, value):
