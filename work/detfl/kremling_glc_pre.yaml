@@ -1,0 +1,45 @@
+model: '../../tutorials/models/SlackModel iJO1366_vETFL__tp_v_0.12_448_enz_128_bins__20200412_075023.json'
+tag: 'vETFL_diaux_kremling_glc_precult'
+simulation:
+  timestep: 0.1
+  tfinal: 10
+assumptions:
+  v0:
+    EX_o2_e: -15 # mmol/gDW/h
+    EX_glc__D_e: -15 # mmol/gDW/h
+    EX_lcts_e: 0 # mmol/gDW/h
+#    EX_ac_e: 0 # mmol/L
+  upper_bounds:
+    EX_ac_e: 5
+  S0:
+#    EX_o2_e: 0.21 # mmol/L
+    EX_glc__D_e: 1.67 # mmol/L
+    EX_lcts_e: 5.84 # mmol/L
+    EX_ac_e: 0 # mmol/L
+  X0: 0.02
+  uptake_enz:
+#    EX_ac_e:
+#      - ACt4pp
+#      - ACt2rpp
+    EX_glc__D_e:
+      - GLCabcpp
+      - GLCptspp
+      - GLCt2pp
+    EX_lcts_e:
+      - LACZpp
+      - LCTSt3ipp
+      - LCTStpp
+options:
+  verbose: false
+  inplace: true
+  chebyshev_include:
+    - ForwardCatalyticConstraint
+    - BackwardCatalyticConstraint
+#    - EnzymeDeltaPos
+#    - EnzymeDeltaNeg
+#    - ExpressionCoupling
+  constraints:
+    mRNA_degradation: no
+    mRNA_synthesis  : no
+    enzyme_degradation: yes
+    enzyme_synthesis: no

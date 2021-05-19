@@ -23,7 +23,7 @@ import yaml
 
 def read_config(yaml_file):
     with open(yaml_file, 'rb') as f:
-        conf = yaml.load(f.read())  # load the config file
+        conf = yaml.load(f.read(), Loader=yaml.SafeLoader)  # load the config file
     return conf
 
 
