@@ -23,7 +23,7 @@ version_tag = '0.0.2'
 
 setup(name='ETFL',
       version=version_tag,
-      author='Pierre SALVY, Omid OFTADEH',
+      author='LCSB@EPFL',
       author_email='softwares.lcsb@epfl.ch',
       url='https://github.com/EPFL-LCSB/etfl/',
       download_url='https://github.com/EPFL-LCSB/etfl/archive/'+version_tag+'.tar.gz',
