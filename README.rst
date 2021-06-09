@@ -8,6 +8,8 @@ Paper_: Salvy, P., Hatzimanikatis, V. The ETFL formulation allows multi-omics in
 
 Preprint_ on BioRxiv
 
+See also yETFL_ for a yeast model!
+
 This code is an early release. You will need pyTFA_ to run it.
 We recommend using commercial solvers such as CPLEX or Gurobi to run these problems.
 
@@ -87,6 +89,8 @@ The software in this repository is put under an APACHE-2.0 licensing scheme - pl
 .. _Paper: https://www.nature.com/articles/s41467-019-13818-7
 
 .. _Preprint: https://www.biorxiv.org/content/10.1101/590992v1
+
+.. _yETFL: https://github.com/EPFL-LCSB/yetfl
 
 .. _Documentation: https://etfl.readthedocs.io/en/latest/solver.html
 
