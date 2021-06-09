@@ -1,6 +1,6 @@
 from ..core.expression import _extract_trna_from_reaction, make_stoich_from_aa_sequence
 from ..core.reactions import EnzymaticReaction, TranslationReaction, TranscriptionReaction
-from ..core.genes import ExpressedGene
+from ..core.genes import ExpressedGene, CodingGene
 
 def replace_by_enzymatic_reaction(model, reaction_id, enzymes, scaled):
     rxn = model.reactions.get_by_id(reaction_id)
@@ -51,8 +51,27 @@ def _replace_by_me_reaction(model, rxn, enz_rxn):
 
 def replace_by_me_gene(model, gene_id, sequence):
     gene = model.genes.get_by_id(gene_id)
-    new = ExpressedGene.from_gene(gene=gene,
+    new = CodingGene.from_gene(gene=gene,
                                   sequence=sequence)
+
+    # # That is not a typo, see class cobra.core.Species
+    # if gene.reactions:
+    #     new._reaction = set(x for x in gene.reactions)
+    # else:
+    #     # Find by enumerating:
+    #     new._reaction = set(r for r in model.reactions
+    #                         if gene.id in [x.id for x in r.genes])
+
+    model.genes._replace_on_id(new)
+    new._model = model
+    new.notes = gene.notes
+    return new
+
+def replace_by_coding_gene(model, gene_id):
+    # a unction to convert 
+    gene = model.genes.get_by_id(gene_id)
+    new = ExpressedGene(id=gene_id , name=gene_id , 
+                     sequence=gene.sequence)
 
     # # That is not a typo, see class cobra.core.Species
     # if gene.reactions:

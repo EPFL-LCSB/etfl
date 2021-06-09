@@ -13,7 +13,7 @@ from collections import OrderedDict, defaultdict
 from tqdm import tqdm
 
 from Bio.Seq import Seq
-# from Bio.Alphabet import DNAAlphabet, RNAAlphabet, ProteinAlphabet
+#from Bio.Alphabet import DNAAlphabet, RNAAlphabet, ProteinAlphabet
 
 import cobra.io.dict as cbd
 from cobra.exceptions import SolverNotFound
@@ -26,13 +26,12 @@ from ..core.enzyme import Enzyme, Ribosome, Peptide, RNAPolymerase
 from ..core.memodel import MEModel
 from ..core.rna import mRNA, rRNA, tRNA
 from ..core.dna import DNA
-from ..core.genes import ExpressedGene
+from ..core.genes import ExpressedGene, CodingGene
 from ..core.expression import get_trna_charging_id
 from ..core.reactions import TranslationReaction, TranscriptionReaction, \
     EnzymaticReaction, ProteinComplexation, DegradationReaction, \
     ExpressionReaction, DNAFormation
 from ..core.thermomemodel import ThermoMEModel
-from ..core.allocation import DNA_FORMATION_RXN_ID
 from ..optim.utils import rebuild_constraint, rebuild_variable
 from ..optim.variables import tRNAVariable, GrowthRate, FreeEnzyme
 from ..utils.utils import replace_by_reaction_subclass, replace_by_me_gene
@@ -53,12 +52,38 @@ def expressed_gene_to_dict(gene):
     obj['id'] = gene.id
     obj['sequence'] = str(gene.sequence)
     obj['rna'] = str(gene.rna)
+    obj['copy_number'] = str(gene.copy_number)
+    obj['min_tcpt_act'] = str(gene.min_tcpt_activity)
+    try:
+        obj['transcribed_by'] = [x.id for x in gene.transcribed_by] \
+            if gene.transcribed_by is not None else None
+    except AttributeError:
+        obj['transcribed_by'] = [x for x in gene.transcribed_by] \
+            if gene.transcribed_by is not None else None           
+
+    return obj
+
+def coding_gene_to_dict(gene):
+    obj = OrderedDict()
+    obj['id'] = gene.id
+    obj['sequence'] = str(gene.sequence)
+    obj['rna'] = str(gene.rna)
     obj['peptide'] = str(gene.peptide)
     obj['copy_number'] = str(gene.copy_number)
-    obj['transcribed_by'] = [x.id for x in gene.transcribed_by] \
-        if gene.transcribed_by is not None else None
-    obj['translated_by'] = [x.id for x in gene.translated_by]\
-        if gene.translated_by is not None else None
+    obj['min_tcpt_act'] = str(gene.min_tcpt_activity)
+    obj['min_tnsl_act'] = str(gene.min_tnsl_activity)
+    try:
+        obj['transcribed_by'] = [x.id for x in gene.transcribed_by] \
+            if gene.transcribed_by is not None else None
+    except AttributeError:
+        obj['transcribed_by'] = [x for x in gene.transcribed_by] \
+            if gene.transcribed_by is not None else None
+    try:
+        obj['translated_by'] = [x.id for x in gene.translated_by]\
+            if gene.translated_by is not None else None
+    except AttributeError:
+        obj['translated_by'] = [x for x in gene.translated_by] \
+            if gene.translated_by is not None else None            
 
     return obj
 
@@ -311,6 +336,9 @@ def model_to_dict(model):
         obj['expressed_genes'] = list(map(expressed_gene_to_dict,
                                 [g for g in model.genes
                                  if isinstance(g,ExpressedGene)]))
+        obj['coding_genes'] = list(map(coding_gene_to_dict,
+                                [g for g in model.genes
+                                 if isinstance(g,CodingGene)]))
 
         # Enzymes
         obj['enzymes'] = list(map(enzyme_to_dict, model.enzymes))
@@ -406,14 +434,12 @@ def _add_me_reaction_info(rxn, rxn_dict):
         rxn_dict['gene_id'] = None
         rxn_dict['macromolecule'] = rxn.macromolecule.id
         rxn_dict['macromolecule_kind'] = rxn.macromolecule.__class__.__name__
-    #DNAFormation
-    elif isinstance(rxn, DNAFormation):
-        rxn_dict['kind'] = 'DNAFormation'
-        rxn_dict['enzymes'] = [x.id for x in rxn.enzymes]
     # Enzymatic Reactions
     elif isinstance(rxn, EnzymaticReaction):
         rxn_dict['kind'] = 'EnzymaticReaction'
         rxn_dict['enzymes'] = [x.id for x in rxn.enzymes]
+    elif isinstance(rxn, DNAFormation):
+        rxn_dict['kind'] = 'DNAFormation'
     # Generic Reaction
     else:
         rxn_dict['kind'] = 'Reaction'
@@ -543,7 +569,7 @@ def init_me_model_from_dict(new, obj):
     new.growth_reaction = obj['growth_reaction']
 
     # Populate enzymes
-    # new.coupling_dict = rebuild_coupling_dict(new, obj['coupling_dict'])
+    # new.coupling_dict = rebuild_coupling_dict(, obj['coupling_dict'])
     new.add_enzymes([enzyme_from_dict(x) for x in obj['enzymes']], prep=False)
 
     # Make RNAP
@@ -793,7 +819,6 @@ def find_complexation_reactions_from_dict(new, obj):
                                                    reaction_id=rxn_dict['id'],
                                                    scaled=scaled,
                                                    target=target)
-            target.complexation = new_rxn
             new_rxns.append(new_rxn)
     new.complexation_reactions += new_rxns
 
@@ -830,21 +855,13 @@ def find_degradation_reactions_from_dict(new, obj):
 def find_dna_formation_reaction_from_dict(new, obj):
     new_rxns = list()
     for rxn_dict in obj['reactions']:
-        # TODO: CLEANUP
-        # if rxn_dict['id'] == DNA_FORMATION_RXN_ID:
         if rxn_dict['kind'] == 'DNAFormation':
             dna = new.dna
-            enzymes = [new.enzymes.get_by_id(x) for x in rxn_dict['enzymes']]
-            if 'scaled' in rxn_dict:
-                scaled = rxn_dict['scaled']
-            else:
-                scaled = False
             new_rxn = replace_by_reaction_subclass(new,
                                                    kind = DNAFormation,
                                                    reaction_id=rxn_dict['id'],
-                                                   scaled=scaled,
+                                                   scaled=rxn_dict['scaled'],
                                                    dna=dna,
-                                                   enzymes=enzymes,
                                                    mu_sigma=new._mu_range[-1])
             new_rxns.append(new_rxn)
 
@@ -907,11 +924,9 @@ def find_genes_from_dict(new, obj):
             g = replace_by_me_gene(new, gene_dict['id'], str(sequence))
             if key == 'expressed_genes':
                 # Newer models
-
                 g._rna            = Seq(gene_dict['rna'])#, alphabet=RNAAlphabet())
                 g._peptide        = Seq(gene_dict['peptide'])#, alphabet=ProteinAlphabet())
                 g._copy_number    = int(gene_dict['copy_number'])
-
                 g._transcribed_by = [new.enzymes.get_by_id(e)
                                      for e in gene_dict['transcribed_by']] \
                                      if gene_dict['transcribed_by'] else None

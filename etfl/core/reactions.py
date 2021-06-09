@@ -1,4 +1,4 @@
-    # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
 .. module:: ETFL
    :platform: Unix, Windows
@@ -258,12 +258,12 @@ class DegradationReaction(ExpressionReaction):
         return self.macromolecule.kdeg * self.macromolecule.scaling_factor
         # return 1
 
-class DNAFormation(EnzymaticReaction):
+class DNAFormation(ExpressionReaction):
     """
     Describes the assembly of NTPs into DNA
     """
     def __init__(self, dna, mu_sigma=1, *args, **kwargs):
-        EnzymaticReaction.__init__(self, *args, **kwargs)
+        ExpressionReaction.__init__(self, *args, **kwargs)
         self.dna = dna
         # mu_sigma is a scaling factor ~ mu_max (same homogeneity)
         self.mu_sigma = mu_sigma
