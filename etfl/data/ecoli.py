@@ -930,7 +930,10 @@ def get_mrna_dict(model):
             # kdeg = 1/tau [min^-1] * [min/h]
             this_kdeg_mrna = (60 * np.log(2) / t_half)
         except KeyError:
-            this_kdeg_mrna = kdeg_mrna # Average value of 5 mins
+            if x in rrna_genes:
+                this_kdeg_mrna = kdeg_rib # Same as ribosome
+            else:
+                this_kdeg_mrna = kdeg_mrna # Average value of 5 mins
 
         if np.isnan(this_kdeg_mrna):
             this_kdeg_mrna = kdeg_mrna # Average value of 5 mins
@@ -944,6 +947,7 @@ def get_mrna_dict(model):
 
 # Half life of a ribosome is 5 days
 kdeg_rib = np.log(2)/(5*24)
+rrna_genes = ['b3851', 'b3854', 'b3855']
 
 def get_rib():
     """
@@ -964,7 +968,6 @@ def get_rib():
                                  header=None)[0]
     rpeptide_genes = rpeptide_genes.str.split(':').apply(lambda x:x[1])
 
-    rrna_genes = ['b3851', 'b3854', 'b3855']
 
     rib = Ribosome(id='rib', name='Ribosome', kribo=12 * 3600, kdeg=kdeg_rib,
                    composition = rpeptide_genes, rrna=rrna_genes)
