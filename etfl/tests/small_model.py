@@ -244,21 +244,22 @@ def create_etfl_model(has_thermo, has_neidhardt,
 
     ecoli.build_expression()
     ecoli.add_enzymatic_coupling(coupling_dict)
-
-    if has_neidhardt:
-
-        nt_ratios, aa_ratios = get_ratios()
-        chromosome_len, gc_ratio = get_ecoli_gen_stats()
-        kdeg_mrna, mrna_length_avg  = get_mrna_metrics()
-        kdeg_enz,  peptide_length_avg   = get_enz_metrics()
-        neidhardt_mu, neidhardt_rrel, neidhardt_prel, neidhardt_drel = get_neidhardt_data()
-
-        ecoli.add_dummies(nt_ratios=nt_ratios,
+    
+    nt_ratios, aa_ratios = get_ratios()
+    chromosome_len, gc_ratio = get_ecoli_gen_stats()
+    kdeg_mrna, mrna_length_avg  = get_mrna_metrics()
+    kdeg_enz,  peptide_length_avg   = get_enz_metrics()
+    ecoli.add_dummies(nt_ratios=nt_ratios,
                           mrna_kdeg=kdeg_mrna,
                           mrna_length=mrna_length_avg,
                           aa_ratios=aa_ratios,
                           enzyme_kdeg=kdeg_enz,
                           peptide_length=peptide_length_avg)
+
+    if has_neidhardt:
+        neidhardt_mu, neidhardt_rrel, neidhardt_prel, neidhardt_drel = get_neidhardt_data()
+
+        
         add_protein_mass_requirement(ecoli,neidhardt_mu, neidhardt_prel)
         add_rna_mass_requirement(ecoli,neidhardt_mu, neidhardt_rrel)
         add_dna_mass_requirement(ecoli,mu_values=neidhardt_mu,
@@ -275,6 +276,9 @@ def create_etfl_model(has_thermo, has_neidhardt,
     ecoli.print_info()
 
     need_relax = False
+    
+    ### a problem with the solver, which can be temporarily solved
+    ecoli.constraints.MB_b3855.set_linear_coefficients({ecoli.variables.b3855_degradation:-1e-5})
 
     ecoli.repair()
 

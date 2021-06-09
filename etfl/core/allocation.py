@@ -15,10 +15,13 @@ import numpy as np
 
 from collections import defaultdict
 from Bio.SeqUtils import molecular_weight
+from cobra import Metabolite, Reaction
 
 from tqdm import tqdm
 
-from .genes import ExpressedGene
+from .carbohydrate import Carbohydrate
+from .ion import Ion
+from .lipid import Lipid
 from .dna import DNA
 from .rna  import mRNA
 from .enzyme import Enzyme, Peptide
@@ -28,9 +31,9 @@ from .expression import build_trna_charging, enzymes_to_gpr_no_stoichiometry, \
     make_stoich_from_aa_sequence, make_stoich_from_nt_sequence, \
     degrade_peptide, degrade_mrna, _extract_trna_from_reaction
 from ..optim.constraints import SOS1Constraint, InterpolationConstraint, \
-    mRNADegradation, EnzymeDegradation
+    mRNADegradation, EnzymeDegradation, ConstantAllocation
 from ..optim.variables import BinaryActivator, InterpolationVariable, DNAVariable, \
-    GrowthRate, GenericVariable
+    GrowthRate, GenericVariable, EnzymeVariable, mRNAVariable
 
 from pytfa.optim.utils import chunk_sum, symbol_sum
 
@@ -41,6 +44,94 @@ MRNA_WEIGHT_VAR_ID = 'mrna_ggdw'
 PROT_WEIGHT_VAR_ID = 'prot_ggdw'
 DNA_WEIGHT_VAR_ID  = 'dna_ggdw'
 DNA_FORMATION_RXN_ID = 'DNA_formation'
+LIPID_FORMATION_RXN_ID = 'Lipid_formation'
+LIPID_WEIGHT_VAR_ID  = 'lipid_ggdw'
+LIPID_WEIGHT_CONS_ID = 'lipid_weight_definition'
+ION_FORMATION_RXN_ID = 'ion_formation'
+ION_WEIGHT_VAR_ID  = 'ion_ggdw'
+ION_WEIGHT_CONS_ID = 'ion_weight_definition'
+CARBOHYDRATE_FORMATION_RXN_ID = 'Carbohydrate_formation'
+CARBOHYDRATE_WEIGHT_VAR_ID  = 'carbohydrate_ggdw'
+CARBOHYDRATE_WEIGHT_CONS_ID = 'carbohydrate_weight_definition'
+
+def fix_prot_ratio(model, mass_ratios):
+    '''
+    To keep consistency between FBA and ETFL biomass compositions, we divide biomass
+    into two parts: BS1 and BS2. BS1 includes variable parts of biomass (i.e. RNA
+    and protein), while BS2 includes the other components that are not modeled
+    explicitly.
+    inputs:
+        model: ME-model
+        mass_ratios: a dict of mass_ratios for biomass composition in the GEM
+            It must have ratios for 'RNA' and 'protein'. If 'total mass' is provided,
+            it is used to scale ratios. Otherwise, it's assumed to be 1 gr.
+    outputs:
+        return a model with an additional constraint on sum of RNA and protein share
+    '''
+        
+    BS1_ratio = mass_ratios['protein'] 
+                
+    # mmol.gDw^-1 / [scaling]
+    enzyme_vars = model.enzymes.list_attr('concentration')
+    # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+    enzyme_weights = model.enzymes.list_attr('molecular_weight')
+    expr = symbol_sum([x * y for x, y in zip(enzyme_weights, enzyme_vars)])
+    model.add_constraint(kind = ConstantAllocation, 
+                                 hook = model, 
+                                 expr = expr,
+                                 id_ = 'prot_fix',
+                                 lb = BS1_ratio,
+                                 ub = BS1_ratio)
+    
+def fix_RNA_ratio(model, mass_ratios):
+    '''
+    To keep consistency between FBA and ETFL biomass compositions, we divide biomass
+    into two parts: BS1 and BS2. BS1 includes variable parts of biomass (i.e. RNA
+    and protein), while BS2 includes the other components that are not modeled
+    explicitly.
+    inputs:
+        model: ME-model
+        mass_ratios: a dict of mass_ratios for biomass composition in the GEM
+            It must have ratios for 'RNA' and 'protein'. If 'total mass' is provided,
+            it is used to scale ratios. Otherwise, it's assumed to be 1 gr.
+    outputs:
+        return a model with an additional constraint on sum of RNA and protein share
+    '''
+        
+    BS1_ratio = mass_ratios['RNA'] 
+                
+    rna_vars = model.mrnas.list_attr('concentration')  # mmol.gDw^-1 / [scaling]
+    rna_weights = model.mrnas.list_attr('molecular_weight')  # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+    expr = symbol_sum([x * y for x, y in zip(rna_weights, rna_vars)])
+    
+    model.add_constraint(kind = ConstantAllocation, 
+                                 hook = model, 
+                                 expr = expr,
+                                 id_ = 'RNA_fix',
+                                 lb = BS1_ratio,
+                                 ub = BS1_ratio)
+    
+def fix_DNA_ratio(model, mass_ratios, gc_ratio, chromosome_len, tol = 0.05):
+    '''
+    A function similar  to fix_RNA_ratio. Used only in the case of adding vector
+    and when variable biomass composition is not available. It adds a DNA species
+    to the model that with a constant concentration, but this can be used for
+    RNAP allocation constraints (to be compatible with those constraints).
+    tol: a tolerance ration for the deviation of DNA from its mass ratio
+    '''
+        
+    dna_ratio = mass_ratios['DNA'] 
+    
+    dna = DNA(kdeg=0, dna_len=chromosome_len, gc_ratio=gc_ratio)
+    # Assumption: kdeg for DNA is close to 0
+    model.add_dna(dna)          
+    
+    model.add_constraint(kind = ConstantAllocation, 
+                                 hook = model, 
+                                 expr = dna.variable,
+                                 id_ = 'DNA_fix',
+                                 lb = dna_ratio - tol * dna_ratio,
+                                 ub = dna_ratio + tol * dna_ratio)
 
 def add_dummy_expression(model, aa_ratios, dummy_gene, dummy_peptide, dummy_protein,
                           peptide_length):
@@ -223,7 +314,14 @@ def add_protein_mass_requirement(model, mu_values, p_rel):
     :return:
     """
 
-    p_hat, p_ref = interpolate_growth_data(model, p_rel, mu_values)
+    activation_vars = model.get_variables_of_type(BinaryActivator)
+
+    model_mus = [x[0] for x in model.mu_bins]
+    p_hat = np.interp(x=model_mus,
+                      xp=mu_values,
+                      fp=p_rel)
+
+    p_ref = symbol_sum([x * y for x, y in zip(p_hat, activation_vars)])
 
     # For legibility
     prot_ggdw = model.add_variable(kind=InterpolationVariable, hook=model,
@@ -232,14 +330,13 @@ def add_protein_mass_requirement(model, mu_values, p_rel):
                                   ub=1,  # can't have more prot than cell mass
                                   )
 
-    # epsilon = max(abs(np.diff(p_hat)))
-    epsilon = np.std(p_hat)
+    epsilon = max(abs(np.diff(p_hat)))
 
     define_prot_weight_constraint(model, prot_ggdw)
     apply_prot_weight_constraint(model, p_ref, prot_ggdw, epsilon)
 
-    # model.interpolation_protein = p_hat
-    # model._interpolation_protein_tolerance = epsilon
+    model.interpolation_protein = p_hat
+    model._interpolation_protein_tolerance = epsilon
 
     model.regenerate_variables()
     model.regenerate_constraints()
@@ -293,7 +390,14 @@ def add_rna_mass_requirement(model, mu_values, rna_rel):
     :return:
     """
 
-    m_hat, m_ref = interpolate_growth_data(model, rna_rel, mu_values)
+    activation_vars = model.get_variables_of_type(BinaryActivator)
+
+    model_mus = [x[0] for x in model.mu_bins]
+    m_hat = np.interp(x=model_mus,
+                      xp=mu_values,
+                      fp=rna_rel)
+
+    m_ref = symbol_sum([x * y for x, y in zip(m_hat, activation_vars)])
 
     # For legibility
     mrna_ggdw = model.add_variable(kind=InterpolationVariable,
@@ -303,15 +407,13 @@ def add_rna_mass_requirement(model, mu_values, rna_rel):
                                   ub=1,  # can't have more rna than cell mass
                                   )
 
-    # epsilon = max(abs(np.diff(m_hat)))
-    epsilon = np.std(m_hat)
-
+    epsilon = max(abs(np.diff(m_hat)))
 
     define_mrna_weight_constraint(model, mrna_ggdw)
     apply_mrna_weight_constraint(model, m_ref, mrna_ggdw, epsilon)
 
-    # model.interpolation_mrna = m_hat
-    # model._interpolation_mrna_tolerance = epsilon
+    model.interpolation_mrna = m_hat
+    model._interpolation_mrna_tolerance = epsilon
 
     model.regenerate_variables()
     model.regenerate_constraints()
@@ -367,7 +469,14 @@ def add_dna_mass_requirement(model, mu_values, dna_rel, gc_ratio,
     model.dna_nucleotides = dna_dict
 
     # Get mu interpolation
-    d_hat, d_ref = interpolate_growth_data(model, dna_rel, mu_values)
+    activation_vars = model.get_variables_of_type(BinaryActivator)
+
+    model_mus = [x[0] for x in model.mu_bins]
+    m_hat = np.interp(x=model_mus,
+                      xp=mu_values,
+                      fp=dna_rel)
+
+    m_ref = symbol_sum([x * y for x, y in zip(m_hat, activation_vars)])
 
     # Add DNA variable:
 
@@ -389,6 +498,8 @@ def add_dna_mass_requirement(model, mu_values, dna_rel, gc_ratio,
     model.add_mass_balance_constraint(
         synthesis_flux=dna_formation,
         macromolecule=dna)
+    
+    epsilon = max(abs(np.diff(m_hat)))
 
     # For legibility
     dna_ggdw = model.add_variable(kind=InterpolationVariable,
@@ -399,48 +510,14 @@ def add_dna_mass_requirement(model, mu_values, dna_rel, gc_ratio,
                                  )
 
     define_dna_weight_constraint(model, dna, dna_ggdw, gc_ratio, chromosome_len)
+    apply_dna_weight_constraint(model, m_ref, dna_ggdw, epsilon)
 
-    # DNA_ggdw = DNA_ref
-    mass_coupling_expr = dna_ggdw - d_ref
-
-    # epsilon = max(abs(np.diff(d_hat)))
-    epsilon = np.std(d_hat)
-
-    model.add_constraint(kind=InterpolationConstraint,
-                        hook=model,
-                        id_='DNA_interpolation',
-                        expr=mass_coupling_expr,
-                        lb=-1 * epsilon,
-                        ub=epsilon,
-                        )
-
-    # model.interpolation_dna = d_hat
-    # model._interpolation_dna_tolerance = epsilon
+    model.interpolation_dna = m_hat
+    model._interpolation_dna_tolerance = epsilon
 
     model.regenerate_variables()
     model.regenerate_constraints()
-
-
-def interpolate_growth_data(model, x, mu_values):
-    """
     
-    :param model: 
-    :param x: 
-    :param mu_values: 
-    :return: interpolated_values, interpolated_variable: The set of values taken
-            and an expression of the piecewise interpolation function, function
-            of the interpolation variables.
-    """
-    activation_vars = model.get_variables_of_type(BinaryActivator)
-    model_mus = [x[0] for x in model.mu_bins]
-    interpolated_values = np.interp(x=model_mus,
-                      xp=mu_values,
-                      fp=x)
-    interpolated_variable = symbol_sum([x * y for x, y in
-                                        zip(interpolated_values, activation_vars)])
-    return interpolated_values, interpolated_variable
-
-
 def get_dna_synthesis_mets(model, chromosome_len, gc_ratio, ppi):
     # In this formulation, we make 1 unit of the whole chromosome with NTPs
     g = gc_ratio
@@ -449,7 +526,18 @@ def get_dna_synthesis_mets(model, chromosome_len, gc_ratio, ppi):
     # Don't forget to release ppi (2 ppi per bp)
     mets[ppi] = 2 * chromosome_len
     return mets
+    
+def apply_dna_weight_constraint(model, m_ref, dna_ggdw, epsilon):
+    # DNA_ggdw = DNA_ref
+    mass_coupling_expr = dna_ggdw - m_ref
 
+    model.add_constraint(kind=InterpolationConstraint,
+                        hook=model,
+                        id_='DNA_interpolation',
+                        expr=mass_coupling_expr,
+                        lb=-1 * epsilon,
+                        ub=epsilon,
+                        )
 
 def define_dna_weight_constraint(model, dna, dna_ggdw, gc_content, chromosome_len):
     # DNA mass (BioPython has g.mol^-1, while we are in mmol)
@@ -469,3 +557,289 @@ def define_dna_weight_constraint(model, dna, dna_ggdw, gc_content, chromosome_le
                          lb=0,
                          ub=0,
                          )
+    
+def add_lipid_mass_requirement(model, lipid_mets, mass_ratios, mu_values,
+                               lipid_rel, lipid_rxn = None):
+    '''
+    In general, we have two main situations:
+        1) the lipid paripates in biomass formation as lumped metabolite.
+        2) the lipid components partipate in biomass formation individually.
+    In the first case, we should remove lipid metabolite from the model and replace
+    it with a mcromolecule with a new mass balnce constraint.
+    In the second case, after removing lipid metabolites from biomass rxn,
+    we should define a new reaction to lump lipid metabolites. Then, it becomes
+    similar to the first case.
+
+    Parameters
+    ----------
+    model : MeModel
+        ETFL model with variable biomass composition.
+    lipid_mets : list
+        A list of lipid metabolite id(s)
+    mass_ratios : dict
+        Keys are strings for biomass components and values are their ration in
+        FBA model. The ratios should be consistent with the current stoichiometric
+        coefficients. 
+    mu_values : list or DataFrame
+        Values of growth rates for which experimental data is available 
+    lipid_rel : ist or DataFrame
+        Different ratios of lipid for different growth rates
+    lipid_rxn : string
+        the rxn id for lipid psedoreaction. If None, there is no such reaction.
+
+    Returns
+    -------
+    None.
+
+    '''
+    biomass_rxn = model.growth_reaction
+    if isinstance(lipid_rxn, str): # the lumped lipid metabolite case
+        lipid_id = lipid_mets[0]
+        lipid = model.metabolites.get_by_id(lipid_id)
+        # assumption: stoichiometric coefficient for lipid in biomass rxn is 1
+        # to remove it from the model
+        model.remove_metabolites(lipid)
+        # to create a dict of lipid composition
+        lipid_formation = model.reactions.get_by_id(lipid_rxn)
+        # lipid_formation.id = LIPID_FORMATION_RXN_ID
+        composition_dict = lipid_formation.metabolites
+    else: # the individual lipid metabolites case
+        mets = [model.metabolites.get_by_id(x) for x in lipid_mets]
+        composition_dict = {met:biomass_rxn.get_coefficient(met) for met \
+                      in mets}
+        # to remove them from biomass rxn
+        biomass_rxn.subtract_metabolites(composition_dict)
+        # Define a dummy reation to lump components
+        lipid_formation = Reaction(id = LIPID_FORMATION_RXN_ID,
+                                   name = 'Lipid formation',
+                                  lower_bound = - model.bigM,
+                                  upper_bound = model.bigM)
+        model.add_reactions([lipid_formation])
+        lipid_formation.add_metabolites(composition_dict)
+        
+    lipid = Lipid(kdeg = 0, composition = composition_dict,
+                  mass_ratio = mass_ratios['lipid'])
+    model.add_lipid(lipid)
+    
+    activation_vars = model.get_variables_of_type(BinaryActivator)
+    model_mus = [x[0] for x in model.mu_bins]
+    l_hat = np.interp(x=model_mus,
+                      xp=mu_values,
+                      fp=lipid_rel)
+
+    l_ref = symbol_sum([x * y for x, y in zip(l_hat, activation_vars)])
+    epsilon = max(abs(np.diff(l_hat)))
+    
+    
+    model.add_mass_balance_constraint(synthesis_flux=lipid_formation,
+                                      macromolecule=lipid)
+    
+    apply_lipid_weight_constraint(model, l_ref, lipid, epsilon)
+
+    model.interpolation_lipid = l_hat
+    model._interpolation_lipid_tolerance = epsilon
+
+    model.regenerate_variables()
+    model.regenerate_constraints()
+    
+def apply_lipid_weight_constraint(model, l_ref, lipid, epsilon):
+    # mRNA_ggdw = mRNA_ref
+    tot_lipid = lipid.variable
+    mass_coupling_expr = tot_lipid - l_ref
+    model.add_constraint(kind=InterpolationConstraint,
+                        hook=model,
+                        id_='lipid_interpolation',
+                        expr=mass_coupling_expr,
+                        lb=-1 * epsilon,
+                        ub=epsilon,
+                        )
+    
+def add_carbohydrate_mass_requirement(model, carbohydrate_mets, mass_ratios, mu_values,
+                               carbohydrate_rel, carbohydrate_rxn = None):
+    '''
+    In general, we have two main situations:
+        1) the carbohydrate paripates in biomass formation as lumped metabolite.
+        2) the carbohydrate components partipate in biomass formation individually.
+    In the first case, we should remove carbohydrate metabolite from the model and replace
+    it with a mcromolecule with a new mass balnce constraint.
+    In the second case, after removing carbohydrate metabolites from biomass rxn,
+    we should define a new reaction to lump carbohydrate metabolites. Then, it becomes
+    similar to the first case.
+
+    Parameters
+    ----------
+    model : MeModel
+        ETFL model with variable biomass composition.
+    carbohydrate_mets : list
+        A list of carbohydrate metabolite id(s)
+    mass_ratios : dict
+        Keys are strings for biomass components and values are their ration in
+        FBA model. The ratios should be consistent with the current stoichiometric
+        coefficients. 
+    mu_values : list or DataFrame
+        Values of growth rates for which experimental data is available 
+    carbohydrate_rel : ist or DataFrame
+        Different ratios of carbohydrate for different growth rates
+    carbohydrate_rxn : string
+        the rxn id for carbohydrate psedoreaction. If None, there is no such reaction.
+
+    Returns
+    -------
+    None.
+
+    '''
+    biomass_rxn = model.growth_reaction
+    if isinstance(carbohydrate_rxn, str): # the lumped carbohydrate metabolite case
+        carbohydrate_id = carbohydrate_mets[0]
+        carbohydrate = model.metabolites.get_by_id(carbohydrate_id)
+        # assumption: stoichiometric coefficient for carbohydrate in biomass rxn is 1
+        # to remove it from the model
+        model.remove_metabolites(carbohydrate)
+        # to create a dict of carbohydrate composition
+        carbohydrate_formation = model.reactions.get_by_id(carbohydrate_rxn)
+        # carbohydrate_formation.id = carbohydrate_FORMATION_RXN_ID
+        composition_dict = carbohydrate_formation.metabolites
+    else: # the individual carbohydrate metabolites case
+        mets = [model.metabolites.get_by_id(x) for x in carbohydrate_mets]
+        composition_dict = {met:biomass_rxn.get_coefficient(met) for met \
+                      in mets}
+        # to remove them from biomass rxn
+        biomass_rxn.subtract_metabolites(composition_dict)
+        # Define a dummy reation to lump components
+        carbohydrate_formation = Reaction(id = CARBOHYDRATE_FORMATION_RXN_ID,
+                                   name = 'Carbohydrate formation',
+                                  lower_bound = - model.bigM,
+                                  upper_bound = model.bigM)
+        model.add_reactions([carbohydrate_formation])
+        carbohydrate_formation.add_metabolites(composition_dict)
+        
+    carbohydrate = Carbohydrate(kdeg = 0, composition = composition_dict,
+                  mass_ratio = mass_ratios['carbohydrate'])
+    model.add_carbohydrate(carbohydrate)
+    
+    activation_vars = model.get_variables_of_type(BinaryActivator)
+    model_mus = [x[0] for x in model.mu_bins]
+    c_hat = np.interp(x=model_mus,
+                      xp=mu_values,
+                      fp=carbohydrate_rel)
+
+    c_ref = symbol_sum([x * y for x, y in zip(c_hat, activation_vars)])
+    epsilon = max(abs(np.diff(c_hat)))
+    
+    model.add_mass_balance_constraint(synthesis_flux=carbohydrate_formation,
+                                      macromolecule=carbohydrate)
+    
+    apply_carbohydrate_weight_constraint(model, c_ref, carbohydrate, epsilon)
+
+    model.interpolation_carbohydrate = c_hat
+    model._interpolation_carbohydrate_tolerance = epsilon
+
+    model.regenerate_variables()
+    model.regenerate_constraints()
+    
+def apply_carbohydrate_weight_constraint(model, c_ref, carbohydrate, epsilon):
+    # mRNA_ggdw = mRNA_ref
+    tot_carbohydrate = carbohydrate.variable
+    mass_coupling_expr = tot_carbohydrate - c_ref
+    model.add_constraint(kind=InterpolationConstraint,
+                        hook=model,
+                        id_='carbohydrate_interpolation',
+                        expr=mass_coupling_expr,
+                        lb=-1 * epsilon,
+                        ub=epsilon,
+                        )
+    
+def add_ion_mass_requirement(model, ion_mets, mass_ratios, mu_values,
+                               ion_rel, ion_rxn = None):
+    '''
+    In general, we have two main situations:
+        1) the ion paripates in biomass formation as lumped metabolite.
+        2) the ion components partipate in biomass formation individually.
+    In the first case, we should remove ion metabolite from the model and replace
+    it with a mcromolecule with a new mass balnce constraint.
+    In the second case, after removing ion metabolites from biomass rxn,
+    we should define a new reaction to lump ion metabolites. Then, it becomes
+    similar to the first case.
+
+    Parameters
+    ----------
+    model : MeModel
+        ETFL model with variable biomass composition.
+    ion_mets : list
+        A list of ion metabolite id(s)
+    mass_ratios : dict
+        Keys are strings for biomass components and values are their ration in
+        FBA model. The ratios should be consistent with the current stoichiometric
+        coefficients. 
+    mu_values : list or DataFrame
+        Values of growth rates for which experimental data is available 
+    ion_rel : ist or DataFrame
+        Different ratios of ion for different growth rates
+    ion_rxn : string
+        the rxn id for ion psedoreaction. If None, there is no such reaction.
+
+    Returns
+    -------
+    None.
+
+    '''
+    biomass_rxn = model.growth_reaction
+    if isinstance(ion_rxn, str): # the lumped ion metabolite case
+        ion_id = ion_mets[0]
+        ion = model.metabolites.get_by_id(ion_id)
+        # assumption: stoichiometric coefficient for ion in biomass rxn is 1
+        # to remove it from the model
+        model.remove_metabolites(ion)
+        # to create a dict of ion composition
+        ion_formation = model.reactions.get_by_id(ion_rxn)
+        # ion_formation.id = ION_FORMATION_RXN_ID
+        composition_dict = ion_formation.metabolites
+    else: # the individual ion metabolites case
+        mets = [model.metabolites.get_by_id(x) for x in ion_mets]
+        composition_dict = {met:biomass_rxn.get_coefficient(met) for met \
+                      in mets}
+        # to remove them from biomass rxn
+        biomass_rxn.subtract_metabolites(composition_dict)
+        # Define a dummy reation to lump components
+        ion_formation = Reaction(id = ION_FORMATION_RXN_ID,
+                                   name = 'ion formation',
+                                  lower_bound = - model.bigM,
+                                  upper_bound = model.bigM)
+        model.add_reactions([ion_formation])
+        ion_formation.add_metabolites(composition_dict)
+        
+    ion = Ion(kdeg = 0, composition = composition_dict,
+                  mass_ratio = mass_ratios['ion'])
+    model.add_ion(ion)
+    
+    activation_vars = model.get_variables_of_type(BinaryActivator)
+    model_mus = [x[0] for x in model.mu_bins]
+    i_hat = np.interp(x=model_mus,
+                      xp=mu_values,
+                      fp=ion_rel)
+
+    i_ref = symbol_sum([x * y for x, y in zip(i_hat, activation_vars)])
+    epsilon = max(abs(np.diff(i_hat)))
+    
+    model.add_mass_balance_constraint(synthesis_flux=ion_formation,
+                                      macromolecule=ion)
+    
+    apply_ion_weight_constraint(model, i_ref, ion, epsilon)
+
+    model.interpolation_ion = i_hat
+    model._interpolation_ion_tolerance = epsilon
+
+    model.regenerate_variables()
+    model.regenerate_constraints()
+    
+def apply_ion_weight_constraint(model, i_ref, ion, epsilon):
+    # mRNA_ggdw = mRNA_ref
+    tot_ion = ion.variable
+    mass_coupling_expr = tot_ion - i_ref
+    model.add_constraint(kind=InterpolationConstraint,
+                        hook=model,
+                        id_='ion_interpolation',
+                        expr=mass_coupling_expr,
+                        lb=-1 * epsilon,
+                        ub=epsilon,
+                        )

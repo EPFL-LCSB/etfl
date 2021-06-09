@@ -107,6 +107,14 @@ class BackwardEnzyme(EnzymeVariable):
     prefix = 'BE_'
 
 
+class LinearizationVariable(ModelVariable):
+    """
+    Class to represent the product mu*[E] when performin linearization of the
+    model
+    """
+    prefix = 'LZ_'
+
+
 class DNAVariable(ModelVariable):
     """
     Class to represent DNA in the model
@@ -132,16 +140,10 @@ class RNAPUsage(GeneVariable):
 
 class FreeEnzyme(EnzymeVariable):
     """
-    Class to represent free enzymes (not catalyzing a reaction)
-    """
-    prefix = 'EF_'
-
-class FreeRibosomes(EnzymeVariable):
-    """
-    *Deprecated* Class to represent the ribosomes that are affected to producing the enzyme
+    Class to represent the ribosomes that are affected to producing the enzyme
     for a reaction
     """
-    prefix = 'RF_'
+    prefix = 'EF_'
 
 
 class CatalyticActivator(ReactionVariable,BinaryVariable):
@@ -188,3 +190,21 @@ class mRNARef(mRNAVariable):
     """
 
     prefix = 'MR0_'
+    
+class LipidVariable(ModelVariable):
+    """
+    Class to represent lipid in the model
+    """
+    prefix = 'LIP_'
+    
+class CarbohydrateVariable(ModelVariable):
+    """
+    Class to represent carbohydrate in the model
+    """
+    prefix = 'CAR_'
+    
+class IonVariable(ModelVariable):
+    """
+    Class to represent ion in the model
+    """
+    prefix = 'ION_'

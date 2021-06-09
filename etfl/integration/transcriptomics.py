@@ -78,5 +78,5 @@ def integrate_relative_transcriptomics(model, lower_bounds, upper_bounds, base=2
                              queue=True)
     # Push the model queue
     # And regenerate constraints and variable properties
-    model._push_queue()
+    model.repair()
     return True

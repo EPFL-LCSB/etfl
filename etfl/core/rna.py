@@ -17,7 +17,6 @@ from Bio.SeqUtils import molecular_weight
 from .macromolecule import Macromolecule
 
 from warnings import warn
-from warnings import warn
 
 class RNA(Macromolecule):
     def __init__(self, id=None, kdeg=None, gene_id=None, *args, **kwargs):
@@ -64,16 +63,25 @@ class RNA(Macromolecule):
         self._molecular_weight_override = value
 
 class mRNA(RNA):
-
+    # This class includes also rRNA and sRNA, because their mass balances are similar
     @property
     def peptide(self):
         return self.gene.peptide
 
 
 class rRNA(Metabolite):
-    # def __init__(self, id=None, gene_id=None, *args, **kwargs):
-    #     RNA.__init__(self, id=id, kdeg=0, *args, **kwargs)
-
+    def __init__(self, id=None, ribosomes=[], **kwargs):
+        Metabolite.__init__(self, id=id, **kwargs)
+        self._ribosomes = ribosomes
+        
+    @property
+    def ribosomes(self):
+        return self._ribosomes
+    
+    @ribosomes.setter
+    def ribosomes(self,value):
+        self._ribosomes = value
+    
     @staticmethod
     def from_metabolite(met):
 

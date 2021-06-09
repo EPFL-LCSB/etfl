@@ -6,6 +6,7 @@ from ..optim.constraints import CatalyticConstraint
 from ..optim.variables import CatalyticActivator
 from pytfa.optim.constraints import BackwardDirectionCoupling
 from pytfa.optim.variables import BackwardUseVariable
+from ..optim.constraints import ForwardCatalyticConstraint, BackwardCatalyticConstraint
 
 def localize_exp(exp):
     """
@@ -265,21 +266,37 @@ def relax_catalytic_constraints(model, min_growth):
 
     new_objective = 0
 
-    for the_constr in relaxation.get_constraints_of_type(CatalyticConstraint).copy():
+    for the_constr in relaxation.forward_catalytic_constraint:
         activator = relaxation.add_variable(kind = CatalyticActivator,
                                                hook = the_constr.reaction,
                                                )
+        
         new_expr = the_constr.constraint.expression - (1-activator) * relaxation.big_M
 
         lb = the_constr.constraint.lb
         ub = the_constr.constraint.ub
 
         relaxation.remove_constraint(the_constr)
-        relaxation.add_constraint(kind = CatalyticConstraint,
+        relaxation.add_constraint(kind = ForwardCatalyticConstraint,
                                      hook = the_constr.reaction,
                                      expr = new_expr,
                                      lb = lb,
                                      ub = ub)
+        
+        # we should consider the corresponding backward constraint
+#        bkwd_id=the_constr.reaction.id
+#        the_constr_bkwd = relaxation.backward_catalytic_constraint.get_by_id(bkwd_id)
+#        new_expr_bkwd = the_constr_bkwd.constraint.expression - (1-activator) * relaxation.big_M
+#        
+#        lb_bkwd = the_constr_bkwd.constraint.lb
+#        ub_bkwd = the_constr_bkwd.constraint.ub
+#        
+#        relaxation.remove_constraint(the_constr_bkwd)
+#        relaxation.add_constraint(kind = BackwardCatalyticConstraint,
+#                                     hook = the_constr_bkwd.reaction,
+#                                     expr = new_expr_bkwd,
+#                                     lb = lb_bkwd,
+#                                     ub = ub_bkwd)
 
         new_objective += activator
 
@@ -292,18 +309,92 @@ def relax_catalytic_constraints(model, min_growth):
     relaxation.optimize()
 
     activators = relaxation.get_variables_of_type(CatalyticActivator)
-    activator_states = relaxation.solution.x_dict[activators.list_attr('name')]
+    activator_states=relaxation.solution.raw.loc[activators.list_attr('name')]
 
     for the_var in activators.list_attr("variable"):
-        the_var.lb = int(relaxation.solution.x_dict[the_var.name])
-        the_var.ub = int(relaxation.solution.x_dict[the_var.name])
+        the_var.lb = int(relaxation.solution.raw.loc[the_var.name])
+        the_var.ub = int(relaxation.solution.raw.loc[the_var.name])
 
     relaxed_model = deepcopy(model)
 
     for act in activators:
         if np.isclose(activator_states[act.name],0):
-            the_cons = relaxed_model.catalytic_constraint.get_by_id(act.id)
+            the_cons = relaxed_model.forward_catalytic_constraint.get_by_id(act.id)
             relaxed_model.remove_constraint(the_cons)
 
     return activator_states, relaxed_model, relaxation
 
+def relax_catalytic_constraints_bkwd(model, min_growth):
+    """
+    Find a minimal set of catalytic constraints to relax to meet a minimum
+    growth criterion
+
+    :param model:
+    :type model: :class:`etfl.core.memodel.MEModel`
+    :param min_growth:
+    :return:
+    """
+
+    relaxation = deepcopy(model)
+
+    relaxation.objective = relaxation.growth_reaction
+
+    new_objective = 0
+
+    for the_constr in relaxation.backward_catalytic_constraint:
+        activator = relaxation.add_variable(kind = CatalyticActivator,
+                                               hook = the_constr.reaction,
+                                               )
+        
+        new_expr = the_constr.constraint.expression - (1-activator) * relaxation.big_M
+
+        lb = the_constr.constraint.lb
+        ub = the_constr.constraint.ub
+
+        relaxation.remove_constraint(the_constr)
+        relaxation.add_constraint(kind = BackwardCatalyticConstraint,
+                                     hook = the_constr.reaction,
+                                     expr = new_expr,
+                                     lb = lb,
+                                     ub = ub)
+        
+        # we should consider the corresponding backward constraint
+#        bkwd_id=the_constr.reaction.id
+#        the_constr_bkwd = relaxation.backward_catalytic_constraint.get_by_id(bkwd_id)
+#        new_expr_bkwd = the_constr_bkwd.constraint.expression - (1-activator) * relaxation.big_M
+#        
+#        lb_bkwd = the_constr_bkwd.constraint.lb
+#        ub_bkwd = the_constr_bkwd.constraint.ub
+#        
+#        relaxation.remove_constraint(the_constr_bkwd)
+#        relaxation.add_constraint(kind = BackwardCatalyticConstraint,
+#                                     hook = the_constr_bkwd.reaction,
+#                                     expr = new_expr_bkwd,
+#                                     lb = lb_bkwd,
+#                                     ub = ub_bkwd)
+
+        new_objective += activator
+
+    relaxation.repair()
+
+    relaxation.growth_reaction.lower_bound = min_growth
+
+    relaxation.objective = new_objective
+
+    relaxation.optimize()
+
+    activators = relaxation.get_variables_of_type(CatalyticActivator)
+    activator_states=relaxation.solution.raw.loc[activators.list_attr('name')]
+
+    for the_var in activators.list_attr("variable"):
+        the_var.lb = int(relaxation.solution.raw.loc[the_var.name])
+        the_var.ub = int(relaxation.solution.raw.loc[the_var.name])
+
+    relaxed_model = deepcopy(model)
+
+    for act in activators:
+        if np.isclose(activator_states[act.name],0):
+            the_cons = relaxed_model.backward_catalytic_constraint.get_by_id(act.id)
+            relaxed_model.remove_constraint(the_cons)
+
+    return activator_states, relaxed_model, relaxation
