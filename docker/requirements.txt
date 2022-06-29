@@ -1,6 +1,6 @@
 bokeh>=0.12.1
 biopython
-cobra>=0.13
+cobra<=0.24
 ipdb
 lxml
 openpyxl
