@@ -1,4 +1,4 @@
-from etfl.tests.small_model import create_etfl_model
+from support_test import create_etfl_model
 from etfl.optim.config import standard_solver_config
 from pytfa.optim.debugging import find_maxed_vars
 
