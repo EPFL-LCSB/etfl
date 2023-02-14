@@ -1,5 +1,9 @@
 ETFL
 ====
+
+.. image:: https://api.codacy.com/project/badge/Grade/de036224fa6349a7b1ea2e78745eade4
+   :alt: Codacy Badge
+   :target: https://app.codacy.com/gh/EPFL-LCSB/etfl?utm_source=github.com&utm_medium=referral&utm_content=EPFL-LCSB/etfl&utm_campaign=Badge_Grade_Dashboard
 |Documentation Status| |Build Status| |Codecov| |Codacy branch grade| |license| |doi|
 
 ETFL: A formulation for flux balance models accounting for expression, thermodynamics, and resource allocation constraints
