@@ -8,7 +8,8 @@ Paper_: Salvy, P., Hatzimanikatis, V. The ETFL formulation allows multi-omics in
 
 Preprint_ on BioRxiv
 
-See `ecETFL <https://github.com/EPFL-LCSB/ecetfl/>` for an E. coli model.
+See `ecETFL <https://github.com/EPFL-LCSB/ecetfl/>`_ for an E. coli model.
+
 See also yETFL_ for a yeast model!
 
 This code is an early release. You will need pyTFA_ to run it.
