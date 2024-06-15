@@ -10,7 +10,7 @@ ME-related Reaction subclasses and methods definition
 
 
 """
-
+from warnings import warn
 from cobra import Gene
 from Bio.Seq import Seq
 #from Bio.Alphabet import DNAAlphabet, RNAAlphabet, ProteinAlphabet
@@ -126,8 +126,9 @@ class ExpressedGene(Gene):
                     cstr_exist = False
                 if cstr_exist:
                     # minimal allocation constraint already exists
-                    # TODO: We need to make the model change the corresponding constraints
-                    raise NotImplementedError()
+                    warn('The minimal allocation constraint might not be changed.'
+                         'To change it, use the change_tcpt_basal_activity function.')
+                    self._min_tcpt_activity = value
                 else:
                     self._min_tcpt_activity = value
         else:
@@ -209,8 +210,9 @@ class CodingGene(ExpressedGene):
                     cstr_exist = False
                 if cstr_exist:
                     # minimal coupling constraint already exists
-                    # TODO: We need to make the model change the corresponding constraints
-                    raise NotImplementedError()
+                    warn('The minimal coupling constraint might not be changed.'
+                         'To change it, use the change_tnsl_basal_activity function.')
+                    self._min_tnsl_activity = value
                 else:
                     self._min_tnsl_activity = value
         else:

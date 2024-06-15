@@ -51,11 +51,7 @@ from ..optim.variables import ModelVariable, GrowthActivation, \
 
 from .allocation import add_dummy_expression,add_dummy_mrna,add_dummy_peptide,\
     add_dummy_protein, add_interpolation_variables,\
-        MRNA_WEIGHT_CONS_ID, PROT_WEIGHT_CONS_ID, \
-    MRNA_WEIGHT_VAR_ID, PROT_WEIGHT_VAR_ID, \
-    DNA_WEIGHT_CONS_ID, DNA_WEIGHT_VAR_ID, DNA_FORMATION_RXN_ID, \
-    define_prot_weight_constraint, define_mrna_weight_constraint, \
-    define_dna_weight_constraint, get_dna_synthesis_mets
+         get_dna_synthesis_mets
 
 from pytfa.core.model import LCSBModel
 from pytfa.optim.reformulation import petersen_linearization
@@ -63,6 +59,20 @@ from pytfa.optim.utils import chunk_sum, symbol_sum
 from pytfa.utils.logger import get_bistream_logger
 from pytfa.utils.str import camel2underscores
 from pytfa.optim.utils import copy_solver_configuration
+
+
+'''"The footprint of RNAP II [...] covers approximately 40 nt and is
+        nearly symmetrical [...]."
+        BNID    107873
+        Range 	~40 Nucleotides'''
+RNAP_FOOTPRINT_SIZE = 40  # [bp] see docstring of ```_constrain_polymerases'''
+'''Their distance from one another along the mRNA is at least the size
+        of the physical footprint of a ribosome (≈20 nm, BNID 102320, 100121)
+        which is the length of about 60 base pairs (length of
+        nucleotide ≈0.3 nm, BNID 103777), equivalent to ≈20 aa. also 28715909
+        "http://book.bionumbers.org/how-many-proteins-are-made-per-mrna-molecule/"
+'''
+RIBO_FOOTPRINT_SIZE = 60  # [bp] see docstring
 
 def id_maker_rib_rnap(the_set):
         # for a set of ribosomes or RNAPs makes an id
@@ -100,8 +110,8 @@ class MEModel(LCSBModel, Model):
 
         self.logger = get_bistream_logger('ME model' + str(self.name))
         self.parent = model
-        if model is not None:
-            self.sanitize_varnames()
+        # if model is not None:
+        #     self.sanitize_varnames()
 
         self.init_etfl(big_M, growth_reaction, mu_range,
                        n_mu_bins, name)
@@ -147,6 +157,7 @@ class MEModel(LCSBModel, Model):
         self.rnap = OrderedDict()
 
         self.coupling_dict = dict()
+        self._biomass_composition = dict()
 
     @property
     def mu(self):
@@ -202,14 +213,14 @@ class MEModel(LCSBModel, Model):
 
         # Force that only one growth range can be chosen:
         # b0*2^0 + b1*2^1 + b2*2^2 + ... + bn*2^n <= n_bins
-
-        choice_expr = sum(ga)
-        self.add_constraint(kind=GrowthChoice,
-                            hook=self,
-                            expr=choice_expr,
-                            id_='growth',
-                            ub=self.n_mu_bins,
-                            lb=0)
+        # this constraint always holds, so I removed it
+        # choice_expr = sum(ga)
+        # self.add_constraint(kind=GrowthChoice,
+        #                     hook=self,
+        #                     expr=choice_expr,
+        #                     id_='growth',
+        #                     ub=self.n_mu_bins,
+        #                     lb=0)
 
         # Couple growth
         v_fwd = self.growth_reaction.forward_variable
@@ -267,6 +278,14 @@ class MEModel(LCSBModel, Model):
         """
         rxn = self.reactions.get_by_id(reaction_id)
         self._growth_reaction_id = rxn.id
+        
+    @property
+    def biomass_composition(self):
+        return self._biomass_composition
+    
+    @biomass_composition.setter
+    def biomass_composition(self, composition_dict):
+        self._biomass_composition = composition_dict
 
     def add_nucleotide_sequences(self, sequences):
         """
@@ -379,7 +398,8 @@ class MEModel(LCSBModel, Model):
 
         self.add_genes([dummy_gene])
 
-        dummy_mrna = add_dummy_mrna(self, dummy_gene, mrna_kdeg, mrna_length, nt_ratios)
+        dummy_mrna = add_dummy_mrna(self, dummy_gene, mrna_kdeg, mrna_length, nt_ratios,
+                                    name='mRNA')
 
         dummy_peptide = add_dummy_peptide(self, aa_ratios, dummy_gene, peptide_length)
 
@@ -387,6 +407,35 @@ class MEModel(LCSBModel, Model):
 
         add_dummy_expression(self, aa_ratios, dummy_gene, dummy_peptide, dummy_protein,
                                    peptide_length)
+        
+    def add_dummy_trna(self, nt_ratios, trna_kdeg, trna_length, transcribed_by=None):
+        """
+
+        Create dummy trna to enforce tRNA production,
+        since the mass balances are not enough to enforce the production and cost of tRNAs 
+
+        
+        :return:
+        """
+
+        # add_interpolation_variables(self) already added for dummies
+
+        # Create a dummy gene and override the sequences with input data
+        dummy_sequence = 'N'*trna_length
+        dummy_gene = ExpressedGene(id='tRNA_gene',
+                                   name='tRNA Gene',
+                                   sequence=dummy_sequence)
+        dummy_gene._rna = dummy_sequence
+        dummy_gene.transcribed_by = transcribed_by
+        # set an artificial high copy number
+        dummy_gene.copy_number = 1000
+
+        self.add_genes([dummy_gene])
+
+        dummy_trna = add_dummy_mrna(self, dummy_gene, trna_kdeg, trna_length, nt_ratios,
+                                    name = 'tRNA')
+
+        
 
     def add_essentials(self, essentials, aa_dict, rna_nucleotides,
                        rna_nucleotides_mp):
@@ -713,9 +762,23 @@ class MEModel(LCSBModel, Model):
                 self.logger.error('Could not find reaction {} in the coupling dictionary'.format(r.id))
 
         # update variable and constraints attributes
+        self.update_enzyme_reaction_rel()
         self._push_queue()
         self.regenerate_constraints()
         self.regenerate_variables()
+        
+    def update_enzyme_reaction_rel(self):
+        for enz in self.enzymes:
+           for rxn in self.reactions:
+               try:
+                   try:
+                       if enz.id in [e.id for e in rxn.enzymes]:
+                           enz._reaction.add(rxn)
+                   except TypeError:
+                       pass
+               except AttributeError: 
+                   pass
+        
 
     def apply_enzyme_catalytic_constraint(self, reaction):
         """
@@ -759,6 +822,76 @@ class MEModel(LCSBModel, Model):
                             expr=enz_constraint_expr_fwd, ub=0, queue=True)
         self.add_constraint(kind=BackwardCatalyticConstraint, hook=reaction,
                             expr=enz_constraint_expr_bwd, ub=0, queue=True)
+        
+    def change_kcats(self, kcats=dict(), kcat_fwds=dict(), kcat_bwds=dict()):
+        
+        
+        # iterate over all the enzymes to be affected, change their kcats, and take the union of all changed enzymes
+        changed_enz = []
+        for enz_id, val in kcats.items():
+            if enz_id not in changed_enz:
+                changed_enz += [enz_id]
+            enz = self.enzymes.get_by_id(enz_id)
+            enz.kcat_fwd = val
+            enz.kcat_bwd = val
+        for enz_id, val in kcat_fwds.items():
+            if enz_id not in changed_enz:
+                changed_enz += [enz_id]
+            enz = self.enzymes.get_by_id(enz_id)
+            enz.kcat_fwd = val
+        for enz_id, val in kcat_bwds.items():
+            if enz_id not in changed_enz:
+                changed_enz += [enz_id]
+            enz = self.enzymes.get_by_id(enz_id)
+            enz.kcat_bwd = val
+            
+        # from the enzymes we need to go to reactions
+        changed_rxns = []
+        for rxn in self.reactions:
+            try:
+                for enz in rxn.enzymes:
+                    if enz.id in changed_enz:
+                        changed_rxns += [rxn]
+            except  Exception: # some reactions do not have enzyme list associated
+                pass
+            
+        # redefine the catalytic constraint for the reactions that are impacted
+        fwd_cat_cstrs = self.get_constraints_of_type(ForwardCatalyticConstraint)
+        bwd_cat_cstrs = self.get_constraints_of_type(BackwardCatalyticConstraint)
+        for reaction in changed_rxns:
+            v_max_fwd = dict()
+            v_max_bwd = dict()
+    
+            # Write v_max constraint
+            fwd_variable = reaction.forward_variable
+            bwd_variable = reaction.reverse_variable
+    
+            for e, enz in enumerate(reaction.enzymes): # all reactions in changed_rxns have enzymes
+                # If the enzymes has the same kcat for both directions
+                # v_fwd  <= kcat_fwd [E]
+                # v_fwd - kcat_fwd [E] <= 0
+    
+                v_max_fwd[e] = enz.kcat_fwd * enz.concentration
+                v_max_bwd[e] = enz.kcat_bwd * enz.concentration
+    
+            # Formulating the scaling factor on the max kcat
+            k_f = max([x.kcat_fwd for x in reaction.enzymes])
+            k_b = max([x.kcat_bwd for x in reaction.enzymes])
+            E_m = max([x.scaling_factor for x in reaction.enzymes])
+    
+            # v_fwd <= sum(kcat_i*E_i)
+            # for all i, E_i <= E_max (= 1g/gDW)
+            # v_fwd / sum(kcat_i*E_i^max) <= sum(kcat_i*E_i) / sum(kcat_i*E_i^max) (<= 1)
+    
+            enz_constraint_expr_fwd = (fwd_variable - sum(v_max_fwd.values()))/(k_f*E_m)
+            enz_constraint_expr_bwd = (bwd_variable - sum(v_max_bwd.values()))/(k_b*E_m)
+
+            fwd_cstr = fwd_cat_cstrs.get_by_id(reaction.id)
+            bwd_cstr = bwd_cat_cstrs.get_by_id(reaction.id)
+            
+            fwd_cstr.change_expr(enz_constraint_expr_fwd)
+            bwd_cstr.change_expr(enz_constraint_expr_bwd)
+            
 
     def add_mass_balance_constraint(self, synthesis_flux, macromolecule=None,
                                     queue=False):
@@ -1332,11 +1465,6 @@ class MEModel(LCSBModel, Model):
         [RPi] <= loadmax_i*[mRNAi]
 
         loadmax is : len(peptide_chain)/size(ribo)
-        Their distance from one another along the mRNA is at least the size
-        of the physical footprint of a ribosome (≈20 nm, BNID 102320, 100121)
-        which is the length of about 60 base pairs (length of
-        nucleotide ≈0.3 nm, BNID 103777), equivalent to ≈20 aa. also 28715909
-        "http://book.bionumbers.org/how-many-proteins-are-made-per-mrna-molecule/"
 
         Hence:
         [RPi] <= L_nt/Ribo_footprint * [mRNA]
@@ -1352,7 +1480,6 @@ class MEModel(LCSBModel, Model):
         if not isinstance(the_mrna.gene, CodingGene):
             return
         
-        ribo_footprint_size = 60  # [bp] see docstring
         rib_usage_vars = self.get_variables_of_type(RibosomeUsage)
 
         # Get the ribosomes assigned to this translation
@@ -1361,7 +1488,7 @@ class MEModel(LCSBModel, Model):
         # Get the mRNA concentration
         mrna_hat = the_mrna.scaled_concentration
 
-        polysome_size = len(the_mrna.gene.rna) / ribo_footprint_size
+        polysome_size = len(the_mrna.gene.rna) / RIBO_FOOTPRINT_SIZE
 
         # σ_m is the mRNA scaling factor,
         # σ_r is the ribosome scaling factor
@@ -1402,10 +1529,6 @@ class MEModel(LCSBModel, Model):
 
         loadmax is : len(nucleotide chain)/size(RNAP)
 
-        "The footprint of RNAP II [...] covers approximately 40 nt and is
-        nearly symmetrical [...]."
-        BNID    107873
-        Range 	~40 Nucleotides
 
         Hence:
         [RNAPi] <= loadmax_i*[# of loci]*[DNA]
@@ -1422,8 +1545,8 @@ class MEModel(LCSBModel, Model):
         if not isinstance(the_gene, ExpressedGene):
             return
         
-        rnap_footprint_size = 40  # [bp] see docstring of ```_constrain_polymerases'''
-        loadmax = len(the_gene.sequence) / rnap_footprint_size
+        
+        loadmax = len(the_gene.sequence) / RNAP_FOOTPRINT_SIZE
 
         rnap_usage_vars = self.get_variables_of_type(RNAPUsage)
 
@@ -1493,72 +1616,6 @@ class MEModel(LCSBModel, Model):
             # have not been made yet.
             # self.model._add_rnap_allocation(rnap_usage, self)
             pass
-
-    def recompute_translation(self):
-        """
-
-        :return:
-        """
-
-        for rib_id in self.ribosome:
-            #1.1 Find the RNAP capacity constraint
-            cons = self.get_constraints_of_type(TotalCapacity).get_by_id(rib_id)
-
-            #1.2 Edit the Ribosome capacity constraint
-            new_total_capacity = self._get_rib_total_capacity()
-            cons.change_expr(new_total_capacity)
-
-    def recompute_transcription(self):
-        """
-
-        :return:
-        """
-
-        # TODO: No need to recompute for the one we just added.
-        # Keep tabs ? use an except list
-        for rnap_id in self.rnap:
-            # 1.1 Find the RNAP capacity constraint
-            cons = self.get_constraints_of_type(TotalCapacity).get_by_id(rnap_id)
-
-            # 1.2 Edit the RNAP capacity constraint
-            new_total_capacity = self._get_rnap_total_capacity()
-            cons.change_expr(new_total_capacity)
-
-    def recompute_allocation(self):
-        """
-
-        :return:
-        """
-
-        #0. Does the model have allocation constraints ?
-        interpolation_constraints = self.get_constraints_of_type(InterpolationConstraint)
-        interpolation_variables = self.get_variables_of_type(InterpolationVariable)
-        if not interpolation_constraints:
-            return None
-
-
-        #1. Remove previous allocation constraints
-
-        # mRNA
-        mrna_weight_def_cons = interpolation_constraints.get_by_id(MRNA_WEIGHT_CONS_ID)
-        mrna_weight_var = interpolation_variables.get_by_id(MRNA_WEIGHT_VAR_ID)
-
-        # Proteins
-        prot_weight_def_cons = interpolation_constraints.get_by_id(PROT_WEIGHT_CONS_ID)
-        prot_weight_var = interpolation_variables.get_by_id(PROT_WEIGHT_VAR_ID)
-
-        #DNA
-        dna_weight_def_cons  = interpolation_constraints.get_by_id(DNA_WEIGHT_CONS_ID)
-        dna_weight_var = interpolation_variables.get_by_id(DNA_WEIGHT_VAR_ID)
-
-        for the_cons in [mrna_weight_def_cons, prot_weight_def_cons, dna_weight_def_cons]:
-            self.remove_constraint(the_cons)
-
-        #2. Apply new allocation constraints
-        define_prot_weight_constraint(self,prot_weight_var)
-        define_mrna_weight_constraint(self,mrna_weight_var)
-
-        self.recalculate_dna(dna_weight_var)
     
     def _get_transcription_name(self, the_mrna_id):
         """

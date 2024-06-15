@@ -125,5 +125,4 @@ class tRNA(Macromolecule):
 
     @property
     def molecular_weight(self):
-        warn('Implement tRNA MW')
-        return 25
+        return 25 # an average weight based on https://bionumbers.hms.harvard.edu/files/Nucleic%20Acids_Sizes_and_Molecular_Weights_2pgs.pdf

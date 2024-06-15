@@ -37,6 +37,11 @@ from ..optim.variables import BinaryActivator, InterpolationVariable, DNAVariabl
 
 from pytfa.optim.utils import chunk_sum, symbol_sum
 
+PROT_CONSTANT_CONS_ID = 'prot_fix'
+RNA_CONSTANT_CONS_ID = 'RNA_fix'
+DNA_CONSTANT_CONS_ID = 'DNA_fix'
+ENZYME_CONSTANT_CONS_ID = 'enzyme_fix'
+TRNA_CONSTANT_CONS_ID = 'trna_fix'
 MRNA_WEIGHT_CONS_ID = 'mRNA_weight_definition'
 PROT_WEIGHT_CONS_ID = 'prot_weight_definition'
 DNA_WEIGHT_CONS_ID  = 'DNA_weight_definition'
@@ -53,8 +58,10 @@ ION_WEIGHT_CONS_ID = 'ion_weight_definition'
 CARBOHYDRATE_FORMATION_RXN_ID = 'Carbohydrate_formation'
 CARBOHYDRATE_WEIGHT_VAR_ID  = 'carbohydrate_ggdw'
 CARBOHYDRATE_WEIGHT_CONS_ID = 'carbohydrate_weight_definition'
+VECTOR_CONSTANT_CONS_ID = 'vector_fix'
+VECTOR_FORMATION_RXN_ID = 'vector_formation'
 
-def fix_prot_ratio(model, mass_ratios):
+def fix_prot_ratio(model, prot_ratio):
     '''
     To keep consistency between FBA and ETFL biomass compositions, we divide biomass
     into two parts: BS1 and BS2. BS1 includes variable parts of biomass (i.e. RNA
@@ -69,21 +76,26 @@ def fix_prot_ratio(model, mass_ratios):
         return a model with an additional constraint on sum of RNA and protein share
     '''
         
-    BS1_ratio = mass_ratios['protein'] 
                 
     # mmol.gDw^-1 / [scaling]
     enzyme_vars = model.enzymes.list_attr('concentration')
     # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
     enzyme_weights = model.enzymes.list_attr('molecular_weight')
-    expr = symbol_sum([x * y for x, y in zip(enzyme_weights, enzyme_vars)])
+    
+    # In ribsosome molecular weight the rRNAs are included but they are not protein, so should be removed
+    ribosomal_rrna = find_rrna_weight_in_rib(model)
+    
+    expr = symbol_sum([x * y for x, y in zip(enzyme_weights, enzyme_vars)]) - ribosomal_rrna
+    
+    
     model.add_constraint(kind = ConstantAllocation, 
                                  hook = model, 
                                  expr = expr,
-                                 id_ = 'prot_fix',
-                                 lb = BS1_ratio,
-                                 ub = BS1_ratio)
+                                 id_ = PROT_CONSTANT_CONS_ID,
+                                 lb = prot_ratio,
+                                 ub = prot_ratio)
     
-def fix_RNA_ratio(model, mass_ratios):
+def fix_RNA_ratio(model, rna_ratio):
     '''
     To keep consistency between FBA and ETFL biomass compositions, we divide biomass
     into two parts: BS1 and BS2. BS1 includes variable parts of biomass (i.e. RNA
@@ -98,20 +110,24 @@ def fix_RNA_ratio(model, mass_ratios):
         return a model with an additional constraint on sum of RNA and protein share
     '''
         
-    BS1_ratio = mass_ratios['RNA'] 
                 
     rna_vars = model.mrnas.list_attr('concentration')  # mmol.gDw^-1 / [scaling]
     rna_weights = model.mrnas.list_attr('molecular_weight')  # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
     expr = symbol_sum([x * y for x, y in zip(rna_weights, rna_vars)])
     
+    # part of rRNA is used to produce ribosomes; this should be considered
+    ribosomal_rrna = find_rrna_weight_in_rib(model)
+        
+    expr = expr + ribosomal_rrna
+    
     model.add_constraint(kind = ConstantAllocation, 
                                  hook = model, 
                                  expr = expr,
-                                 id_ = 'RNA_fix',
-                                 lb = BS1_ratio,
-                                 ub = BS1_ratio)
+                                 id_ = RNA_CONSTANT_CONS_ID,
+                                 lb = rna_ratio,
+                                 ub = rna_ratio)
     
-def fix_DNA_ratio(model, mass_ratios, gc_ratio, chromosome_len, tol = 0.05):
+def fix_DNA_ratio(model, dna_ratio, gc_ratio, chromosome_len, tol = 0.05):
     '''
     A function similar  to fix_RNA_ratio. Used only in the case of adding vector
     and when variable biomass composition is not available. It adds a DNA species
@@ -120,7 +136,6 @@ def fix_DNA_ratio(model, mass_ratios, gc_ratio, chromosome_len, tol = 0.05):
     tol: a tolerance ration for the deviation of DNA from its mass ratio
     '''
         
-    dna_ratio = mass_ratios['DNA'] 
     
     dna = DNA(kdeg=0, dna_len=chromosome_len, gc_ratio=gc_ratio)
     # Assumption: kdeg for DNA is close to 0
@@ -129,9 +144,63 @@ def fix_DNA_ratio(model, mass_ratios, gc_ratio, chromosome_len, tol = 0.05):
     model.add_constraint(kind = ConstantAllocation, 
                                  hook = model, 
                                  expr = dna.variable,
-                                 id_ = 'DNA_fix',
+                                 id_ = DNA_CONSTANT_CONS_ID,
                                  lb = dna_ratio - tol * dna_ratio,
                                  ub = dna_ratio + tol * dna_ratio)
+
+def constrain_enzymes(model, enz_ratio, prot_ratio=None):
+    # a function to add a constraint on total amount of enzymes based on their
+    # fraction from total amount of proteins (should be before adding dummy)
+                
+    enz_vars = model.get_variables_of_type(EnzymeVariable)
+    
+    # we should first exclude dummy, ribosomes and rnaps
+    exclusion = ['dummy_enzyme', #'rib', 'rib_mit', 'rnap', 'rnap_mit'
+                 ]
+    exclusion = ['EZ_{}'.format(x) for x in exclusion]
+    enz_vars = [x for x in enz_vars if x.name not in exclusion]
+    
+    # In ribsosome molecular weight the rRNAs are included but they are not protein, so should be removed
+    ribosomal_rrna = find_rrna_weight_in_rib(model)
+    
+    expr = symbol_sum([x for x in enz_vars]) - ribosomal_rrna
+    try:
+        # model with variable biomass
+        model.add_constraint(kind = ConstantAllocation, 
+                                 hook = model, 
+                                 expr = expr - enz_ratio * model.variables.IV_prot_ggdw,
+                                 id_ = ENZYME_CONSTANT_CONS_ID,
+                                 ub = 0)
+    except AttributeError:
+        model.add_constraint(kind = ConstantAllocation, 
+                                 hook = model, 
+                                 expr = expr,
+                                 id_ = ENZYME_CONSTANT_CONS_ID,
+                                 lb = 0, # cannot be negative
+                                 ub = enz_ratio * prot_ratio)
+        
+def constrain_trna(model, trna_ratio, rna_ratio=None):
+    # Since solely based on mass balances we do not have a non-zero concentraio
+    # for tRNA, an empirical allocation constraints should be added
+                
+    trna_var = model.get_variables_of_type(mRNAVariable).get_by_id('tRNA_gene')
+    
+    
+    try:
+        # model with variable biomass
+        model.add_constraint(kind = ConstantAllocation, 
+                                 hook = model, 
+                                 expr = trna_var - trna_ratio * model.variables.IV_mrna_ggdw,
+                                 id_ = TRNA_CONSTANT_CONS_ID,
+                                 lb = 0,
+                                 ub = 0)
+    except AttributeError:
+        model.add_constraint(kind = ConstantAllocation, 
+                                 hook = model, 
+                                 expr = trna_var,
+                                 id_ = TRNA_CONSTANT_CONS_ID,
+                                 lb = trna_ratio * rna_ratio,
+                                 ub = trna_ratio * rna_ratio)
 
 def add_dummy_expression(model, aa_ratios, dummy_gene, dummy_peptide, dummy_protein,
                           peptide_length):
@@ -209,14 +278,14 @@ def add_dummy_peptide(model, aa_ratios, dummy_gene, peptide_length):
     return dummy_peptide
 
 
-def add_dummy_mrna(model, dummy_gene, mrna_kdeg, mrna_length, nt_ratios):
+def add_dummy_mrna(model, dummy_gene, mrna_kdeg, mrna_length, nt_ratios, name=''):
     h2o = model.essentials['h2o']
     h = model.essentials['h']
     ppi = model.essentials['ppi']
 
     # Create a dummy mRNA
-    dummy_mrna = mRNA(id='dummy_gene',
-                      name='dummy mRNA',
+    dummy_mrna = mRNA(id=dummy_gene.id,
+                      name='dummy {}'.format(name),
                       kdeg=mrna_kdeg,
                       gene_id=dummy_gene.id)
     nt_weights = [v * molecular_weight(k, 'RNA') for k, v in nt_ratios.items()]
@@ -224,7 +293,7 @@ def add_dummy_mrna(model, dummy_gene, mrna_kdeg, mrna_length, nt_ratios):
         nt_weights) / 1000  # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
     model.add_mrnas([dummy_mrna], add_degradation=False)
     dummy_transcription = TranscriptionReaction(id=model._get_transcription_name(dummy_mrna.id),
-                                                name='Dummy Transcription',
+                                                name='Dummy {} Transcription'.format(name),
                                                 gene_id=dummy_gene.id,
                                                 enzymes=model.rnap.values(),
                                                 scaled=True)
@@ -359,7 +428,11 @@ def define_prot_weight_constraint(model, prot_ggdw):
     enzyme_vars = model.enzymes.list_attr('concentration')
     # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
     enzyme_weights = model.enzymes.list_attr('molecular_weight')
-    tot_prot = symbol_sum([x * y for x, y in zip(enzyme_weights, enzyme_vars)])
+    
+     # In ribsosome molecular weight the rRNAs are included but they are not protein, so should be removed
+    ribosomal_rrna = find_rrna_weight_in_rib(model)
+        
+    tot_prot = symbol_sum([x * y for x, y in zip(enzyme_weights, enzyme_vars)]) - ribosomal_rrna
     # MW_1*[E1] + MW_2*[E2] + ... + MW_n*[En] = prot_ggdw
     mass_variable_def = tot_prot - prot_ggdw
     model.add_constraint(kind=InterpolationConstraint,
@@ -434,7 +507,10 @@ def apply_mrna_weight_constraint(model, m_ref, mrna_ggdw, epsilon):
 def define_mrna_weight_constraint(model,mrna_ggdw):
     rna_vars = model.mrnas.list_attr('concentration')  # mmol.gDw^-1 / [scaling]
     rna_weights = model.mrnas.list_attr('molecular_weight')  # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
-    tot_rna = symbol_sum([x * y for x, y in zip(rna_weights, rna_vars)])
+    # part of rRNA is used to produce ribosomes; this should be considered
+    ribosomal_rrna = find_rrna_weight_in_rib(model)
+        
+    tot_rna = symbol_sum([x * y for x, y in zip(rna_weights, rna_vars)]) + ribosomal_rrna
     # MW_1*[rna1] + MW_2*[rna2] + ... + MW_n*[rna_n] = mRNA_ggdw
     mass_variable_def = tot_rna - mrna_ggdw
     model.add_constraint(kind=InterpolationConstraint,
@@ -558,7 +634,7 @@ def define_dna_weight_constraint(model, dna, dna_ggdw, gc_content, chromosome_le
                          ub=0,
                          )
     
-def add_lipid_mass_requirement(model, lipid_mets, mass_ratios, mu_values,
+def add_lipid_mass_requirement(model, lipid_mets, mass_ratio, mu_values,
                                lipid_rel, lipid_rxn = None):
     '''
     In general, we have two main situations:
@@ -618,7 +694,7 @@ def add_lipid_mass_requirement(model, lipid_mets, mass_ratios, mu_values,
         lipid_formation.add_metabolites(composition_dict)
         
     lipid = Lipid(kdeg = 0, composition = composition_dict,
-                  mass_ratio = mass_ratios['lipid'])
+                  mass_ratio = mass_ratio)
     model.add_lipid(lipid)
     
     activation_vars = model.get_variables_of_type(BinaryActivator)
@@ -654,7 +730,7 @@ def apply_lipid_weight_constraint(model, l_ref, lipid, epsilon):
                         ub=epsilon,
                         )
     
-def add_carbohydrate_mass_requirement(model, carbohydrate_mets, mass_ratios, mu_values,
+def add_carbohydrate_mass_requirement(model, carbohydrate_mets, mass_ratio, mu_values,
                                carbohydrate_rel, carbohydrate_rxn = None):
     '''
     In general, we have two main situations:
@@ -714,7 +790,7 @@ def add_carbohydrate_mass_requirement(model, carbohydrate_mets, mass_ratios, mu_
         carbohydrate_formation.add_metabolites(composition_dict)
         
     carbohydrate = Carbohydrate(kdeg = 0, composition = composition_dict,
-                  mass_ratio = mass_ratios['carbohydrate'])
+                  mass_ratio = mass_ratio)
     model.add_carbohydrate(carbohydrate)
     
     activation_vars = model.get_variables_of_type(BinaryActivator)
@@ -749,7 +825,7 @@ def apply_carbohydrate_weight_constraint(model, c_ref, carbohydrate, epsilon):
                         ub=epsilon,
                         )
     
-def add_ion_mass_requirement(model, ion_mets, mass_ratios, mu_values,
+def add_ion_mass_requirement(model, ion_mets, mass_ratio, mu_values,
                                ion_rel, ion_rxn = None):
     '''
     In general, we have two main situations:
@@ -809,7 +885,7 @@ def add_ion_mass_requirement(model, ion_mets, mass_ratios, mu_values,
         ion_formation.add_metabolites(composition_dict)
         
     ion = Ion(kdeg = 0, composition = composition_dict,
-                  mass_ratio = mass_ratios['ion'])
+                  mass_ratio = mass_ratio)
     model.add_ion(ion)
     
     activation_vars = model.get_variables_of_type(BinaryActivator)
@@ -843,3 +919,51 @@ def apply_ion_weight_constraint(model, i_ref, ion, epsilon):
                         lb=-1 * epsilon,
                         ub=epsilon,
                         )
+    
+def find_rrna_weight_in_rib(model):
+    ribosomal_rrna = []
+    for rrna in model.rrnas:
+        id_ = rrna.id.replace('rrna_','')
+        mw_rrna = model.mrnas.get_by_id(id_).molecular_weight
+        rrna_w = mw_rrna * symbol_sum([rib.scaling_factor * rib.variable for rib in rrna.ribosomes])
+        ribosomal_rrna.append(rrna_w)
+    
+    return symbol_sum(ribosomal_rrna)
+    
+def fix_vector_ratio(model, vector, dna_ratio, ppi='ppi_c'):
+    '''
+    A function similar  to fix_DNA_ratio. It adds a DNA species for the vector
+    to the model that with a constant concentration, but this can be used for
+    RNAP allocation constraints (to be compatible with those constraints).
+    '''
+        
+    gc_ratio = vector.gc_ratio
+    vector_len = vector.len
+    vector_dna = DNA(kdeg=0, dna_len=vector_len, gc_ratio=gc_ratio, id="vector")
+    # Assumption: kdeg for DNA is close to 0
+    vector.add_dna(vector_dna)          
+    
+    model.add_constraint(kind = ConstantAllocation, 
+                                 hook = model, 
+                                 expr = vector_dna.variable,
+                                 id_ = VECTOR_CONSTANT_CONS_ID,
+                                 lb = dna_ratio,
+                                 ub = dna_ratio)
+    
+    # Create dummy DNA reaction
+    vector_formation = DNAFormation(id=VECTOR_FORMATION_RXN_ID, name='Vector Formation',
+                                 dna=vector_dna, mu_sigma= model._mu_range[-1],
+                                 scaled=True)
+    model.add_reactions([vector_formation])
+
+    mets = get_dna_synthesis_mets(model, vector_len, gc_ratio, ppi)
+
+    vector_formation.add_metabolites(mets)
+
+    # Add mass balance : 0 = v_syn - [mu]*[DNA]
+    model.add_mass_balance_constraint(
+        synthesis_flux=vector_formation,
+        macromolecule=vector_dna)
+
+    model.regenerate_variables()
+    model.regenerate_constraints()

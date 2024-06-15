@@ -10,12 +10,13 @@ Optimisation utilities
 """
 from pytfa.optim.variables import ReactionVariable, MetaboliteVariable
 from .variables import EnzymeVariable, GeneVariable, ModelVariable, \
-    GrowthActivation, BinaryActivator
+    GrowthActivation, BinaryActivator, LinearizationVariable
 from pytfa.optim.constraints import ReactionConstraint, MetaboliteConstraint
 from pytfa.optim.utils import get_all_subclasses
-from .constraints import EnzymeConstraint, GeneConstraint, ModelConstraint
+from .constraints import EnzymeConstraint, GeneConstraint, ModelConstraint, \
+    InterpolationConstraint, SOS1Constraint, GrowthCoupling, GrowthChoice, LinearizationConstraint
 from collections import namedtuple
-
+import numpy as np
 
 try:
     from gurobipy import GRB
@@ -498,3 +499,85 @@ def get_binding_constraints(model, epsilon):
                 for kind,these_cons in model._cons_kinds.items()}
     else:
         raise(NotImplementedError)
+
+def get_var_coeff(var, cstr):
+    coeff = cstr.constraint.get_linear_coefficients([var.variable])[var.variable]
+    return coeff
+       
+def strip_memodel_from_integers(model, solution=None):
+    '''
+    This functions fixes the growth and remove all integer variables to make the model samplabale.
+    I could not use the function from pytfa, and a specific function was needed.
+
+    Parameters
+    ----------
+    model : ETFL model (MILP)
+        DESCRIPTION.
+    solution : Solution, optional
+        If not provided the model will be solved for this. The default is None.
+
+    Returns
+    -------
+    continous_model : ETFL model (an LP problem)
+        DESCRIPTION.
+
+    '''
+    solution = check_solution(model, solution)
+    
+    continous_model = model.copy()
+    
+    cons_remove = []
+    vars_remove = []
+    
+    # before doing anything find the approximated growth (mu_bar)
+    mu_variables = continous_model.get_variables_of_type(GrowthActivation)
+    interp_variables = continous_model.get_variables_of_type(BinaryActivator)
+    
+    for cstr in continous_model.get_constraints_of_type(GrowthCoupling): # there is only one constraint
+        mu_bar = sum([solution.raw[var.name] * get_var_coeff(var, cstr) \
+                      for var in mu_variables])
+    # fix the growth accordingly
+    gc_cstr = continous_model.get_constraints_of_type(GrowthCoupling)[0] # there is only one constraint
+    biomass  = continous_model.growth_reaction
+    biomass.lower_bound = mu_bar + gc_cstr.constraint.lb
+    biomass.upper_bound = mu_bar + gc_cstr.constraint.ub
+    
+    # the linearization constraints should be modified for the active bins and removed for inactive bins
+    lin_cons = continous_model.get_constraints_of_type(LinearizationConstraint)
+    lin_vars = continous_model.get_variables_of_type(LinearizationVariable)
+    active_ga = [var for var in mu_variables if np.isclose(solution.raw[var.name],1)]
+    for this_ga_var in mu_variables:
+        hook = this_ga_var.name + '_'
+        if this_ga_var in active_ga:
+            cons_change = [cons for cons in lin_cons\
+                            if hook in cons.name]
+            for this_cons in cons_change:
+                coef  = get_var_coeff(this_ga_var, this_cons)
+                if this_cons.constraint.lb is not None:
+                    this_cons.constraint.lb = this_cons.constraint.lb - coef # change the sign
+                if this_cons.constraint.ub is not None:
+                    this_cons.constraint.ub = this_cons.constraint.ub - coef # change the sign
+                           
+        else: # if the binary variable is zero the linearization constraints and variables can be removed
+            cons_remove += [cons for cons in lin_cons\
+                            if hook in cons.name]
+            vars_remove += [var for var in lin_vars\
+                            if hook in var.name]
+    
+    # we removed the constraints defined only on binary variables
+    cons_remove += list(continous_model.get_constraints_of_type(GrowthChoice)) + \
+        list(continous_model.get_constraints_of_type(GrowthCoupling)) + \
+            list(continous_model.get_constraints_of_type(SOS1Constraint)) + \
+                list(continous_model.get_constraints_of_type(InterpolationConstraint))
+    
+    for this_cons in cons_remove:
+        continous_model.remove_constraint(this_cons)
+    
+    
+    # remove all binary variables
+    vars_remove += list(mu_variables) + list(interp_variables)
+    for this_var in vars_remove:
+        continous_model.remove_variable(this_var)
+    
+    return continous_model
+    

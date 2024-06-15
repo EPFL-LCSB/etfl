@@ -24,14 +24,14 @@ class Enzyme(Macromolecule):
         Macromolecule.__init__(self, id = id, kdeg=kdeg, *args, **kwargs)
 
         if kcat is not None:
-            self.kcat_fwd = kcat
-            self.kcat_bwd = kcat
+            self._kcat_fwd = kcat
+            self._kcat_bwd = kcat
         else:
             if kcat_bwd is None and kcat_fwd is None:
                 raise Exception('Either kcat must be provided, or both '
-                                'kcat_fwb and kcat_bwd.')
-            self.kcat_fwd = kcat_fwd
-            self.kcat_bwd = kcat_bwd
+                                'kcat_fwd and kcat_bwd.')
+            self._kcat_fwd = kcat_fwd
+            self._kcat_bwd = kcat_bwd
 
         if isinstance(composition, dict):
             self.composition = composition
@@ -62,6 +62,22 @@ class Enzyme(Macromolecule):
         # /!\ stoichiometric coefficient is negative
         return sum(v*self.model.peptides.get_by_id(p).molecular_weight
             for p,v in self.composition.items())
+    
+    @property
+    def kcat_fwd(self):
+        return self._kcat_fwd
+    
+    @kcat_fwd.setter
+    def kcat_fwd(self, value):
+        self._kcat_fwd = value
+        
+    @property
+    def kcat_bwd(self):
+        return self._kcat_bwd
+    
+    @kcat_bwd.setter
+    def kcat_bwd(self, value):
+        self._kcat_bwd = value
 
 
 class Peptide(Metabolite):

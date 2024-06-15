@@ -34,7 +34,9 @@ from ..core.reactions import TranslationReaction, TranscriptionReaction, \
 from ..core.thermomemodel import ThermoMEModel
 from ..optim.utils import rebuild_constraint, rebuild_variable
 from ..optim.variables import tRNAVariable, GrowthRate, FreeEnzyme
-from ..utils.utils import replace_by_reaction_subclass, replace_by_me_gene
+from ..utils.utils import replace_by_reaction_subclass, replace_by_me_gene, replace_by_coding_gene
+from ..core.recombmodel import RecombModel
+from ..core.vector import Plasmid
 
 SOLVER_DICT = {
     'optlang.gurobi_interface':'optlang-gurobi',
@@ -97,6 +99,7 @@ def enzyme_to_dict(enzyme):
     obj['varname'] = enzyme.variable.name
     obj['complexation'] = enzyme.complexation.id
     obj['composition'] = enzyme.composition
+    obj['reactions'] = [r.id for r in enzyme.reactions]
     return obj
 
 
@@ -270,9 +273,36 @@ def archive_trna_dict(model):
     """
     return{k:(v[0].id,v[1].id,v[2].id) for k,v in model.trna_dict.items()}
 
-def get_solver_string(model):
-    return SOLVER_DICT[model.solver.__class__.__module__]
-
+def vector_to_dict(vector_dict, vector_copy_number):
+    if isinstance(vector_dict, dict):
+        # New models, possibility of several ribosomes
+        return {k:_single_vector_to_dict(this_vector, vector_copy_number[k])
+                for k,this_vector in vector_dict.items()}
+    else:
+        # Older models, there is only one ribosome
+        return _single_vector_to_dict(vector_dict)
+    
+def _single_vector_to_dict(vector, copy_number):
+    obj = OrderedDict()
+    obj['id'] = vector.id
+    obj['genes'] = [gene.id for gene in vector.genes]
+    obj['reactions'] = [rxn.id for rxn in vector.reactions]
+    obj['proteins'] = [prot.id for prot in vector.proteins]
+    obj['peptides'] = [pep.id for pep in vector.peptides]
+    obj['rnap'] = [x.id for x in vector.rnap] \
+            if vector.rnap is not None else None
+    obj['ribosome'] = [x.id for x in vector.ribosome] \
+            if vector.ribosome is not None else None
+    obj['gc_ratio'] = vector.gc_ratio
+    obj['len'] = vector.len
+    obj['sequence'] = vector.sequence if vector.sequence is not None else None
+    obj['default_rnap'] = vector.default_rnap
+    obj['default_rib'] = vector.default_rib
+    obj['calibration_tcpt'] = vector.calibration_tcpt
+    obj['calibration_tnsl'] = vector.calibration_tnsl
+    obj['copy_number'] = copy_number
+    return obj
+    
 
 def model_to_dict(model):
     """
@@ -335,10 +365,10 @@ def model_to_dict(model):
         # Genes
         obj['expressed_genes'] = list(map(expressed_gene_to_dict,
                                 [g for g in model.genes
-                                 if isinstance(g,ExpressedGene)]))
+                                 if type(g) == ExpressedGene]))
         obj['coding_genes'] = list(map(coding_gene_to_dict,
                                 [g for g in model.genes
-                                 if isinstance(g,CodingGene)]))
+                                 if type(g) == CodingGene]))
 
         # Enzymes
         obj['enzymes'] = list(map(enzyme_to_dict, model.enzymes))
@@ -367,7 +397,13 @@ def model_to_dict(model):
     if isinstance(model, ThermoMEModel):
         obj['kind'] = 'ThermoMEModel'
         is_me = True
-
+        
+    if isinstance(model, RecombModel):
+        obj['vector'] = vector_to_dict(model.vectors, model.vector_copy_number)
+        obj['biomass_metabolites'] = model.biomass_metabolites
+        obj['biomass_composition'] = model.biomass_composition
+        obj['kind'] = 'RecombModel'
+        
 
     # Metabolite and Reaction-level cleanup
     for rxn_dict in obj['reactions']:
@@ -403,8 +439,6 @@ def model_to_dict(model):
 
         if is_thermo and not is_me_met: # peptides have no thermo
             _add_thermo_metabolite_info(the_met, rxn_dict)
-
-    find_genes_from_dict(model, obj)
 
     return obj
 
@@ -488,6 +522,12 @@ def model_from_dict(obj, solver=None):
                           min_ph=obj['min_ph'],
                           max_ph=obj['max_ph'])
         new = init_thermo_model_from_dict(new, obj)
+    elif obj['kind'] == 'RecombModel':
+        new = MEModel(new)
+        new = init_me_model_from_dict(new, obj)
+        new = RecombModel(new, inplace=True)
+        new = init_recomb_model_from_dict(new, obj)
+        
 
     new._push_queue()
 
@@ -531,7 +571,7 @@ def model_from_dict(obj, solver=None):
 
 
     # Mu variable handle for ME-models
-    if obj['kind'] in ['ThermoMEModel','MEModel']:
+    if obj['kind'] in ['ThermoMEModel','MEModel','RecombModel']:
         prostprocess_me(new)
 
     try:
@@ -539,6 +579,7 @@ def model_from_dict(obj, solver=None):
     except KeyError:
         pass
 
+    new.update_enzyme_reaction_rel()
     new.repair()
     return new
 
@@ -572,6 +613,9 @@ def init_me_model_from_dict(new, obj):
     # new.coupling_dict = rebuild_coupling_dict(, obj['coupling_dict'])
     new.add_enzymes([enzyme_from_dict(x) for x in obj['enzymes']], prep=False)
 
+    # Recover the gene sequences
+    find_genes_from_dict(new, obj)
+    
     # Make RNAP
     new_rnap = rnap_from_dict(obj['rnap'])
     for this_rnap in new_rnap.values():
@@ -584,6 +628,8 @@ def init_me_model_from_dict(new, obj):
     for this_rib in new_rib.values():
         this_rib._model = new
         new.enzymes._replace_on_id(this_rib)
+        # adding rrnas to the model
+        new.add_rrnas_to_rib_assembly(this_rib)
     new.ribosome = new_rib
 
     try:
@@ -595,8 +641,7 @@ def init_me_model_from_dict(new, obj):
     # Populate Peptides
     find_peptides_from_dict(new, obj)
     find_rrna_from_dict(new, obj)
-    # Recover the gene sequences
-    find_genes_from_dict(new, obj)
+    
 
     # Populate mRNAs
     new.add_mrnas([mrna_from_dict(x) for x in obj['mrnas']], add_degradation=False)
@@ -655,7 +700,13 @@ def init_thermo_model_from_dict(new, obj):
 
 def init_thermo_me_model_from_dict(new, obj):
     new = init_thermo_model_from_dict(new, obj)
-    new = init_me_model_from_dict(new,obj)
+    new = init_me_model_from_dict(new, obj)
+    return new
+
+def init_recomb_model_from_dict(new, obj):
+    new.biomass_metabolites = obj['biomass_metabolites']
+    new.biomass_composition = obj['biomass_composition']
+    find_vector_from_dict(new, obj['vector'])
     return new
 
 def rebuild_compositions(new, compositions_dict):
@@ -913,26 +964,68 @@ def rebuild_trna(new, obj):
         new.trna_dict = new_trna_dict
 
 def find_genes_from_dict(new, obj):
-    if 'expressed_genes' in obj:
-        key = 'expressed_genes'
-    else:
-        key = 'genes'
 
-    for gene_dict in obj[key]:
+    for gene_dict in obj['coding_genes']:
         try:
             sequence = gene_dict['sequence']
             g = replace_by_me_gene(new, gene_dict['id'], str(sequence))
-            if key == 'expressed_genes':
-                # Newer models
-                g._rna            = Seq(gene_dict['rna'])#, alphabet=RNAAlphabet())
-                g._peptide        = Seq(gene_dict['peptide'])#, alphabet=ProteinAlphabet())
-                g._copy_number    = int(gene_dict['copy_number'])
-                g._transcribed_by = [new.enzymes.get_by_id(e)
-                                     for e in gene_dict['transcribed_by']] \
-                                     if gene_dict['transcribed_by'] else None
-                g._translated_by  = [new.enzymes.get_by_id(e)
-                                     for e in gene_dict['translated_by']] \
-                                     if gene_dict['translated_by'] else None
+            g._rna            = Seq(gene_dict['rna'])#, alphabet=RNAAlphabet())
+            g._peptide        = Seq(gene_dict['peptide'])#, alphabet=ProteinAlphabet())
+            g._copy_number    = int(gene_dict['copy_number'])
+            g._transcribed_by = [new.enzymes.get_by_id(e)
+                                 for e in gene_dict['transcribed_by']] \
+                                 if gene_dict['transcribed_by'] else None
+            g._translated_by  = [new.enzymes.get_by_id(e)
+                                 for e in gene_dict['translated_by']] \
+                                 if gene_dict['translated_by'] else None
         except KeyError:
             pass
-
+        
+    for gene_dict in obj['expressed_genes']:
+        try:
+            sequence = gene_dict['sequence']
+            g = replace_by_me_gene(new, gene_dict['id'], str(sequence))
+            g = replace_by_coding_gene(new, gene_dict['id'])
+            g._rna            = Seq(gene_dict['rna'])#, alphabet=RNAAlphabet())
+            g._copy_number    = int(gene_dict['copy_number'])
+            g._transcribed_by = [new.enzymes.get_by_id(e)
+                                 for e in gene_dict['transcribed_by']] \
+                                 if gene_dict['transcribed_by'] else None
+        except KeyError:
+            pass
+        
+def find_vector_from_dict(new, obj):
+    new.vector_copy_number = dict()
+    new.vectors = dict()
+    if isinstance(list(obj.values())[0],dict):
+        # The object describes a collection of ribosomes, it is one of the newer
+        # models which allow several ribosomes
+        return {k : _single_vector_from_dict(new, x) for k,x in obj.items()}
+    else:
+        # This is an older model with a single ribosome
+        return {obj['id']:_single_vector_from_dict(new, obj)}
+    
+def _single_vector_from_dict(new, obj):
+    
+    vector = Plasmid(id_ = obj['id'], 
+                     genes = [new.genes.get_by_id(x) for x in obj['genes']], 
+                     reactions = [new.reactions.get_by_id(x) for x in obj['reactions']], 
+                     gc_ratio = obj['gc_ratio'], 
+                     length = obj['len'],
+                     proteins = [new.enzymes.get_by_id(x) for x in obj['proteins']],
+                     sequence = obj['sequence'] if obj['sequence'] else None,
+                     mrna_dict = None,
+                     rnap = [new.enzymes.get_by_id(e) for e in obj['rnap']] \
+                         if obj['rnap'] else None,
+                     ribosome = [new.enzymes.get_by_id(e) for e in obj['ribosome']] \
+                         if obj['ribosome'] else None)
+        
+    vector.peptides = [new.peptides.get_by_id(p) for p in obj['peptides']]
+    vector.default_rnap = new.enzymes.get_by_id(obj['default_rnap'])
+    vector.default_rib = new.enzymes.get_by_id(obj['default_rib'])
+    vector.calibration_tcpt = obj['calibration_tcpt']
+    vector.calibration_tnsl = obj['calibration_tnsl']
+    # Just to be added manually to the model
+    new.vectors[vector.id] = vector
+    # assigning the vector copy number
+    new.vector_copy_number[vector.id] = obj['copy_number']
