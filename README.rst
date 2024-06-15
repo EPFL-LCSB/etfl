@@ -6,7 +6,6 @@ ETFL: A formulation for flux balance models accounting for expression, thermodyn
 
 Paper_: Salvy, P., Hatzimanikatis, V. The ETFL formulation allows multi-omics integration in thermodynamics-compliant metabolism and expression models. Nat Commun 11, 30 (2020) doi:10.1038/s41467-019-13818-7
 
-Preprint_ on BioRxiv
 
 See `ecETFL <https://github.com/EPFL-LCSB/ecetfl/>`_ for an E. coli model.
 
