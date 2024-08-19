@@ -115,7 +115,8 @@ class Peptide(Metabolite):
     @property
     def molecular_weight(self):
         if not self._molecular_weight_override:
-            return molecular_weight(self.peptide, seq_type='protein') / 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+            # return molecular_weight(self.peptide, seq_type='protein') / 1000 # g.mol^-1 -> kg.mol^-1 (SI) = g.mmol^-1
+           return molecular_weight(str(self.peptide), 'protein') /1000
         else:
             return self._molecular_weight_override
 
