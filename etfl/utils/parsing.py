@@ -58,19 +58,20 @@ def parse_gpr(gpr):
 
     return sym_gpr
 
-def multiple_replace(text, adict, ignore_case = False):
-    """ From https://www.oreilly.com/library/view/python-cookbook/0596001673/ch03s15.html
+def multiple_replace(text, adict, ignore_case=False):
     """
-    # the simplest, lambda-based implementation
-    # Create a regular expression from all of the dictionary keys
-    if ignore_case:
-        regex = re.compile(r'\b' + r'\b|\b'.join(map(re.escape, adict.keys(  ))) + r'\b', re.IGNORECASE)
-    else:
-        regex = re.compile(r'\b' + r'\b|\b'.join(map(re.escape, adict.keys(  ))) + r'\b')
+    Replace multiple substrings in 'text' according to the dictionary 'adict'.
 
-# For each match, look up the corresponding value in the dictionary
+    Does *not* use word boundaries to avoid breaking on parentheses.
+    """
+    # Escape keys for regex and sort them by length to avoid partial matches
+    sorted_keys = sorted(adict.keys(), key=len, reverse=True)
+    pattern = '|'.join(map(re.escape, sorted_keys))
+
+    flags = re.IGNORECASE if ignore_case else 0
+    regex = re.compile(pattern, flags)
+
     return regex.sub(lambda match: adict[match.group(0)], text)
-
 
 def simplify_gpr(gpr):
     from sympy import simplify
